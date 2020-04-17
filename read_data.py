@@ -70,11 +70,11 @@ def import_impcases(spreadsheet, state):
     return cases
 
 
-spreadsheet = 'demographic.xlsx'
+spreadsheet = 'data\demographic.xlsx'
 par_dict = import_demo(spreadsheet)
 home, work, school, other = import_contact(spreadsheet)
 
-spreadsheet = 'imported-cases.xlsx'
+spreadsheet = 'data\imported-cases.xlsx'
 i_cases = import_impcases(spreadsheet, 'Victoria')
 
 

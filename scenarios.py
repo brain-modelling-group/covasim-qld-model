@@ -4,7 +4,7 @@ Load Australian epi data
 
 import matplotlib
 matplotlib.use('Agg')
-# matplotlib.use('TkAgg')
+matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
@@ -32,10 +32,9 @@ todo = ['loaddata',
 verbose    = 1
 seed       = 1
 
-version   = 'v1'
 date      = '2020apr15'
 folder    = f'results_{date}'
-file_path = f'{folder}/{state}-calibration_{version}'
+file_path = f'{folder}/{state}_'
 data_path = f'data/{state}-data-{date}.csv' # This gets created and then read in
 
 # Process and read in data
@@ -92,13 +91,13 @@ sim = cv.Sim(pars, datafile=data_path)
 
 #### diagnose population structure
 if 'diagnose_population' in todo:
-    h_struct, s_struct, w_struct, c_struct = [], [],[],[]
+    h_struct, s_struct, w_struct, c_struct = [],[],[],[]
     for i in range(0,pars['pop_size']-1):
         h_struct.append(len(popdict['contacts'][i]['H']) + 1)
         s_struct.append(len(popdict['contacts'][i]['S']) + 1)
         w_struct.append(len(popdict['contacts'][i]['W']) + 1)
         c_struct.append(len(popdict['contacts'][i]['C']) + 1)
-    fig, axs = plt.subplots(3, 2)
+    fig_pop, axs = plt.subplots(3, 2)
     axs[0, 0].hist(popdict['age'], bins=max(popdict['age'])-min(popdict['age']))
     axs[0, 0].set_title("Age distribution of model population")
     axs[0, 1].hist(h_struct, bins=max(h_struct)-min(h_struct))
@@ -109,14 +108,14 @@ if 'diagnose_population' in todo:
     axs[1, 1].set_title("Work size distribution")
     axs[2, 0].hist(c_struct, bins=max(c_struct)-min(c_struct))
     axs[2, 0].set_title("Community size distribution")
-
+    plt.savefig(fname=file_path + 'population.png')
 
 scenarios = {'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
              'baseline': {'name': 'baseline', 'pars': {'interventions': cv.dynamic_pars({ #this is what we actually did
                     'contacts': dict(days=[10, 20],
                                         vals=[{'H': 2, 'S': 20, 'W': 15, 'C': 10}, {'H': 2, 'S': 0, 'W': 5, 'C': 2}]), # at different time points the contact numbers can change
                     'beta_layer': dict(days=[10, 20],
-                                        vals=[{'h': 0.2, 's': 0.8, 'w': 0.1, 'c': 0.3}, {'h': 0.1, 's': 0.0, 'w': 0.0, 'c': 0.3}]), # at different time points the FOI can change
+                                        vals=[{'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3}, {'H': 0.1, 'S': 0.0, 'W': 0.0, 'C': 0.3}]), # at different time points the FOI can change
                     'n_imports': dict(days=i_cases[0,],
                                       vals=i_cases[1,])})} # at different time points the imported infections can change
                         }
