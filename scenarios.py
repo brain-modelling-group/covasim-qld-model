@@ -10,7 +10,6 @@ import sciris as sc
 import covasim as cv
 from copy import deepcopy as dcp
 from datetime import timedelta
-import random
 import matplotlib.pyplot as plt
 import load_pop
 from read_data import i_cases
@@ -77,12 +76,12 @@ if 'loaddata' in todo:
 pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
 
-pars['pop_size'] = 5000       # This will be scaled
-pars['pop_scale'] = 10e3 # this gives a total population of 5M
-pars['pop_infected'] = 5       # Number of initial infections
-pars['start_day']=start_day    # Start date
-pars['n_days']=n_days      # Number of days
-pars['contacts'] = {'H': 4,   'S': 22,  'W': 20,  'C': 20} # Number of contacts per person per day, estimated
+pars['pop_size'] = 5000         # This will be scaled
+pars['pop_scale'] = 10e3        # this gives a total population of 5M
+pars['pop_infected'] = 5        # Number of initial infections
+pars['start_day']=start_day     # Start date
+pars['n_days']=n_days           # Number of days
+pars['contacts'] = {'H': 4, 'S': 22, 'W': 20, 'C': 20} # Number of contacts per person per day, estimated
 pars['beta_layer'] = {'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3}
 pars['quar_eff'] = {'H': 0.5, 'S': 0.0, 'W': 0.0, 'C': 0.0} # Set quarantine effect for each layer
 
@@ -110,14 +109,18 @@ if 'diagnose_population' in todo:
     axs[2, 0].set_title("Community size distribution")
     plt.savefig(fname=file_path + 'population.png')
 
+daily_tests = [0.002*pars['pop_size']]*sim.npts # making up numbers for now
+
 scenarios = {'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
-             'baseline': {'name': 'baseline', 'pars': {'interventions': cv.dynamic_pars({ #this is what we actually did
+             'baseline': {'name': 'baseline', 'pars': {'interventions': [cv.dynamic_pars({ #this is what we actually did
                     'contacts': dict(days=[10, 20],
                                         vals=[{'H': 2, 'S': 20, 'W': 15, 'C': 10}, {'H': 2, 'S': 0, 'W': 5, 'C': 2}]), # at different time points the contact numbers can change
                     'beta_layer': dict(days=[10, 20],
                                         vals=[{'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3}, {'H': 0.1, 'S': 0.0, 'W': 0.0, 'C': 0.3}]), # at different time points the FOI can change
                     'n_imports': dict(days=i_cases[0,],
-                                      vals=i_cases[1,])})} # at different time points the imported infections can change
+                                      vals=i_cases[1,])}),
+                    cv.test_num(daily_tests=daily_tests),
+                    cv.test_prob(symp_prob=0.001, asymp_prob=0.0)]} # not sure how this part works yet
                         }
              }
 
