@@ -119,8 +119,7 @@ scenarios = {'counterfactual': {'name': 'counterfactual', 'pars': {'intervention
                                         vals=[{'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3}, {'H': 0.1, 'S': 0.0, 'W': 0.0, 'C': 0.3}]), # at different time points the FOI can change
                     'n_imports': dict(days=i_cases[0,],
                                       vals=i_cases[1,])}),
-                    cv.test_num(daily_tests=daily_tests),
-                    cv.test_prob(symp_prob=0.001, asymp_prob=0.0)]} # not sure how this part works yet
+                    cv.test_num(daily_tests=daily_tests, sympt_test=100.0, quar_test=1.0, sensitivity=1.0, test_delay=0, loss_prob=0)]}
                         }
              }
 
