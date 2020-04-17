@@ -4,18 +4,20 @@ Load Australian epi data
 
 import matplotlib
 matplotlib.use('Agg')
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
 from copy import deepcopy as dcp
+from datetime import timedelta
 import random
 import matplotlib.pyplot as plt
 import load_pop
+from read_data import i_cases
 
 # Set state and date
 state = 'vic'
-start_day = sc.readdate('2020-03-01')
+start_day = sc.readdate('2020-01-25')
 end_day   = sc.readdate('2020-04-14')
 n_days    = (end_day - start_day).days
 
@@ -65,6 +67,11 @@ if 'loaddata' in todo:
     sd['new_deaths'] = sd['cum_deaths'].diff()
     sd['new_tests'] = sd['cum_test'].diff()
 
+    for i in pd.date_range(start_day, end_day):
+        if i not in sd.index:
+            sd.loc[i] = sd.loc[i - timedelta(1)]
+
+    sd.sort_index(inplace=True)
     sd.loc[start_day:end_day].to_csv(data_path)
 
 # Set up scenarios
@@ -109,8 +116,9 @@ scenarios = {'counterfactual': {'name': 'counterfactual', 'pars': {'intervention
                     'contacts': dict(days=[10, 20],
                                         vals=[{'H': 2, 'S': 20, 'W': 15, 'C': 10}, {'H': 2, 'S': 0, 'W': 5, 'C': 2}]), # at different time points the contact numbers can change
                     'beta_layer': dict(days=[10, 20],
-                                        vals=[{'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3}, {'H': 0.1, 'S': 0.0, 'W': 0.0, 'C': 0.3}]), # at different time points the FOI can change
-                    'n_imports': dict(days=[0,5], vals=[100,0])})} # at different time points the imported infections can change
+                                        vals=[{'h': 0.2, 's': 0.8, 'w': 0.1, 'c': 0.3}, {'h': 0.1, 's': 0.0, 'w': 0.0, 'c': 0.3}]), # at different time points the FOI can change
+                    'n_imports': dict(days=i_cases[0,],
+                                      vals=i_cases[1,])})} # at different time points the imported infections can change
                         }
              }
 
