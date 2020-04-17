@@ -9,6 +9,8 @@ import pandas as pd
 import sciris as sc
 import covasim as cv
 from copy import deepcopy as dcp
+import random
+import matplotlib.pyplot as plt
 
 # Set state and date
 state = 'vic'
@@ -66,6 +68,19 @@ if 'loaddata' in todo:
 # Set up scenarios
 default_pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
+
+#pops_by_age = [1567175,1618776, 1555678, 1502370, 1759111, 1908561, 1891641, 1780923, 1595691, 1678094, 1534763, 1544991, 1388188, 1224849, 1057964, 734277, 505543, 516072]
+#prob_dist = [x/sum(pops_by_age) for x in pops_by_age] # convert to probability distribution
+#prob_dist = [x/5 for x in prob_dist for _ in range(5)] # spread out to each age rather than 5 age bands
+#age_options = [x for x in range(90)] # ages people can be
+
+#draw = random.choices(population = age_options, weights = prob_dist, k=50000)
+#plt.hist(draw, bins=90)
+#plt.title("Age distribution of model population")
+
+#contacts_list, contact_keys = cv.make_hybrid_contacts(pop_size=50000, ages=draw,
+#            contacts = {'h': 4,   's': 22,  'w': 20,  'c': 20}, school_ages = [6, 18], work_ages = [18, 65])
+
 sim = cv.Sim(datafile=data_path, use_layers=True) # this is where population data would be loaded
 
 pars = sc.objdict(
@@ -74,14 +89,14 @@ pars = sc.objdict(
     start_day=start_day,    # Start date
     n_days=n_days,          # Number of days
     contacts = {'h': 4,   's': 22,  'w': 20,  'c': 20}, # Number of contacts per person per day, estimated
-    beta_layers = {'h': 0.2, 's': 0.8, 'w': 0.1, 'c': 0.3}
+    beta_layer = {'h': 0.2, 's': 0.8, 'w': 0.1, 'c': 0.3}
 )
 sim.update_pars(pars) # overwrite  defaults where relevant
 scenarios = {'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
              'baseline': {'name': 'baseline', 'pars': {'interventions': cv.dynamic_pars({ #this is what we actually did
                     'contacts': dict(days=[10, 20],
-                                        vals=[{'h': 2.0, 's': 20.0, 'w': 15.0, 'c': 10.0}, {'h': 2.0, 's': 0.0, 'w': 5.0, 'c': 2.0}]), # at different time points the contact numbers can change
-                    'beta_layers': dict(days=[10, 20],
+                                        vals=[{'h': 2, 's': 20, 'w': 15, 'c': 10}, {'h': 2, 's': 0, 'w': 5, 'c': 2}]), # at different time points the contact numbers can change
+                    'beta_layer': dict(days=[10, 20],
                                         vals=[{'h': 0.2, 's': 0.8, 'w': 0.1, 'c': 0.3}, {'h': 0.1, 's': 0.0, 'w': 0.0, 'c': 0.3}]), # at different time points the FOI can change
                     'n_imports': dict(days=[0,5], vals=[100,0])})} # at different time points the imported infections can change
                         }
@@ -99,8 +114,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
         data_plots = ['n_severe', 'n_critical', 'cum_deaths', 'new_deaths', 'new_diagnoses', 'cum_infections']
         for j in data_plots:
-            scens.results[j]['data'] = sc.objdict(name='data', best=sd[j][2:].values, low=sd[j][2:].values,
-                                                  high=sd[j][2:].values)
+            scens.results[j]['data'] = sc.objdict(name='data', best=sd[j][3:].values, low=sd[j][3:].values,
+                                                  high=sd[j][3:].values)
         # Configure plotting
         fig_args = dict(figsize=(5, 8))
         this_fig_path = file_path + '.png'
