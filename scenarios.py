@@ -11,6 +11,7 @@ import covasim as cv
 from copy import deepcopy as dcp
 import random
 import matplotlib.pyplot as plt
+import load_pop
 
 # Set state and date
 state = 'vic'
@@ -24,6 +25,7 @@ todo = ['loaddata',
         'doplot',
         'showplot',
         'saveplot'
+        'diagnose_population'
         ]
 verbose    = 1
 seed       = 1
@@ -32,7 +34,7 @@ version   = 'v1'
 date      = '2020apr15'
 folder    = f'results_{date}'
 file_path = f'{folder}/{state}-calibration_{version}'
-data_path = f'{state}-data-{date}.csv' # This gets created and then read in
+data_path = f'data/{state}-data-{date}.csv' # This gets created and then read in
 
 # Process and read in data
 if 'loaddata' in todo:
@@ -66,38 +68,48 @@ if 'loaddata' in todo:
     sd.loc[start_day:end_day].to_csv(data_path)
 
 # Set up scenarios
-default_pars = cv.make_pars() # generate some defaults
+pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
 
-#pops_by_age = [1567175,1618776, 1555678, 1502370, 1759111, 1908561, 1891641, 1780923, 1595691, 1678094, 1534763, 1544991, 1388188, 1224849, 1057964, 734277, 505543, 516072]
-#prob_dist = [x/sum(pops_by_age) for x in pops_by_age] # convert to probability distribution
-#prob_dist = [x/5 for x in prob_dist for _ in range(5)] # spread out to each age rather than 5 age bands
-#age_options = [x for x in range(90)] # ages people can be
+pars['pop_size'] = 5000       # This will be scaled
+pars['pop_scale'] = 10e3 # this gives a total population of 5M
+pars['pop_infected'] = 5       # Number of initial infections
+pars['start_day']=start_day    # Start date
+pars['n_days']=n_days      # Number of days
+pars['contacts'] = {'H': 4,   'S': 22,  'W': 20,  'C': 20} # Number of contacts per person per day, estimated
+pars['beta_layer'] = {'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3}
+pars['quar_eff'] = {'H': 0.5, 'S': 0.0, 'W': 0.0, 'C': 0.0} # Set quarantine effect for each layer
 
-#draw = random.choices(population = age_options, weights = prob_dist, k=50000)
-#plt.hist(draw, bins=90)
-#plt.title("Age distribution of model population")
+popdict = load_pop.get_australian_popdict(setting='Melbourne', pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
+sim = cv.Sim(pars, datafile=data_path)
 
-#contacts_list, contact_keys = cv.make_hybrid_contacts(pop_size=50000, ages=draw,
-#            contacts = {'h': 4,   's': 22,  'w': 20,  'c': 20}, school_ages = [6, 18], work_ages = [18, 65])
+#### diagnose population structure
+if 'diagnose_population' in todo:
+    h_struct, s_struct, w_struct, c_struct = [], [],[],[]
+    for i in range(0,pars['pop_size']-1):
+        h_struct.append(len(popdict['contacts'][i]['H']) + 1)
+        s_struct.append(len(popdict['contacts'][i]['S']) + 1)
+        w_struct.append(len(popdict['contacts'][i]['W']) + 1)
+        c_struct.append(len(popdict['contacts'][i]['C']) + 1)
+    fig, axs = plt.subplots(3, 2)
+    axs[0, 0].hist(popdict['age'], bins=max(popdict['age'])-min(popdict['age']))
+    axs[0, 0].set_title("Age distribution of model population")
+    axs[0, 1].hist(h_struct, bins=max(h_struct)-min(h_struct))
+    axs[0, 1].set_title("Household size distribution")
+    axs[1, 0].hist(s_struct, bins=max(s_struct)-min(s_struct))
+    axs[1, 0].set_title("School size distribution")
+    axs[1, 1].hist(w_struct, bins=max(w_struct)-min(w_struct))
+    axs[1, 1].set_title("Work size distribution")
+    axs[2, 0].hist(c_struct, bins=max(c_struct)-min(c_struct))
+    axs[2, 0].set_title("Community size distribution")
 
-sim = cv.Sim(datafile=data_path, use_layers=True) # this is where population data would be loaded
 
-pars = sc.objdict(
-    pop_size=50e3,          # This will be scaled
-    pop_infected=5,         # Number of initial infections
-    start_day=start_day,    # Start date
-    n_days=n_days,          # Number of days
-    contacts = {'h': 4,   's': 22,  'w': 20,  'c': 20}, # Number of contacts per person per day, estimated
-    beta_layer = {'h': 0.2, 's': 0.8, 'w': 0.1, 'c': 0.3}
-)
-sim.update_pars(pars) # overwrite  defaults where relevant
 scenarios = {'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
              'baseline': {'name': 'baseline', 'pars': {'interventions': cv.dynamic_pars({ #this is what we actually did
                     'contacts': dict(days=[10, 20],
-                                        vals=[{'h': 2, 's': 20, 'w': 15, 'c': 10}, {'h': 2, 's': 0, 'w': 5, 'c': 2}]), # at different time points the contact numbers can change
+                                        vals=[{'H': 2, 'S': 20, 'W': 15, 'C': 10}, {'H': 2, 'S': 0, 'W': 5, 'C': 2}]), # at different time points the contact numbers can change
                     'beta_layer': dict(days=[10, 20],
-                                        vals=[{'h': 0.2, 's': 0.8, 'w': 0.1, 'c': 0.3}, {'h': 0.1, 's': 0.0, 'w': 0.0, 'c': 0.3}]), # at different time points the FOI can change
+                                        vals=[{'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3}, {'H': 0.1, 'S': 0.0, 'W': 0.0, 'C': 0.3}]), # at different time points the FOI can change
                     'n_imports': dict(days=[0,5], vals=[100,0])})} # at different time points the imported infections can change
                         }
              }
