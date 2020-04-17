@@ -4,17 +4,19 @@ Load Australian epi data
 
 import matplotlib
 matplotlib.use('Agg')
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
 from copy import deepcopy as dcp
+from datetime import timedelta
 import random
 import matplotlib.pyplot as plt
+from read_data import i_cases
 
 # Set state and date
 state = 'vic'
-start_day = sc.readdate('2020-03-01')
+start_day = sc.readdate('2020-01-25')
 end_day   = sc.readdate('2020-04-14')
 n_days    = (end_day - start_day).days
 
@@ -63,6 +65,11 @@ if 'loaddata' in todo:
     sd['new_deaths'] = sd['cum_deaths'].diff()
     sd['new_tests'] = sd['cum_test'].diff()
 
+    for i in pd.date_range(start_day, end_day):
+        if i not in sd.index:
+            sd.loc[i] = sd.loc[i - timedelta(1)]
+
+    sd.sort_index(inplace=True)
     sd.loc[start_day:end_day].to_csv(data_path)
 
 # Set up scenarios
@@ -84,8 +91,8 @@ metapars = cv.make_metapars()
 sim = cv.Sim(datafile=data_path, use_layers=True) # this is where population data would be loaded
 
 pars = sc.objdict(
-    pop_size=50e3,          # This will be scaled
-    pop_infected=5,         # Number of initial infections
+    pop_size=6.359e4,          # This will be scaled
+    pop_infected=1,         # Number of initial infections
     start_day=start_day,    # Start date
     n_days=n_days,          # Number of days
     contacts = {'h': 4,   's': 22,  'w': 20,  'c': 20}, # Number of contacts per person per day, estimated
@@ -98,7 +105,8 @@ scenarios = {'counterfactual': {'name': 'counterfactual', 'pars': {'intervention
                                         vals=[{'h': 2, 's': 20, 'w': 15, 'c': 10}, {'h': 2, 's': 0, 'w': 5, 'c': 2}]), # at different time points the contact numbers can change
                     'beta_layer': dict(days=[10, 20],
                                         vals=[{'h': 0.2, 's': 0.8, 'w': 0.1, 'c': 0.3}, {'h': 0.1, 's': 0.0, 'w': 0.0, 'c': 0.3}]), # at different time points the FOI can change
-                    'n_imports': dict(days=[0,5], vals=[100,0])})} # at different time points the imported infections can change
+                    'n_imports': dict(days=i_cases[0,],
+                                      vals=i_cases[1,])})} # at different time points the imported infections can change
                         }
              }
 
