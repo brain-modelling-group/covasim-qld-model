@@ -76,7 +76,7 @@ if 'loaddata' in todo:
 pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
 
-pars['pop_size'] = 5000         # This will be scaled
+pars['pop_size'] = 20000         # This will be scaled
 pars['pop_scale'] = 10e3        # this gives a total population of 5M
 pars['pop_infected'] = 5        # Number of initial infections
 pars['start_day']=start_day     # Start date
