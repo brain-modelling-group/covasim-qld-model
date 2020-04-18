@@ -76,14 +76,14 @@ if 'loaddata' in todo:
 pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
 
-pars['pop_size'] = 50000         # This will be scaled
+pars['pop_size'] = 10000         # This will be scaled
 pars['pop_scale'] = 10e3        # this gives a total population of 5M
 pars['pop_infected'] = 5        # Number of initial infections
 pars['start_day']=start_day     # Start date
 pars['n_days']=n_days           # Number of days
-pars['contacts'] = {'H': 4, 'S': 22, 'W': 20, 'C': 20, 'Church': 20, 'PS': 20} # Number of contacts per person per day, estimated
-pars['beta_layer'] = {'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3,'Church': 0.2, 'PS': 0.8}
-pars['quar_eff'] = {'H': 0.5, 'S': 0.0, 'W': 0.0, 'C': 0.0,'Church': 0.5, 'PS': 0.0} # Set quarantine effect for each layer
+pars['contacts'] = {'H': 4, 'S': 22, 'W': 20, 'C': 20, 'Church': 20, 'pSport': 40} # Number of contacts per person per day, estimated
+pars['beta_layer'] = {'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3, 'Church': 0.8, 'pSport': 0.9}
+pars['quar_eff'] = {'H': 0.5, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
 
 popdict = load_pop.get_australian_popdict(setting='Melbourne', pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
 sim = cv.Sim(pars, datafile=data_path)
@@ -114,9 +114,11 @@ daily_tests = [0.002*pars['pop_size']]*sim.npts # making up numbers for now
 scenarios = {'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
              'baseline': {'name': 'baseline', 'pars': {'interventions': [cv.dynamic_pars({ #this is what we actually did
                     'contacts': dict(days=[10, 20],
-                                        vals=[{'H': 2, 'S': 20, 'W': 15, 'C': 10}, {'H': 2, 'S': 0, 'W': 5, 'C': 2, 'Church': 20, 'PS': 20}]), # at different time points the contact numbers can change
+                                        vals=[{'H': 2, 'S': 20, 'W': 15, 'C': 10, 'Church': 20, 'pSport': 40},
+                                              {'H': 2, 'S': 0, 'W': 5, 'C': 2, 'Church': 0, 'pSport': 0}]), # at different time points the contact numbers can change
                     'beta_layer': dict(days=[10, 20],
-                                        vals=[{'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3, }, {'H': 0.1, 'S': 0.0, 'W': 0.0, 'C': 0.3, 'Church': 20, 'PS': 20}]), # at different time points the FOI can change
+                                        vals=[{'H': 0.2, 'S': 0.8, 'W': 0.1, 'C': 0.3,'Church': 0.5, 'pSport': 0.0},
+                                              {'H': 0.1, 'S': 0.0, 'W': 0.0, 'C': 0.3, 'Church': 0.5, 'pSport': 0.0}]), # at different time points the FOI can change
                     'n_imports': dict(days=i_cases[0,],
                                       vals=i_cases[1,])}),
                     cv.test_num(daily_tests=daily_tests, sympt_test=100.0, quar_test=1.0, sensitivity=1.0, test_delay=0, loss_prob=0)]}
@@ -135,8 +137,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
         data_plots = ['n_severe', 'n_critical', 'cum_deaths', 'new_deaths', 'new_diagnoses', 'cum_infections']
         for j in data_plots:
-            scens.results[j]['data'] = sc.objdict(name='data', best=sd[j][3:].values, low=sd[j][3:].values,
-                                                  high=sd[j][3:].values)
+            scens.results[j]['data'] = sc.objdict(name='data', best=sd[j][4:].values, low=sd[j][4:].values,
+                                                  high=sd[j][4:].values)
         # Configure plotting
         fig_args = dict(figsize=(5, 8))
         this_fig_path = file_path + '.png'
