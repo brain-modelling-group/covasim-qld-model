@@ -117,13 +117,7 @@ def get_australian_popdict(setting='Melbourne', pop_size=100, contact_numbers={'
     social_size = contact_numbers['C']
     contacts['C'] = random_contacts(popdict['age'], social_size)
 
-    # Create church contacts for small percentage of population
- #   church_n = int(0.01 * pop_size)
- #   church_contacts = {}
- #   p = np.random.choice(popdict['age'],church_n) # random church goers
- #   for q in range(len(p)):
- #       church_contacts[q] = p[np.r_[0:q, q+1:len(p)]]
- #   contacts['Church'] = church_contacts
+
     # Assign sexes
     sexes = pd.read_excel(dirname + '\\data\\vic_sexes.xlsx', header=[0, 1])[setting]
     sexes['frac_male'] = sexes['Male'] / (sexes['Male'] + sexes['Female'])  # Get fraction male
@@ -137,5 +131,30 @@ def get_australian_popdict(setting='Melbourne', pop_size=100, contact_numbers={'
     for i in range(0,pop_size):
         d = {layer: contacts[layer][i] if i in contacts[layer] else [] for layer in popdict['layer_keys']}
         popdict['contacts'].append(d)
+
+    # Create church contacts for small percentage of population as a single cluster
+    church_n = int(0.01 * pop_size) # assumes 1% of population attend places of worship.
+    church_contacts = {}
+    p = np.random.choice(popdict['uid'], church_n)  # random church goers
+    for i in range(0, pop_size):
+        uid_temp = popdict['uid'][i]
+        if uid_temp in p:
+            index_p = p.tolist().index(uid_temp)
+            popdict['contacts'][uid_temp]['Church'] = p[np.r_[0:index_p, index_p + 1:len(p)]]
+        else:
+            popdict['contacts'][uid_temp]['Church'] = []
+
+    # Create professional sports contacts for small percentage of population
+    pSport_n = int(0.0001 * pop_size)
+    church_contacts = {}
+    p = np.random.choice(popdict['uid'][(popdict['age']>18) & (popdict['age']>40)], pSport_n)  # sports players between 18 and 40 years
+    for i in range(0, pop_size):
+        uid_temp = popdict['uid'][i]
+        if uid_temp in p:
+            index_p = p.tolist().index(uid_temp)
+            popdict['contacts'][uid_temp]['pSport'] = p[np.r_[0:index_p, index_p + 1:len(p)]]
+        else:
+            popdict['contacts'][uid_temp]['pSport'] = []
+
     return popdict
 
