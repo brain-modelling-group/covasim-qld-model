@@ -133,6 +133,15 @@ def get_australian_popdict(setting='Melbourne', pop_size=100, contact_numbers={'
     social_size = contact_numbers['C']
     contacts['C'] = random_contacts(popdict['age'], social_size)
 
+    # Create church contacts for small percentage of population as a single cluster
+    church_n = int(0.01 * pop_size) # assumes 1% of population attend places of worship.
+    p = np.random.choice(popdict['uid'], church_n)  # random church goers
+    contacts['Church'] = clusters_to_contacts([p])
+
+    # Create professional sports contacts for small percentage of population
+    pSport_n = int(0.0001 * pop_size)
+    p = np.random.choice(popdict['uid'][(popdict['age']>18) & (popdict['age']>40)], pSport_n)  # sports players between 18 and 40 years
+    contacts['pSport'] = clusters_to_contacts([p])
 
     # Assign sexes
     sexes = pd.read_excel(dirname + '\\data\\inputs.xlsx', sheet_name = 'age_sex', header=[0, 1])[setting]
@@ -148,37 +157,13 @@ def get_australian_popdict(setting='Melbourne', pop_size=100, contact_numbers={'
         d = {layer: contacts[layer][i] if i in contacts[layer] else [] for layer in popdict['layer_keys']}
         popdict['contacts'].append(d)
 
-    # Create church contacts for small percentage of population as a single cluster
-    church_n = int(0.01 * pop_size) # assumes 1% of population attend places of worship.
-    church_contacts = {}
-    p = np.random.choice(popdict['uid'], church_n)  # random church goers
-    for i in range(0, pop_size):
-        uid_temp = popdict['uid'][i]
-        if uid_temp in p:
-            index_p = p.tolist().index(uid_temp)
-            popdict['contacts'][uid_temp]['Church'] = p[np.r_[0:index_p, index_p + 1:len(p)]]
-        else:
-            popdict['contacts'][uid_temp]['Church'] = []
-
-    # Create professional sports contacts for small percentage of population
-    pSport_n = int(0.0001 * pop_size)
-    church_contacts = {}
-    p = np.random.choice(popdict['uid'][(popdict['age']>18) & (popdict['age']>40)], pSport_n)  # sports players between 18 and 40 years
-    for i in range(0, pop_size):
-        uid_temp = popdict['uid'][i]
-        if uid_temp in p:
-            index_p = p.tolist().index(uid_temp)
-            popdict['contacts'][uid_temp]['pSport'] = p[np.r_[0:index_p, index_p + 1:len(p)]]
-        else:
-            popdict['contacts'][uid_temp]['pSport'] = []
-
     return popdict
 
 
-if __name__ == '__main__':
-    # This block allows quickly running this file directly to test the functions and set breakpoints
-    import sciris as sc
-    with sc.Timer() as t:
-        popdict = get_australian_popdict(pop_size=20000)
+# if __name__ == '__main__':
+#     # This block allows quickly running this file directly to test the functions and set breakpoints
+#     import sciris as sc
+#     with sc.Timer() as t:
+#         popdict = get_australian_popdict()
 
 
