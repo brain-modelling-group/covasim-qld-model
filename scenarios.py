@@ -84,6 +84,7 @@ pars['pop_scale'] = 1.0 #6.35e6/pars['pop_size']   # this gives a total VIC popu
 pars['pop_infected'] = 1        # Number of initial infections
 pars['start_day']=start_day     # Start date
 pars['n_days']=n_days           # Number of days
+pars['use_layers'] = True
 pars['contacts'] = {'H': 4, 'S': 22, 'W': 20, 'C': 20, 'Church': 20, 'pSport': 40} # Number of contacts per person per day, estimated
 pars['beta_layer'] = {'H': 0.9, 'S': 0.5, 'W': 0.1, 'C': 0.5, 'Church': 0.05, 'pSport': 0.05}
 pars['quar_eff'] = {'H': 0.5, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
@@ -92,7 +93,7 @@ pars['quar_eff'] = {'H': 0.5, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSpo
 #popfile = gzip.open('data\popfile.obj','wb')
 #pickle.dump(popdict,popfile)
 #popfile.close()
-sim = cv.Sim(pars, popfile='data\popfile.obj', datafile=data_path)
+sim = cv.Sim(pars, popfile='data\popfile.obj', datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
 
 #### diagnose population structure
 if 'diagnose_population' in todo:
