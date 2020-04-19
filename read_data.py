@@ -65,17 +65,17 @@ def import_contact(spreadsheet):
 def import_impcases(spreadsheet, state):
     workbook = xlrd.open_workbook(spreadsheet)
     worksheet = workbook.sheet_by_name(state)
-    cases = np.array([[worksheet.cell(i, 1).value for i in range(1, 82)],
-                      [worksheet.cell(i, 2).value for i in range(1, 82)]])
+    cases = np.array([[worksheet.cell(i, 1).value for i in range(1, 46)],
+                      [worksheet.cell(i, 2).value for i in range(1, 46)]])
     return cases
 
 
-spreadsheet = 'data\demographic.xlsx'
+spreadsheet = 'data\inputs.xlsx'
 par_dict = import_demo(spreadsheet)
 home, work, school, other = import_contact(spreadsheet)
 
-spreadsheet = 'data\imported-cases.xlsx'
-i_cases = import_impcases(spreadsheet, 'Victoria')
+spreadsheet = 'data\inputs.xlsx'
+i_cases = import_impcases(spreadsheet, 'imported_cases')
 
 
 
