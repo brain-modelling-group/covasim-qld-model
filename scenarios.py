@@ -26,8 +26,8 @@ todo = ['loaddata',
         'runsim',
         'doplot',
         'showplot',
-        'saveplot'
-        'diagnose_population'
+        'saveplot',
+        'gen_pop'
         ]
 verbose    = 1
 seed       = 1
@@ -79,24 +79,25 @@ pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
 metapars['n_runs'] = 1
 
-pars['pop_size'] = 20000         # This will be scaled
+pars['pop_size'] = 50000         # This will be scaled
 pars['pop_scale'] = 1.0 #6.35e6/pars['pop_size']   # this gives a total VIC population
 pars['pop_infected'] = 1        # Number of initial infections
 pars['start_day']=start_day     # Start date
 pars['n_days']=n_days           # Number of days
 pars['use_layers'] = True
-pars['contacts'] = {'H': 4, 'S': 22, 'W': 20, 'C': 20, 'Church': 20, 'pSport': 40} # Number of contacts per person per day, estimated
+pars['contacts'] = {'H': 4, 'S': 22, 'W': 20, 'C': 20, 'Church': 1, 'pSport': 1} # Number of contacts per person per day, estimated
 pars['beta_layer'] = {'H': 0.9, 'S': 0.5, 'W': 0.1, 'C': 0.5, 'Church': 0.05, 'pSport': 0.05}
 pars['quar_eff'] = {'H': 0.5, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
+pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
+#pars['beta']
 
-#popdict = load_pop.get_australian_popdict(setting='Melbourne', pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
-#popfile = gzip.open('data\popfile.obj','wb')
-#pickle.dump(popdict,popfile)
-#popfile.close()
-sim = cv.Sim(pars, popfile='data\popfile.obj', datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
 
 #### diagnose population structure
-if 'diagnose_population' in todo:
+if 'gen_pop' in todo:
+    popdict = load_pop.get_australian_popdict(setting='Melbourne', pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
+    popfile = gzip.open('data\popfile.obj','wb')
+    pickle.dump(popdict,popfile)
+    popfile.close()
     s_struct, w_struct, c_struct = [],[],[]
     h_struct = np.zeros(6)
     for i in range(0,pars['pop_size']-1):
@@ -108,7 +109,7 @@ if 'diagnose_population' in todo:
     fig_pop, axs = matplotlib.pyplot.subplots(3, 2)
     axs[0, 0].hist(popdict['age'], bins=max(popdict['age'])-min(popdict['age']))
     axs[0, 0].set_title("Age distribution of model population")
-    axs[0, 1].bar(range(1,6),h_struct)
+    axs[0, 1].bar(np.array((1,2,3,4,5,6)),h_struct)
     axs[0, 1].set_title("Household size distribution")
     axs[1, 0].hist(s_struct, bins=max(s_struct)-min(s_struct))
     axs[1, 0].set_title("School size distribution")
@@ -118,7 +119,9 @@ if 'diagnose_population' in todo:
     axs[2, 0].set_title("Community size distribution")
     matplotlib.pyplot.savefig(fname=file_path + 'population.png')
 
-daily_tests = [0.2*pars['pop_size']]*sim.npts # making up numbers for now
+sim = cv.Sim(pars, popfile='data\popfile.obj', datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+
+daily_tests = [0.5*pars['pop_size']]*sim.npts # making up numbers for now
 
 # Cumulative impact of four policy changes on the beta_layers for H, S, W, C, Church, pSports
 beta_eff = np.array(((0.5,    1,      1,      0.5,        1,      1), # day 15: international travellers self isolate, public events >500 people cancelled
@@ -127,14 +130,9 @@ beta_eff = np.array(((0.5,    1,      1,      0.5,        1,      1), # day 15: 
                      (0.5,    0.1,    0.05,   0.05,     0.0,    0.0))) # day 29: public gatherings limited to 2 people
 
 beta_layer_tester = {}
-beta_layer_tester = {'H': 0.0, 'S': 0.0, 'W': 0.00, 'C': 0.00, 'Church': 0.00, 'pSport': 0.00} # using this to test while calibrating
+beta_layer_tester = {'H': 0.0, 'S': 0.0, 'W': 0.00, 'C': 0.05, 'Church': 0.00, 'pSport': 0.00} # using this to test while calibrating
 scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
              'baseline': {'name': 'baseline', 'pars': {'interventions': [cv.dynamic_pars({ #this is what we actually did
-#                    'contacts': dict(days=[15, 19, 22, 29],
-#                                        vals=[{'H': 4, 'S': 22, 'W': 20, 'C': 20, 'Church': 20, 'pSport': 40},
-#                                              {'H': 4, 'S': 0, 'W': 5, 'C': 2, 'Church': 20, 'pSport': 40},
-#                                              {'H': 4, 'S': 0, 'W': 5, 'C': 2, 'Church': 20, 'pSport': 40},
-#                                              {'H': 4, 'S': 0, 'W': 5, 'C': 2, 'Church': 20, 'pSport': 40}]), # at different time points the contact numbers can change
                     'beta_layer': dict(days=[15, 19, 22, 29], # multiply the beta_layers by the beta_eff
                                         vals=[{'H': beta_eff[0,0]*pars['beta_layer']['H'], 'S': beta_eff[0,1]*pars['beta_layer']['S'], 'W': beta_eff[0,2]*pars['beta_layer']['W'], 'C': beta_eff[0,3]*pars['beta_layer']['C'],'Church': beta_eff[0,4]*pars['beta_layer']['Church'], 'pSport': beta_eff[0,5]*pars['beta_layer']['pSport']},
                                               {'H': beta_eff[1,0]*pars['beta_layer']['H'], 'S': beta_eff[1,1]*pars['beta_layer']['S'], 'W': beta_eff[1,2]*pars['beta_layer']['W'], 'C': beta_eff[1,3]*pars['beta_layer']['C'],'Church': beta_eff[1,4]*pars['beta_layer']['Church'], 'pSport': beta_eff[1,5]*pars['beta_layer']['pSport']},
@@ -146,6 +144,7 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                     cv.test_num(daily_tests=daily_tests, sympt_test=100.0, quar_test=1.0, sensitivity=1.0, test_delay=0, loss_prob=0)]}
                         },
              'baseline2': {'name': 'baseline2', 'pars': {'interventions': [cv.dynamic_pars({ # make a copy to save having to re-run while calibrating
+#                    'beta': dict(days=[1], vals=pars['beta']),
                     'beta_layer': dict(days=[1, 15, 19, 22, 29], # multiply the beta_layers by the beta_eff
                                         vals=[beta_layer_tester,
                                               {'H': beta_eff[0,0]*beta_layer_tester['H'], 'S': beta_eff[0,1]*beta_layer_tester['S'], 'W': beta_eff[0,2]*beta_layer_tester['W'], 'C': beta_eff[0,3]*beta_layer_tester['C'],'Church': beta_eff[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff[0,5]*beta_layer_tester['pSport']},
@@ -169,10 +168,10 @@ if __name__ == '__main__': # need this to run in parallel on windows
     if 'doplot' in todo:
         do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
-        data_plots = ['n_severe', 'n_critical', 'cum_deaths', 'new_deaths', 'new_diagnoses', 'cum_infections']
-        for j in data_plots:
-            scens.results[j]['data'] = sc.objdict(name='data', best=sd[j][4:].values, low=sd[j][4:].values,
-                                                  high=sd[j][4:].values)
+#        data_plots = ['n_severe', 'n_critical', 'cum_deaths', 'new_deaths', 'new_diagnoses', 'cum_infections']
+#        for j in data_plots:
+#            scens.results[j]['data'] = sc.objdict(name='data', best=sd[j][0:len(scens.results.cum_infections.baseline.best)].values, low=sd[j][0:len(scens.results.cum_infections.baseline.best)].values,
+#                                                 high=sd[j][0:len(scens.results.cum_infections.baseline.best)].values)
         # Configure plotting
         fig_args = dict(figsize=(5, 8))
         this_fig_path = file_path + '.png'
