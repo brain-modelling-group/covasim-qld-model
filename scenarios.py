@@ -18,7 +18,7 @@ import pickle, gzip
 # Set state and date
 state = 'vic'
 start_day = sc.readdate('2020-03-01')
-end_day   = sc.readdate('2020-04-19')
+end_day   = sc.readdate('2020-06-19')
 n_days    = (end_day - start_day).days
 
 # What to do
@@ -26,8 +26,8 @@ todo = ['loaddata',
         'runsim',
         'doplot',
         'showplot',
-        'saveplot',
-        'gen_pop'
+        'saveplot'
+ #       'gen_pop'
         ]
 verbose    = 1
 seed       = 1
@@ -77,19 +77,22 @@ if 'loaddata' in todo:
 # Set up scenarios
 pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
-metapars['n_runs'] = 1
+metapars['n_runs'] = 3
 
-pars['pop_size'] = 50000         # This will be scaled
-pars['pop_scale'] = 1.0 #6.35e6/pars['pop_size']   # this gives a total VIC population
-pars['pop_infected'] = 1        # Number of initial infections
+pars['pop_size'] = 20000         # This will be scaled
+pars['pop_scale'] = 1 #6.35e6/pars['pop_size']   # this gives a total VIC population
+pars['rescale'] = 0
+pars['rescale_threshold'] = 0.8 # Fraction susceptible population that will trigger rescaling if rescaling
+pars['rescale_factor'] = 2   # Factor by which we rescale the population
+pars['pop_infected'] = 5        # Number of initial infections
 pars['start_day']=start_day     # Start date
 pars['n_days']=n_days           # Number of days
 pars['use_layers'] = True
-pars['contacts'] = {'H': 4, 'S': 22, 'W': 20, 'C': 20, 'Church': 1, 'pSport': 1} # Number of contacts per person per day, estimated
-pars['beta_layer'] = {'H': 0.9, 'S': 0.5, 'W': 0.1, 'C': 0.5, 'Church': 0.05, 'pSport': 0.05}
-pars['quar_eff'] = {'H': 0.5, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
-pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
-#pars['beta']
+pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 1, 'pSport': 1} # Number of contacts per person per day, estimated
+pars['beta_layer'] = {'H': 1.7, 'S': 0.8, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0}
+pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
+#pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
+pars['beta'] = 0.009
 
 
 #### diagnose population structure
@@ -124,13 +127,14 @@ sim = cv.Sim(pars, popfile='data\popfile.obj', datafile=data_path, use_layers=Tr
 daily_tests = [0.5*pars['pop_size']]*sim.npts # making up numbers for now
 
 # Cumulative impact of four policy changes on the beta_layers for H, S, W, C, Church, pSports
-beta_eff = np.array(((0.5,    1,      1,      0.5,        1,      1), # day 15: international travellers self isolate, public events >500 people cancelled
-                     (0.5,    0.5,    0.5,    0.5,      0.0,      1), # day 19: indoor gatherings limited to 100 people
-                     (0.5,    0.5,    0.2,    0.1,      0.0,    0.0), # day 22: pubs/bars/cafes take away only, church/sport etc. cancelled
-                     (0.5,    0.1,    0.05,   0.05,     0.0,    0.0))) # day 29: public gatherings limited to 2 people
-
+beta_eff = np.array(((1.02,    1,      1,      0.98,        1,      1), # day 15: international travellers self isolate, public events >500 people cancelled
+                     (1.05,    0.75,    1,    0.9,      0.0,      1), # day 19: indoor gatherings limited to 100 people
+                     (1.06,    0.5,    0.88,    0.82,      0.0,    0.0), # day 22: pubs/bars/cafes take away only, church/sport etc. cancelled
+                     (1.13,    0.25,    0.67,   0.55,     0.0,    0.0))) # day 29: public gatherings limited to 2 people
+beta_eff2 = dcp(beta_eff)
+beta_eff = dcp(beta_eff*beta_eff)
 beta_layer_tester = {}
-beta_layer_tester = {'H': 0.0, 'S': 0.0, 'W': 0.00, 'C': 0.05, 'Church': 0.00, 'pSport': 0.00} # using this to test while calibrating
+beta_layer_tester = {'H': 1.7, 'S': 0.8, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0} #{'H': 0.0, 'S': 0.0, 'W': 0.00, 'C': 0.05, 'Church': 0.00, 'pSport': 0.00} # using this to test while calibrating
 scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
              'baseline': {'name': 'baseline', 'pars': {'interventions': [cv.dynamic_pars({ #this is what we actually did
                     'beta_layer': dict(days=[15, 19, 22, 29], # multiply the beta_layers by the beta_eff
@@ -144,13 +148,13 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                     cv.test_num(daily_tests=daily_tests, sympt_test=100.0, quar_test=1.0, sensitivity=1.0, test_delay=0, loss_prob=0)]}
                         },
              'baseline2': {'name': 'baseline2', 'pars': {'interventions': [cv.dynamic_pars({ # make a copy to save having to re-run while calibrating
-#                    'beta': dict(days=[1], vals=pars['beta']),
+                    'beta': dict(days=[1], vals=0.009),
                     'beta_layer': dict(days=[1, 15, 19, 22, 29], # multiply the beta_layers by the beta_eff
                                         vals=[beta_layer_tester,
-                                              {'H': beta_eff[0,0]*beta_layer_tester['H'], 'S': beta_eff[0,1]*beta_layer_tester['S'], 'W': beta_eff[0,2]*beta_layer_tester['W'], 'C': beta_eff[0,3]*beta_layer_tester['C'],'Church': beta_eff[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff[0,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff[1,0]*beta_layer_tester['H'], 'S': beta_eff[1,1]*beta_layer_tester['S'], 'W': beta_eff[1,2]*beta_layer_tester['W'], 'C': beta_eff[1,3]*beta_layer_tester['C'],'Church': beta_eff[1,4]*beta_layer_tester['Church'], 'pSport': beta_eff[1,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff[2,0]*beta_layer_tester['H'], 'S': beta_eff[2,1]*beta_layer_tester['S'], 'W': beta_eff[2,2]*beta_layer_tester['W'], 'C': beta_eff[2,3]*beta_layer_tester['C'],'Church': beta_eff[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff[2,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff[3,0]*beta_layer_tester['H'], 'S': beta_eff[3,1]*beta_layer_tester['S'], 'W': beta_eff[3,2]*beta_layer_tester['W'], 'C': beta_eff[3,3]*beta_layer_tester['C'],'Church': beta_eff[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff[3,5]*beta_layer_tester['pSport']},
+                                              {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
+                                              {'H': beta_eff2[1,0]*beta_layer_tester['H'], 'S': beta_eff2[1,1]*beta_layer_tester['S'], 'W': beta_eff2[1,2]*beta_layer_tester['W'], 'C': beta_eff2[1,3]*beta_layer_tester['C'],'Church': beta_eff2[1,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[1,5]*beta_layer_tester['pSport']},
+                                              {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
+                                              {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
                                              ]), # at different time points the FOI can change
                     'n_imports': dict(days=i_cases[0,],
                                       vals=i_cases[1,]/pars['pop_scale'])}),
