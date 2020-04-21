@@ -4,14 +4,12 @@ Load Australian epi data
 
 import matplotlib
 matplotlib.use('Agg')
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
 from copy import deepcopy as dcp
-from datetime import timedelta
 import load_pop
-from read_data import i_cases
 import numpy as np
 import pickle, gzip
 
@@ -26,8 +24,8 @@ todo = ['loaddata',
         'runsim',
         'doplot',
         'showplot',
-        'saveplot'
- #       'gen_pop'
+        'saveplot',
+       'gen_pop'
         ]
 verbose    = 1
 seed       = 1
@@ -36,16 +34,11 @@ date      = '2020apr19'
 folder    = f'results_{date}'
 file_path = f'{folder}/{state}_'
 data_path = f'data/{state}-data-{date}.csv' # This gets created and then read in
+databook_path = f'data/{state}-data.xlsx'
 
 # Process and read in data
 if 'loaddata' in todo:
-    # Read in data
-    rawdata = pd.read_json('https://interactive.guim.co.uk/docsdata/1q5gdePANXci8enuiS4oHUJxcxC13d6bjMRSicakychE.json')
-    d = pd.json_normalize(rawdata.sheets.updates) # Process data
-    d['Date'] = pd.to_datetime(d['Date'], format='%d/%m/%Y')
-
-    # Take state of interest
-    sd = dcp(d.loc[(d['State'] == state.upper())])
+    sd = pd.read_excel(databook_path, sheet_name = 'epi_data')
     sd.rename(columns={'Date': 'date',
                        'Cumulative case count': 'cum_infections',
                        'Cumulative deaths': 'cum_deaths',
@@ -53,26 +46,14 @@ if 'loaddata' in todo:
                        'Tests conducted (negative)': 'cum_neg',
                        'Hospitalisations (count)': 'n_severe',
                        'Intensive care (count)': 'n_critical',
-                       'Recovered (cumulative)': 'cum_recovered'
+                       'Recovered (cumulative)': 'cum_recovered',
+                       'Daily imported cases': 'daily_imported_cases'
                        }, inplace=True)
-    sd = sd.drop_duplicates(subset=['date'], keep='first')
     sd.set_index('date', inplace=True)
-    new_cols = ['cum_infections', 'cum_deaths', 'cum_test', 'cum_neg', 'n_severe', 'n_critical', 'cum_recovered']
-    sd = sd[new_cols]
-    for c in new_cols:
-        sd[c] = pd.to_numeric(sd[c].str.replace(',', ''))
-
-    sd['new_diagnoses'] = sd['cum_infections'].diff()
-    sd['new_deaths'] = sd['cum_deaths'].diff()
-    sd['new_tests'] = sd['cum_test'].diff()
-
-    for i in pd.date_range(start_day, end_day):
-        if i not in sd.index:
-            sd.loc[i] = sd.loc[i - timedelta(1)]
-
-    sd.sort_index(inplace=True)
     sd.loc[start_day:end_day].to_csv(data_path)
-#sd = pd.read_csv(data_path)
+
+    i_cases = np.array(sd['daily_imported_cases'])
+    i_cases = i_cases[6:len(i_cases)]  # shift 7 days back to account for lag in reporting time
 
 # Set up scenarios
 pars = cv.make_pars() # generate some defaults
@@ -97,8 +78,8 @@ pars['beta'] = 0.009
 
 #### diagnose population structure
 if 'gen_pop' in todo:
-    popdict = load_pop.get_australian_popdict(setting='Melbourne', pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
-    popfile = gzip.open('data\popfile.obj','wb')
+    popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
+    popfile = gzip.open('data/popfile.obj','wb')
     pickle.dump(popdict,popfile)
     popfile.close()
     s_struct, w_struct, c_struct = [],[],[]
@@ -122,7 +103,7 @@ if 'gen_pop' in todo:
     axs[2, 0].set_title("Community size distribution")
     matplotlib.pyplot.savefig(fname=file_path + 'population.png')
 
-sim = cv.Sim(pars, popfile='data\popfile.obj', datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+sim = cv.Sim(pars, popfile='data/popfile.obj', datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
 
 daily_tests = [0.5*pars['pop_size']]*sim.npts # making up numbers for now
 
@@ -143,7 +124,7 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                                               {'H': beta_eff[2,0]*pars['beta_layer']['H'], 'S': beta_eff[2,1]*pars['beta_layer']['S'], 'W': beta_eff[2,2]*pars['beta_layer']['W'], 'C': beta_eff[2,3]*pars['beta_layer']['C'],'Church': beta_eff[2,4]*pars['beta_layer']['Church'], 'pSport': beta_eff[2,5]*pars['beta_layer']['pSport']},
                                               {'H': beta_eff[3,0]*pars['beta_layer']['H'], 'S': beta_eff[3,1]*pars['beta_layer']['S'], 'W': beta_eff[3,2]*pars['beta_layer']['W'], 'C': beta_eff[3,3]*pars['beta_layer']['C'],'Church': beta_eff[3,4]*pars['beta_layer']['Church'], 'pSport': beta_eff[3,5]*pars['beta_layer']['pSport']},
                                              ]), # at different time points the FOI can change
-                    'n_imports': dict(days=i_cases[0,], vals=i_cases[1,]/pars['pop_scale'])
+                    'n_imports': dict(days=range(len(i_cases)), vals=i_cases/pars['pop_scale'])
                         }),
                     cv.test_num(daily_tests=daily_tests, sympt_test=100.0, quar_test=1.0, sensitivity=1.0, test_delay=0, loss_prob=0)]}
                         },
@@ -156,8 +137,8 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                                               {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
                                               {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
                                              ]), # at different time points the FOI can change
-                    'n_imports': dict(days=i_cases[0,],
-                                      vals=i_cases[1,]/pars['pop_scale'])}),
+                    'n_imports': dict(days=range(len(i_cases)),
+                                      vals=i_cases/pars['pop_scale'])}),
                     cv.test_num(daily_tests=daily_tests, sympt_test=100.0, quar_test=1.0, sensitivity=1.0, test_delay=0, loss_prob=0)]}
                         }
              }

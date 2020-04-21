@@ -77,7 +77,7 @@ if 'runsim' in todo:
         pop_infected=5,         # Number of initial infections
         start_day=start_day,    # Start date
         n_days=n_days,          # Number of days
-        beta_layers = {'h': 1.6, 's': 1.0, 'w': 1.0, 'c': 0.3}
+        beta_layer = {'h': 1.6, 's': 1.0, 'w': 1.0, 'c': 0.3}
     )
 
     sim.update_pars(pars)
