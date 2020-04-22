@@ -75,7 +75,7 @@ pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 1, 'pSport': 1} # 
 pars['beta_layer'] = {'H': 1.0, 'S': 0.5, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0}
 pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
 #pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
-pars['beta'] = 0.009
+pars['beta'] = 0.025
 trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1} # contact tracing, probability of finding
 trace_time = {'H': 1, 'S': 2, 'W': 2, 'C': 20, 'Church': 10, 'pSport': 5} # number of days to find
 
@@ -132,7 +132,7 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
                         },
              'baseline2': {'name': 'baseline2', 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline but re-introduce imported infections to test robustness
-                    'beta': dict(days=[1], vals=0.009),
+                    'beta': dict(days=[1], vals=0.025),
                     'beta_layer': dict(days=[1, 15, 19, 22, 29], # multiply the beta_layers by the beta_eff
                                         vals=[beta_layer_tester,
                                               {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
@@ -140,13 +140,13 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                                               {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
                                               {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
                                              ]), # at different time points the FOI can change
-                    'n_imports': dict(days=np.append(range(len(i_cases)), [[60, 61, 62, 63]]),
-                                      vals=np.append(i_cases,[[5,5,5,5]]))}),
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
+                                      vals=np.append(i_cases,[5]*30))}),
                     cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
                         },
              'Int1': {'name': 'Int1', 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline 2 but with all restrictions lifted
-                    'beta': dict(days=[1], vals=0.009),
+                    'beta': dict(days=[1], vals=0.025),
                     'beta_layer': dict(days=[1, 15, 19, 22, 29, 60], # multiply the beta_layers by the beta_eff
                                         vals=[beta_layer_tester,
                                               {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
@@ -155,8 +155,8 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                                               {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
                                               {'H': beta_eff2[4,0]*beta_layer_tester['H'], 'S': beta_eff2[4,1]*beta_layer_tester['S'], 'W': beta_eff2[4,2]*beta_layer_tester['W'], 'C': beta_eff2[4,3]*beta_layer_tester['C'],'Church': beta_eff2[4,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[4,5]*beta_layer_tester['pSport']}
                                              ]), # at different time points the FOI can change
-                    'n_imports': dict(days=np.append(range(len(i_cases)), [[60, 61, 62, 63]]),
-                                      vals=np.append(i_cases,[[5,5,5,5]]))}),
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
+                                      vals=np.append(i_cases,[5]*30))}),
                     cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
                         }
