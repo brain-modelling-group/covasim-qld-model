@@ -55,6 +55,7 @@ if 'loaddata' in todo:
 
     i_cases = np.array(sd['daily_imported_cases'])
     i_cases = i_cases[6:len(i_cases)]  # shift 7 days back to account for lag in reporting time
+    daily_tests = np.array(sd['new_tests'])
 
 # Set up scenarios
 pars = cv.make_pars() # generate some defaults
@@ -71,7 +72,7 @@ pars['start_day']=start_day     # Start date
 pars['n_days']=n_days           # Number of days
 pars['use_layers'] = True
 pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 1, 'pSport': 1} # Number of contacts per person per day, estimated
-pars['beta_layer'] = {'H': 1.7, 'S': 0.8, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0}
+pars['beta_layer'] = {'H': 1.0, 'S': 0.5, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0}
 pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
 #pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
 pars['beta'] = 0.009
@@ -108,8 +109,6 @@ if 'gen_pop' in todo:
 
 sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
 
-daily_tests = [0.5*pars['pop_size']]*sim.npts # making up numbers for now
-
 # Cumulative impact of four policy changes on the beta_layers for H, S, W, C, Church, pSports
 beta_eff = np.array(((1.02,    1,      1,      0.98,        1,      1), # day 15: international travellers self isolate, public events >500 people cancelled
                      (1.05,    0.75,    1,    0.9,      0.0,      1), # day 19: indoor gatherings limited to 100 people
@@ -117,9 +116,8 @@ beta_eff = np.array(((1.02,    1,      1,      0.98,        1,      1), # day 15
                      (1.13,    0.25,    0.67,   0.55,     0.0,    0.0), # day 29: public gatherings limited to 2 people
                      (1,1,1,1,1,1))) # go back to pre-lockdown
 beta_eff2 = dcp(beta_eff)
-#beta_eff = dcp(beta_eff*beta_eff)
-beta_layer_tester = {}
-beta_layer_tester = {'H': 1.7, 'S': 0.8, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0} #{'H': 0.0, 'S': 0.0, 'W': 0.00, 'C': 0.05, 'Church': 0.00, 'pSport': 0.00} # using this to test while calibrating
+
+beta_layer_tester = pars['beta_layer'] #{'H': 1.7, 'S': 0.8, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0} #{'H': 0.0, 'S': 0.0, 'W': 0.00, 'C': 0.05, 'Church': 0.00, 'pSport': 0.00} # using this to test while calibrating
 scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
              'baseline': {'name': 'baseline', 'pars': {'interventions': [cv.dynamic_pars({ #this is what we actually did
                     'beta_layer': dict(days=[15, 19, 22, 29], # multiply the beta_layers by the beta_eff
@@ -130,10 +128,10 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                                              ]), # at different time points the FOI can change
                     'n_imports': dict(days=range(len(i_cases)), vals=i_cases)
                         }),
-                    cv.test_num(daily_tests=sd['new_tests'], sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                    cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
                         },
-             'baseline2': {'name': 'baseline2', 'pars': {'interventions': [cv.dynamic_pars({ # make a copy to save having to re-run while calibrating
+             'baseline2': {'name': 'baseline2', 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline but re-introduce imported infections to test robustness
                     'beta': dict(days=[1], vals=0.009),
                     'beta_layer': dict(days=[1, 15, 19, 22, 29], # multiply the beta_layers by the beta_eff
                                         vals=[beta_layer_tester,
@@ -144,10 +142,10 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                                              ]), # at different time points the FOI can change
                     'n_imports': dict(days=np.append(range(len(i_cases)), [[60, 61, 62, 63]]),
                                       vals=np.append(i_cases,[[5,5,5,5]]))}),
-                    cv.test_num(daily_tests=daily_tests, sympt_test=100.0, quar_test=1.0, sensitivity=1.0, test_delay=0, loss_prob=0),
+                    cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
                         },
-             'Int1': {'name': 'Int1', 'pars': {'interventions': [cv.dynamic_pars({ # make a copy to save having to re-run while calibrating
+             'Int1': {'name': 'Int1', 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline 2 but with all restrictions lifted
                     'beta': dict(days=[1], vals=0.009),
                     'beta_layer': dict(days=[1, 15, 19, 22, 29, 60], # multiply the beta_layers by the beta_eff
                                         vals=[beta_layer_tester,
@@ -159,7 +157,7 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                                              ]), # at different time points the FOI can change
                     'n_imports': dict(days=np.append(range(len(i_cases)), [[60, 61, 62, 63]]),
                                       vals=np.append(i_cases,[[5,5,5,5]]))}),
-                    cv.test_num(daily_tests=daily_tests, sympt_test=100.0, quar_test=1.0, sensitivity=1.0, test_delay=0, loss_prob=0),
+                    cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
                         }
              }
@@ -174,10 +172,6 @@ if __name__ == '__main__': # need this to run in parallel on windows
     if 'doplot' in todo:
         do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
-#        data_plots = ['n_severe', 'n_critical', 'cum_deaths', 'new_deaths', 'new_diagnoses', 'cum_infections']
-#        for j in data_plots:
-#            scens.results[j]['data'] = sc.objdict(name='data', best=sd[j][0:len(scens.results.cum_infections.baseline.best)].values, low=sd[j][0:len(scens.results.cum_infections.baseline.best)].values,
-#                                                 high=sd[j][0:len(scens.results.cum_infections.baseline.best)].values)
         # Configure plotting
         fig_args = dict(figsize=(5, 8))
         this_fig_path = file_path + '.png'
@@ -189,7 +183,6 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
 
         fig1 = scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=7, fig_args=fig_args, font_size=8, to_plot=to_plot1)
-                            #to_plot = to_plot_health)
-                            # = to_plot_capacity)
+
 
 
