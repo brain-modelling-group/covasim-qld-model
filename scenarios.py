@@ -64,7 +64,7 @@ pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
 metapars['n_runs'] = 3
 
-pars['pop_size'] = 200         # This will be scaled
+pars['pop_size'] = 20000         # This will be scaled
 pars['pop_scale'] = 1 #6.35e6/pars['pop_size']   # this gives a total VIC population
 pars['rescale'] = 0
 pars['rescale_threshold'] = 0.8 # Fraction susceptible population that will trigger rescaling if rescaling
