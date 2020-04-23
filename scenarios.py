@@ -16,7 +16,7 @@ import pickle, gzip
 # Set state and date
 state = 'vic'
 start_day = sc.readdate('2020-03-01')
-end_day   = sc.readdate('2020-06-19')
+end_day   = sc.readdate('2020-10-01')
 n_days    = (end_day - start_day).days
 
 # What to do
@@ -51,18 +51,20 @@ if 'loaddata' in todo:
                        'Daily imported cases': 'daily_imported_cases'
                        }, inplace=True)
     sd.set_index('date', inplace=True)
+    sd['cum_infections'] = sd['cum_infections'] * 1.3  # Assume 20% of cases never diagnosed
     sd.loc[start_day:end_day].to_csv(data_path)
 
     i_cases = np.array(sd['daily_imported_cases'])
     i_cases = i_cases[6:len(i_cases)]  # shift 7 days back to account for lag in reporting time
     daily_tests = np.array(sd['new_tests'])
 
+
 # Set up scenarios
 pars = cv.make_pars() # generate some defaults
 metapars = cv.make_metapars()
 metapars['n_runs'] = 3
 
-pars['pop_size'] = 20000         # This will be scaled
+pars['pop_size'] = 200         # This will be scaled
 pars['pop_scale'] = 1 #6.35e6/pars['pop_size']   # this gives a total VIC population
 pars['rescale'] = 0
 pars['rescale_threshold'] = 0.8 # Fraction susceptible population that will trigger rescaling if rescaling
@@ -73,7 +75,7 @@ pars['n_days']=n_days           # Number of days
 pars['use_layers'] = True
 pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 1, 'pSport': 1} # Number of contacts per person per day, estimated
 pars['beta_layer'] = {'H': 1.0, 'S': 0.5, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0}
-pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
+pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.0, 'pSport': 0.0} # Set quarantine effect for each layer
 #pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
 pars['beta'] = 0.025
 trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1} # contact tracing, probability of finding
@@ -107,7 +109,8 @@ if 'gen_pop' in todo:
     axs[2, 0].set_title("Community size distribution")
     #matplotlib.pyplot.savefig(fname=file_path + 'population.png')
 
-sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+sim = cv.Sim(pars, popfile=popfile, load_pop=True, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
 
 # Cumulative impact of four policy changes on the beta_layers for H, S, W, C, Church, pSports
 beta_eff = np.array(((1.02,    1,      1,      0.98,        1,      1), # day 15: international travellers self isolate, public events >500 people cancelled
@@ -115,7 +118,11 @@ beta_eff = np.array(((1.02,    1,      1,      0.98,        1,      1), # day 15
                      (1.06,    0.5,    0.88,    0.82,      0.0,    0.0), # day 22: pubs/bars/cafes take away only, church/sport etc. cancelled
                      (1.13,    0.25,    0.67,   0.55,     0.0,    0.0), # day 29: public gatherings limited to 2 people
                      (1,1,1,1,1,1))) # go back to pre-lockdown
-beta_eff2 = dcp(beta_eff)
+beta_eff2 = np.array(((1.02,    0,      0,      0.0,        1,      1), # day 15: international travellers self isolate, public events >500 people cancelled
+                     (1.05,    0.75,    0,    0.0,      0.0,      1), # day 19: indoor gatherings limited to 100 people
+                     (1.06,    0.5,    0.0,    0.0,      0.0,    0.0), # day 22: pubs/bars/cafes take away only, church/sport etc. cancelled
+                     (1.13,    0.25,    0.0,   0.0,     0.0,    0.0), # day 29: public gatherings limited to 2 people
+                     (1,1,1,1,1,1))) # go back to pre-lockdown
 
 beta_layer_tester = pars['beta_layer'] #{'H': 1.7, 'S': 0.8, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0} #{'H': 0.0, 'S': 0.0, 'W': 0.00, 'C': 0.05, 'Church': 0.00, 'pSport': 0.00} # using this to test while calibrating
 scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
@@ -132,7 +139,7 @@ scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventio
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
                         },
              'baseline2': {'name': 'baseline2', 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline but re-introduce imported infections to test robustness
-                    'beta': dict(days=[1], vals=0.025),
+                    'beta': dict(days=[15], vals=0.025),
                     'beta_layer': dict(days=[1, 15, 19, 22, 29], # multiply the beta_layers by the beta_eff
                                         vals=[beta_layer_tester,
                                               {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
