@@ -4,3 +4,4 @@
 .DS_Store
 results_*
 *-data-*.csv
+__pycache__
