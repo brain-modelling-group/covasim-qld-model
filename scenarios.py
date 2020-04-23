@@ -81,13 +81,10 @@ pars['beta'] = 0.025
 trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1} # contact tracing, probability of finding
 trace_time = {'H': 1, 'S': 2, 'W': 2, 'C': 20, 'Church': 10, 'pSport': 5} # number of days to find
 
-
 #### diagnose population structure
 if 'gen_pop' in todo:
     popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
-    popfile_save = gzip.open(popfile,'wb')
-    pickle.dump(popdict,popfile_save)
-    popfile_save.close()
+    sc.saveobj(popfile, popdict)
     s_struct, w_struct, c_struct = [],[],[]
     h_struct = np.zeros(6)
     for i in range(0,pars['pop_size']-1):
