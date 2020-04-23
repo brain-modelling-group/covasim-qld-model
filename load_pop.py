@@ -154,10 +154,9 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
     popdict['sex'] = np.random.binomial(1, probability_male) # nb. 1 means male
 
     # Convert contacts into the format expected by Covasim
-    popdict['layer_keys'] = list(contacts.keys())
     popdict['contacts'] = []
     for i in range(0,pop_size):
-        d = {layer: contacts[layer][i] if i in contacts[layer] else [] for layer in popdict['layer_keys']}
+        d = {layer: contacts[layer][i] if i in contacts[layer] else [] for layer in contacts}
         popdict['contacts'].append(d)
 
     return popdict
