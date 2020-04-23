@@ -1,82 +1,118 @@
 import sciris as sc
+import covasim as cv
+import numpy as np
+import matplotlib.pyplot as plt
 
 
+class PolicySchedule(cv.Intervention):
+    def __init__(self, policies):
+        self._baseline = dict(H=1, S=1, W=1, C=1, Church=1, pSport=1)
+        self.policies = sc.dcp(policies) # Dict keyed by {policy_name: {'H':1, 'S':0.75}}
+        self.policy_schedule = [] # Store policies as tuple of (start_day, end_day, Policy)
+        self._exec_days = {}
 
-beta_eff2 = np.array((
-    (1.02,    1,      1,      0.98,        1,      1), # day 15: international travellers self isolate, public events >500 people cancelled
-                     (1.05,    0.75,    1,    0.9,      0.0,      1), # day 19: indoor gatherings limited to 100 people
-                     (1.06,    0.5,    0.88,    0.82,      0.0,    0.0), # day 22: pubs/bars/cafes take away only, church/sport etc. cancelled
-                     (1.13,    0.25,    0.67,   0.55,     0.0,    0.0), # day 29: public gatherings limited to 2 people
-                     (1,1,1,1,1,1))) # go back to pre-lockdown
-
-beta_eff_relax = np.array((
-                    (1,    1,      1,      1.04,        0.0,      0.0), # day 60: relax outdoor gatherings to 10 people
-                     (1,    1,    1.05,    1.27,      0.0,      0.0), # day 60: non-essential retail outlets reopen
-                     (1,    1,    1.04,    1.16,      0.0,    0.0), # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
-                     (1,    1,    1,    1.04,      0.0,      0.0), # day 60: relax outdoor gatherings to 200 people
-                     (1,    1,    1,    1.08,      0.0,      0.0), # day 60: community sports reopen
-                     (1,    1.75,    1,   1,     0.0,    0.0), # day 60: childcare and schools reopen
-                     (1,    1,    1.33,   1,     0.0,    0.0), # day 60: non-essential work reopens
-                     (1,    1,    1,   1,     0.0,    1), # day 60: professional sport without crowds allowed
-                     (1,    1,    1,   1,     1,    0.0), # day 60: places of worship reopen
-                     (1,1,1,1,1,1))) # go back to pre-lockdown
-
-default_layers = ['H', 'S', 'W', 'C', 'Church', 'pSport']
-
-
-
-
-class BetaIntervention:
-
-
-    def __init__(self, **rel_betas):
+    def start(self, policy_name:str, start_day:int):
         """
+        Modify policy start date
+
+        Use this
+        Args:
+            policy_name:
+            start_day:
+
+        Returns:
+
+        """
+        n_entries = len([x for x in self.policy_schedule if x[2] == policy_name])
+        if n_entries < 1:
+            raise Exception('Cannot start a policy that is not already scheduled - use PolicySchedule.add() instead')
+        elif n_entries > 1:
+            raise Exception('start_policy() cannot be used to start a policy that appears more than once - need to manually add an end day to the desired instance')
+
+        for entry in self.policy_schedule:
+            if entry[2] == policy_name:
+                entry[0] = start_day
+
+        self._update_exec_days()
+
+    def end(self, policy_name:str, end_day:int):
+        """
+        Modify policy end date
+
+        This only works if the policy only appears once in the schedule. If a policy gets used multiple times,
+        either add the end days upfront, or insert them directly into the policy schedule. The policy should
+        already appear in the schedule
 
         Args:
-            name: The name of the intervention represented by these scale factors
-            beta_change: Array same length as BetaIntervention.layers with the relative change in beta
+            policy_name: Name of the po
+            end_day:
+
+        Returns:
+
         """
-        self.rel_betas = dict.fromkeys(self.layers,1) # Betas default to having 1
-        assert set(rel_betas.keys()).issubset(self.layers), 'Some of the layer names do not match the recognized names (%s)' % (self.layers) # Check the arguments match
-        self.rel_betas = sc.mergedicts(dict.fromkeys(self.layers,1), rel_betas)
 
+        n_entries = len([x for x in self.policy_schedule if x[2]==policy_name])
+        if n_entries <1:
+            raise Exception('Cannot end a policy that is not already scheduled - use PolicySchedule.add() instead')
+        elif n_entries > 1:
+            raise Exception('end_policy() cannot be used to end a policy that appears more than once - need to manually add an end day to the desired instance')
 
-        for k,v in rel_betas:
+        for entry in self.policy_schedule:
+            if entry[2]==policy_name:
+                entry[1] = end_day
 
-        assert len(beta_scale) == len(self.layers)
-        self.name = name
-        self.beta_scale = beta_scale
+        self._update_exec_days()
 
+    def add(self, policy_name:str, start_day:int, end_day:int=np.inf):
+        """
+        Add a policy to the schedule
 
-beta_interventions =
+        Args:
+            policy_name:
+            start_day:
+            end_day:
 
-intervention_effects = {
-beta_eff2 = np.array((
+        Returns:
 
-    'international_travel_isolation': dict(H=1.02, S=1, W=1, C=0.98, Church=1, pSport=1), # day 15: international travellers self isolate, public events >500 people cancelled
-    'indoor_gatherings_100_max':(1.05,    0.75,    1,    0.9,      0.0,      1),
+        """
+        self.policy_schedule.append((start_day, end_day, policy_name))
+        self._update_exec_days()
 
-# day 19: indoor gatherings limited to 100 people
-                     :(1.06,    0.5,    0.88,    0.82,      0.0,    0.0), # day 22: pubs/bars/cafes take away only, church/sport etc. cancelled
-                     :(1.13,    0.25,    0.67,   0.55,     0.0,    0.0), # day 29: public gatherings limited to 2 people
+    def _update_exec_days(self):
+        # This helper function updates the list of days on which policies start or stop
+        # The apply() function only gets run on those days
+        self._exec_days = {x[0] for x in self.policy_schedule} + {x[1] for x in self.policy_schedule if np.isfinite(x[1])}
 
+    def _compute_beta_layer(self, t):
+        # Compute beta_layer at a given point in time
+        # The computation is done from scratch each time
+        beta_layer = self.baseline.copy()
+        for start_day, end_day, policy_name in self.policy_schedule:
+            rel_betas = self.policies[policy_name]
+            if t >= start_day and t<end_day:
+                for layer in beta_layer:
+                    if layer in rel_betas:
+                        beta_layer[layer] *= rel_betas[layer]
+        return beta_layer
 
-:(1, 1, 1, 1, 1, 1)))  # go back to pre-lockdown
+    def apply(self, sim):
+        if sim.t in self._exec_days:
+            sim['beta_layer'] = self._compute_beta_layer()
 
+    def plot(self):
 
+        fig, ax = plt.subplots()
+        max_time = np.nanmax(np.array([x[0] for x in self.policy_schedule] + [x[1] for x in self.policy_schedule]))
+        ax.set_yticks(np.arange(len(self.policies)))
+        ax.set_yticklabels(list(self.policies.keys()))
+        ax.set_ylim(0, len(self.policies))
+        ax.set_xlim(0, max_time)
+        ax.set_xlabel('Days')
 
-beta_eff_relax = np.array(((1,    1,      1,      1.04,        0.0,      0.0), # day 60: relax outdoor gatherings to 10 people
-                     (1,    1,    1.05,    1.27,      0.0,      0.0), # day 60: non-essential retail outlets reopen
-                     (1,    1,    1.04,    1.16,      0.0,    0.0), # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
-                     (1,    1,    1,    1.04,      0.0,      0.0), # day 60: relax outdoor gatherings to 200 people
-                     (1,    1,    1,    1.08,      0.0,      0.0), # day 60: community sports reopen
-                     (1,    1.75,    1,   1,     0.0,    0.0), # day 60: childcare and schools reopen
-                     (1,    1,    1.33,   1,     0.0,    0.0), # day 60: non-essential work reopens
-                     (1,    1,    1,   1,     0.0,    1), # day 60: professional sport without crowds allowed
-                     (1,    1,    1,   1,     1,    0.0), # day 60: places of worship reopen
-                     (1,1,1,1,1,1))) # go back to pre-lockdown
+        policy_index = {x:i for i,x in enumerate(self.policies.keys())}
 
+        for start_day, end_day, policy_name in self.policy_schedule:
+            ax.broken_barh([(start_day, end_day-start_day)], (policy_index[policy_name]-0.5, policy_index[policy_name]+0.5))
 
+        return fig
 
-
-}
