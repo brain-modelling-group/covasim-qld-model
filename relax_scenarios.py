@@ -120,6 +120,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies['day19'] = dict(H=1.05, S=0.75, W=1, C=0.9, Church=0.0, pSport=1)  # day 19: indoor gatherings limited to 100 people
     policies['day22'] = dict(H=1.06, S=0.5, W=0.88, C=0.82, Church=0.0, pSport=0.0)  # day 22: pubs/bars/cafes take away only                                     , church/sport etc. cancelled
     policies['day29'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=0.0, pSport=0.0)  # day 29: public gatherings limited to 2 people
+
+    # CAUTION - make sure these values are relative to baseline, not relative to day 29
     policies['Outdoor10'] = dict(H=1, S=1, W=1, C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 10 people
     policies['Retail'] = dict(H=1, S=1, W=1.05, C=1.27, Church=0.0, pSport=0.0)  # day 60: non-essential retail outlets reopen
     policies['Hospitalitylimited'] = dict(H=1, S=1, W=1.04, C=1.16, Church=0.0, pSport=0.0)  # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
@@ -130,7 +132,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies['ProSports'] = dict(H=1, S=1, W=1, C=1, Church=0.0, pSport=1)  # day 60: professional sport without crowds allowed
     policies['Church'] = dict(H=1, S=1, W=1, C=1, Church=1, pSport=0.0)  # day 60: places of worship reopen
 
-    baseline_policies = utils.PolicySchedule(policies)
+    baseline_policies = utils.PolicySchedule(pars['beta_layer'],policies)
     baseline_policies.add('day15',15,19)
     baseline_policies.add('day19',19,22)
     baseline_policies.add('day22',22,29)

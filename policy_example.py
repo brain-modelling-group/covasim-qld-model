@@ -70,26 +70,30 @@ pars['beta'] = 0.015
 trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1} # contact tracing, probability of finding
 trace_time = {'H': 1, 'S': 2, 'W': 2, 'C': 20, 'Church': 10, 'pSport': 5} # number of days to find
 
+print('Making population')
 popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
-
+print('Made population')
 sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+print('Making policies')
 
 policies = {}
-policies['day15'] = dict(H=1.02, S=1, W=1, C=0.98, Church=1, pSport=1)  # day 15: international travellers self isolate , public events >500 people cancelled
-policies['day19'] = dict(H=1.05, S=0.75, W=1, C=0.9, Church=0.0, pSport=1)  # day 19: indoor gatherings limited to 100 people
+policies['day15'] = dict(H=1.02, C=0.98)  # day 15: international travellers self isolate , public events >500 people cancelled
+policies['day19'] = dict(H=1.05, S=0.75, C=0.9, Church=0.0)  # day 19: indoor gatherings limited to 100 people
 policies['day22'] = dict(H=1.06, S=0.5, W=0.88, C=0.82, Church=0.0, pSport=0.0)  # day 22: pubs/bars/cafes take away only                                     , church/sport etc. cancelled
 policies['day29'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=0.0, pSport=0.0)  # day 29: public gatherings limited to 2 people
-policies['Outdoor10'] = dict(H=1, S=1, W=1, C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 10 people
-policies['Retail'] = dict(H=1, S=1, W=1.05, C=1.27, Church=0.0, pSport=0.0)  # day 60: non-essential retail outlets reopen
-policies['Hospitalitylimited'] = dict(H=1, S=1, W=1.04, C=1.16, Church=0.0, pSport=0.0)  # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
-policies['Outdoor200'] = dict(H=1, S=1, W=1, C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 200 people
-policies['Sports'] = dict(H=1, S=1, W=1, C=1.08, Church=0.0, pSport=0.0)  # day 60: community sports reopen
-policies['School'] = dict(H=1, S=1.75, W=1, C=1, Church=0.0, pSport=0.0)  # day 60: childcare and schools reopen
-policies['Work'] = dict(H=1, S=1, W=1.33, C=1, Church=0.0, pSport=0.0)  # day 60: non-essential work reopens
-policies['ProSports'] = dict(H=1, S=1, W=1, C=1, Church=0.0, pSport=1)  # day 60: professional sport without crowds allowed
-policies['Church'] = dict(H=1, S=1, W=1, C=1, Church=1, pSport=0.0)  # day 60: places of worship reopen
 
-baseline_policies = utils.PolicySchedule(policies)
+# CAUTION - make sure these values are relative to baseline, not relative to day 29
+policies['Outdoor10'] = dict(C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 10 people
+policies['Retail'] = dict( W=1.05, C=1.27, Church=0.0, pSport=0.0)  # day 60: non-essential retail outlets reopen
+policies['Hospitalitylimited'] = dict(W=1.04, C=1.16, Church=0.0, pSport=0.0)  # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
+policies['Outdoor200'] = dict(C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 200 people
+policies['Sports'] = dict(C=1.08, Church=0.0, pSport=0.0)  # day 60: community sports reopen
+policies['School'] = dict(S=1.75, Church=0.0, pSport=0.0)  # day 60: childcare and schools reopen
+policies['Work'] = dict(W=1.33, Church=0.0, pSport=0.0)  # day 60: non-essential work reopens
+policies['ProSports'] = dict(Church=0.0)  # day 60: professional sport without crowds allowed
+policies['Church'] = dict(pSport=0.0)  # day 60: places of worship reopen
+
+baseline_policies = utils.PolicySchedule(pars['beta_layer'],policies)
 baseline_policies.add('day15',15,19)
 baseline_policies.add('day19',19,22)
 baseline_policies.add('day22',22,29)
