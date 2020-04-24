@@ -140,14 +140,24 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
     for i, key in enumerate(extra_layers.keys()):
         n_layer = int(population_subsets['proportion'][key] * pop_size)
         inds = np.random.choice(popdict['uid'][(popdict['age'] > population_subsets['age_lb'][key]) & (popdict['age'] < population_subsets['age_ub'][key])], n_layer)
-        if population_subsets['cluster_type']=='complete':
+
+        if population_subsets['cluster_type'][key] == 'complete':
             contacts[key] = clusters_to_contacts([inds])
 
-        if population_subsets['cluster_type']=='random':
+        if population_subsets['cluster_type'][key] == 'random':
             x = np.zeros_like(popdict['age'])
             x[inds] = 1
             n_contacts_per_layer = contact_numbers[key]
             contacts[key] = random_contacts(x, n_contacts_per_layer)
+
+        if population_subsets['cluster_type'][key] == 'partition':
+            x = np.zeros_like(popdict['age'])
+            x[inds] = 1
+            y = np.ones_like(popdict['age'])
+            y[inds] = 0
+            n_contacts_per_layer = contact_numbers[key]
+            contacts[key] = random_contacts(x, n_contacts_per_layer)
+            contacts[key].update(random_contacts(y, n_contacts_per_layer))
 
     # Assign sexes
     sexes = pd.read_excel(dirname + '/' + databook_path, sheet_name = 'age_sex')

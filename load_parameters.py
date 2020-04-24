@@ -18,6 +18,7 @@ def load_pars():
     metapars = cv.make_metapars()
     metapars['n_runs'] = 3
 
+    pars['beta'] = 0.035
     pars['pop_size'] = 20000  # This will be scaled
     pars['pop_scale'] = 1  # 6.35e6/pars['pop_size']   # this gives a total VIC population
     pars['rescale'] = 1
@@ -26,8 +27,7 @@ def load_pars():
     pars['pop_infected'] = 5  # Number of initial infections
     pars['start_day'] = start_day  # Start date
     pars['n_days'] = n_days  # Number of days
-    pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 10, 'pSport': 10,
-                        'beach_goer': 30}  # Number of contacts per person per day, estimated. Special contact types are between 1-100 (percentage)
+    pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 10, 'pSport': 10,'beach_goer': 30}  # Number of contacts per person per day, estimated. Special contact types are between 1-100 (percentage)
     pars['beta_layer'] = {'H': 1.0, 'S': 0.5, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0, 'beach_goer': 0.1}
     pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.0, 'pSport': 0.0,
                         'beach_goer': 0.0}  # Set quarantine effect for each layer
@@ -41,7 +41,7 @@ def load_pars():
     population_subsets['cluster_type'] = {'Church': 'complete', 'pSport': 'complete',
                                           'beach_goer': 'random'}  # proportion of the population who do these things
 
-    pars['beta'] = 0.035
+
     trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1,
                    'beach_goer': 0.1}  # contact tracing, probability of finding
     trace_time = {'H': 1, 'S': 2, 'W': 2, 'C': 20, 'Church': 10, 'pSport': 5, 'beach_goer': 20}  # number of days to find
