@@ -1,7 +1,8 @@
 """
 Show contacts within different layers
 """
-
+import covasim as cv
+import sciris as sc
 import networkx as nx
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -22,9 +23,9 @@ sim = cv.Sim(pars=pars)
 sim.initialize()
 
 fig = plt.figure(figsize=(8,8))
-mapping = dict(H='Households', S='Schools', W='Work', C='Community')
-for i, layer in enumerate(['H', 'S', 'W', 'C']):
-    ax = plt.subplot(2,2,i+1)
+mapping = dict(h='Households', s='Schools', w='Work', c='Community', Church='Church')
+for i, layer in enumerate(['h', 's', 'w', 'c', 'Church']):
+    ax = plt.subplot(3,2,i+1)
     hdf = sim.people.contacts[layer].to_df()
 
     G = nx.Graph()

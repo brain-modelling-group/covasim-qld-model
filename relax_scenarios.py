@@ -12,6 +12,7 @@ import load_pop
 import utils
 import numpy as np
 
+
 if __name__ == '__main__': # need this to run in parallel on windows
 
     # Set state and date
@@ -137,8 +138,6 @@ if __name__ == '__main__': # need this to run in parallel on windows
     baseline_policies.add('day19',19,22)
     baseline_policies.add('day22',22,29)
     baseline_policies.add('day29',29) # Add this policy without an end day
-
-    baseline_policies.plot()
 
     base_scenarios = {}
     base_scenarios['baseline2'] = {
