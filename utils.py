@@ -27,23 +27,25 @@ class PolicySchedule(cv.Intervention):
             policies: Dict of policies containing the policy name and relative betas for each policy e.g. {policy_name: {'H':1, 'S':0.75}}
 
         """
+        super().__init__()
         self._baseline = baseline  #: Store baseline relative betas for each layer
         self.policies = sc.dcp(policies)  #: Store available policy interventions (name and effect)
         for policy, layer_values in self.policies.items():
             assert set(layer_values.keys()).issubset(self._baseline.keys()), f'Policy "{policy}" has effects on layers not included in the baseline'
         self.policy_schedule = []  #: Store the scheduling of policies [(start_day, end_day, policy_name)]
-        self._exec_days = {}  #: Internal cache for when the beta_layer values need to be recalculated during simulation. Updated using `_update_exec_days`
+        self.days = {}  #: Internal cache for when the beta_layer values need to be recalculated during simulation. Updated using `_update_days`
 
     def start(self, policy_name: str, start_day: int) -> None:
         """
         Change policy start date
 
-        If the policy is not already present, then it will be added with no end date instead
-        Args:
-            policy_name:
-            start_day:
+        If the policy is not already present, then it will be added with no end date
 
-        Returns:
+        Args:
+            policy_name: Name of the policy to change start date for
+            start_day: Day number to start policy
+
+        Returns: None
 
         """
         n_entries = len([x for x in self.policy_schedule if x[2] == policy_name])
@@ -57,21 +59,21 @@ class PolicySchedule(cv.Intervention):
             if entry[2] == policy_name:
                 entry[0] = start_day
 
-        self._update_exec_days()
+        self._update_days()
 
     def end(self, policy_name: str, end_day: int) -> None:
         """
-        Modify policy end date
+        Change policy end date
 
         This only works if the policy only appears once in the schedule. If a policy gets used multiple times,
         either add the end days upfront, or insert them directly into the policy schedule. The policy should
         already appear in the schedule
 
         Args:
-            policy_name: Name of the po
-            end_day:
+            policy_name: Name of the policy to end
+            end_day: Day number to end policy (policy will have no effect on this day)
 
-        Returns:
+        Returns: None
 
         """
 
@@ -87,42 +89,44 @@ class PolicySchedule(cv.Intervention):
                     raise Exception(f"Policy '{policy_name}' starts on day {entry[0]} so the end day must be at least {entry[0]+1} (requested {end_day})")
                 entry[1] = end_day
 
-        self._update_exec_days()
+        self._update_days()
 
     def add(self, policy_name: str, start_day: int, end_day: int = np.inf) -> None:
         """
         Add a policy to the schedule
 
         Args:
-            policy_name:
-            start_day:
-            end_day:
+            policy_name: Name of policy to add
+            start_day: Day number to start policy
+            end_day: Day number to end policy (policy will have no effect on this day)
 
-        Returns:
+        Returns: None
 
         """
         assert policy_name in self.policies, 'Unrecognized policy'
         self.policy_schedule.append([start_day, end_day, policy_name])
-        self._update_exec_days()
+        self._update_days()
 
     def remove(self, policy_name: str) -> None:
         """
         Remove a policy from the schedule
 
-        Args:
-            policy_name:
+        All instances of the named policy will be removed from the schedule
 
-        Returns:
+        Args:
+            policy_name: Name of policy to remove
+
+        Returns: None
 
         """
 
         self.policy_schedule = [x for x in self.policy_schedule if x[2] != policy_name]
-        self._update_exec_days()
+        self._update_days()
 
-    def _update_exec_days(self) -> None:
+    def _update_days(self) -> None:
         # This helper function updates the list of days on which policies start or stop
         # The apply() function only gets run on those days
-        self._exec_days = {x[0] for x in self.policy_schedule}.union({x[1] for x in self.policy_schedule if np.isfinite(x[1])})
+        self.days = {x[0] for x in self.policy_schedule}.union({x[1] for x in self.policy_schedule if np.isfinite(x[1])})
 
     def _compute_beta_layer(self, t: int) -> dict:
         # Compute beta_layer at a given point in time
@@ -137,12 +141,13 @@ class PolicySchedule(cv.Intervention):
         return beta_layer
 
     def apply(self, sim: cv.BaseSim):
-        if sim.t in self._exec_days:
+        if sim.t in self.days:
             sim['beta_layer'] = self._compute_beta_layer(sim.t)
             if sim['verbose']:
                 print(f"PolicySchedule: Changing beta_layer values to {sim['beta_layer']}")
 
-    def plot(self):
+
+    def plot_gantt(self):
         """
         Plot policy schedule as Gantt chart
 

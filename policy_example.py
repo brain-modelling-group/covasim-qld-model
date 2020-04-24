@@ -145,8 +145,8 @@ scenarios['Fullrelax'] = {
     }
 }
 
-baseline_policies.plot()
-relax_all_policies.plot()
+baseline_policies.plot_gantt()
+relax_all_policies.plot_gantt()
 
 scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars = metapars, scenarios=scenarios)
 scens.run(verbose=verbose, debug=True)
