@@ -75,18 +75,18 @@ class PolicySchedule(cv.Intervention):
         Returns:
 
         """
-        self.policy_schedule.append((start_day, end_day, policy_name))
+        self.policy_schedule.append([start_day, end_day, policy_name])
         self._update_exec_days()
 
     def _update_exec_days(self):
         # This helper function updates the list of days on which policies start or stop
         # The apply() function only gets run on those days
-        self._exec_days = {x[0] for x in self.policy_schedule} + {x[1] for x in self.policy_schedule if np.isfinite(x[1])}
+        self._exec_days = {x[0] for x in self.policy_schedule}.union({x[1] for x in self.policy_schedule if np.isfinite(x[1])})
 
     def _compute_beta_layer(self, t):
         # Compute beta_layer at a given point in time
         # The computation is done from scratch each time
-        beta_layer = self.baseline.copy()
+        beta_layer = self._baseline.copy()
         for start_day, end_day, policy_name in self.policy_schedule:
             rel_betas = self.policies[policy_name]
             if t >= start_day and t<end_day:
@@ -97,22 +97,31 @@ class PolicySchedule(cv.Intervention):
 
     def apply(self, sim):
         if sim.t in self._exec_days:
-            sim['beta_layer'] = self._compute_beta_layer()
+            sim['beta_layer'] = self._compute_beta_layer(sim.t)
+            print(sim['beta_layer'])
 
     def plot(self):
+        """
+        Plot policy schedule as Gantt chart
 
+        Returns: A matplotlib figure with a Gantt chart
+
+        """
         fig, ax = plt.subplots()
-        max_time = np.nanmax(np.array([x[0] for x in self.policy_schedule] + [x[1] for x in self.policy_schedule]))
+        max_time = np.nanmax(np.array([x[0] for x in self.policy_schedule] + [x[1] for x in self.policy_schedule if np.isfinite(x[1])]))
         ax.set_yticks(np.arange(len(self.policies)))
         ax.set_yticklabels(list(self.policies.keys()))
-        ax.set_ylim(0, len(self.policies))
-        ax.set_xlim(0, max_time)
+        ax.set_ylim(0-0.5, len(self.policies)-0.5)
+        ax.set_xlim(0, max_time+5) # Extend a few days so the ends of policies can be seen
         ax.set_xlabel('Days')
 
         policy_index = {x:i for i,x in enumerate(self.policies.keys())}
 
+        colors = sc.gridcolors(len(self.policies))
         for start_day, end_day, policy_name in self.policy_schedule:
-            ax.broken_barh([(start_day, end_day-start_day)], (policy_index[policy_name]-0.5, policy_index[policy_name]+0.5))
+            if not np.isfinite(end_day):
+                end_day = 1e6 # Arbitrarily large end day
+            ax.broken_barh([(start_day, end_day-start_day)], (policy_index[policy_name]-0.5, 1),color=colors[policy_index[policy_name]])
 
         return fig
 

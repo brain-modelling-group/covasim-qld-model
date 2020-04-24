@@ -3,8 +3,8 @@ Load Australian epi data
 '''
 
 import matplotlib
-# matplotlib.use('Agg')
-# matplotlib.use('TkAgg')
+matplotlib.use('Agg')
+matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
@@ -13,6 +13,7 @@ import utils
 import numpy as np
 
 if __name__ == '__main__': # need this to run in parallel on windows
+
     # Set state and date
     state = 'vic'
     start_day = sc.readdate('2020-03-01')
@@ -29,11 +30,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
             'doplot_import',
             'showplot',
             'saveplot',
-           'gen_pop'
+           # 'gen_pop'
             ]
 
-    if not 'doplot_indiv' in todo:
-        matplotlib.use('TkAgg')
 
     verbose    = 1
     seed       = 1
@@ -91,11 +90,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
     #### diagnose population structure
     if 'gen_pop' in todo:
-        print('gen pop')
         popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
-        print('saving')
         sc.saveobj(popfile, popdict)
-        print('done')
         s_struct, w_struct, c_struct = [],[],[]
         h_struct = np.zeros(6)
         for i in range(0,pars['pop_size']-1):
@@ -120,20 +116,19 @@ if __name__ == '__main__': # need this to run in parallel on windows
     sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
 
     policies = {}
-    policies['day15'] = dict(               H=1.02 , S=1    , W=1    , C=0.98 , Church=1   , pSport=1)        # day 15: international travellers self isolate                            , public events >500 people cancelled
-    policies['day19'] = dict(               H=1.05 , S=0.75 , W=1    , C=0.9  , Church=0.0 , pSport=1)      # day 19: indoor gatherings limited to 100 people
-    policies['day22'] = dict(               H=1.06 , S=0.5  , W=0.88 , C=0.82 , Church=0.0 , pSport=0.0)    # day 22: pubs/bars/cafes take away only                                     , church/sport etc. cancelled
-    policies['day29'] = dict(               H=1.13 , S=0.25 , W=0.67 , C=0.55 , Church=0.0 , pSport=0.0)    # day 29: public gatherings limited to 2 people
-    policies['gatherings_10'] = dict(       H=1    , S=1    , W=1    , C=1.04 , Church=0.0 , pSport=0.0)    # day 60: relax outdoor gatherings to 10 people
-    policies['non_essential_retail'] = dict(H=1    , S=1    , W=1.05 , C=1.27 , Church=0.0 , pSport=0.0)    # day 60: non-essential retail outlets reopen
-    policies['restauraunts_4sqm'] = dict(   H=1    , S=1    , W=1.04 , C=1.16 , Church=0.0 , pSport=0.0)    # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
-    policies['gatherings_200'] = dict(      H=1    , S=1    , W=1    , C=1.04 , Church=0.0 , pSport=0.0)    # day 60: relax outdoor gatherings to 200 people
-    policies['community_sports'] = dict(    H=1    , S=1    , W=1    , C=1.08 , Church=0.0 , pSport=0.0)    # day 60: community sports reopen
-    policies['open_childcare'] = dict(      H=1    , S=1.75 , W=1    , C=1    , Church=0.0 , pSport=0.0)    # day 60: childcare and schools reopen
-    policies['open_non_essential'] = dict(  H=1    , S=1    , W=1.33 , C=1    , Church=0.0 , pSport=0.0)    # day 60: non-essential work reopens
-    policies['sports_no_crowds'] = dict(    H=1    , S=1    , W=1    , C=1    , Church=0.0 , pSport=1)      # day 60: professional sport without crowds allowed
-    policies['open_worship'] = dict(        H=1    , S=1    , W=1    , C=1    , Church=1   , pSport=0.0)    # day 60: places of worship reopen
-    policies['pre_lockdown'] = dict(        H=1    , S=1    , W=1    , C=1    , Church=1   , pSport=1)      # go back to pre-lockdown
+    policies['day15'] = dict(H=1.02, S=1, W=1, C=0.98, Church=1, pSport=1)  # day 15: international travellers self isolate                            , public events >500 people cancelled
+    policies['day19'] = dict(H=1.05, S=0.75, W=1, C=0.9, Church=0.0, pSport=1)  # day 19: indoor gatherings limited to 100 people
+    policies['day22'] = dict(H=1.06, S=0.5, W=0.88, C=0.82, Church=0.0, pSport=0.0)  # day 22: pubs/bars/cafes take away only                                     , church/sport etc. cancelled
+    policies['day29'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=0.0, pSport=0.0)  # day 29: public gatherings limited to 2 people
+    policies['Outdoor10'] = dict(H=1, S=1, W=1, C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 10 people
+    policies['Retail'] = dict(H=1, S=1, W=1.05, C=1.27, Church=0.0, pSport=0.0)  # day 60: non-essential retail outlets reopen
+    policies['Hospitalitylimited'] = dict(H=1, S=1, W=1.04, C=1.16, Church=0.0, pSport=0.0)  # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
+    policies['Outdoor200'] = dict(H=1, S=1, W=1, C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 200 people
+    policies['Sports'] = dict(H=1, S=1, W=1, C=1.08, Church=0.0, pSport=0.0)  # day 60: community sports reopen
+    policies['School'] = dict(H=1, S=1.75, W=1, C=1, Church=0.0, pSport=0.0)  # day 60: childcare and schools reopen
+    policies['Work'] = dict(H=1, S=1, W=1.33, C=1, Church=0.0, pSport=0.0)  # day 60: non-essential work reopens
+    policies['ProSports'] = dict(H=1, S=1, W=1, C=1, Church=0.0, pSport=1)  # day 60: professional sport without crowds allowed
+    policies['Church'] = dict(H=1, S=1, W=1, C=1, Church=1, pSport=0.0)  # day 60: places of worship reopen
 
     baseline_policies = utils.PolicySchedule(policies)
     baseline_policies.add('day15',15,19)
@@ -141,8 +136,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     baseline_policies.add('day22',22,29)
     baseline_policies.add('day29',29) # Add this policy without an end day
 
-    # baseline_policies.plot()
-    # raise Exception('stop')
+    baseline_policies.plot()
 
     base_scenarios = {}
     base_scenarios['baseline2'] = {
@@ -160,12 +154,15 @@ if __name__ == '__main__': # need this to run in parallel on windows
     }
 
     relax_scenarios = {}
+
+    # Relax all policies
     relax_all_policies = sc.dcp(baseline_policies)
+    relax_all_policies.end('day29',60)
     relax_scenarios['Int0'] = {
         'name': 'Fullrelax',
         'pars': {
             'interventions': [
-                baseline_policies,
+                relax_all_policies,
                 cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
                     'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),vals=np.append(i_cases, [5] * 30))
                 }),
@@ -177,52 +174,40 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
 
     scen_names = ['Outdoor10', 'Retail', 'Hospitalitylimited', 'Outdoor200', 'Sports', 'School', 'Work', 'ProSports', 'Church']
-    relax_scenarios = {'Int0': {'name': 'Fullrelax', 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline 2 but with all restrictions lifted
-                        'beta': dict(days=[1], vals=pars['beta']),
-                        'beta_layer': dict(days=beta_days, # multiply the beta_layers by the beta_eff
-                                            vals=[beta_layer_tester,
-                                                  {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[1,0]*beta_layer_tester['H'], 'S': beta_eff2[1,1]*beta_layer_tester['S'], 'W': beta_eff2[1,2]*beta_layer_tester['W'], 'C': beta_eff2[1,3]*beta_layer_tester['C'],'Church': beta_eff2[1,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[1,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[4,0]*beta_layer_tester['H'], 'S': beta_eff2[4,1]*beta_layer_tester['S'], 'W': beta_eff2[4,2]*beta_layer_tester['W'], 'C': beta_eff2[4,3]*beta_layer_tester['C'],'Church': beta_eff2[4,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[4,5]*beta_layer_tester['pSport']}
-                                                 ]), # at different time points the FOI can change
-                        'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                                          vals=np.append(i_cases,[5]*30))}),
-                        cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                        cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
-                            }}
-    for n, name in enumerate(scen_names):
-        relax_scenarios['Int'+str(n+1)] = {'name': name, 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline 2 but with all restrictions lifted
-                        'beta': dict(days=[1], vals=pars['beta']),
-                        'beta_layer': dict(days=beta_days, # multiply the beta_layers by the beta_eff
-                                            vals=[beta_layer_tester,
-                                                  {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[1,0]*beta_layer_tester['H'], 'S': beta_eff2[1,1]*beta_layer_tester['S'], 'W': beta_eff2[1,2]*beta_layer_tester['W'], 'C': beta_eff2[1,3]*beta_layer_tester['C'],'Church': beta_eff2[1,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[1,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff_relax[n,0]*beta_layer_interventions['H'], 'S': beta_eff_relax[n,1]*beta_layer_interventions['S'], 'W': beta_eff_relax[n,2]*beta_layer_interventions['W'], 'C': beta_eff_relax[n,3]*beta_layer_interventions['C'],'Church': beta_eff_relax[n,4], 'pSport': beta_eff_relax[n,5]}
-                                                 ]), # at different time points the FOI can change
-                        'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                                          vals=np.append(i_cases,[5]*30))}),
-                        cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                        cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
-                            }
-    relax_scenarios['Int10'] = {'name': 'Borders', 'pars': {'interventions': [cv.dynamic_pars({ # Same as baseline2 but increase importations for border reopening
-                        'beta': dict(days=[1], vals=pars['beta']),
-                        'beta_layer': dict(days=beta_days[:-1], # multiply the beta_layers by the beta_eff
-                                            vals=[beta_layer_tester,
-                                                  {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[1,0]*beta_layer_tester['H'], 'S': beta_eff2[1,1]*beta_layer_tester['S'], 'W': beta_eff2[1,2]*beta_layer_tester['W'], 'C': beta_eff2[1,3]*beta_layer_tester['C'],'Church': beta_eff2[1,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[1,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
-                                                  {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
-                                                 ]), # at different time points the FOI can change
-                        'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                                          vals=np.append(i_cases,[10]*30))}),
-                        cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                        cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
-                            }
 
+    for n, name in enumerate(scen_names):
+        scen_policies = sc.dcp(baseline_policies)
+        scen_policies.end('day29', 60) # End the day29 restrictions on day 60
+        scen_policies.start(name, 60) # Start the scenario's restrictions on day 60
+
+        relax_scenarios['Int'+str(n+1)] = {
+            'name': 'name',
+            'pars': {
+                'interventions': [
+                    scen_policies,
+                    cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
+                        'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [5] * 30))
+                    }),
+                    cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+                ]
+            }
+        }
+
+    # Same as baseline2 but increase importations for border reopening
+    relax_scenarios['Int10'] = {
+        'name': 'baseline2',
+        'pars': {
+            'interventions': [
+                baseline_policies,
+                cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),vals=np.append(i_cases, [10] * 30))
+                }),
+                cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0), # CAUTION - the number of tests would probably go up as well as being targeted at people with a travel history...?
+                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+            ]
+        }
+    }
 
 
     for run in relax_scenarios.keys():
@@ -245,55 +230,56 @@ if __name__ == '__main__': # need this to run in parallel on windows
             to_plot_capacity = ['n_severe', 'n_critical']
             to_plot1 = ['new_infections','cum_infections','new_diagnoses','cum_deaths']
 
-
             scens.plot(do_save=do_save, do_show=False, fig_path=this_fig_path, interval=7, fig_args=fig_args, font_size=8, to_plot=to_plot1)
 
     for imports in [5, 10, 20, 50]:
-        import_scenarios = {'baseline2': {'name': 'baseline2', 'pars': {'interventions': [cv.dynamic_pars({ # what we actually did but re-introduce imported infections to test robustness
-                    'beta': dict(days=[1], vals=pars['beta']),
-                    'beta_layer': dict(days=beta_days[:-1], # multiply the beta_layers by the beta_eff
-                                        vals=[beta_layer_tester,
-                                              {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff2[1,0]*beta_layer_tester['H'], 'S': beta_eff2[1,1]*beta_layer_tester['S'], 'W': beta_eff2[1,2]*beta_layer_tester['W'], 'C': beta_eff2[1,3]*beta_layer_tester['C'],'Church': beta_eff2[1,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[1,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
-                                             ]), # at different time points the FOI can change
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                                      vals=np.append(i_cases,[imports]*30))}),
-                    cv.test_num(daily_tests=np.append(daily_tests, [10000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
-                        },
-                    'Int0': {'name': 'Fullrelax', 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline 2 but with all restrictions lifted
-                    'beta': dict(days=[1], vals=pars['beta']),
-                    'beta_layer': dict(days=beta_days, # multiply the beta_layers by the beta_eff
-                                        vals=[beta_layer_tester,
-                                              {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff2[1,0]*beta_layer_tester['H'], 'S': beta_eff2[1,1]*beta_layer_tester['S'], 'W': beta_eff2[1,2]*beta_layer_tester['W'], 'C': beta_eff2[1,3]*beta_layer_tester['C'],'Church': beta_eff2[1,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[1,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
-                                              {'H': beta_eff2[4,0]*beta_layer_tester['H'], 'S': beta_eff2[4,1]*beta_layer_tester['S'], 'W': beta_eff2[4,2]*beta_layer_tester['W'], 'C': beta_eff2[4,3]*beta_layer_tester['C'],'Church': beta_eff2[4,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[4,5]*beta_layer_tester['pSport']}
-                                             ]), # at different time points the FOI can change
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                                      vals=np.append(i_cases,[imports]*30))}),
-                    cv.test_num(daily_tests=np.append(daily_tests, [10000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
-                        }}
+        import_scenarios = {}
+        import_scenarios['baseline2'] = {
+            'name': 'baseline2',
+            'pars': {
+                'interventions': [
+                    baseline_policies,
+                    cv.dynamic_pars({
+                        'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),vals=np.append(i_cases, [imports] * 30))
+                    }),
+                    cv.test_num(daily_tests=np.append(daily_tests, [10000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+                ]
+            }
+        }
+
+        import_scenarios['Int0'] = {
+            'name': 'Fullrelax',
+            'pars': {
+                'interventions': [
+                    relax_all_policies,
+                    cv.dynamic_pars({
+                        'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [imports] * 30))
+                    }),
+                    cv.test_num(daily_tests=np.append(daily_tests, [10000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+                ]
+            }
+        }
+
         for n, name in enumerate(scen_names):
-            import_scenarios['Int'+str(n+1)] = {'name': name, 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline 2 but with all restrictions lifted
-                            'beta': dict(days=[1], vals=pars['beta']),
-                            'beta_layer': dict(days=beta_days, # multiply the beta_layers by the beta_eff
-                                                vals=[beta_layer_tester,
-                                                      {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},
-                                                      {'H': beta_eff2[1,0]*beta_layer_tester['H'], 'S': beta_eff2[1,1]*beta_layer_tester['S'], 'W': beta_eff2[1,2]*beta_layer_tester['W'], 'C': beta_eff2[1,3]*beta_layer_tester['C'],'Church': beta_eff2[1,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[1,5]*beta_layer_tester['pSport']},
-                                                      {'H': beta_eff2[2,0]*beta_layer_tester['H'], 'S': beta_eff2[2,1]*beta_layer_tester['S'], 'W': beta_eff2[2,2]*beta_layer_tester['W'], 'C': beta_eff2[2,3]*beta_layer_tester['C'],'Church': beta_eff2[2,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[2,5]*beta_layer_tester['pSport']},
-                                                      {'H': beta_eff2[3,0]*beta_layer_tester['H'], 'S': beta_eff2[3,1]*beta_layer_tester['S'], 'W': beta_eff2[3,2]*beta_layer_tester['W'], 'C': beta_eff2[3,3]*beta_layer_tester['C'],'Church': beta_eff2[3,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[3,5]*beta_layer_tester['pSport']},
-                                                      {'H': beta_eff_relax[n,0]*beta_layer_interventions['H'], 'S': beta_eff_relax[n,1]*beta_layer_interventions['S'], 'W': beta_eff_relax[n,2]*beta_layer_interventions['W'], 'C': beta_eff_relax[n,3]*beta_layer_interventions['C'],'Church': beta_eff_relax[n,4], 'pSport': beta_eff_relax[n,5]}
-                                                     ]), # at different time points the FOI can change
-                            'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                                              vals=np.append(i_cases,[imports]*30))}),
-                            cv.test_num(daily_tests=np.append(daily_tests, [1000]*50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                            cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
-                                }
+            scen_policies = sc.dcp(baseline_policies)
+            scen_policies.end('day29', 60)  # End the day29 restrictions on day 60
+            scen_policies.start(name, 60)  # Start the scenario's restrictions on day 60
+
+            import_scenarios['Int'+str(n+1)] = {
+                'name': 'name',
+                'pars': {
+                    'interventions': [
+                        scen_policies,
+                        cv.dynamic_pars({
+                            'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [imports] * 30))
+                        }),
+                        cv.test_num(daily_tests=np.append(daily_tests, [10000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                        cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+                    ]
+                }
+            }
 
         if 'runsim_import' in todo:
             scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=import_scenarios)

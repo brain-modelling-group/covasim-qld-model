@@ -125,6 +125,18 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
     beta_layer_tester = pars['beta_layer'] #{'H': 1.7, 'S': 0.8, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0} #{'H': 0.0, 'S': 0.0, 'W': 0.00, 'C': 0.05, 'Church': 0.00, 'pSport': 0.00} # using this to test while calibrating
     scenarios = {#'counterfactual': {'name': 'counterfactual', 'pars': {'interventions': None}}, # no interentions
+                'baseline': {'name': 'baseline', 'pars': {'interventions': [cv.dynamic_pars({  # this is what we actually did
+                    'beta_layer': dict(days=[15, 19, 22, 29],  # multiply the beta_layers by the beta_eff
+                                       vals=[{'H': beta_eff[0, 0] * pars['beta_layer']['H'], 'S': beta_eff[0, 1] * pars['beta_layer']['S'], 'W': beta_eff[0, 2] * pars['beta_layer']['W'], 'C': beta_eff[0, 3] * pars['beta_layer']['C'], 'Church': beta_eff[0, 4] * pars['beta_layer']['Church'], 'pSport': beta_eff[0, 5] * pars['beta_layer']['pSport']},
+                                             {'H': beta_eff[1, 0] * pars['beta_layer']['H'], 'S': beta_eff[1, 1] * pars['beta_layer']['S'], 'W': beta_eff[1, 2] * pars['beta_layer']['W'], 'C': beta_eff[1, 3] * pars['beta_layer']['C'], 'Church': beta_eff[1, 4] * pars['beta_layer']['Church'], 'pSport': beta_eff[1, 5] * pars['beta_layer']['pSport']},
+                                             {'H': beta_eff[2, 0] * pars['beta_layer']['H'], 'S': beta_eff[2, 1] * pars['beta_layer']['S'], 'W': beta_eff[2, 2] * pars['beta_layer']['W'], 'C': beta_eff[2, 3] * pars['beta_layer']['C'], 'Church': beta_eff[2, 4] * pars['beta_layer']['Church'], 'pSport': beta_eff[2, 5] * pars['beta_layer']['pSport']},
+                                             {'H': beta_eff[3, 0] * pars['beta_layer']['H'], 'S': beta_eff[3, 1] * pars['beta_layer']['S'], 'W': beta_eff[3, 2] * pars['beta_layer']['W'], 'C': beta_eff[3, 3] * pars['beta_layer']['C'], 'Church': beta_eff[3, 4] * pars['beta_layer']['Church'], 'pSport': beta_eff[3, 5] * pars['beta_layer']['pSport']},
+                                             ]),  # at different time points the FOI can change
+                    'n_imports': dict(days=range(len(i_cases)), vals=i_cases)
+                }),
+                    cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
+                            },
                  'baseline': {'name': 'baseline', 'pars': {'interventions': [cv.dynamic_pars({ #this is what we actually did
                         'beta_layer': dict(days=[15, 19, 22, 29], # multiply the beta_layers by the beta_eff
                                             vals=[{'H': beta_eff[0,0]*pars['beta_layer']['H'], 'S': beta_eff[0,1]*pars['beta_layer']['S'], 'W': beta_eff[0,2]*pars['beta_layer']['W'], 'C': beta_eff[0,3]*pars['beta_layer']['C'],'Church': beta_eff[0,4]*pars['beta_layer']['Church'], 'pSport': beta_eff[0,5]*pars['beta_layer']['pSport']},
