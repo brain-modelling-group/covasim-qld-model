@@ -16,7 +16,7 @@ import pickle, gzip
 # Set state and date
 state = 'vic'
 start_day = sc.readdate('2020-03-01')
-end_day   = sc.readdate('2020-06-19')
+end_day   = sc.readdate('2020-10-01')
 n_days    = (end_day - start_day).days
 
 # What to do
@@ -83,7 +83,7 @@ pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 1, 'pSport': 1} # 
 pars['beta_layer'] = {'H': 1.0, 'S': 0.5, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0}
 pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
 #pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
-pars['beta'] = 0.015
+pars['beta'] = 0.025
 
 trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1} # contact tracing, probability of finding
 trace_time = {'H': 1, 'S': 2, 'W': 2, 'C': 20, 'Church': 10, 'pSport': 5} # number of days to find

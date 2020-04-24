@@ -82,7 +82,7 @@ def sample_household_cluster(mixing_matrix, bin_lower, bin_upper, reference_age,
     return np.array(ages)
 
 
-def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,'S': 22,'W': 20,'C': 20}):
+def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,'S': 22,'W': 20,'C': 20}, population_subsets = None):
     """
     Make a population specification for CovaSim from Australian data and Prem matrices
     """
@@ -136,15 +136,18 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
     social_size = contact_numbers['C']
     contacts['C'] = random_contacts(popdict['age'], social_size)
 
-    # Create church contacts for small percentage of population as a single cluster
-    church_n = int(0.01 * pop_size) # assumes 1% of population attend places of worship.
-    p = np.random.choice(popdict['uid'], church_n)  # random church goers
-    contacts['Church'] = clusters_to_contacts([p])
+    extra_layers = {k: v for k, v in contact_numbers.items() if k not in {'H','W','S','C'}}
+    for i, key in enumerate(extra_layers.keys()):
+        n_layer = int(population_subsets['proportion'][key] * pop_size)
+        inds = np.random.choice(popdict['uid'][(popdict['age'] > population_subsets['age_lb'][key]) & (popdict['age'] < population_subsets['age_ub'][key])], n_layer)
+        if population_subsets['cluster_type']=='complete':
+            contacts[key] = clusters_to_contacts([inds])
 
-    # Create professional sports contacts for small percentage of population
-    pSport_n = int(0.0001 * pop_size)
-    p = np.random.choice(popdict['uid'][(popdict['age']>18) & (popdict['age']>40)], pSport_n)  # sports players between 18 and 40 years
-    contacts['pSport'] = clusters_to_contacts([p])
+        if population_subsets['cluster_type']=='random':
+            x = np.zeros_like(popdict['age'])
+            x[inds] = 1
+            n_contacts_per_layer = contact_numbers[key]
+            contacts[key] = random_contacts(x, n_contacts_per_layer)
 
     # Assign sexes
     sexes = pd.read_excel(dirname + '/' + databook_path, sheet_name = 'age_sex')
