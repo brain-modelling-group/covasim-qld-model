@@ -31,7 +31,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
             'doplot_import',
             'showplot',
             'saveplot',
-           # 'gen_pop'
+            'gen_pop'
             ]
 
 
@@ -84,6 +84,10 @@ if __name__ == '__main__': # need this to run in parallel on windows
     pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
     #pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
     pars['beta'] = 0.015
+    population_subsets = {'proportion': {'pSport': 0.1, 'Church': 0.1}, #Placeholders
+                          'age_lb': {'pSport': 18, 'Church': 0},
+                          'age_ub': {'pSport': 40, 'Church': 120},
+                          'cluster_type': {'pSport': 'Complete', 'Church': 'Complete'}}
 
     trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1} # contact tracing, probability of finding
     trace_time = {'H': 1, 'S': 2, 'W': 2, 'C': 20, 'Church': 10, 'pSport': 5} # number of days to find
@@ -91,7 +95,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
     #### diagnose population structure
     if 'gen_pop' in todo:
-        popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
+        popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets=population_subsets)
         sc.saveobj(popfile, popdict)
         s_struct, w_struct, c_struct = [],[],[]
         h_struct = np.zeros(6)
@@ -115,6 +119,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         #matplotlib.pyplot.savefig(fname=file_path + 'population.png')
 
     sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+    sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
 
     policies = {}
     policies['day15'] = dict(H=1.02, S=1, W=1, C=0.98, Church=1, pSport=1)  # day 15: international travellers self isolate                            , public events >500 people cancelled
@@ -123,15 +128,15 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies['day29'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=0.0, pSport=0.0)  # day 29: public gatherings limited to 2 people
 
     # CAUTION - make sure these values are relative to baseline, not relative to day 29
-    policies['Outdoor10'] = dict(H=1, S=1, W=1, C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 10 people
-    policies['Retail'] = dict(H=1, S=1, W=1.05, C=1.27, Church=0.0, pSport=0.0)  # day 60: non-essential retail outlets reopen
-    policies['Hospitalitylimited'] = dict(H=1, S=1, W=1.04, C=1.16, Church=0.0, pSport=0.0)  # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
-    policies['Outdoor200'] = dict(H=1, S=1, W=1, C=1.04, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 200 people
-    policies['Sports'] = dict(H=1, S=1, W=1, C=1.08, Church=0.0, pSport=0.0)  # day 60: community sports reopen
-    policies['School'] = dict(H=1, S=1.75, W=1, C=1, Church=0.0, pSport=0.0)  # day 60: childcare and schools reopen
-    policies['Work'] = dict(H=1, S=1, W=1.33, C=1, Church=0.0, pSport=0.0)  # day 60: non-essential work reopens
-    policies['ProSports'] = dict(H=1, S=1, W=1, C=1, Church=0.0, pSport=1)  # day 60: professional sport without crowds allowed
-    policies['Church'] = dict(H=1, S=1, W=1, C=1, Church=1, pSport=0.0)  # day 60: places of worship reopen
+    policies['Outdoor10'] = dict(H=1.13, S=0.25, W=0.67, C=0.69, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 10 people
+    policies['Retail'] = dict(H=1.13, S=0.25, W=0.72, C=0.82, Church=0.0, pSport=0.0)  # day 60: non-essential retail outlets reopen
+    policies['Hospitalitylimited'] = dict(H=1.13, S=0.25, W=0.71, C=0.71, Church=0.0, pSport=0.0)  # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
+    policies['Outdoor200'] = dict(H=1.13, S=0.25, W=0.67, C=0.59, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 200 people
+    policies['Sports'] = dict(H=1.13, S=0.25, W=0.67, C=0.63, Church=0.0, pSport=0.0)  # day 60: community sports reopen
+    policies['School'] = dict(H=1.13, S=1, W=0.67, C=0.55, Church=0.0, pSport=0.0)  # day 60: childcare and schools reopen
+    policies['Work'] = dict(H=1.13, S=0.25, W=1, C=0.55, Church=0.0, pSport=0.0)  # day 60: non-essential work reopens
+    policies['ProSports'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=0.0, pSport=1)  # day 60: professional sport without crowds allowed
+    policies['Church'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=1, pSport=0.0)  # day 60: places of worship reopen
 
     baseline_policies = utils.PolicySchedule(pars['beta_layer'],policies)
     baseline_policies.add('day15',15,19)
