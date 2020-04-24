@@ -50,9 +50,13 @@ def random_contacts(include, mean_contacts_per_person):
     include_inds = np.nonzero(include)[0]
     n_eligible = len(include_inds)
     for p in range(len(include)):
-        n_contacts = cvu.poisson(mean_contacts_per_person)  # Draw the number of Poisson contacts for this person
-        contact_inds = cvu.choose(n_eligible, min(n_eligible, n_contacts))  # Choose people at random. These index the include_inds array
-        contacts[p] = include_inds[contact_inds] # Convert the sampled indexes to the actual person IDs
+        if include[p] == 0:
+            contacts[p] = []
+        else:
+            n_contacts = cvu.poisson(mean_contacts_per_person)  # Draw the number of Poisson contacts for this person
+            contact_inds = cvu.choose(n_eligible-1, min(n_eligible-1, n_contacts))  # Choose people at random. These index the include_inds array
+            include_inds_minus_self = np.delete(include_inds, np.where(include_inds == p)) # need to exclude being a contact of themselves
+            contacts[p] = include_inds_minus_self[contact_inds] # Convert the sampled indexes to the actual person IDs
     return contacts
 
 def get_mixing_matrix(databook_path, sheet_name: str):
@@ -140,13 +144,13 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
     for i, key in enumerate(extra_layers.keys()):
         n_layer = int(population_subsets['proportion'][key] * pop_size)
         inds = np.random.choice(popdict['uid'][(popdict['age'] > population_subsets['age_lb'][key]) & (popdict['age'] < population_subsets['age_ub'][key])], n_layer)
+        x = np.zeros_like(popdict['age'])
+        x[inds] = 1
 
         if population_subsets['cluster_type'][key] == 'complete':
             contacts[key] = clusters_to_contacts([inds])
 
         if population_subsets['cluster_type'][key] == 'random':
-            x = np.zeros_like(popdict['age'])
-            x[inds] = 1
             n_contacts_per_layer = contact_numbers[key]
             contacts[key] = random_contacts(x, n_contacts_per_layer)
 
@@ -157,7 +161,7 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
             y[inds] = 0
             n_contacts_per_layer = contact_numbers[key]
             contacts[key] = random_contacts(x, n_contacts_per_layer)
-            contacts[key].update(random_contacts(y, n_contacts_per_layer))
+            #contacts[key].update(random_contacts(y, n_contacts_per_layer))
 
     # Assign sexes
     sexes = pd.read_excel(dirname + '/' + databook_path, sheet_name = 'age_sex')

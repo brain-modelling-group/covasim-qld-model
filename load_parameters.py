@@ -27,19 +27,19 @@ def load_pars():
     pars['pop_infected'] = 5  # Number of initial infections
     pars['start_day'] = start_day  # Start date
     pars['n_days'] = n_days  # Number of days
-    pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 10, 'pSport': 10,'beach_goer': 30}  # Number of contacts per person per day, estimated. Special contact types are between 1-100 (percentage)
+    pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 10, 'pSport': 10,'beach_goer': 3}  # Number of contacts per person per day, estimated. Special contact types are between 1-100 (percentage)
     pars['beta_layer'] = {'H': 1.0, 'S': 0.5, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0, 'beach_goer': 0.1}
     pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.0, 'pSport': 0.0,
                         'beach_goer': 0.0}  # Set quarantine effect for each layer
     population_subsets = {}
     population_subsets['proportion'] = {'Church': 0.1, 'pSport': 0.01,
-                                        'beach_goer': 0.30}  # proportion of the population who do these things
+                                        'beach_goer': 0.05}  # proportion of the population who do these things
     population_subsets['age_lb'] = {'Church': 0, 'pSport': 18,
                                     'beach_goer': 0}  # proportion of the population who do these things
     population_subsets['age_ub'] = {'Church': 110, 'pSport': 40,
                                     'beach_goer': 110}  # proportion of the population who do these things
     population_subsets['cluster_type'] = {'Church': 'complete', 'pSport': 'complete',
-                                          'beach_goer': 'random'}  # proportion of the population who do these things
+                                          'beach_goer': 'partition'}  # proportion of the population who do these things
 
 
     trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1,
