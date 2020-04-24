@@ -25,7 +25,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # load parameters
     state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, \
     population_subsets, trace_probs, trace_time = load_parameters.load_pars()
-
+    end_day = sc.readdate('2020-05-01')
+    n_days = (end_day - start_day).days
     # Process and read in data
     if 'loaddata' in todo:
         sd, i_cases, daily_tests = load_parameters.load_data(databook_path=databook_path, start_day=start_day, end_day=end_day, data_path=data_path)
@@ -66,7 +67,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
                         cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)]}
                             },
                  'baseline2': {'name': 'baseline2', 'pars': {'interventions': [cv.dynamic_pars({ # same as baseline but re-introduce imported infections to test robustness
-                        'beta': dict(days=[15], vals=0.035),
+                        'beta': dict(days=[15], vals=0.025),
                         'beta_layer': dict(days=[1, 15, 19, 22, 29], # multiply the beta_layers by the beta_eff
                                             vals=[beta_layer_tester,
                                                   {'H': beta_eff2[0,0]*beta_layer_tester['H'], 'S': beta_eff2[0,1]*beta_layer_tester['S'], 'W': beta_eff2[0,2]*beta_layer_tester['W'], 'C': beta_eff2[0,3]*beta_layer_tester['C'],'Church': beta_eff2[0,4]*beta_layer_tester['Church'], 'pSport': beta_eff2[0,5]*beta_layer_tester['pSport']},

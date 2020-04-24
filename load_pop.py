@@ -161,7 +161,10 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
             y[inds] = 0
             n_contacts_per_layer = contact_numbers[key]
             contacts[key] = random_contacts(x, n_contacts_per_layer)
-            #contacts[key].update(random_contacts(y, n_contacts_per_layer))
+            part2 = random_contacts(y, n_contacts_per_layer)
+            for j in range(pop_size):
+                if  contacts[key][j] == []:
+                    contacts[key][j] = part2[j]
 
     # Assign sexes
     sexes = pd.read_excel(dirname + '/' + databook_path, sheet_name = 'age_sex')

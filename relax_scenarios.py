@@ -8,18 +8,11 @@ matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
-import load_pop
-import utils
+import utils, load_parameters, load_pop
 import numpy as np
 
 
 if __name__ == '__main__': # need this to run in parallel on windows
-
-    # Set state and date
-    state = 'vic'
-    start_day = sc.readdate('2020-03-01')
-    end_day   = sc.readdate('2020-06-19')
-    n_days    = (end_day - start_day).days
 
     # What to do
     '''Include runsim_indiv and doplot_indiv if you want to produce individual scenario plots against a baseline (assuming 5 importations per day from days 60-90)
@@ -34,89 +27,22 @@ if __name__ == '__main__': # need this to run in parallel on windows
             'gen_pop'
             ]
 
-
     verbose    = 1
     seed       = 1
 
-    date      = '2020apr19'
-    folder    = f'results_{date}'
-    file_path = f'{folder}/{state}_'
-    data_path = f'data/{state}-data-{date}.csv' # This gets created and then read in
-    databook_path = f'data/{state}-data.xlsx'
-    popfile = f'data/popfile.obj'
+    # load parameters
+    state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, \
+    population_subsets, trace_probs, trace_time = load_parameters.load_pars()
 
     # Process and read in data
     if 'loaddata' in todo:
-        sd = pd.read_excel(databook_path, sheet_name = 'epi_data')
-        sd.rename(columns={'Date': 'date',
-                           'Cumulative case count': 'cum_infections',
-                           'Cumulative deaths': 'cum_deaths',
-                           'Tests conducted (total)': 'cum_test',
-                           'Tests conducted (negative)': 'cum_neg',
-                           'Hospitalisations (count)': 'n_severe',
-                           'Intensive care (count)': 'n_critical',
-                           'Recovered (cumulative)': 'cum_recovered',
-                           'Daily imported cases': 'daily_imported_cases'
-                           }, inplace=True)
-        sd.set_index('date', inplace=True)
-        sd.loc[start_day:end_day].to_csv(data_path)
-
-        i_cases = np.array(sd['daily_imported_cases'])
-        i_cases = i_cases[6:len(i_cases)]  # shift 7 days back to account for lag in reporting time
-        daily_tests = np.array(sd['new_tests'])
-
-    # Set up scenarios
-    pars = cv.make_pars() # generate some defaults
-    metapars = cv.make_metapars()
-    metapars['n_runs'] = 3
-
-    pars['pop_size'] = 20000         # This will be scaled
-    pars['pop_scale'] = 1 #6.35e6/pars['pop_size']   # this gives a total VIC population
-    pars['rescale'] = 0
-    pars['rescale_threshold'] = 0.8 # Fraction susceptible population that will trigger rescaling if rescaling
-    pars['rescale_factor'] = 2   # Factor by which we rescale the population
-    pars['pop_infected'] = 5        # Number of initial infections
-    pars['start_day']=start_day     # Start date
-    pars['n_days']=n_days           # Number of days
-    pars['use_layers'] = True
-    pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 1, 'pSport': 1} # Number of contacts per person per day, estimated
-    pars['beta_layer'] = {'H': 1.0, 'S': 0.5, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0}
-    pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.5, 'pSport': 0.0} # Set quarantine effect for each layer
-    #pars['dynam_layer'] = {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1}
-    pars['beta'] = 0.015
-    population_subsets = {'proportion': {'pSport': 0.1, 'Church': 0.1}, #Placeholders
-                          'age_lb': {'pSport': 18, 'Church': 0},
-                          'age_ub': {'pSport': 40, 'Church': 120},
-                          'cluster_type': {'pSport': 'Complete', 'Church': 'Complete'}}
-
-    trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1} # contact tracing, probability of finding
-    trace_time = {'H': 1, 'S': 2, 'W': 2, 'C': 20, 'Church': 10, 'pSport': 5} # number of days to find
+        sd, i_cases, daily_tests = load_parameters.load_data(databook_path=databook_path, start_day=start_day, end_day=end_day, data_path=data_path)
 
 
     #### diagnose population structure
     if 'gen_pop' in todo:
-        popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets=population_subsets)
+        popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
         sc.saveobj(popfile, popdict)
-        s_struct, w_struct, c_struct = [],[],[]
-        h_struct = np.zeros(6)
-        for i in range(0,pars['pop_size']-1):
-            s_struct.append(len(popdict['contacts'][i]['S']) + 1)
-            w_struct.append(len(popdict['contacts'][i]['W']) + 1)
-            c_struct.append(len(popdict['contacts'][i]['C']) + 1)
-            h_struct[len(popdict['contacts'][i]['H'])] += 1
-        h_struct / np.array((1, 2, 3, 4, 5, 6)) # account for over counting of households
-        fig_pop, axs = matplotlib.pyplot.subplots(3, 2)
-        axs[0, 0].hist(popdict['age'], bins=max(popdict['age'])-min(popdict['age']))
-        axs[0, 0].set_title("Age distribution of model population")
-        axs[0, 1].bar(np.array((1,2,3,4,5,6)),h_struct)
-        axs[0, 1].set_title("Household size distribution")
-        axs[1, 0].hist(s_struct, bins=max(s_struct)-min(s_struct))
-        axs[1, 0].set_title("School size distribution")
-        axs[1, 1].hist(w_struct, bins=max(w_struct)-min(w_struct))
-        axs[1, 1].set_title("Work size distribution")
-        axs[2, 0].hist(c_struct, bins=max(c_struct)-min(c_struct))
-        axs[2, 0].set_title("Community size distribution")
-        #matplotlib.pyplot.savefig(fname=file_path + 'population.png')
 
     sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
@@ -187,7 +113,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         scen_policies.start(name, 60) # Start the scenario's restrictions on day 60
 
         relax_scenarios['Int'+str(n+1)] = {
-            'name': 'name',
+            'name': scen_names[n],
             'pars': {
                 'interventions': [
                     scen_policies,
