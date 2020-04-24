@@ -1,11 +1,9 @@
 def load_pars():
     import covasim as cv
     import sciris as sc
+    import pandas as pd
 
     state = 'vic'
-    start_day = sc.readdate('2020-03-01')
-    end_day = sc.readdate('2020-10-01')
-    n_days = (end_day - start_day).days
 
     date = '2020apr19'
     folder = f'results_{date}'
@@ -14,37 +12,60 @@ def load_pars():
     databook_path = f'data/{state}-data.xlsx'
     popfile = f'data/popfile.obj'
 
+    layers = pd.read_excel(databook_path, sheet_name='layers')
+    subset_names = list(layers['name'].unique())
+    layers = layers.set_index('name')
+
+    other_par = pd.read_excel(databook_path, sheet_name='other_par')
+    other_par = other_par.set_index('name')
+
+    start_day = sc.readdate(str(other_par['value'].start_day))
+    end_day = sc.readdate(str(other_par['value'].end_day))
+    n_days = (end_day - start_day).days
+
     pars = cv.make_pars()  # generate some defaults
     metapars = cv.make_metapars()
-    metapars['n_runs'] = 3
+    metapars['n_runs'] = other_par['value'].n_runs
 
-    pars['beta'] = 0.035
-    pars['pop_size'] = 20000  # This will be scaled
-    pars['pop_scale'] = 1  # 6.35e6/pars['pop_size']   # this gives a total VIC population
-    pars['rescale'] = 1
-    pars['rescale_threshold'] = 0.8  # Fraction susceptible population that will trigger rescaling if rescaling
-    pars['rescale_factor'] = 2  # Factor by which we rescale the population
-    pars['pop_infected'] = 5  # Number of initial infections
+    pars['pop_size'] = other_par['value'].pop_size
+    pars['pop_scale'] = other_par['value'].pop_scale
+    pars['rescale'] = other_par['value'].rescale
+    pars['rescale_threshold'] = other_par['value'].rescale_threshold
+    pars['rescale_factor'] = other_par['value'].rescale_factor
+    pars['pop_infected'] = other_par['value'].pop_infected
     pars['start_day'] = start_day  # Start date
     pars['n_days'] = n_days  # Number of days
-    pars['contacts'] = {'H': 4, 'S': 7, 'W': 5, 'C': 5, 'Church': 10, 'pSport': 10,'beach_goer': 30}  # Number of contacts per person per day, estimated. Special contact types are between 1-100 (percentage)
-    pars['beta_layer'] = {'H': 1.0, 'S': 0.5, 'W': 0.5, 'C': 0.1, 'Church': 0.5, 'pSport': 1.0, 'beach_goer': 0.1}
-    pars['quar_eff'] = {'H': 1.0, 'S': 0.0, 'W': 0.0, 'C': 0.0, 'Church': 0.0, 'pSport': 0.0,
-                        'beach_goer': 0.0}  # Set quarantine effect for each layer
+
+    pars['contacts'] = {}
+    pars['beta_layer'] = {}
+    pars['quar_eff'] = {}
+
+    for i in subset_names:
+        pars['contacts'].update({i: layers['contacts'][i]})
+        pars['beta_layer'].update({i: layers['beta_layer'][i]})
+        pars['quar_eff'].update({i: layers['quar_eff'][i]})
+
+    subset_names2 = subset_names[4:]
+
     population_subsets = {}
-    population_subsets['proportion'] = {'Church': 0.1, 'pSport': 0.01,
-                                        'beach_goer': 0.30}  # proportion of the population who do these things
-    population_subsets['age_lb'] = {'Church': 0, 'pSport': 18,
-                                    'beach_goer': 0}  # proportion of the population who do these things
-    population_subsets['age_ub'] = {'Church': 110, 'pSport': 40,
-                                    'beach_goer': 110}  # proportion of the population who do these things
-    population_subsets['cluster_type'] = {'Church': 'complete', 'pSport': 'complete',
-                                          'beach_goer': 'random'}  # proportion of the population who do these things
+    population_subsets['proportion'] = {}
+    population_subsets['age_lb'] = {}
+    population_subsets['age_ub'] = {}
+    population_subsets['cluster_type'] = {}
 
+    for i in subset_names2:
+        population_subsets['proportion'].update({i: layers['proportion'][i]})
+        population_subsets['age_lb'].update({i: layers['age_lb'][i]})
+        population_subsets['age_ub'].update({i: layers['age_ub'][i]})
+        population_subsets['cluster_type'].update({i: layers['cluster_type'][i]})
 
-    trace_probs = {'H': 1.0, 'S': 0.8, 'W': 0.5, 'C': 0, 'Church': 0.05, 'pSport': 0.1,
-                   'beach_goer': 0.1}  # contact tracing, probability of finding
-    trace_time = {'H': 1, 'S': 2, 'W': 2, 'C': 20, 'Church': 10, 'pSport': 5, 'beach_goer': 20}  # number of days to find
+    pars['beta'] = other_par['value'].beta
+    trace_probs = {}
+    trace_time = {}
+
+    for i in subset_names:
+        trace_probs.update({i: layers['trace_probs'][i]})
+        trace_time.update({i: layers['trace_time'][i]})
 
     return state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, population_subsets, trace_probs, trace_time
 
@@ -54,6 +75,8 @@ def load_data(databook_path, start_day, end_day, data_path):
     import numpy as np
 
     sd = pd.read_excel(databook_path, sheet_name='epi_data')
+    other_par = pd.read_excel(databook_path, sheet_name='other_par')
+    other_par = other_par.set_index('name')
     sd.rename(columns={'Date': 'date',
                        'Cumulative case count': 'cum_infections',
                        'Cumulative deaths': 'cum_deaths',
@@ -65,7 +88,7 @@ def load_data(databook_path, start_day, end_day, data_path):
                        'Daily imported cases': 'daily_imported_cases'
                        }, inplace=True)
     sd.set_index('date', inplace=True)
-    sd['cum_infections'] = sd['cum_infections'] * 1.3  # Assume 20% of cases never diagnosed
+    sd['cum_infections'] = sd['cum_infections'] * (1 + other_par['value'].undiag)  # Assume 20% of cases never diagnosed
     sd.loc[start_day:end_day].to_csv(data_path)
 
     i_cases = np.array(sd['daily_imported_cases'])
