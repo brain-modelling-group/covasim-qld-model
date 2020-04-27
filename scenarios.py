@@ -99,7 +99,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
             w_struct.append(len(popdict['contacts'][i]['W']) + 1)
             c_struct.append(len(popdict['contacts'][i]['C']) + 1)
             h_struct[len(popdict['contacts'][i]['H'])] += 1
-        h_struct / np.array((1, 2, 3, 4, 5, 6)) # account for over counting of households
+        h_struct = h_struct / np.array((1, 2, 3, 4, 5, 6)) # account for over counting of households
         fig_pop, axs = matplotlib.pyplot.subplots(3, 2)
         axs[0, 0].hist(popdict['age'], bins=max(popdict['age'])-min(popdict['age']))
         axs[0, 0].set_title("Age distribution of model population")

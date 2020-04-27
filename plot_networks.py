@@ -34,9 +34,14 @@ pars = {
     'beta_layer': {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1},
     'quar_eff': {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1},
 }
+population_subsets = {'proportion': {'Church': 0.1, 'pSport': 0.01},
+                           'age_lb': {'Church': 0, 'pSport': 18},
+                           'age_ub': {'Church': 110, 'pSport': 40},
+                           'cluster_type': {'Church': 'complete', 'pSport': 'complete'}}
 
-popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'])
+popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets= population_subsets)
 sc.saveobj(popfile, popdict)
+
 s_struct, w_struct, c_struct = [],[],[]
 h_struct = np.zeros(6)
 for i in range(0,pars['pop_size']-1):
