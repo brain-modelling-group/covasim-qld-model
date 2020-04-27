@@ -60,6 +60,7 @@ def random_contacts(include, mean_contacts_per_person):
     return contacts
 
 def create_clustering(people_to_cluster, mean_cluster_size):
+    #This function puts people into disconnected clusters. Everyone in each cluster is connected to one another
     clusters = []
     while len(people_to_cluster)>0:
         new_cluster_size = max(cvu.poisson(mean_cluster_size),2)
