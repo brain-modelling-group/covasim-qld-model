@@ -59,6 +59,15 @@ def random_contacts(include, mean_contacts_per_person):
             contacts[p] = include_inds_minus_self[contact_inds] # Convert the sampled indexes to the actual person IDs
     return contacts
 
+def create_clustering(people_to_cluster, mean_cluster_size):
+    clusters = []
+    while len(people_to_cluster)>0:
+        new_cluster_size = max(cvu.poisson(mean_cluster_size),2)
+        new_cluster = np.random.choice(people_to_cluster, min(len(people_to_cluster), new_cluster_size), replace=False)
+        clusters.append(new_cluster.tolist())
+        people_to_cluster = [x for x in people_to_cluster if x not in new_cluster]
+    return clusters
+
 def get_mixing_matrix(databook_path, sheet_name: str):
     """
     Load Prem et al. matrices
@@ -129,12 +138,19 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
     contacts['H'] = clusters_to_contacts(household_clusters)
 
     # Create random school contacts (only certain ages eligible)
-    classroom_size = contact_numbers['S']
-    contacts['S'] = random_contacts((popdict['age'] >= 5) & (popdict['age'] <= 18), classroom_size)
+    classrooms = []
+    for a in range(5,18):
+        children_to_allocate = popdict['uid'][popdict['age'] == a]
+        classrooms.extend(create_clustering(children_to_allocate, contact_numbers['S']))
+
+    contacts['S'] = clusters_to_contacts(classrooms)
+#    contacts['S'] = random_contacts((popdict['age'] >= 5) & (popdict['age'] <= 18), classroom_size)
 
     # Create random work contacts (only certain ages eligible)
-    workplace_size = contact_numbers['W']
-    contacts['W'] = random_contacts((popdict['age'] > 18) & (popdict['age'] <= 65), workplace_size)
+    workplaces = []
+    workplaces.extend(create_clustering(popdict['uid'][(popdict['age'] > 18) & (popdict['age'] <= 65)], contact_numbers['W']))
+    contacts['W'] = clusters_to_contacts(workplaces)
+#    contacts['W'] = random_contacts((popdict['age'] > 18) & (popdict['age'] <= 65), workplace_size)
 
     # Create random community contacts
     social_size = contact_numbers['C']
@@ -153,6 +169,11 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
         if population_subsets['cluster_type'][key] == 'random':
             n_contacts_per_layer = contact_numbers[key]
             contacts[key] = random_contacts(x, n_contacts_per_layer)
+
+        if population_subsets['cluster_type'][key] == 'clusters':
+            miniclusters = []
+            miniclusters.extend(create_clustering(popdict['uid'][(popdict['age'] > population_subsets['age_lb'][key]) & (popdict['age'] < population_subsets['age_ub'][key])], contact_numbers[key]))
+            contacts[key] = clusters_to_contacts(miniclusters)
 
         if population_subsets['cluster_type'][key] == 'partition':
             x = np.zeros_like(popdict['age'])
