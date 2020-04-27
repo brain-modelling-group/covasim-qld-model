@@ -96,3 +96,26 @@ def load_data(databook_path, start_day, end_day, data_path):
     daily_tests = np.array(sd['new_tests'])
 
     return sd, i_cases, daily_tests
+
+def load_pols(databook_path, layers, start_day):
+    import pandas as pd
+    import sciris as sc
+
+    pols = pd.read_excel(databook_path, sheet_name='policies')
+
+    policies = {}
+    policy_dates = {}
+    for p, policy in enumerate(pols.iloc[1:,0].tolist()):
+        policies[policy] = {}
+        if not pd.isnull(pols.iloc[p+1, 19]):
+            pol_start = sc.readdate(str(pols.iloc[p+1, 19]))
+            n_days = (pol_start-start_day).days
+            policy_dates[policy] = [n_days]
+            if not pd.isnull(pols.iloc[p+1, 20]):
+                pol_start = sc.readdate(str(pols.iloc[p + 1, 20]))
+                n_days = (pol_start - start_day).days
+                policy_dates[policy].append(n_days)
+        for l, layer in enumerate(layers):
+            policies[policy][layer] = pols.iloc[p+1, 2] * pols.iloc[p+1, l+3]
+
+    return policies, policy_dates
