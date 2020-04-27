@@ -138,20 +138,20 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
     popdict['age'] = np.array(popdict['age'])
     contacts['H'] = clusters_to_contacts(household_clusters)
 
-    # Create random school contacts (only certain ages eligible)
+    # Create school contacts, with children of each age clustered in groups
     classrooms = []
     for a in range(5,18):
         children_to_allocate = popdict['uid'][popdict['age'] == a]
         classrooms.extend(create_clustering(children_to_allocate, contact_numbers['S']))
+    for i in range(len(classrooms)): # add a random adult to each classroom as the teacher
+        classrooms[i].extend([np.random.choice(popdict['uid'][popdict['age'] > 18])])
 
     contacts['S'] = clusters_to_contacts(classrooms)
-#    contacts['S'] = random_contacts((popdict['age'] >= 5) & (popdict['age'] <= 18), classroom_size)
 
     # Create random work contacts (only certain ages eligible)
     workplaces = []
     workplaces.extend(create_clustering(popdict['uid'][(popdict['age'] > 18) & (popdict['age'] <= 65)], contact_numbers['W']))
     contacts['W'] = clusters_to_contacts(workplaces)
-#    contacts['W'] = random_contacts((popdict['age'] > 18) & (popdict['age'] <= 65), workplace_size)
 
     # Create random community contacts
     social_size = contact_numbers['C']
