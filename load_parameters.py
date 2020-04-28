@@ -104,11 +104,12 @@ def load_pols(databook_path, layers, start_day):
 
     pols = pd.read_excel(databook_path, sheet_name='policies')
 
-    beta_policies, import_policies = {}, {}
+    beta_policies, import_policies, clip_policies = {}, {}, {}
     policy_dates = {}
     for p, policy in enumerate(pols.iloc[1:,0].tolist()):
         beta_change = np.prod(pols.iloc[p+1, 2:2+len(layers)])
         imports = pols.iloc[p+1, 3+len(layers)]
+        to_clip = [str(pols.iloc[p+1, 4+len(layers)]), pols.iloc[p + 1, 5 + len(layers)]]
         if not pd.isnull(pols.iloc[p+1, 6+len(layers)]):
             pol_start = sc.readdate(str(pols.iloc[p+1, 6+len(layers)]))
             n_days = (pol_start-start_day).days
@@ -123,5 +124,12 @@ def load_pols(databook_path, layers, start_day):
                 beta_policies[policy][layer] = pols.iloc[p+1, 2] * pols.iloc[p+1, l+3]
         if imports > 0:
             import_policies[policy] = {'n_imports': imports}
+        if not pd.isnull(to_clip[1]):
+            clip_policies[policy] = {}
+            clip_policies[policy]['change'] = to_clip[1]
+            if not pd.isnull(to_clip[0]):
+                clip_policies[policy]['layers'] = [layer for layer in layers if layer in to_clip[0]]
+            else:
+                clip_policies[policy]['layers'] = layers
 
-    return beta_policies, import_policies, policy_dates
+    return beta_policies, import_policies, clip_policies, policy_dates
