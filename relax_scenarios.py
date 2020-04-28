@@ -15,20 +15,19 @@ import numpy as np
 if __name__ == '__main__': # need this to run in parallel on windows
 
     # What to do
-    '''Include runsim_indiv and doplot_indiv if you want to produce individual scenario plots against a baseline (assuming 5 importations per day from days 60-90)
-    Include runsim_import and doplot_import if you want to produce plots of all scenarios against a baseline (assuming 5, 10, 20, 50 importations per day from days 60-90)'''
     todo = ['loaddata',
-            #'runsim_indiv',
-            #'doplot_indiv',
-            'runsim_import',
-            'doplot_import',
-            #'showplot',
+            'showplot',
             'saveplot',
-            'gen_pop'
+            'gen_pop',
+            'runsim_indiv',
+            'doplot_indiv',
+            #'runsim_import',
+            #'doplot_import'
             ]
     for_powerpoint = False
     verbose    = 1
     seed       = 1
+    restart_imports = 5 # jump start epidemic with imports after day 60
 
     # load parameters
     state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, \
@@ -38,58 +37,64 @@ if __name__ == '__main__': # need this to run in parallel on windows
     if 'loaddata' in todo:
         sd, i_cases, daily_tests = load_parameters.load_data(databook_path=databook_path, start_day=start_day, end_day=end_day, data_path=data_path)
 
-
     #### diagnose population structure
     if 'gen_pop' in todo:
         popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
         sc.saveobj(popfile, popdict)
 
+    pars['beta'] *= 1.1 # Scale beta
+    pars['diag_factor'] *= 1.1 # Scale proportion asymptomatic
+
     sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
 
-    policies = {}
-    policies['day15'] = dict(H=1.02, S=1, W=1, C=0.98, Church=1, pSport=1)  # day 15: international travellers self isolate                            , public events >500 people cancelled
-    policies['day19'] = dict(H=1.05, S=0.75, W=1, C=0.9, Church=0.0, pSport=1)  # day 19: indoor gatherings limited to 100 people
-    policies['day22'] = dict(H=1.06, S=0.5, W=0.88, C=0.82, Church=0.0, pSport=0.0)  # day 22: pubs/bars/cafes take away only                                     , church/sport etc. cancelled
-    policies['day29'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=0.0, pSport=0.0)  # day 29: public gatherings limited to 2 people
+    # Read a variety of policies from databook sheet 'policies'
+    beta_policies, import_policies, clip_policies, policy_dates = load_parameters.load_pols(databook_path=databook_path, layers=pars['contacts'].keys(), start_day=start_day)
 
-    # CAUTION - make sure these values are relative to baseline, not relative to day 29
-    policies['Outdoor10'] = dict(H=1.13, S=0.25, W=0.67, C=0.69, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 10 people
-    policies['Retail'] = dict(H=1.13, S=0.25, W=0.72, C=0.82, Church=0.0, pSport=0.0)  # day 60: non-essential retail outlets reopen
-    policies['Hospitality'] = dict(H=1.13, S=0.25, W=0.71, C=0.71, Church=0.0, pSport=0.0)  # day 60: restaurants/cafes/bars allowed to do eat in with 4 sq m distancing
-    policies['Outdoor200'] = dict(H=1.13, S=0.25, W=0.67, C=0.59, Church=0.0, pSport=0.0)  # day 60: relax outdoor gatherings to 200 people
-    policies['Sports'] = dict(H=1.13, S=0.25, W=0.67, C=0.63, Church=0.0, pSport=0.0)  # day 60: community sports reopen
-    policies['School'] = dict(H=1.13, S=1, W=0.67, C=0.55, Church=0.0, pSport=0.0)  # day 60: childcare and schools reopen
-    policies['Work'] = dict(H=1.13, S=0.25, W=1, C=0.55, Church=0.0, pSport=0.0)  # day 60: non-essential work reopens
-    policies['ProSports'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=0.0, pSport=1)  # day 60: professional sport without crowds allowed
-    policies['Church'] = dict(H=1.13, S=0.25, W=0.67, C=0.55, Church=1, pSport=0.0)  # day 60: places of worship reopen
+    baseline_policies = utils.PolicySchedule(pars['beta_layer'], beta_policies) #create policy schedule with beta layer adjustments
+    for d, dates in enumerate(policy_dates): # add start and end dates to beta layer, import and edge clipping policies
+        if len(policy_dates[dates]) == 2:
+            if dates in beta_policies:
+                baseline_policies.add(dates, policy_dates[dates][0], policy_dates[dates][1])
+            if dates in import_policies:
+                import_policies[dates]['dates'] = np.arange(policy_dates[dates][0], policy_dates[dates][1])
+            if dates in clip_policies:
+                clip_policies[dates]['dates'] = [policy_dates[dates][0], policy_dates[dates][1]]
+        elif len(policy_dates[dates]) == 1:
+            if dates in beta_policies:
+                baseline_policies.add(dates, policy_dates[dates][0])
+            if dates in import_policies:
+                import_policies[dates]['dates'] = np.arange(policy_dates[dates][0], n_days)
+            if dates in clip_policies:
+                clip_policies[dates]['dates'] = [policy_dates[dates][0], n_days]
 
-    baseline_policies = utils.PolicySchedule(pars['beta_layer'],policies)
-    baseline_policies.add('day15',15,19)
-    baseline_policies.add('day19',19,22)
-    baseline_policies.add('day22',22,29)
-    baseline_policies.add('day29',29) # Add this policy without an end day
-
-    base_scenarios = {}
+    base_scenarios = {} #create baseline scenario according to policies from databook
     base_scenarios['baseline'] = {
         'name': 'Baseline',
         'pars': {
             'interventions': [
                 baseline_policies,
                 cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),vals=np.append(i_cases, [5] * 30))
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
                 }),
                 cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
         }
     }
+    # add edge clipping policies to baseline scenario
+    for policy in clip_policies:
+        details = clip_policies[policy]
+        base_scenarios['baseline']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer:details['change'] for layer in details['layers']}))
 
     relax_scenarios = {}
 
     # Relax all policies
     relax_all_policies = sc.dcp(baseline_policies)
-    relax_all_policies.end('day29',60)
+    for dates in policy_dates:
+        if len(policy_dates[dates]) == 1 and dates in beta_policies:
+            relax_all_policies.end(dates, 60)
+
     relax_scenarios['Int0'] = {
         'name': 'Full relaxation',
         'pars': {
@@ -103,14 +108,27 @@ if __name__ == '__main__': # need this to run in parallel on windows
             ]
         }
     }
+    for policy in clip_policies: # Add relaxed clip edges policies
+        details = clip_policies[policy]
+        base_scenarios['baseline']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=60, change={layer:details['change'] for layer in details['layers']}))
 
-
-    scen_names = ['Outdoor10', 'Retail', 'Hospitality', 'Outdoor200', 'Sports', 'School', 'Work', 'ProSports']#, 'Church']
+    scen_names = []
+    for policy in policy_dates:
+        if len(policy_dates[policy]) == 1: #create list of ongoing policies
+            scen_names.append(policy)
+    non_beta_policies = {**import_policies, **clip_policies}
+    for policy in non_beta_policies:
+        if policy not in scen_names and policy_dates[policy][1] > 60:
+            scen_names.append(policy)
 
     for n, name in enumerate(scen_names):
         scen_policies = sc.dcp(baseline_policies)
-        scen_policies.end('day29', 60) # End the day29 restrictions on day 60
-        scen_policies.start(name, 60) # Start the scenario's restrictions on day 60
+        if name in beta_policies:
+            scen_policies.end(name, 60) #add end day if policy is relaxed
+        if name in import_policies: # add imports if border scenario is relaxed
+            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(import_policies[name]['dates'][0], import_policies[name]['dates'][1])), vals=np.append(i_cases, [import_policies[name]['n_imports']] * (import_policies[name]['dates'][1]-import_policies[name]['dates'][0])))
+        else:
+            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
 
         relax_scenarios['Int'+str(n+1)] = {
             'name': scen_names[n],
@@ -118,28 +136,23 @@ if __name__ == '__main__': # need this to run in parallel on windows
                 'interventions': [
                     scen_policies,
                     cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                        'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [5] * 30))
+                        'n_imports': imports_dict
                     }),
                     cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
                 ]
             }
         }
-
-    # Same as baseline2 but increase importations for border reopening
-    relax_scenarios['Int10'] = {
-        'name': 'Borders',
-        'pars': {
-            'interventions': [
-                baseline_policies,
-                cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),vals=np.append(i_cases, [10] * 30))
-                }),
-                cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0), # CAUTION - the number of tests would probably go up as well as being targeted at people with a travel history...?
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
-            ]
-        }
-    }
+        # add edge clipping policies to relax scenario
+        for policy in clip_policies:
+            details = clip_policies[policy]
+            if name == policy:
+                end_day = 60  # change end day if policy is relaxed
+            else:
+                end_day = details['dates'][1]
+            relax_scenarios['Int'+str(n+1)]['pars']['interventions'].append(
+                cv.clip_edges(start_day=details['dates'][0], end_day=end_day,
+                              change={layer: details['change'] for layer in details['layers']}))
 
 
     for run in relax_scenarios.keys():
