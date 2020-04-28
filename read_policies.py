@@ -47,12 +47,18 @@ if __name__ == '__main__': # need this to run in parallel on windows
     #sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
     #sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
 
-    policies, policy_dates = load_parameters.load_pols(databook_path=databook_path, layers=pars['contacts'].keys(), start_day=start_day)
+    beta_policies, import_policies, policy_dates = load_parameters.load_pols(databook_path=databook_path, layers=pars['contacts'].keys(), start_day=start_day)
 
-    baseline_policies = utils.PolicySchedule(pars['beta_layer'], policies)
+    baseline_policies = utils.PolicySchedule(pars['beta_layer'], beta_policies)
     for d, dates in enumerate(policy_dates):
         if len(policy_dates[dates]) == 2:
-            baseline_policies.add(dates, policy_dates[dates][0], policy_dates[dates][1])
+            if dates in beta_policies:
+                baseline_policies.add(dates, policy_dates[dates][0], policy_dates[dates][1])
+            if dates in import_policies:
+                import_policies[dates]['dates'] = np.arange(policy_dates[dates][0], policy_dates[dates][1])
         elif len(policy_dates[dates]) == 1:
-            baseline_policies.add(dates, policy_dates[dates][0])
+            if dates in beta_policies:
+                baseline_policies.add(dates, policy_dates[dates][0])
+            if dates in import_policies:
+                import_policies[dates]['dates'] = np.arange(policy_dates[dates][0], n_days)
     print('done')

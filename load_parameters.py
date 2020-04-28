@@ -100,22 +100,28 @@ def load_data(databook_path, start_day, end_day, data_path):
 def load_pols(databook_path, layers, start_day):
     import pandas as pd
     import sciris as sc
+    import numpy as np
 
     pols = pd.read_excel(databook_path, sheet_name='policies')
 
-    policies = {}
+    beta_policies, import_policies = {}, {}
     policy_dates = {}
     for p, policy in enumerate(pols.iloc[1:,0].tolist()):
-        policies[policy] = {}
-        if not pd.isnull(pols.iloc[p+1, 19]):
-            pol_start = sc.readdate(str(pols.iloc[p+1, 19]))
+        beta_change = np.prod(pols.iloc[p+1, 2:2+len(layers)])
+        imports = pols.iloc[p+1, 3+len(layers)]
+        if not pd.isnull(pols.iloc[p+1, 6+len(layers)]):
+            pol_start = sc.readdate(str(pols.iloc[p+1, 6+len(layers)]))
             n_days = (pol_start-start_day).days
             policy_dates[policy] = [n_days]
-            if not pd.isnull(pols.iloc[p+1, 20]):
-                pol_start = sc.readdate(str(pols.iloc[p + 1, 20]))
+            if not pd.isnull(pols.iloc[p+1, 7+len(layers)]):
+                pol_start = sc.readdate(str(pols.iloc[p + 1, 7+len(layers)]))
                 n_days = (pol_start - start_day).days
                 policy_dates[policy].append(n_days)
-        for l, layer in enumerate(layers):
-            policies[policy][layer] = pols.iloc[p+1, 2] * pols.iloc[p+1, l+3]
+        if beta_change != 1:
+            beta_policies[policy] = {}
+            for l, layer in enumerate(layers):
+                beta_policies[policy][layer] = pols.iloc[p+1, 2] * pols.iloc[p+1, l+3]
+        if imports > 0:
+            import_policies[policy] = {'n_imports': imports}
 
-    return policies, policy_dates
+    return beta_policies, import_policies, policy_dates
