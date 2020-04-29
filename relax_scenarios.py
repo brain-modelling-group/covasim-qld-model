@@ -16,7 +16,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
     # What to do
     todo = ['loaddata',
-            'showplot',
+            #'showplot',
             'saveplot',
             'gen_pop',
             'runsim_indiv',
@@ -101,7 +101,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
             'interventions': [
                 relax_all_policies,
                 cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),vals=np.append(i_cases, [5] * 30))
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),vals=np.append(i_cases, [restart_imports] * (n_days-60)))
                 }),
                 cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
@@ -110,7 +110,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     }
     for policy in clip_policies: # Add relaxed clip edges policies
         details = clip_policies[policy]
-        base_scenarios['baseline']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=60, change={layer:details['change'] for layer in details['layers']}))
+        relax_scenarios['Int0']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=60, change={layer:details['change'] for layer in details['layers']}))
 
     scen_names = []
     for policy in policy_dates:
@@ -126,7 +126,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         if name in beta_policies:
             scen_policies.end(name, 60) #add end day if policy is relaxed
         if name in import_policies: # add imports if border scenario is relaxed
-            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(import_policies[name]['dates'][0], import_policies[name]['dates'][1])), vals=np.append(i_cases, [import_policies[name]['n_imports']] * (import_policies[name]['dates'][1]-import_policies[name]['dates'][0])))
+            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, import_policies[name]['dates'][-1])), vals=np.append(i_cases, [import_policies[name]['n_imports']] * (import_policies[name]['dates'][-1]-60)))
         else:
             imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
 
@@ -180,6 +180,24 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
             scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args, font_size=8, to_plot=to_plot1)
 
+    relax_scenarios['baseline'] = base_scenarios['baseline']
+    scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=relax_scenarios)
+    scens.run(verbose=verbose)
+    do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
+
+    # Configure plotting
+    fig_args = dict(figsize=(8, 12))
+    this_fig_path = file_path + 'all_scens.png'
+    to_plot_cum = ['cum_infections', 'cum_diagnoses', 'cum_recoveries']
+    to_plot_daily = ['new_infections', 'new_diagnoses', 'new_recoveries', 'new_deaths']
+    to_plot_health = ['cum_severe', 'cum_critical', 'cum_deaths']
+    to_plot_capacity = ['n_severe', 'n_critical']
+    if for_powerpoint:
+        to_plot1 = ['new_infections', 'cum_deaths']
+    else:
+        to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
+    scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args, font_size=8,
+               to_plot=to_plot1)
     for imports in [5, 10, 20, 50]:
         import_scenarios = {}
         import_scenarios['baseline'] = {
@@ -188,46 +206,64 @@ if __name__ == '__main__': # need this to run in parallel on windows
             'interventions': [
                 baseline_policies,
                 cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),vals=np.append(i_cases, [imports] * 30))
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [imports] * 30))
                 }),
                 cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
         }
     }
+    # add edge clipping policies to baseline scenario
+    for policy in clip_policies:
+        details = clip_policies[policy]
+        import_scenarios['baseline']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer:details['change'] for layer in details['layers']}))
+
 
         import_scenarios['Int0'] = {
-            'name': 'Full relaxation',
-            'pars': {
-                'interventions': [
-                    relax_all_policies,
-                    cv.dynamic_pars({
-                        'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [imports] * 30))
-                    }),
-                    cv.test_num(daily_tests=np.append(daily_tests, [10000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
-                ]
-            }
+        'name': 'Full relaxation',
+        'pars': {
+            'interventions': [
+                relax_all_policies,
+                cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),vals=np.append(i_cases, [imports] * (n_days-60)))
+                }),
+                cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+            ]
         }
+    }
+    for policy in clip_policies: # Add relaxed clip edges policies
+        details = clip_policies[policy]
+        import_scenarios['Int0']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=60, change={layer:details['change'] for layer in details['layers']}))
+
 
         for n, name in enumerate(scen_names):
             scen_policies = sc.dcp(baseline_policies)
-            scen_policies.end('day29', 60)  # End the day29 restrictions on day 60
-            scen_policies.start(name, 60)  # Start the scenario's restrictions on day 60
+            if name in beta_policies:
+                scen_policies.end(name, 60) #add end day if policy is relaxed
+            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [imports] * 30))
 
             import_scenarios['Int'+str(n+1)] = {
-                'name': name,
+                'name': scen_names[n],
                 'pars': {
                     'interventions': [
                         scen_policies,
-                        cv.dynamic_pars({
-                            'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [imports] * 30))
+                        cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
+                            'n_imports': imports_dict
                         }),
-                        cv.test_num(daily_tests=np.append(daily_tests, [10000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                        cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                         cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
                     ]
                 }
             }
+            # add edge clipping policies to relax scenario
+            for policy in clip_policies:
+                details = clip_policies[policy]
+                if name == policy:
+                    end_day = 60  # change end day if policy is relaxed
+                else:
+                    end_day = details['dates'][1]
+                import_scenarios['Int'+str(n+1)]['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=end_day, change={layer: details['change'] for layer in details['layers']}))
 
         if 'runsim_import' in todo:
             scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=import_scenarios)
