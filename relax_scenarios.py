@@ -17,13 +17,14 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # What to do
     todo = ['loaddata',
             'showplot',
-            #'saveplot',
+            'saveplot',
             #'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             #'runsim_import',
             #'doplot_import'
             ]
+
     for_powerpoint = True
     verbose    = 1
     seed       = 1
@@ -95,7 +96,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         if len(policy_dates[dates]) == 1 and dates in beta_policies:
             relax_all_policies.end(dates, 60)
 
-    relax_scenarios['Int0'] = {
+    relax_scenarios['Full relaxation'] = {
         'name': 'Full relaxation',
         'pars': {
             'interventions': [
@@ -110,7 +111,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     }
     for policy in clip_policies: # Add relaxed clip edges policies
         details = clip_policies[policy]
-        relax_scenarios['Int0']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=60, change={layer:details['change'] for layer in details['layers']}))
+        relax_scenarios['Full relaxation']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=60, change={layer:details['change'] for layer in details['layers']}))
 
     scen_names = []
     for policy in policy_dates:
@@ -130,7 +131,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         else:
             imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
 
-        relax_scenarios['Int'+str(n+1)] = {
+        relax_scenarios[scen_names[n]] = {
             'name': scen_names[n],
             'pars': {
                 'interventions': [
@@ -150,22 +151,76 @@ if __name__ == '__main__': # need this to run in parallel on windows
                 end_day = 60  # change end day if policy is relaxed
             else:
                 end_day = details['dates'][1]
-            relax_scenarios['Int'+str(n+1)]['pars']['interventions'].append(
+            relax_scenarios[scen_names[n]]['pars']['interventions'].append(
                 cv.clip_edges(start_day=details['dates'][0], end_day=end_day,
                               change={layer: details['change'] for layer in details['layers']}))
 
 
     if 'runsim_indiv' in todo:
-        torun = ['Full relaxation', 'schools']
+        torun = {}
+        torun['Baseline'] = ['baseline']
+        torun['Full relaxation'] = ['Full relaxation']
+        torun['Schools'] = ['schools']
+        torun['Pubs'] = ['pub_bar0']
+        torun['schools + pubs'] = ['schools', 'pub_bar0']
+        torun['Border opening'] = ['travel_dom']
+        torun['borders + schools + pubs'] = ['schools', 'pub_bar0', 'travel_dom']
+        relax_day = 60
+
+        scenarios = {}
         #torun = scen_names
         for run in torun:
-            for index, name in enumerate(relax_scenarios.keys()):
-                if relax_scenarios[name]['name'] == run:
-                    scenarios = base_scenarios
-                    scenarios[name] = relax_scenarios[name]
+            trigger = False
+            if torun[run] == ['baseline']:
+                scenarios[torun[run][0]] = base_scenarios[torun[run][0]]
+            elif len(torun[run]) == 1:
+                try:
+                    scenarios[torun[run][0]] = relax_scenarios[torun[run][0]]
+                except KeyError:
+                    print("%s was not found as a policy to relax" % torun[run][0])
+            elif len(torun[run]) > 1:
+                adapt_beta_policies = sc.dcp(baseline_policies)
+                adapt_clip_policies = sc.dcp(clip_policies)
+                for policy in torun[run]:
+                    if policy in beta_policies:
+                        adapt_beta_policies.end(policy, relax_day)
+                    if policy in import_policies:
+                        imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, n_days)), vals=np.append(i_cases, [import_policies[policy]['n_imports']] * (n_days-relax_day)))
+                        trigger = True
+                    elif not trigger:
+                        imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
+                    if policy in clip_policies:
+                        adapt_clip_policies[policy]['dates'] = [policy_dates[policy][0], relax_day]
+                scenarios[run] = {
+                    'name': run,
+                    'pars': {
+                    'interventions': [
+                    adapt_beta_policies,
+                    cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
+                        'n_imports': imports_dict
+                    }),
+                    cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+                        ]
+                    }
+                }
+                # add edge clipping policies to relax scenario
+                for policy in adapt_clip_policies:
+                    details = adapt_clip_policies[policy]
+                    scenarios[run]['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer: details['change'] for layer in details['layers']}))
+
+        scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
+        scens.run(verbose=verbose)
+
+        ''' To individually run a relaxation of each policy againt the baseline
+        for index, name in enumerate(relax_scenarios.keys()):
+            if relax_scenarios[name]['name'] == run:
+                scenarios = base_scenarios
+                scenarios[name] = relax_scenarios[name]
         scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars = metapars, scenarios=scenarios)
         scens.run(verbose=verbose)
                     #del base_scenarios[run]
+        '''
 
         if 'doplot_indiv' in todo:
             do_show, do_save = ('showplot' in todo), ('saveplot' in todo)

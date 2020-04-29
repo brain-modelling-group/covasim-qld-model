@@ -24,7 +24,7 @@ pars['pop_size'] = 150
 
 popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'],
                                               contact_numbers=pars['contacts'], population_subsets=population_subsets)
-sc.saveobj(popfile, popdict)
+#sc.saveobj(popfile, popdict)
 
 s_struct, w_struct, c_struct = [],[],[]
 h_struct = np.zeros(6)
