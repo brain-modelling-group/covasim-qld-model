@@ -29,6 +29,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, \
     population_subsets, trace_probs, trace_time = load_parameters.load_pars()
 
+
     # Process and read in data
     if 'loaddata' in todo:
         sd, i_cases, daily_tests = load_parameters.load_data(databook_path=databook_path, start_day=start_day, end_day=end_day, data_path=data_path)
@@ -38,8 +39,10 @@ if __name__ == '__main__': # need this to run in parallel on windows
         popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
         sc.saveobj(popfile, popdict)
 
-    pars['beta'] *= 1.1 # Scale beta
-    pars['diag_factor'] *= 1.1 # Scale proportion asymptomatic
+    pars['beta'] =0.025 # Scale beta
+    pars['diag_factor']= 1.6 # Scale proportion asymptomatic
+    end_day = sc.readdate('2020-05-07')
+    pars['n_days'] = (end_day - start_day).days
 
     sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
@@ -71,9 +74,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
             'interventions': [
                 baseline_policies,
                 cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
+                    'n_imports': dict(days=range(len(i_cases)), vals=i_cases)
                 }),
-                cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                cv.test_num(daily_tests=(daily_tests), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
         }

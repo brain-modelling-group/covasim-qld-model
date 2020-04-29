@@ -7,39 +7,23 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import seaborn as sns
 import covasim as cv
-import load_pop
+import load_pop, load_parameters
 import sciris as sc
 import numpy as np
 import matplotlib
 sns.set(font_scale=2)
 
-state = 'vic'
-start_day = sc.readdate('2020-03-01')
-end_day   = sc.readdate('2020-06-19')
-n_days    = (end_day - start_day).days
-date      = '2020apr19'
-folder    = f'results_{date}'
-this_fig_path = folder + '/networks.png'
-popfile = f'data/popfile.obj'
-data_path = f'data/{state}-data-{date}.csv' # This gets created and then read in
-databook_path = f'data/{state}-data.xlsx'
-popfile = f'data/popfile.obj'
+# load parameters
+state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, \
+population_subsets, trace_probs, trace_time = load_parameters.load_pars()
 
-pars = {
-    'pop_size': 300, # start with a small pool
-    'pop_type': 'hybrid', # synthpops, hybrid
-    'pop_infected': 0, # Infect none for starters
-    'n_days': 100, # 40d is long enough for everything to play out
-    'contacts': {'H': 4.0, 'S': 7, 'W': 5, 'C': 5, 'Church': 1, 'pSport': 1},
-    'beta_layer': {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1},
-    'quar_eff': {'H': 1, 'S': 1, 'W': 1, 'C': 1, 'Church': 1, 'pSport': 1},
-}
-population_subsets = {'proportion': {'Church': 0.1, 'pSport': 0.01},
-                           'age_lb': {'Church': 0, 'pSport': 18},
-                           'age_ub': {'Church': 110, 'pSport': 40},
-                           'cluster_type': {'Church': 'complete', 'pSport': 'complete'}}
+# Process and read in data
+sd, i_cases, daily_tests = load_parameters.load_data(databook_path=databook_path, start_day=start_day,
+                                                         end_day=end_day, data_path=data_path)
+pars['pop_size'] = 200
 
-popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets= population_subsets)
+popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'],
+                                              contact_numbers=pars['contacts'], population_subsets=population_subsets)
 sc.saveobj(popfile, popdict)
 
 s_struct, w_struct, c_struct = [],[],[]
@@ -67,22 +51,23 @@ sim.initialize(load_pop=True, popfile=popfile)
 
 fig = plt.figure(figsize=(8,8))
 
-mapping = dict(H='Households', S='Schools', W='Work', C='Community')
+mapping = dict(H='Households', S='Schools', W='Work', transport='Public transport')
 
-for i, layer in enumerate(['H', 'S', 'W', 'C']):
+for i, layer in enumerate(['H', 'S', 'W', 'transport']):
     ax = plt.subplot(2,2,i+1)
     hdf = sim.people.contacts[layer].to_df()
-
+    hdf1 = set(list(sim.people['uid']))
     G = nx.Graph()
-    G.add_nodes_from(set(list(hdf['p1'].unique()) + list(hdf['p2'].unique())))
+    G.add_nodes_from(hdf1)#set(list(hdf['p1'].unique()) + list(hdf['p2'].unique())))
     f = hdf['p1']
     t = hdf['p2']
     G.add_edges_from(zip(f,t))
+#    G.nodes['color'] =
     print('Nodes:', G.number_of_nodes())
     print('Edges:', G.number_of_edges())
 
-    nx.draw(G, ax=ax, node_size=10, width=0.1)
+    nx.draw(G, ax=ax, node_size=5, width=1, scale=200, node_color = sim.people['age'], cmap = 'jet')
     ax.set_title(mapping[layer])
-plt.savefig(fname=this_fig_path)
+plt.savefig(fname='networks.png')
 plt.show()
 
