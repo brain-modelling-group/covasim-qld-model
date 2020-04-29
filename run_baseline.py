@@ -39,7 +39,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
         sc.saveobj(popfile, popdict)
 
-    pars['beta'] =0.025 # Scale beta
+    pars['beta'] =0.07 # Scale beta
     pars['diag_factor']= 1.6 # Scale proportion asymptomatic
     end_day = sc.readdate('2020-05-07')
     pars['n_days'] = (end_day - start_day).days

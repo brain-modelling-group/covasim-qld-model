@@ -20,11 +20,11 @@ population_subsets, trace_probs, trace_time = load_parameters.load_pars()
 # Process and read in data
 sd, i_cases, daily_tests = load_parameters.load_data(databook_path=databook_path, start_day=start_day,
                                                          end_day=end_day, data_path=data_path)
-pars['pop_size'] = 150
+pars['pop_size'] = 200
 
 popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'],
                                               contact_numbers=pars['contacts'], population_subsets=population_subsets)
-#sc.saveobj(popfile, popdict)
+sc.saveobj(file_path + 'temp_pop', popdict)
 
 s_struct, w_struct, c_struct = [],[],[]
 h_struct = np.zeros(6)
@@ -47,7 +47,7 @@ axs[2, 0].hist(c_struct, bins=max(c_struct)-min(c_struct))
 axs[2, 0].set_title("Community size distribution")
 # Create sim
 sim = cv.Sim(pars=pars)
-sim.initialize(load_pop=True, popfile=popfile)
+sim.initialize(load_pop=True, popfile=file_path + 'temp_pop')
 
 fig = plt.figure(figsize=(8,8))
 
@@ -74,7 +74,7 @@ for i, layer in enumerate(['H', 'S', 'W', 'transport']):
     print('Edges:', G.number_of_edges())
     pos = nx.spring_layout(G, k=0.3, iterations=50)
 
-    nx.draw(G, ax=ax, node_size=5, width=0.9, scale=200, node_color = sim.people['age'][connected], cmap = 'jet', pos=pos)
+    nx.draw(G, ax=ax, node_size=5, width=0.9, scale=200, fontsize=10, node_color = sim.people['age'][connected], cmap = 'jet', pos=pos)
     ax.set_title(mapping[layer])
 plt.savefig(fname='networks.png')
 plt.show()

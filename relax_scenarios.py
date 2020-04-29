@@ -18,17 +18,17 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            #'gen_pop',
+            'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             #'runsim_import',
             #'doplot_import'
             ]
 
-    for_powerpoint = True
+    for_powerpoint = False
     verbose    = 1
     seed       = 1
-    restart_imports = 5 # jump start epidemic with imports after day 60
+    restart_imports = 10 # jump start epidemic with imports after day 60
 
     # load parameters
     state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, \
@@ -43,10 +43,10 @@ if __name__ == '__main__': # need this to run in parallel on windows
         popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
         sc.saveobj(popfile, popdict)
 
-    pars['beta'] = 0.025 # Scale beta
+    pars['beta'] = 0.07 # Scale beta
     pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
 
-    sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+    sim = cv.Sim(pars, popfile=popfile, datafile=data_path, pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
 
     # Read a variety of policies from databook sheet 'policies'
@@ -76,9 +76,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
             'interventions': [
                 baseline_policies,
                 cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)), vals=np.append(i_cases, [restart_imports] * (n_days - 60)))
                 }),
-                cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
         }
@@ -104,7 +104,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
                 cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
                     'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),vals=np.append(i_cases, [restart_imports] * (n_days-60)))
                 }),
-                cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
         }
@@ -129,7 +129,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         if name in import_policies: # add imports if border scenario is relaxed
             imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, import_policies[name]['dates'][-1])), vals=np.append(i_cases, [import_policies[name]['n_imports']] * (import_policies[name]['dates'][-1]-60)))
         else:
-            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
+            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)), vals=np.append(i_cases, [restart_imports] * (n_days - 60)))
 
         relax_scenarios[scen_names[n]] = {
             'name': scen_names[n],
@@ -139,7 +139,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
                     cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
                         'n_imports': imports_dict
                     }),
-                    cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                    cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
                 ]
             }
@@ -162,9 +162,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['Full relaxation'] = ['Full relaxation']
         torun['Schools'] = ['schools']
         torun['Pubs'] = ['pub_bar0']
-        torun['schools + pubs'] = ['schools', 'pub_bar0']
-        torun['Border opening'] = ['travel_dom']
-        torun['borders + schools + pubs'] = ['schools', 'pub_bar0', 'travel_dom']
+        #torun['schools + pubs'] = ['schools', 'pub_bar0']
+        #torun['Border opening'] = ['travel_dom']
+        #torun['borders + schools + pubs'] = ['schools', 'pub_bar0', 'travel_dom']
         relax_day = 60
 
         scenarios = {}
@@ -188,7 +188,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
                         imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, n_days)), vals=np.append(i_cases, [import_policies[policy]['n_imports']] * (n_days-relax_day)))
                         trigger = True
                     elif not trigger:
-                        imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
+                        imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)), vals=np.append(i_cases, [restart_imports] * (n_days-relax_day)))
                     if policy in clip_policies:
                         adapt_clip_policies[policy]['dates'] = [policy_dates[policy][0], relax_day]
                 scenarios[run] = {
@@ -199,7 +199,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
                     cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
                         'n_imports': imports_dict
                     }),
-                    cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                    cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days-len(daily_tests))), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
                         ]
                     }
@@ -233,7 +233,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
             to_plot_health = ['cum_severe', 'cum_critical', 'cum_deaths']
             to_plot_capacity = ['n_severe', 'n_critical']
             if for_powerpoint:
-                to_plot1 = ['new_infections', 'cum_deaths']
+                to_plot1 = ['new_infections','cum_infections','cum_deaths']
             else:
                 to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
 
