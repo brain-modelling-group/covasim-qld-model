@@ -20,7 +20,7 @@ population_subsets, trace_probs, trace_time = load_parameters.load_pars()
 # Process and read in data
 sd, i_cases, daily_tests = load_parameters.load_data(databook_path=databook_path, start_day=start_day,
                                                          end_day=end_day, data_path=data_path)
-pars['pop_size'] = 200
+pars['pop_size'] = 150
 
 popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'],
                                               contact_numbers=pars['contacts'], population_subsets=population_subsets)
@@ -61,12 +61,20 @@ for i, layer in enumerate(['H', 'S', 'W', 'transport']):
     G.add_nodes_from(hdf1)#set(list(hdf['p1'].unique()) + list(hdf['p2'].unique())))
     f = hdf['p1']
     t = hdf['p2']
-    G.add_edges_from(zip(f,t))
+    G.add_edges_from(zip(f, t))
+    node_list = list(nx.nodes(G))
+    isolates = list(nx.isolates(G))
+    if layer == 'H':
+        connected = node_list
+    else:
+        connected = [x for x in node_list if x not in isolates]
+        G.remove_nodes_from(list(nx.isolates(G)))
 #    G.nodes['color'] =
     print('Nodes:', G.number_of_nodes())
     print('Edges:', G.number_of_edges())
+    pos = nx.spring_layout(G, k=0.3, iterations=50)
 
-    nx.draw(G, ax=ax, node_size=5, width=1, scale=200, node_color = sim.people['age'], cmap = 'jet')
+    nx.draw(G, ax=ax, node_size=5, width=0.9, scale=200, node_color = sim.people['age'][connected], cmap = 'jet', pos=pos)
     ax.set_title(mapping[layer])
 plt.savefig(fname='networks.png')
 plt.show()
