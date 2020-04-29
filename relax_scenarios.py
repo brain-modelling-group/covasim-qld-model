@@ -16,15 +16,15 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
     # What to do
     todo = ['loaddata',
-            #'showplot',
-            'saveplot',
-            'gen_pop',
+            'showplot',
+            #'saveplot',
+            #'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             #'runsim_import',
             #'doplot_import'
             ]
-    for_powerpoint = False
+    for_powerpoint = True
     verbose    = 1
     seed       = 1
     restart_imports = 5 # jump start epidemic with imports after day 60
@@ -42,8 +42,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
         popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
         sc.saveobj(popfile, popdict)
 
-    pars['beta'] *= 1.1 # Scale beta
-    pars['diag_factor'] *= 1.1 # Scale proportion asymptomatic
+    pars['beta'] = 0.025 # Scale beta
+    pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
 
     sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
@@ -155,20 +155,24 @@ if __name__ == '__main__': # need this to run in parallel on windows
                               change={layer: details['change'] for layer in details['layers']}))
 
 
-    for run in relax_scenarios.keys():
-        if 'runsim_indiv' in todo:
-            scenarios = base_scenarios
-            scenarios[run] = relax_scenarios[run]
-            scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars = metapars, scenarios=scenarios)
-            scens.run(verbose=verbose)
-            del base_scenarios[run]
+    if 'runsim_indiv' in todo:
+        torun = ['Full relaxation', 'schools']
+        #torun = scen_names
+        for run in torun:
+            for index, name in enumerate(relax_scenarios.keys()):
+                if relax_scenarios[name]['name'] == run:
+                    scenarios = base_scenarios
+                    scenarios[name] = relax_scenarios[name]
+        scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars = metapars, scenarios=scenarios)
+        scens.run(verbose=verbose)
+                    #del base_scenarios[run]
 
         if 'doplot_indiv' in todo:
             do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
             # Configure plotting
             fig_args = dict(figsize=(5, 10))
-            this_fig_path = file_path + relax_scenarios[run]['name'] + '.png'
+            this_fig_path = file_path + 'scens' + '.png'
             to_plot_cum = ['cum_infections', 'cum_diagnoses', 'cum_recoveries']
             to_plot_daily = ['new_infections', 'new_diagnoses', 'new_recoveries', 'new_deaths']
             to_plot_health = ['cum_severe', 'cum_critical', 'cum_deaths']
@@ -180,24 +184,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
             scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args, font_size=8, to_plot=to_plot1)
 
-    relax_scenarios['baseline'] = base_scenarios['baseline']
-    scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=relax_scenarios)
-    scens.run(verbose=verbose)
-    do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
-    # Configure plotting
-    fig_args = dict(figsize=(8, 12))
-    this_fig_path = file_path + 'all_scens.png'
-    to_plot_cum = ['cum_infections', 'cum_diagnoses', 'cum_recoveries']
-    to_plot_daily = ['new_infections', 'new_diagnoses', 'new_recoveries', 'new_deaths']
-    to_plot_health = ['cum_severe', 'cum_critical', 'cum_deaths']
-    to_plot_capacity = ['n_severe', 'n_critical']
-    if for_powerpoint:
-        to_plot1 = ['new_infections', 'cum_deaths']
-    else:
-        to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
-    scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args, font_size=8,
-               to_plot=to_plot1)
+    """ Sensitivity analysis around the number of imported infections per day
+
     for imports in [5, 10, 20, 50]:
         import_scenarios = {}
         import_scenarios['baseline'] = {
@@ -286,4 +275,4 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
             scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args, font_size=8, to_plot=to_plot1)
 
-
+    """

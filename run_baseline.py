@@ -44,7 +44,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     end_day = sc.readdate('2020-05-07')
     pars['n_days'] = (end_day - start_day).days
 
-    sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+    sim = cv.Sim(pars, popfile=popfile, datafile=data_path, pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
 
     # Read a variety of policies from databook sheet 'policies'
