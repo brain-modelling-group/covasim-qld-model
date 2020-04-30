@@ -8,7 +8,7 @@ matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
-import utils, load_parameters, load_pop
+import utils, load_parameters, load_pop, policy_changes
 import numpy as np
 
 def replace_pols(pol_scen, policy, beta_policies, adapt_beta_policies, import_policies, adapt_clip_policies, policy_dates):
@@ -138,7 +138,11 @@ if __name__ == '__main__': # need this to run in parallel on windows
     sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
 
     # Read a variety of policies from databook sheet 'policies'
-    beta_policies, import_policies, clip_policies, policy_dates = load_parameters.load_pols(databook_path=databook_path, layers=pars['contacts'].keys(), start_day=start_day)
+    policies = policy_changes.load_pols(databook_path=databook_path, layers=pars['contacts'].keys(), start_day=start_day)
+    beta_policies = policies['beta_policies']
+    import_policies = policies['import_policies']
+    clip_policies = policies['clip_policies']
+    policy_dates = policies['policy_dates']
 
     baseline_policies = utils.PolicySchedule(pars['beta_layer'], beta_policies) #create policy schedule with beta layer adjustments
     for d, dates in enumerate(policy_dates): # add start and end dates to beta layer, import and edge clipping policies
