@@ -251,11 +251,11 @@ if __name__ == '__main__': # need this to run in parallel on windows
     Adding policies to the turn_off dict must be input as a list and will be relaxed on relax_day. Works with beta layer, import and clip edges policies.
     Adding policies to the turn_on dict must be input as a dict of {policy_name: [start_day, end_day]} for each policy, 
     with end_day being optional and n_days being used if it is not included. Import policies don't really work here as of yet.
-    To add a policy it must either not be running in baseline, or end before start_day otherwise it will not be added.
+    To add a policy it must either not be running in baseline, or end before start_day otherwise it will not be added (the scenario will still run).
     Adding policies to the replace dict must be input as a dict of dicts in the form 
     {policy_name: {'replacements': [policy_1,...,policy_n], 'dates': [start_day_1,..., start_day_n, end_day]}} for each policy, 
     with end_day being optional and n_days being used if it is not included. I think import policies work here, but testing hasn't been expansive.
-    To add a replacement policy it must either not be running in baseline, or end before start_day otherwise it will not be added.
+    To add a replacement policy it must either not be running in baseline, or end before start_day otherwise it will not be added (the scenario will still run).
     '''
     if 'runsim_indiv' in todo: # run and plot a collection of policy scenarios together
         torun = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
