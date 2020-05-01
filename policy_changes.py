@@ -258,17 +258,18 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
                               change={layer: details['change'] for layer in details['layers']}))
 
     scenarios = sc.dcp(base_scenarios)  # Always add baseline scenario
-    beta_schedule, adapt_clip_policies, adapt_beta_policies = sc.dcp(baseline_policies), sc.dcp(clip_policies), sc.dcp(
-        beta_policies)
-    imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                        vals=np.append(i_cases, [restart_imports] * 30))
+
     for run_pols in torun:
         if run_pols == 'Full relaxation' or run_pols == 'Full relax':
             scenarios['Full relaxation'] = sc.dcp(relax_scenarios['Full relaxation'])
         else:
-
             torun[run_pols] = sc.dcp(utils.check_policy_changes(torun[run_pols]))  # runs check on consistency across input off/on/replace policies and dates and remove inconsistencies
             for off_on in torun[run_pols]:
+                beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies = sc.dcp(baseline_policies), sc.dcp(policies['clip_policies']), \
+                                                                                        sc.dcp(policies['beta_policies']), sc.dcp(policies['policy_dates']), \
+                                                                                        sc.dcp(policies['import_policies'])
+                imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
+                                    vals=np.append(i_cases, [restart_imports] * 30))
                 if off_on == 'turn_off':
                     beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.turn_off_policies(torun[run_pols],
                                                                                                        beta_schedule,
@@ -306,5 +307,5 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
                         'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
             scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, daily_tests, trace_probs,
                                           trace_time, clip_schedule))
-
+            del clip_schedule
     return scenarios

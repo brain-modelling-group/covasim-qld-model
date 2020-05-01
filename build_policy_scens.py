@@ -98,9 +98,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['Schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         torun['Schools']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
         torun['Schools']['turn_off'] = {'off_pols': ['schools'], 'dates': [60]}
-        torun['Pubs'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [60]}
+        #torun['Pubs'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
+        #torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [60]}
 
         torun['Community sports'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         torun['Community sports']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [60, 60]}
