@@ -264,42 +264,24 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
             scenarios['Full relaxation'] = sc.dcp(relax_scenarios['Full relaxation'])
         else:
             torun[run_pols] = sc.dcp(utils.check_policy_changes(torun[run_pols]))  # runs check on consistency across input off/on/replace policies and dates and remove inconsistencies
+            beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies = sc.dcp(baseline_policies), sc.dcp(policies['clip_policies']), \
+                                                                                                     sc.dcp(policies['beta_policies']), sc.dcp(policies['policy_dates']), \
+                                                                                                     sc.dcp(policies['import_policies'])
+            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
+                                vals=np.append(i_cases, [restart_imports] * 30))
             for off_on in torun[run_pols]:
-                beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies = sc.dcp(baseline_policies), sc.dcp(policies['clip_policies']), \
-                                                                                        sc.dcp(policies['beta_policies']), sc.dcp(policies['policy_dates']), \
-                                                                                        sc.dcp(policies['import_policies'])
-                imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                                    vals=np.append(i_cases, [restart_imports] * 30))
                 if off_on == 'turn_off':
-                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.turn_off_policies(torun[run_pols],
-                                                                                                       beta_schedule,
-                                                                                                       adapt_beta_policies,
-                                                                                                       import_policies,
-                                                                                                       adapt_clip_policies,
-                                                                                                       i_cases, n_days,
-                                                                                                       policy_dates,
-                                                                                                       imports_dict))
+                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.turn_off_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
+                                                                                                              import_policies,adapt_clip_policies,i_cases, n_days, policy_dates, imports_dict))
                     # for each policy, check if it's already off at specified date, if it's on then turn off at specified date. Update beta, import and clip.
                 elif off_on == 'turn_on':
-                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.turn_on_policies(torun[run_pols],
-                                                                                                      beta_schedule,
-                                                                                                      adapt_beta_policies,
-                                                                                                      import_policies,
-                                                                                                      adapt_clip_policies,
-                                                                                                      i_cases, n_days,
-                                                                                                      policy_dates,
-                                                                                                      imports_dict))
+                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.turn_on_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
+                                                                                                              import_policies,adapt_clip_policies,i_cases, n_days, policy_dates, imports_dict))
                     # for each policy, check if it's already on at specified date, if it's off then turn on at specified date and off at
                     # specified date (if input). Update beta, import and clip.
                 elif off_on == 'replace':
-                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.replace_policies(torun[run_pols],
-                                                                                                      beta_schedule,
-                                                                                                      adapt_beta_policies,
-                                                                                                      import_policies,
-                                                                                                      adapt_clip_policies,
-                                                                                                      i_cases, n_days,
-                                                                                                      policy_dates,
-                                                                                                      imports_dict))
+                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.replace_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
+                                                                                                              import_policies,adapt_clip_policies,i_cases, n_days, policy_dates, imports_dict))
                     # for each policy, check if it's already off at specified date, if it's on then check if first replacement policy is
                     # already on at specified date, if replacement is off then turn on and iterate with following replacements. Update beta, import and clip.
                 else:

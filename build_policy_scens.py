@@ -98,18 +98,16 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['Schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         torun['Schools']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
         torun['Schools']['turn_off'] = {'off_pols': ['schools'], 'dates': [60]}
-        #torun['Pubs'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        #torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [60]}
-
+        torun['Pubs'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
+        torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [60]}
         torun['Community sports'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         torun['Community sports']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [60, 60]}
         #torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
         #torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
-        #torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        #torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [60]}
+        torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [60]}
 
 
     scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_days, restart_imports, daily_tests, trace_probs, trace_time)
