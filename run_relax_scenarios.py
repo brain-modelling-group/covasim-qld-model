@@ -58,9 +58,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
     torun = {}
     torun['Baseline'] = ['baseline']
     torun['Full relaxation'] = ['Full relaxation']
-    torun['Schools'] = ['schools']
-    torun['Pubs'] = ['pub_bar0']
-    torun['schools + pubs'] = ['schools', 'pub_bar0']
+    torun['Schools'] = ['schools','communication']
+    torun['Pubs'] = ['pub_bar0','communication']
+    torun['Community sports'] = ['cSports', 'communication']
     # torun['Border opening'] = ['travel_dom']
     torun['borders + schools + pubs'] = ['schools', 'pub_bar0', 'travel_dom']
     relax_day = 60

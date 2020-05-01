@@ -5,11 +5,9 @@ Load Australian epi data
 import matplotlib
 matplotlib.use('Agg')
 matplotlib.use('TkAgg')
-import pandas as pd
 import sciris as sc
 import covasim as cv
 import utils, load_parameters, load_pop, policy_changes
-import numpy as np
 
 if __name__ == '__main__': # need this to run in parallel on windows
 
@@ -22,7 +20,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
             'doplot_indiv',
             ]
 
-    for_powerpoint = True
+    for_powerpoint = False
     verbose    = 1
     seed       = 1
     restart_imports = 5 # jump start epidemic with imports after day 60
@@ -43,78 +41,14 @@ if __name__ == '__main__': # need this to run in parallel on windows
     pars['beta'] = 0.07 # Scale beta
     pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
 
-    sim = cv.Sim(pars, popfile=popfile, datafile=data_path, use_layers=True, pop_size=pars['pop_size'])
+    sim = cv.Sim(pars, popfile=popfile, datafile=data_path, pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
 
-    # Read a variety of policies from databook sheet 'policies'
-    policies = policy_changes.load_pols(databook_path=databook_path, layers=pars['contacts'].keys(), start_day=start_day)
-    beta_policies = policies['beta_policies']
-    import_policies = policies['import_policies']
-    clip_policies = policies['clip_policies']
-    policy_dates = policies['policy_dates']
-
-    baseline_policies = utils.PolicySchedule(pars['beta_layer'], beta_policies) #create policy schedule with beta layer adjustments
-    for d, dates in enumerate(policy_dates): # add start and end dates to beta layer, import and edge clipping policies
-        if len(policy_dates[dates]) == 2:
-            if dates in beta_policies:
-                baseline_policies.add(dates, policy_dates[dates][0], policy_dates[dates][1])
-            if dates in import_policies:
-                import_policies[dates]['dates'] = np.arange(policy_dates[dates][0], policy_dates[dates][1])
-            if dates in clip_policies:
-                clip_policies[dates]['dates'] = [policy_dates[dates][0], policy_dates[dates][1]]
-        elif len(policy_dates[dates]) == 1:
-            if dates in beta_policies:
-                baseline_policies.add(dates, policy_dates[dates][0])
-            if dates in import_policies:
-                import_policies[dates]['dates'] = np.arange(policy_dates[dates][0], n_days)
-            if dates in clip_policies:
-                clip_policies[dates]['dates'] = [policy_dates[dates][0], n_days]
-
-    base_scenarios = {} #create baseline scenario according to policies from databook
-    base_scenarios['baseline'] = {
-        'name': 'Baseline',
-        'pars': {
-            'interventions': [
-                baseline_policies,
-                cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
-                }),
-                cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
-            ]
-        }
-    }
-    # add edge clipping policies to baseline scenario
-    for policy in clip_policies:
-        if policy in policy_dates:
-            details = clip_policies[policy]
-            base_scenarios['baseline']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer:details['change'] for layer in details['layers']}))
-
-    relax_scenarios = {}
-
-    # Relax all policies
-    relax_all_policies = sc.dcp(baseline_policies)
-    for dates in policy_dates:
-        if len(policy_dates[dates]) == 1 and dates in beta_policies:
-            relax_all_policies.end(dates, 60)
-
-    relax_scenarios['Full relaxation'] = {
-        'name': 'Full relaxation',
-        'pars': {
-            'interventions': [
-                relax_all_policies,
-                cv.dynamic_pars({  # jump start with imported infections
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),vals=np.append(i_cases, [restart_imports] * (n_days-60)))
-                }),
-                cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
-            ]
-        }
-    }
-    for policy in clip_policies: # Add relaxed clip edges policies
-        if policy in policy_dates:
-            details = clip_policies[policy]
-            relax_scenarios['Full relaxation']['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=60, change={layer:details['change'] for layer in details['layers']}))
+    # Read a variety of policies from databook sheet 'policies', and set up the baseline according to their start and end dates
+    policies = policy_changes.load_pols(databook_path=databook_path, layers=pars['contacts'].keys(),
+                                        start_day=start_day)
+    # Set up a baseline scenario that includes all policy changes to date
+    base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, i_cases, daily_tests, n_days, trace_probs, trace_time)
 
     '''
     The required structure for the torun dict is:
@@ -147,43 +81,39 @@ if __name__ == '__main__': # need this to run in parallel on windows
     '''
     if 'runsim_indiv' in todo: # run and plot a collection of policy scenarios together
         torun = {}
-        torun['Full relax'] = {}
-        torun['test1'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Full relax'] = {}
+        #torun['test1'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         # torun['test1']['turn_off']['Schools'] = ['schools']
         # torun['test1']['turn_off']['Pubs'] = ['pub_bar0']
         # torun['test1']['turn_off']['schools + pubs'] = ['schools', 'pub_bar0']
         # torun['test1']['turn_off']['Border opening'] = ['travel_dom']
-        torun['test1']['turn_off'] = {'off_pols': ['schools', 'retail', 'pub_bar0', 'travel_dom'], 'dates': [60, 60, 65, 70]}
-        torun['test1']['turn_on']['child_care'] = [60, 150]
-        torun['test1']['turn_on']['NE_health'] = [60, 120]
-        torun['test1']['turn_on']['schools'] = [80, 200]
-        torun['test1']['replace']['outdoor2'] = {'replacements': ['outdoor10', 'outdoor200'], 'dates': [60, 90, 150]}
-        torun['test1']['replace']['NE_work'] = {'replacements': ['church_4sqm'], 'dates': [70, 150]}
+        #torun['test1']['turn_off'] = {'off_pols': ['schools', 'retail', 'pub_bar0', 'travel_dom'], 'dates': [60, 60, 65, 70]}
+        #torun['test1']['turn_on']['child_care'] = [60, 150]
+        #torun['test1']['turn_on']['NE_health'] = [60, 120]
+        #torun['test1']['turn_on']['schools'] = [80, 200]
+        #torun['test1']['replace']['outdoor2'] = {'replacements': ['outdoor10', 'outdoor200'], 'dates': [60, 90, 150]}
+        #torun['test1']['replace']['NE_work'] = {'replacements': ['church_4sqm'], 'dates': [70, 150]}
+        #torun['Relax physical distancing'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Relax physical distancing']['replace']['communication'] = {'replacements': ['comm2'], 'dates': [60]}
+        torun['Schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Schools']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
+        torun['Schools']['turn_off'] = {'off_pols': ['schools'], 'dates': [60]}
+        torun['Pubs'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
+        torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [60]}
+
+        torun['Community sports'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Community sports']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [60, 60]}
+        #torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
+        #torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
+        #torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
+        #torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [60]}
 
 
-        scenarios = sc.dcp(base_scenarios) # Always add baseline scenario
-        beta_schedule, adapt_clip_policies, adapt_beta_policies = sc.dcp(baseline_policies), sc.dcp(clip_policies), sc.dcp(beta_policies)
-        imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)), vals=np.append(i_cases, [restart_imports] * 30))
-        for run_pols in torun:
-            if run_pols == 'Full relaxation' or run_pols == 'Full relax':
-                scenarios['Full relaxation'] = sc.dcp(relax_scenarios['Full relaxation'])
-            else:
-                torun[run_pols] = utils.check_policy_changes(torun[run_pols])  # runs check on consistency across input off/on/replace policies and dates and remove inconsistencies
-                for off_on in torun[run_pols]:
-                    if off_on == 'turn_off':
-                        beta_schedule, imports_dict, clip_schedule, policy_dates = utils.turn_off_policies(torun[run_pols], beta_schedule, adapt_beta_policies, import_policies, adapt_clip_policies, i_cases, n_days, policy_dates, imports_dict)
-                        # for each policy, check if it's already off at specified date, if it's on then turn off at specified date. Update beta, import and clip.
-                    elif off_on == 'turn_on':
-                        beta_schedule, imports_dict, clip_schedule, policy_dates = utils.turn_on_policies(torun[run_pols], beta_schedule, adapt_beta_policies, import_policies, adapt_clip_policies, i_cases, n_days, policy_dates, imports_dict)
-                        # for each policy, check if it's already on at specified date, if it's off then turn on at specified date and off at
-                        # specified date (if input). Update beta, import and clip.
-                    elif off_on == 'replace':
-                        beta_schedule, imports_dict, clip_schedule, policy_dates = utils.replace_policies(torun[run_pols], beta_schedule, adapt_beta_policies, import_policies, adapt_clip_policies, i_cases, n_days, policy_dates, imports_dict)
-                        # for each policy, check if it's already off at specified date, if it's on then check if first replacement policy is
-                        # already on at specified date, if replacement is off then turn on and iterate with following replacements. Update beta, import and clip.
-                    else:
-                        print('Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
-                scenarios = utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, daily_tests, trace_probs, trace_time, clip_schedule)
+    scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_days, restart_imports, daily_tests, trace_probs, trace_time)
+
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)
 

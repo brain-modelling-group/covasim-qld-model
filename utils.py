@@ -235,25 +235,28 @@ def check_policy_changes(scenario: dict):
     return scenario
 
 def turn_off_policies(scen, baseline_schedule, beta_policies, import_policies, clip_policies, i_cases, n_days, policy_dates, imports_dict):
+    import sciris as sc
+
     adapt_beta_policies = beta_policies
     adapt_clip_policies = clip_policies
-    for p, policy in enumerate(scen['turn_off']['off_pols']):
-        relax_day = scen['turn_off']['dates'][p]
-        if policy in policy_dates:
-            if len(policy_dates[policy]) % 2 == 0:
-                print('Not turning off policy %s at day %s because it is already off.' % (policy, str(relax_day)))
-            elif policy_dates[policy][-1] > relax_day:
-                print('Not turning off policy %s at day %s because it is already off. It will be turned on again on day %s' % (policy, str(relax_day), str(policy_dates[policy][-1])))
+    if len(scen['turn_off'])>0:
+        for p, policy in enumerate(scen['turn_off']['off_pols']):
+            relax_day = sc.dcp(scen['turn_off']['dates'][p])
+            if policy in policy_dates:
+                if len(policy_dates[policy]) % 2 == 0:
+                    print('Not turning off policy %s at day %s because it is already off.' % (policy, str(relax_day)))
+                elif policy_dates[policy][-1] > relax_day:
+                    print('Not turning off policy %s at day %s because it is already off. It will be turned on again on day %s' % (policy, str(relax_day), str(policy_dates[policy][-1])))
+                else:
+                    if policy in adapt_beta_policies:
+                        baseline_schedule.end(policy, relax_day)
+                    if policy in import_policies:
+                        imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, n_days)), vals=np.append(i_cases, [import_policies[policy]['n_imports']] * (n_days-relax_day)))
+                    if policy in clip_policies:
+                        adapt_clip_policies[policy]['dates'] = sc.dcp([policy_dates[policy][-1], relax_day])
+                    policy_dates[policy].append(relax_day)
             else:
-                if policy in adapt_beta_policies:
-                    baseline_schedule.end(policy, relax_day)
-                if policy in import_policies:
-                    imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, n_days)), vals=np.append(i_cases, [import_policies[policy]['n_imports']] * (n_days-relax_day)))
-                if policy in clip_policies:
-                    adapt_clip_policies[policy]['dates'] = [policy_dates[policy][-1], relax_day]
-                policy_dates[policy].append(relax_day)
-        else:
-            print('Not turning off policy %s at day %s because it was never on.' % (policy, str(relax_day)))
+                print('Not turning off policy %s at day %s because it was never on.' % (policy, str(relax_day)))
     return baseline_schedule, imports_dict, adapt_clip_policies, policy_dates
 
 def turn_on_policies(scen, baseline_schedule, beta_policies, import_policies, clip_policies, i_cases, n_days, policy_dates, imports_dict):
