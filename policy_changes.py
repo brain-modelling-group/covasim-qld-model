@@ -69,7 +69,7 @@ def set_baseline(policies, pars, extra_pars):
         'pars': {
             'interventions': [baseline_policies,
                 cv.dynamic_pars({'n_imports': dict(days=range(len(i_cases)), vals=i_cases)}),
-                cv.test_num(daily_tests=(daily_tests), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3,
+                cv.test_num(daily_tests=(daily_tests), symp_test=10.0, quar_test=1.0, sensitivity=0.7, test_delay=3,
                             loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
@@ -123,7 +123,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
                     'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
                                       vals=np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day)))
                 }),
-                cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), sympt_test=100.0, quar_test=1.0,
+                cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=10.0, quar_test=1.0,
                             sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]

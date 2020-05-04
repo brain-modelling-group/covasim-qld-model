@@ -7,7 +7,8 @@ matplotlib.use('Agg')
 matplotlib.use('TkAgg')
 import sciris as sc
 import covasim as cv
-import utils, load_parameters, load_pop, policy_changes
+import utils, load_parameters, load_pop, policy_changes, os
+dirname = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == '__main__': # need this to run in parallel on windows
 
@@ -91,19 +92,26 @@ if __name__ == '__main__': # need this to run in parallel on windows
         #torun['test1']['replace']['NE_work'] = {'replacements': ['church_4sqm'], 'dates': [70, 150]}
         #torun['Relax physical distancing'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         #torun['Relax physical distancing']['replace']['communication'] = {'replacements': ['comm2'], 'dates': [60]}
-        torun['Schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Schools']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        torun['Schools']['turn_off'] = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
-        torun['Pubs'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
-        torun['Community sports'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Community sports']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [extra_pars['relax_day'], extra_pars['relax_day']]}
-        #torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Schools open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Schools open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        torun['Schools open']['turn_off'] = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
+        torun['Pubs open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Pubs open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        torun['Pubs open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
+        torun['Community sports start'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Community sports start']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [extra_pars['relax_day'], extra_pars['relax_day']]}
+        torun['Cafe/restaurant open with 4sqm'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Cafe/restaurant open with 4sqm']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        torun['Cafe/restaurant open with 4sqm']['replace']['cafe_restaurant0'] = {'replacements': ['cafe_restaurant_4sqm'], 'dates': [extra_pars['relax_day']]}
+        torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        #torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
-        torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [extra_pars['relax_day']]}
+        torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
+        torun['Large events']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+        #torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [extra_pars['relax_day']]}
+        torun['Social gatherings <10'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Social gatherings <10']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
+        torun['Social gatherings <10']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
 
 
     scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
@@ -116,7 +124,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
         # Configure plotting
         fig_args = dict(figsize=(5, 10))
-        this_fig_path = extra_pars['file_path'] + 'scens' + 'tests.png'
+        this_fig_path = dirname + '/figures/scens' + 'tests.png'
         to_plot_cum = ['cum_infections', 'cum_diagnoses', 'cum_recoveries']
         to_plot_daily = ['new_infections', 'new_diagnoses', 'new_recoveries', 'new_deaths']
         to_plot_health = ['cum_severe', 'cum_critical', 'cum_deaths']

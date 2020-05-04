@@ -73,7 +73,12 @@ def get_mixing_matrix(databook_path, sheet_name: str):
     """
     Load Prem et al. matrices
     """
-    mixing_matrix = pd.read_excel(dirname + '/' + databook_path, sheet_name=sheet_name, usecols=range(17), index_col=0)
+    mixing_matrix0 = pd.read_excel(dirname + '/' + databook_path, sheet_name=sheet_name, usecols=range(17), index_col=0)
+    #symmetrize
+    mixing_matrix = mixing_matrix0.copy()
+    for i in range(len(mixing_matrix0)):
+        for j in range(len(mixing_matrix0)):
+            mixing_matrix.values[i,j] = (mixing_matrix0.values[i,j] + mixing_matrix0.values[j,i]) / 2.0
     bin_lower = [int(x.split('-')[0]) for x in mixing_matrix.index]
     bin_upper = [int(x.split('-')[1]) for x in mixing_matrix.index]
     return mixing_matrix, bin_lower, bin_upper
