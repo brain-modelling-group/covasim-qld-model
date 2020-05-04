@@ -172,7 +172,14 @@ class PolicySchedule(cv.Intervention):
 
         return fig
 
-def create_scen(scenarios, run, beta_policies, imports_dict, daily_tests, trace_probs, trace_time, clip_policies):
+def create_scen(scenarios, run, beta_policies, imports_dict, clip_policies, pars, extra_pars):
+
+    daily_tests = extra_pars['daily_tests']
+    n_days = pars['n_days']
+    trace_probs = extra_pars['trace_probs']
+    trace_time = extra_pars['trace_time']
+    future_tests = extra_pars['future_daily_tests']
+
     scenarios[run] = {'name': run,
                       'pars': {
                       'interventions': [
@@ -180,7 +187,7 @@ def create_scen(scenarios, run, beta_policies, imports_dict, daily_tests, trace_
                         cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
                             'n_imports': imports_dict
                         }),
-                        cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                        cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                         cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
                             ]
                         }

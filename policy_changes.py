@@ -36,13 +36,17 @@ def load_pols(databook_path, layers, start_day):
 
     return policies
 
-def set_baseline(policies, pars, i_cases, daily_tests, n_days, trace_probs, trace_time):
+def set_baseline(policies, pars, extra_pars):
     import utils
     import numpy as np
     import covasim as cv
+    i_cases = extra_pars['i_cases']
+    daily_tests = extra_pars['daily_tests']
+    n_days = pars['n_days']
+    trace_probs = extra_pars['trace_probs']
+    trace_time = extra_pars['trace_time']
 
-    baseline_policies = utils.PolicySchedule(pars['beta_layer'],
-                                             policies['beta_policies'])  # create policy schedule with beta layer adjustments
+    baseline_policies = utils.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for d, dates in enumerate(policies['policy_dates']):  # add start and end dates to beta layer, import and edge clipping policies
         if len(policies['policy_dates'][dates]) == 2: # meaning the policy starts and finishes in baseline period
             if dates in policies['beta_policies']:
@@ -63,11 +67,8 @@ def set_baseline(policies, pars, i_cases, daily_tests, n_days, trace_probs, trac
     base_scenarios['baseline'] = {
         'name': 'Baseline',
         'pars': {
-            'interventions': [
-                baseline_policies,
-                cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=range(len(i_cases)), vals=i_cases)
-                }),
+            'interventions': [baseline_policies,
+                cv.dynamic_pars({'n_imports': dict(days=range(len(i_cases)), vals=i_cases)}),
                 cv.test_num(daily_tests=(daily_tests), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3,
                             loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
@@ -84,138 +85,7 @@ def set_baseline(policies, pars, i_cases, daily_tests, n_days, trace_probs, trac
     return base_scenarios, baseline_policies
 
 
-def relax_policies(torun, policies, base_scenarios, baseline_policies, i_cases, daily_tests, n_days, relax_day, trace_probs, trace_time, restart_imports):
-    import numpy as np
-    import covasim as cv
-    import sciris as sc
-
-    relax_scenarios = {}
-
-    # Relax all policies
-    relax_all_policies = sc.dcp(baseline_policies)
-    for dates in policies['policy_dates']:
-        if len(policies['policy_dates'][dates]) == 1 and dates in policies['beta_policies']:
-            relax_all_policies.end(dates, 60)
-
-    relax_scenarios['Full relaxation'] = {
-        'name': 'Full relaxation',
-        'pars': {
-            'interventions': [
-                relax_all_policies,
-                cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),
-                                      vals=np.append(i_cases, [restart_imports] * (n_days - 60)))
-                }),
-                cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))), sympt_test=100.0,
-                            quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
-            ]
-        }
-    }
-    for policy in policies['clip_policies']:  # Add relaxed clip edges policies
-        details = policies['clip_policies'][policy]
-        relax_scenarios['Full relaxation']['pars']['interventions'].append(
-            cv.clip_edges(start_day=details['dates'][0], end_day=60,
-                          change={layer: details['change'] for layer in details['layers']}))
-
-    scen_names = []
-    for policy in policies['policy_dates']:
-        if len(policies['policy_dates'][policy]) == 1:  # create list of ongoing policies
-            scen_names.append(policy)
-    non_beta_policies = {**policies['import_policies'], **policies['clip_policies']}
-    for policy in non_beta_policies:
-        if policy not in scen_names and policies['policy_dates'][policy][1] > 60:
-            scen_names.append(policy)
-
-    for n, name in enumerate(scen_names):
-        scen_policies = sc.dcp(baseline_policies)
-        if name in policies['beta_policies']:
-            scen_policies.end(name, 60)  # add end day if policy is relaxed
-        if name in policies['import_policies']:  # add imports if border scenario is relaxed
-            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, policies['import_policies'][name]['dates'][-1])),
-                                vals=np.append(i_cases, [policies['import_policies'][name]['n_imports']] * (
-                                            policies['import_policies'][name]['dates'][-1] - 60)))
-        else:
-            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),
-                                vals=np.append(i_cases, [restart_imports] * (n_days - 60)))
-
-        relax_scenarios[scen_names[n]] = {
-            'name': scen_names[n],
-            'pars': {
-                'interventions': [
-                    scen_policies,
-                    cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                        'n_imports': imports_dict
-                    }),
-                    cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))),
-                                sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                    cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
-                ]
-            }
-        }
-        # add edge clipping policies to relax scenario
-        for policy in policies['clip_policies']:
-            details = policies['clip_policies'][policy]
-            if name == policy:
-                end_day = 60  # change end day if policy is relaxed
-            else:
-                end_day = details['dates'][1]
-            relax_scenarios[scen_names[n]]['pars']['interventions'].append(
-                cv.clip_edges(start_day=details['dates'][0], end_day=end_day,
-                              change={layer: details['change'] for layer in details['layers']}))
-
-        scenarios = {}
-        # torun = scen_names
-        for run in torun:
-            trigger = False
-            if torun[run] == ['baseline']:
-                scenarios[torun[run][0]] = base_scenarios[torun[run][0]]
-            elif len(torun[run]) == 1:
-                try:
-                    scenarios[torun[run][0]] = relax_scenarios[torun[run][0]]
-                except KeyError:
-                    print("%s was not found as a policy to relax" % torun[run][0])
-            elif len(torun[run]) > 1:
-                adapt_beta_policies = sc.dcp(baseline_policies)
-                adapt_clip_policies = sc.dcp(policies['clip_policies'])
-                for policy in torun[run]:
-                    if policy in policies['beta_policies']:
-                        adapt_beta_policies.end(policy, relax_day)
-                    if policy in policies['import_policies']:
-                        imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, n_days)),
-                                            vals=np.append(i_cases, [policies['import_policies'][policy]['n_imports']] * (
-                                                        n_days - relax_day)))
-                        trigger = True
-                    elif not trigger:
-                        imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),
-                                            vals=np.append(i_cases, [restart_imports] * (n_days - relax_day)))
-                    if policy in policies['clip_policies']:
-                        adapt_clip_policies[policy]['dates'] = [policies['policy_dates'][policy][0], relax_day]
-                scenarios[run] = {
-                    'name': run,
-                    'pars': {
-                        'interventions': [
-                            adapt_beta_policies,
-                            cv.dynamic_pars(
-                                {  # what we actually did but re-introduce imported infections to test robustness
-                                    'n_imports': imports_dict
-                                }),
-                            cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))),
-                                        sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                            cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
-                        ]
-                    }
-                }
-                # add edge clipping policies to relax scenario
-                for policy in adapt_clip_policies:
-                    details = adapt_clip_policies[policy]
-                    scenarios[run]['pars']['interventions'].append(
-                        cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1],
-                                      change={layer: details['change'] for layer in details['layers']}))
-
-    return scenarios, relax_scenarios
-
-def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_days, restart_imports, daily_tests, trace_probs, trace_time):
+def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars):
 
     import sciris as sc
     import covasim as cv
@@ -226,6 +96,15 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
     beta_policies = policies['beta_policies']
     clip_policies = policies['clip_policies']
     import_policies = policies['import_policies']
+    i_cases = extra_pars['i_cases']
+    daily_tests = extra_pars['daily_tests']
+    n_days = pars['n_days']
+    trace_probs = extra_pars['trace_probs']
+    trace_time = extra_pars['trace_time']
+    restart_imports = extra_pars['restart_imports']
+    restart_imports_length = extra_pars['restart_imports_length']
+    relax_day = extra_pars['relax_day']
+    future_tests = extra_pars['future_daily_tests']
 
     relax_scenarios = {}
 
@@ -233,7 +112,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
     relax_all_policies = sc.dcp(baseline_policies)
     for dates in policy_dates:
         if len(policy_dates[dates]) == 1 and dates in beta_policies:
-            relax_all_policies.end(dates, 60)
+            relax_all_policies.end(dates, relax_day)
 
     relax_scenarios['Full relaxation'] = {
         'name': 'Full relaxation',
@@ -241,10 +120,10 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
             'interventions': [
                 relax_all_policies,
                 cv.dynamic_pars({  # jump start with imported infections
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),
-                                      vals=np.append(i_cases, [restart_imports] * (n_days - 60)))
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
+                                      vals=np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day)))
                 }),
-                cv.test_num(daily_tests=np.append(daily_tests, [10] * (n_days - len(daily_tests))), sympt_test=100.0, quar_test=1.0,
+                cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), sympt_test=100.0, quar_test=1.0,
                             sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
@@ -254,7 +133,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
         if policy in policy_dates:
             details = clip_policies[policy]
             relax_scenarios['Full relaxation']['pars']['interventions'].append(
-                cv.clip_edges(start_day=details['dates'][0], end_day=60,
+                cv.clip_edges(start_day=details['dates'][0], end_day=relax_day,
                               change={layer: details['change'] for layer in details['layers']}))
 
     scenarios = sc.dcp(base_scenarios)  # Always add baseline scenario
@@ -267,8 +146,8 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
             beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies = sc.dcp(baseline_policies), sc.dcp(policies['clip_policies']), \
                                                                                                      sc.dcp(policies['beta_policies']), sc.dcp(policies['policy_dates']), \
                                                                                                      sc.dcp(policies['import_policies'])
-            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(60, 90)),
-                                vals=np.append(i_cases, [restart_imports] * 30))
+            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
+                                vals=np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day)))
             for off_on in torun[run_pols]:
                 if off_on == 'turn_off':
                     beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.turn_off_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
@@ -287,7 +166,6 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
                 else:
                     print(
                         'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
-            scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, daily_tests, trace_probs,
-                                          trace_time, clip_schedule))
+            scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, clip_schedule, pars, extra_pars))
             del clip_schedule
     return scenarios

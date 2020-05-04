@@ -3,13 +3,13 @@ def load_pars():
     import sciris as sc
     import pandas as pd
 
-    state = 'vic'
+    setting = 'vic'
 
     date = '2020apr19'
     folder = f'results_{date}'
-    file_path = f'{folder}/{state}_'
-    data_path = f'data/{state}-data-{date}.csv'  # This gets created and then read in
-    databook_path = f'data/{state}-data.xlsx'
+    file_path = f'{folder}/{setting}_'
+    data_path = f'data/{setting}-data-{date}.csv'  # This gets created and then read in
+    databook_path = f'data/{setting}-data.xlsx'
     popfile = f'data/popfile.obj'
 
     layers = pd.read_excel(databook_path, sheet_name='layers')
@@ -67,7 +67,26 @@ def load_pars():
         trace_probs.update({i: layers['trace_probs'][i]})
         trace_time.update({i: layers['trace_time'][i]})
 
-    return state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, population_subsets, trace_probs, trace_time
+    extra_pars = {}
+    extra_pars['setting'] = setting
+    extra_pars['date'] = date
+    extra_pars['folder'] = folder
+    extra_pars['file_path'] = file_path
+    extra_pars['data_path'] = data_path
+    extra_pars['databook_path'] = databook_path
+    extra_pars['popfile'] = popfile
+    extra_pars['trace_probs'] = trace_probs
+    extra_pars['trace_time'] = trace_time
+    extra_pars['end_day'] = end_day
+    extra_pars['restart_imports'] = other_par['value'].restart_imports  # jump start epidemic with imports after day 60
+    extra_pars['restart_imports_length'] = other_par['value'].restart_imports_length
+    extra_pars['relax_day'] = other_par['value'].relax_day
+    extra_pars['future_daily_tests'] = other_par['value'].future_daily_tests
+
+    pars['beta'] = 0.07  # Scale beta
+    pars['diag_factor'] = 1.6  # Scale proportion asymptomatic
+
+    return pars, metapars, extra_pars, population_subsets
 
 
 def load_data(databook_path, start_day, end_day, data_path):

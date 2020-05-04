@@ -15,7 +15,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            #'gen_pop',
+            'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]
@@ -23,32 +23,28 @@ if __name__ == '__main__': # need this to run in parallel on windows
     for_powerpoint = False
     verbose    = 1
     seed       = 1
-    restart_imports = 5 # jump start epidemic with imports after day 60
 
     # load parameters
-    state, start_day, end_day, n_days, date, folder, file_path, data_path, databook_path, popfile, pars, metapars, \
-    population_subsets, trace_probs, trace_time = load_parameters.load_pars()
+    pars, metapars, extra_pars, population_subsets = load_parameters.load_pars()
 
     # Process and read in data
     if 'loaddata' in todo:
-        sd, i_cases, daily_tests = load_parameters.load_data(databook_path=databook_path, start_day=start_day, end_day=end_day, data_path=data_path)
+        sd, extra_pars['i_cases'], extra_pars['daily_tests'] = load_parameters.load_data(databook_path=extra_pars['databook_path'],
+                                                                                         start_day=pars['start_day'], end_day=extra_pars['end_day'], data_path=extra_pars['data_path'])
 
     #### diagnose population structure
     if 'gen_pop' in todo:
-        popdict = load_pop.get_australian_popdict(databook_path, pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
-        sc.saveobj(popfile, popdict)
+        popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
+        sc.saveobj(extra_pars['popfile'], popdict)
 
-    pars['beta'] = 0.07 # Scale beta
-    pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
-
-    sim = cv.Sim(pars, popfile=popfile, datafile=data_path, pop_size=pars['pop_size'])
-    sim.initialize(save_pop=False, load_pop=True, popfile=popfile)
+    sim = cv.Sim(pars, popfile=extra_pars['popfile'], datafile=extra_pars['data_path'], pop_size=pars['pop_size'])
+    sim.initialize(save_pop=False, load_pop=True, popfile=extra_pars['popfile'])
 
     # Read a variety of policies from databook sheet 'policies', and set up the baseline according to their start and end dates
-    policies = policy_changes.load_pols(databook_path=databook_path, layers=pars['contacts'].keys(),
-                                        start_day=start_day)
+    policies = policy_changes.load_pols(databook_path=extra_pars['databook_path'], layers=pars['contacts'].keys(),
+                                        start_day=pars['start_day'])
     # Set up a baseline scenario that includes all policy changes to date
-    base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, i_cases, daily_tests, n_days, trace_probs, trace_time)
+    base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars)
 
     '''
     The required structure for the torun dict is:
@@ -96,21 +92,21 @@ if __name__ == '__main__': # need this to run in parallel on windows
         #torun['Relax physical distancing'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         #torun['Relax physical distancing']['replace']['communication'] = {'replacements': ['comm2'], 'dates': [60]}
         torun['Schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Schools']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        torun['Schools']['turn_off'] = {'off_pols': ['schools'], 'dates': [60]}
+        torun['Schools']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        torun['Schools']['turn_off'] = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
         torun['Pubs'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [60]}
+        torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
         torun['Community sports'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Community sports']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [60, 60]}
+        torun['Community sports']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [extra_pars['relax_day'], extra_pars['relax_day']]}
         #torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
         #torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
         torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [60]}
+        torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [extra_pars['relax_day']]}
 
 
-    scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_days, restart_imports, daily_tests, trace_probs, trace_time)
+    scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
 
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)
@@ -120,7 +116,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
         # Configure plotting
         fig_args = dict(figsize=(5, 10))
-        this_fig_path = file_path + 'scens' + 'tests.png'
+        this_fig_path = extra_pars['file_path'] + 'scens' + 'tests.png'
         to_plot_cum = ['cum_infections', 'cum_diagnoses', 'cum_recoveries']
         to_plot_daily = ['new_infections', 'new_diagnoses', 'new_recoveries', 'new_deaths']
         to_plot_health = ['cum_severe', 'cum_critical', 'cum_deaths']
