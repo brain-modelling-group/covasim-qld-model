@@ -114,12 +114,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['Social gatherings <10']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
         torun['Social gatherings <10']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
 
-        intervention_plotting
-
         labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
 
-
-        scenarios, poliy_schedule = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
+        scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
 
         fig = policy_schedule.plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
         fig.show()
