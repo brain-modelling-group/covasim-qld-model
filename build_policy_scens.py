@@ -96,22 +96,50 @@ if __name__ == '__main__': # need this to run in parallel on windows
         #torun['Relax physical distancing'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         #torun['Relax physical distancing']['replace']['communication'] = {'replacements': ['comm2'], 'dates': [60]}
         torun['Schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Schools']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
+        torun['Schools']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [65]}
         torun['Schools']['turn_off'] = {'off_pols': ['schools'], 'dates': [60]}
         torun['Pubs'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [60]}
-        torun['Community sports'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Community sports']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [60, 60]}
+        torun['Pubs']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [70]}
+        torun['Pubs']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [70]}
+        #torun['Community sports'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Community sports']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [60, 60]}
         #torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
         #torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
         torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [60]}
+        torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [80]}
 
+    labels = {'communication': 'Phys. dist. communication',
+'beach0': 'Beaches closed',
+'beach2': 'Beaches restr. groups of 2',
+'beach10': 'Beaches restr. groups of 10',
+'nat_parks0': 'Nat. & state parks closed ',
+'church0': 'Places of worship closed',
+'church_4sqm': 'Places of worship restr. 4sqm/person',
+'cafe_restaurant0': 'Cafe & rest. takeout only',
+'cafe_restaurant_4sqm': 'Cafe & rest. restr. 4sqm/person',
+'pub_bar0': 'Pubs & bars closed',
+'pub_bar_4sqm': 'Pubs & bars restr. 4sqm/person',
+'outdoor2': 'Outdoor gath. restr. groups of 2',
+'outdoor10': 'Outdoor gath. restr. groups of 10',
+'outdoor200': 'Outdoor gath. restr. groups of 200',
+'pSports': 'Prof. sports cancelled for players',
+'cSports': 'Comm. sports cancelled',
+'child_care': 'Child care closed',
+'schools': 'Schools closed',
+'retail': 'NE retail outlets closed',
+'entertainment': 'Entertainment venues closed',
+'large_events': 'Large events cancelled',
+'NE_work': 'NE work closed',
+'NE_health': 'NE health services closed',
+'travel_dom': 'Interstate travel increased',
+'social': 'Social gath. restr. groups of 10',
+'comm_relax': 'Phys. dist. partially relaxed'
+}
 
-    scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_days, restart_imports, daily_tests, trace_probs, trace_time)
-
+    scenarios, policy_schedule = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_days, restart_imports, daily_tests, trace_probs, trace_time)
+    #fig = policy_schedule.plot_gantt(max_time=n_days, start_date=start_day, pretty_labels=labels)
+    #fig.show()
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)
 
@@ -130,4 +158,5 @@ if __name__ == '__main__': # need this to run in parallel on windows
         else:
             to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
 
-        scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,font_size=8, to_plot=to_plot1)
+        utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,font_size=8, to_plot=to_plot1)
+

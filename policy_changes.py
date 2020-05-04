@@ -290,4 +290,4 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
             scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, daily_tests, trace_probs,
                                           trace_time, clip_schedule))
             del clip_schedule
-    return scenarios
+    return scenarios, beta_schedule
