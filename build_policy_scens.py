@@ -92,6 +92,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         #torun['test1']['replace']['NE_work'] = {'replacements': ['church_4sqm'], 'dates': [70, 150]}
         #torun['Relax physical distancing'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         #torun['Relax physical distancing']['replace']['communication'] = {'replacements': ['comm2'], 'dates': [60]}
+
         torun['Schools open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         torun['Schools open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
         torun['Schools open']['turn_off'] = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
@@ -113,8 +114,15 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['Social gatherings <10']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
         torun['Social gatherings <10']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
 
+        intervention_plotting
 
-    scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
+        labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
+
+
+        scenarios, poliy_schedule = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
+
+        fig = policy_schedule.plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
+        fig.show()
 
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)
@@ -134,4 +142,5 @@ if __name__ == '__main__': # need this to run in parallel on windows
         else:
             to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
 
-        scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,font_size=8, to_plot=to_plot1)
+        utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,font_size=8, to_plot=to_plot1)
+

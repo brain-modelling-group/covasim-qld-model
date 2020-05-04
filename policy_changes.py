@@ -66,11 +66,9 @@ def set_baseline(policies, pars, extra_pars):
     base_scenarios = {}  # create baseline scenario according to policies from databook
     base_scenarios['baseline'] = {
         'name': 'Baseline',
-        'pars': {
-            'interventions': [baseline_policies,
+        'pars': {'interventions': [baseline_policies,
                 cv.dynamic_pars({'n_imports': dict(days=range(len(i_cases)), vals=i_cases)}),
-                cv.test_num(daily_tests=(daily_tests), symp_test=10.0, quar_test=1.0, sensitivity=0.7, test_delay=3,
-                            loss_prob=0),
+                cv.test_num(daily_tests=(daily_tests), symp_test=10.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
         }
@@ -86,7 +84,6 @@ def set_baseline(policies, pars, extra_pars):
 
 
 def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars):
-
     import sciris as sc
     import covasim as cv
     import numpy as np
@@ -168,4 +165,6 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
                         'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
             scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, clip_schedule, pars, extra_pars))
             del clip_schedule
+
     return scenarios
+
