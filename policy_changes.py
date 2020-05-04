@@ -68,7 +68,7 @@ def set_baseline(policies, pars, i_cases, daily_tests, n_days, trace_probs, trac
                 cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
                     'n_imports': dict(days=range(len(i_cases)), vals=i_cases)
                 }),
-                cv.test_num(daily_tests=(daily_tests), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3,
+                cv.test_num(daily_tests=(daily_tests), symp_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3,
                             loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
@@ -106,7 +106,7 @@ def relax_policies(torun, policies, base_scenarios, baseline_policies, i_cases, 
                     'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),
                                       vals=np.append(i_cases, [restart_imports] * (n_days - 60)))
                 }),
-                cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))), sympt_test=100.0,
+                cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))), symp_test=100.0,
                             quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]
@@ -148,7 +148,7 @@ def relax_policies(torun, policies, base_scenarios, baseline_policies, i_cases, 
                         'n_imports': imports_dict
                     }),
                     cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))),
-                                sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                                symp_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
                 ]
             }
@@ -201,7 +201,7 @@ def relax_policies(torun, policies, base_scenarios, baseline_policies, i_cases, 
                                     'n_imports': imports_dict
                                 }),
                             cv.test_num(daily_tests=np.append(daily_tests, [1000] * (n_days - len(daily_tests))),
-                                        sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                                        symp_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                             cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
                         ]
                     }
@@ -244,7 +244,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, i_cases, n_
                     'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(60, n_days)),
                                       vals=np.append(i_cases, [restart_imports] * (n_days - 60)))
                 }),
-                cv.test_num(daily_tests=np.append(daily_tests, [10] * (n_days - len(daily_tests))), sympt_test=100.0, quar_test=1.0,
+                cv.test_num(daily_tests=np.append(daily_tests, [10] * (n_days - len(daily_tests))), symp_test=100.0, quar_test=1.0,
                             sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
             ]

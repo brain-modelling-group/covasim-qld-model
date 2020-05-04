@@ -162,9 +162,6 @@ class PolicySchedule(cv.Intervention):
             max_time += 5
         else:
             max_time = np.nanmax(np.array([x[0] for x in self.policy_schedule] + [x[1] for x in self.policy_schedule if np.isfinite(x[1])]))
-        ax.set_yticks(np.arange(len(self.policies)))
-        ax.set_yticklabels(list(self.policies.keys()))
-        ax.set_ylim(0 - 0.5, len(self.policies) - 0.5)
         if start_date:
             @ticker.FuncFormatter
             def date_formatter(x, pos):
@@ -179,13 +176,16 @@ class PolicySchedule(cv.Intervention):
             ax.set_xlabel('Days')
         schedule = sc.dcp(self.policy_schedule)
         if pretty_labels:
-            policy_index = {pretty_labels[x]: i for i, x in enumerate(pretty_labels.keys()) for pol in self.policy_schedule if x == pol[2]}
+            policy_index = {pretty_labels[x]: i for i, x in enumerate(self.policies.keys())}
             for p, pol in enumerate(schedule):
-                pol[2] = pretty_labels[pol[2]]
+               pol[2] = pretty_labels[pol[2]]
             colors = sc.gridcolors(len(pretty_labels))
         else:
             policy_index = {x: i for i, x in enumerate(self.policies.keys())}
             colors = sc.gridcolors(len(self.policies))
+        ax.set_yticks(np.arange(len(policy_index.keys())))
+        ax.set_yticklabels(list(policy_index.keys()))
+        ax.set_ylim(0 - 0.5, len(policy_index.keys()) - 0.5)
 
         for start_day, end_day, policy_name in schedule:
             if not np.isfinite(end_day):
@@ -202,7 +202,7 @@ def create_scen(scenarios, run, beta_policies, imports_dict, daily_tests, trace_
                         cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
                             'n_imports': imports_dict
                         }),
-                        cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), sympt_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                        cv.test_num(daily_tests=np.append(daily_tests, [1000] * 50), symp_test=100.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                         cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
                             ]
                         }
@@ -674,3 +674,31 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
         pl.close(fig)
 
     return fig
+
+pretty_labels = {'communication': 'Phys. dist. communication',
+                 'beach0': 'Beaches closed',
+                 'beach2': 'Beaches restr. to 2',
+                 'beach10': 'Beaches restr. to 10',
+                 'nat_parks0': 'Nat. & state parks closed ',
+                 'church0': 'Places of worship closed',
+                 'church_4sqm': 'Places of worship restr. 4sqm/person',
+                 'cafe_restaurant0': 'Cafe & rest. takeout only',
+                 'cafe_restaurant_4sqm': 'Cafe & rest. restr. 4sqm/person',
+                 'pub_bar0': 'Pubs & bars closed',
+                 'pub_bar_4sqm': 'Pubs & bars restr. 4sqm/person',
+                 'outdoor2': 'Outdoor gath. restr. to 2',
+                 'outdoor10': 'Outdoor gath. restr. to 10',
+                 'outdoor200': 'Outdoor gath. restr. to 200',
+                 'pSports': 'Prof. sports cancelled for players',
+                 'cSports': 'Comm. sports cancelled',
+                 'child_care': 'Child care closed',
+                 'schools': 'Schools closed',
+                 'retail': 'NE retail outlets closed',
+                 'entertainment': 'Entertainment venues closed',
+                 'large_events': 'Large events cancelled',
+                 'NE_work': 'NE work closed',
+                 'NE_health': 'NE health services closed',
+                 'travel_dom': 'Interstate travel increased',
+                 'social': 'Social gath. restr. to 10',
+                 'comm_relax': 'Phys. dist. relaxed'
+                 }
