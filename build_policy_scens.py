@@ -16,7 +16,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            'gen_pop',
+            #'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]
@@ -116,10 +116,10 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
         labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
 
-        scenarios = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
+        scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
 
-        fig = policy_schedule.plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
-        fig.show()
+        #fig = scenario_policies['Full relax'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
+        #fig.show()
 
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)
@@ -140,4 +140,3 @@ if __name__ == '__main__': # need this to run in parallel on windows
             to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
 
         utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,font_size=8, to_plot=to_plot1)
-

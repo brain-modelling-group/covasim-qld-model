@@ -57,9 +57,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
     fig_args = dict(figsize=(5, 10))
     this_fig_path = extra_pars['file_path'] + 'baseline.png'
     if for_powerpoint:
-        to_plot1 = ['new_infections', 'cum_deaths']
+        to_plot1 = scens.results['new_infections']
     else:
         to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
 
-    scens.plot(do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,
+    utils.policy_plot(scens, plot_ints=False, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,
                font_size=8, to_plot=to_plot1)

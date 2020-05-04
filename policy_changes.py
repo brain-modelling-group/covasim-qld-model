@@ -104,6 +104,8 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
     future_tests = extra_pars['future_daily_tests']
 
     relax_scenarios = {}
+    scenario_policies = {}
+    scenario_policies['baseline'] = sc.dcp(baseline_policies)
 
     # Relax all policies
     relax_all_policies = sc.dcp(baseline_policies)
@@ -133,6 +135,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
                 cv.clip_edges(start_day=details['dates'][0], end_day=relax_day,
                               change={layer: details['change'] for layer in details['layers']}))
 
+    scenario_policies['Full relax'] = relax_all_policies
     scenarios = sc.dcp(base_scenarios)  # Always add baseline scenario
 
     for run_pols in torun:
@@ -165,6 +168,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
                         'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
             scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, clip_schedule, pars, extra_pars))
             del clip_schedule
+            scenario_policies[run_pols] = beta_schedule
 
-    return scenarios
+    return scenarios, scenario_policies
 
