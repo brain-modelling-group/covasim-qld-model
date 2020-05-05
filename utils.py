@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import datetime as dt
+import pylab as pl
 
 
 
@@ -161,7 +162,13 @@ class PolicySchedule(cv.Intervention):
         if max_time:
             max_time += 5
         else:
-            max_time = np.nanmax(np.array([x[0] for x in self.policy_schedule] + [x[1] for x in self.policy_schedule if np.isfinite(x[1])]))
+            max_time = np.nanmax(np.array([x[1] for x in self.policy_schedule if np.isfinite(x[1])]))
+
+        #end_dates = [x[1] for x in self.policy_schedule if np.isfinite(x[1])]
+        if interval:
+            xmin, xmax = ax.get_xlim()
+            ax.set_xticks(pl.arange(xmin, xmax + 1, interval))
+
         if start_date:
             @ticker.FuncFormatter
             def date_formatter(x, pos):
@@ -171,6 +178,8 @@ class PolicySchedule(cv.Intervention):
             if not interval:
                 ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
             ax.set_xlabel('Dates')
+            ax.set_xlim((0, max_time + 5))  # Extend a few days so the ends of policies can be seen
+
         else:
             ax.set_xlim(0, max_time + 5)  # Extend a few days so the ends of policies can be seen
             ax.set_xlabel('Days')
@@ -189,7 +198,7 @@ class PolicySchedule(cv.Intervention):
 
         for start_day, end_day, policy_name in schedule:
             if not np.isfinite(end_day):
-                end_day = max_time - 5 # Arbitrarily large end day
+                end_day = 1e6 # Arbitrarily large end day
             ax.broken_barh([(start_day, end_day - start_day)], (policy_index[policy_name] - 0.5, 1), color=colors[policy_index[policy_name]])
 
         return fig
@@ -531,9 +540,9 @@ def replace_policies(scen, baseline_schedule, beta_policies, import_policies, cl
 def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
-    do_show=True, sep_figs=False, verbose=None):
+    do_show=True, sep_figs=False, verbose=None, y_lim=None):
     from covasim import defaults as cvd
-    import pylab as pl
+
 
     '''
     Plot the results -- can supply arguments for both the figure and the plots.
@@ -667,6 +676,8 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
                             pl.axvline(x=day, color=colors[scennum], linestyle='--')
                         #intervention.plot(scen.sims[scen_name][0], ax)
                 scennum += 1
+        if y_lim:
+            ax.set_ylim((0, y_lim))
 
     # Ensure the figure actually renders or saves
     if do_save:

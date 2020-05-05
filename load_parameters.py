@@ -90,7 +90,7 @@ def load_pars():
     return pars, metapars, extra_pars, population_subsets
 
 
-def load_data(databook_path, start_day, end_day, data_path):
+def load_data(databook_path, start_day, end_day, data_path, setting=None):
     import pandas as pd
     import numpy as np
 

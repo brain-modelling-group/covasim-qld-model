@@ -3,12 +3,11 @@ Load Australian epi data
 '''
 
 import matplotlib
-matplotlib.use('Agg')
-matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
 import utils, load_parameters, load_pop, policy_changes
+import load_parameters_int
 import numpy as np
 
 if __name__ == '__main__': # need this to run in parallel on windows
@@ -29,7 +28,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Process and read in data
     if 'loaddata' in todo:
         sd, extra_pars['i_cases'], extra_pars['daily_tests'] = load_parameters.load_data(databook_path=extra_pars['databook_path'],
-                                                                                         start_day=pars['start_day'], end_day=extra_pars['end_day'], data_path=extra_pars['data_path'])
+                                                                                         start_day=pars['start_day'], end_day=extra_pars['end_day'], data_path=extra_pars['data_path'], setting=extra_pars['setting'])
 
     #### diagnose population structure
     if 'gen_pop' in todo:
