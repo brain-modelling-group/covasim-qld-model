@@ -93,9 +93,10 @@ plt.savefig(fname=dirname + '/figures/distributions.png')
 mixing_matrix, bin_lower, bin_upper = load_pop.get_mixing_matrix(extra_pars['databook_path'], 'contact matrices-home')
 mixing_matrix = mixing_matrix.iloc[::-1]
 
+fig3, axs3 = matplotlib.pyplot.subplots(1, 1,**{'figsize': (10,10)})
 g = sns.heatmap(mixing_matrix)
-fig2 = g.get_figure()
-fig2.savefig(dirname + "/figures/H_mixing.png")
+fig3 = g.get_figure()
+fig3.savefig(dirname + "/figures/H_mixing.png")
 #fig2.show()
 
 
@@ -107,7 +108,7 @@ sc.saveobj(extra_pars['file_path'] + 'temp_pop', popdict)
 sim = cv.Sim(pars=pars)
 sim.initialize(load_pop=True, popfile=extra_pars['file_path'] + 'temp_pop')
 
-fig3 = plt.figure(figsize=(8,8))
+fig4 = plt.figure(figsize=(8,8))
 mapping = dict(H='Households', S='Schools', W='Work', transport='Public transport')
 for i, layer in enumerate(['H', 'S', 'W', 'transport']):
     ax = plt.subplot(2,2,i+1)
