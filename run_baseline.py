@@ -3,12 +3,11 @@ Load Australian epi data
 '''
 
 import matplotlib
-matplotlib.use('Agg')
-matplotlib.use('TkAgg')
 import pandas as pd
 import sciris as sc
 import covasim as cv
 import utils, load_parameters, load_pop, policy_changes
+import load_parameters_int
 import numpy as np
 
 if __name__ == '__main__': # need this to run in parallel on windows
