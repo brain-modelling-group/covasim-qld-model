@@ -540,7 +540,7 @@ def replace_policies(scen, baseline_schedule, beta_policies, import_policies, cl
 def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
-    do_show=True, sep_figs=False, verbose=None):
+    do_show=True, sep_figs=False, verbose=None, y_lim=None):
     from covasim import defaults as cvd
 
 
@@ -676,6 +676,8 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
                             pl.axvline(x=day, color=colors[scennum], linestyle='--')
                         #intervention.plot(scen.sims[scen_name][0], ax)
                 scennum += 1
+        if y_lim:
+            ax.set_ylim((0, y_lim))
 
     # Ensure the figure actually renders or saves
     if do_save:
