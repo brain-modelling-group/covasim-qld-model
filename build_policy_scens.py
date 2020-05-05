@@ -3,8 +3,6 @@ Load Australian epi data
 '''
 
 import matplotlib
-matplotlib.use('Agg')
-matplotlib.use('TkAgg')
 import sciris as sc
 import covasim as cv
 import utils, load_parameters, load_pop, policy_changes, os
@@ -113,6 +111,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['Social gatherings <10'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         torun['Social gatherings <10']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
         torun['Social gatherings <10']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        torun['Pub+cafe+events+sport'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Pub+cafe+events+sport']['turn_off'] = {'off_pols': ['large_events', 'pub_bar0', 'cafe_restaurant0', 'cSports'], 'dates': [60,90,120,150]}
+        torun['Pub+cafe+events+sport']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
 
         labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
 
@@ -137,6 +138,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         if for_powerpoint:
             to_plot1 = ['new_infections', 'cum_infections', 'cum_deaths']
         else:
-            to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
+            to_plot1 = ['new_infections', 'r_eff', 'cum_deaths']
 
-        utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,font_size=8, to_plot=to_plot1)
+        utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
+                          fig_args=fig_args,font_size=8, y_lim=2, to_plot=to_plot1)

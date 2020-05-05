@@ -119,8 +119,8 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
             'interventions': [
                 relax_all_policies,
                 cv.dynamic_pars({  # jump start with imported infections
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
-                                      vals=np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day)))
+                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(relax_day, min(n_days,restart_imports_length))),
+                                      vals=np.append(i_cases, [restart_imports] * (min(n_days,restart_imports_length) - relax_day)))
                 }),
                 cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=10.0, quar_test=1.0,
                             sensitivity=0.7, test_delay=3, loss_prob=0),
