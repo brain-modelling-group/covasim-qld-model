@@ -95,3 +95,45 @@ def load_pars():
     pars['diag_factor'] = 1.6  # Scale proportion asymptomatic
 
     return pars, metapars, extra_pars, population_subsets
+
+
+def load_data(databook_path, start_day, end_day, data_path, setting=None):
+    import pandas as pd
+    import numpy as np
+
+    epi_data_path = '~/Documents/GitHub/covid-19-data/public/data/owid-covid-data.xlsx'
+    sd = pd.read_excel(epi_data_path, header=0, index_col=[1, 2])
+    other_par = pd.read_excel(databook_path, sheet_name='other_par', index_col=0)
+
+    sd['Tests conducted (negative)'] = np.nan
+    sd['Hospitalisations (count)'] = np.nan
+    sd['Intensive care (count)'] = np.nan
+    sd['Recovered (cumulative)'] = np.nan
+    sd['Daily imported cases'] = np.nan
+
+    sd.rename(columns={'total_cases': 'cum_infections',
+                       'total_deaths': 'cum_deaths',
+                       'total_tests': 'cum_test',
+                       'Tests conducted (negative)': 'cum_neg',
+                       'Hospitalisations (count)': 'n_severe',
+                       'Intensive care (count)': 'n_critical',
+                       'Recovered (cumulative)': 'cum_recovered',
+                       'Daily imported cases': 'daily_imported_cases'
+                       }, inplace=True)
+
+    sd = sd[['cum_infections', 'cum_deaths', 'cum_test', 'cum_neg', 'n_severe', 'n_critical', 'cum_recovered',
+             'daily_imported_cases']]
+
+    sd['cum_infections'] = sd['cum_infections'] * (1 + other_par.undiag[setting]) # Assume 20% of cases never diagnosed
+    sd['new_tests'] = sd['cum_test'].diff()
+
+    i_cases = np.array(sd['daily_imported_cases'])
+    i_cases = i_cases[6:len(i_cases)]  # shift 7 days back to account for lag in reporting time
+    daily_tests = np.array(sd['new_tests'])
+
+    sd = sd.loc[(setting, slice(None)), :].reset_index()
+    sd = sd.drop(columns='location')
+    sd = sd.set_index('date')
+    sd.to_csv(data_path)
+
+    return sd, i_cases, daily_tests
