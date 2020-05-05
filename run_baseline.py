@@ -7,7 +7,7 @@ import pandas as pd
 import sciris as sc
 import covasim as cv
 import utils, load_parameters, load_pop, policy_changes
-import load_parameters_int
+import load_parameters_int, load_pop_int
 import numpy as np
 
 if __name__ == '__main__': # need this to run in parallel on windows
@@ -15,8 +15,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # What to do
     todo = ['loaddata',
             'showplot',
-            'saveplot',
-            #'gen_pop'
+            'saveplot'
+            # 'gen_pop'
             ]
     for_powerpoint = False
     verbose    = 1
@@ -32,7 +32,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
     #### diagnose population structure
     if 'gen_pop' in todo:
-        popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets)
+        popdict = load_pop.get_country_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets, setting=extra_pars['setting'])
+        sc.saveobj(extra_pars['popfile'], popdict)
 
     # manually adjust some parameters for calibration, outside of Excel read-in
     pars['beta'] = 0.125 # Scale beta

@@ -7,6 +7,7 @@ results_*
 *-data-*.csv
 popfile.obj
 figures/dom
+*_popfile.obj
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
