@@ -127,9 +127,8 @@ def load_data(databook_path, start_day, end_day, data_path, setting=None):
     sd['cum_infections'] = sd['cum_infections'] * (1 + other_par.undiag[setting]) # Assume 20% of cases never diagnosed
     sd['new_tests'] = sd['cum_test'].diff()
 
-    i_cases = np.array(sd['daily_imported_cases'])
-    i_cases = i_cases[6:len(i_cases)]  # shift 7 days back to account for lag in reporting time
-    daily_tests = np.array(sd['new_tests'])
+    i_cases = np.zeros(5)  # Placeholder, since there isn't currently data
+    daily_tests = np.zeros(5)  # Placeholder, since there isn't currently data
 
     sd = sd.loc[(setting, slice(None)), :].reset_index()
     sd = sd.drop(columns='location')

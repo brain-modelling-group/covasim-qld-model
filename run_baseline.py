@@ -15,7 +15,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # What to do
     todo = ['loaddata',
             'showplot',
-            'saveplot'
+            'saveplot',
             # 'gen_pop'
             ]
     for_powerpoint = False
@@ -32,7 +32,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
     #### diagnose population structure
     if 'gen_pop' in todo:
-        popdict = load_pop.get_country_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets, setting=extra_pars['setting'])
+        popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets, setting=extra_pars['setting'])
         sc.saveobj(extra_pars['popfile'], popdict)
 
     # manually adjust some parameters for calibration, outside of Excel read-in
