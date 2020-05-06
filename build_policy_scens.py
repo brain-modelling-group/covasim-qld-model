@@ -141,4 +141,4 @@ if __name__ == '__main__': # need this to run in parallel on windows
             to_plot1 = ['new_infections', 'r_eff', 'cum_deaths']
 
         utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
-                          fig_args=fig_args,font_size=8, y_lim=2, to_plot=to_plot1)
+                          fig_args=fig_args,font_size=8, y_lim={'r_eff': 3}, to_plot=to_plot1)

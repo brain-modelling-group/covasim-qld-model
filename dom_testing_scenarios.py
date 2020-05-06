@@ -56,10 +56,10 @@ if __name__ == '__main__':  # need this to run in parallel on windows
     if 'runsim_indiv' in todo:  # run and plot a collection of policy scenarios together
         torun = {}
 
-        torun['Schools open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Schools open']['replace']['communication'] = {'replacements': ['comm_relax'],
+        torun['Pubs open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Pubs open']['replace']['communication'] = {'replacements': ['comm_relax'],
                                                              'dates': [extra_pars['relax_day']]}
-        torun['Schools open']['turn_off'] = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
+        torun['Pubs open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
 
 
         scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios,
@@ -76,7 +76,7 @@ if __name__ == '__main__':  # need this to run in parallel on windows
 
         # Configure plotting
         fig_args = dict(figsize=(5, 10))
-        this_fig_path = dirname + '/figures/dom/schools' + '11.png'
+        this_fig_path = dirname + '/figures/dom/pubs' + 'prop25.png'
         if for_powerpoint:
             to_plot1 = ['new_infections', 'cum_infections', 'cum_deaths']
         else:

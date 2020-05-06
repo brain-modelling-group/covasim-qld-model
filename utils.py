@@ -542,7 +542,7 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
     do_show=True, sep_figs=False, verbose=None, y_lim=None):
     from covasim import defaults as cvd
-
+    from matplotlib.ticker import StrMethodFormatter
 
     '''
     Plot the results -- can supply arguments for both the figure and the plots.
@@ -677,7 +677,10 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
                         #intervention.plot(scen.sims[scen_name][0], ax)
                 scennum += 1
         if y_lim:
-            ax.set_ylim((0, y_lim))
+            if reskey in y_lim.keys():
+                ax.set_ylim((0, y_lim[reskey]))
+                if y_lim[reskey] < 20: # kind of arbitrary limit to add decimal places so that it doesn't just plot integer ticks on small ranges
+                    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 
     # Ensure the figure actually renders or saves
     if do_save:
