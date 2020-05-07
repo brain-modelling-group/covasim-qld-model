@@ -55,11 +55,12 @@ if __name__ == '__main__':  # need this to run in parallel on windows
 
     if 'runsim_indiv' in todo:  # run and plot a collection of policy scenarios together
         torun = {}
+        #torun['Full relax'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
 
-        torun['Pubs open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Pubs open']['replace']['communication'] = {'replacements': ['comm_relax'],
+        torun['Comm. sports open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Comm. sports open']['replace']['communication'] = {'replacements': ['comm_relax'],
                                                              'dates': [extra_pars['relax_day']]}
-        torun['Pubs open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
+        torun['Comm. sports open']['turn_off'] = {'off_pols': ['cSports'], 'dates': [extra_pars['relax_day']]}
 
 
         scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios,
@@ -76,11 +77,11 @@ if __name__ == '__main__':  # need this to run in parallel on windows
 
         # Configure plotting
         fig_args = dict(figsize=(5, 10))
-        this_fig_path = dirname + '/figures/dom/pubs' + 'prop25.png'
+        this_fig_path = dirname + '/figures/dom/Sports/sports' + 'cont15.png'
         if for_powerpoint:
             to_plot1 = ['new_infections', 'cum_infections', 'cum_deaths']
         else:
-            to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
+            to_plot1 = ['new_infections', 'r_eff', 'new_diagnoses', 'cum_deaths']
 
-        utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
-                          fig_args=fig_args, font_size=8, to_plot=to_plot1)
+        utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=182,
+                          fig_args=fig_args, font_size=8, y_lim={'r_eff': 3}, to_plot=to_plot1)

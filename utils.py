@@ -1,5 +1,6 @@
 import sciris as sc
 import covasim as cv
+from covasim import utils as cvu
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -203,7 +204,48 @@ class PolicySchedule(cv.Intervention):
 
         return fig
 
-def create_scen(scenarios, run, beta_policies, imports_dict, clip_policies, pars, extra_pars):
+class AppBasedTracing(cv.Intervention):
+    def __init__(self, days, coverage, layers, start_day=0, end_day=None, trace_time=0):
+        """
+        App based contact tracing parametrized by coverage
+        Args:
+            days: List/array of day indexes on which a coverage value takes effect e.g. [14, 28]
+            coverage: List/array of coverage values corresponding to days e.g. [0.2,0.4]
+            layers: List of layer names traceable by the app e.g. ['Household','Beach']
+            start_day (int): intervention start day.
+            end_day (int): intervention end day
+            trace_time: Tracing time (default is 0 as contacts are automatically notified via the system)
+        """
+        super().__init__()
+        assert len(days) == len(coverage), 'Must specify same number of days as coverage values'
+        self.days = sc.promotetoarray(days)
+        self.coverage = sc.promotetoarray(coverage)
+        self.layers = layers
+        assert self.days[0] <= start_day
+        self.trace_time = dict.fromkeys(self.layers, trace_time)
+        self.start_day = start_day
+        self.end_day = end_day
+        return
+    def initialize(self, sim):
+        super().initialize(sim)
+        self.start_day = sim.day(self.start_day)
+        self.end_day = sim.day(self.end_day)
+        return
+    def apply(self, sim):
+        t = sim.t
+        if t < self.start_day:
+            return
+        elif self.end_day is not None and t > self.end_day:
+            return
+        # Index to use for the current day
+        idx = np.argmax(self.days > sim.t)-1 # nb. if sim.t<self.days[0] this will be wrong, hence the validation in __init__()
+        trace_prob = dict.fromkeys(self.layers, self.coverage[idx] ** 2)  # Probability of both people having the app
+        just_diagnosed_inds = cvu.true(sim.people.date_diagnosed == t)
+        if len(just_diagnosed_inds):
+            sim.people.trace(just_diagnosed_inds, trace_prob, self.trace_time)
+        return
+
+def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, clip_policies, pars, extra_pars):
 
     daily_tests = extra_pars['daily_tests']
     n_days = pars['n_days']
@@ -223,6 +265,9 @@ def create_scen(scenarios, run, beta_policies, imports_dict, clip_policies, pars
                             ]
                         }
                      }
+    for trace_pol in trace_policies:
+        details = trace_policies[trace_pol]
+        scenarios[run]['pars']['interventions'].append(AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
     # add edge clipping policies to relax scenario
     for policy in clip_policies:
         if len(clip_policies[policy]) >= 3:
@@ -272,18 +317,19 @@ def check_policy_changes(scenario: dict):
                                         del on_policy
     return scenario
 
-def turn_off_policies(scen, baseline_schedule, beta_policies, import_policies, clip_policies, i_cases, n_days, policy_dates, imports_dict):
+def turn_off_policies(scen, baseline_schedule, beta_policies, import_policies, clip_policies, trace_policies,  i_cases, n_days, policy_dates, imports_dict):
     import sciris as sc
 
     adapt_beta_policies = beta_policies
     adapt_clip_policies = clip_policies
+    adapt_trace_policies = trace_policies
     if len(scen['turn_off'])>0:
         for p, policy in enumerate(scen['turn_off']['off_pols']):
             relax_day = sc.dcp(scen['turn_off']['dates'][p])
             if policy in policy_dates:
-                if len(policy_dates[policy]) % 2 == 0:
+                if len(policy_dates[policy]) % 2 == 0 and policy_dates[policy][-1] < relax_day:
                     print('Not turning off policy %s at day %s because it is already off.' % (policy, str(relax_day)))
-                elif policy_dates[policy][-1] > relax_day:
+                elif len(policy_dates[policy]) % 2 != 0 and policy_dates[policy][-1] > relax_day:
                     print('Not turning off policy %s at day %s because it is already off. It will be turned on again on day %s' % (policy, str(relax_day), str(policy_dates[policy][-1])))
                 else:
                     if policy in adapt_beta_policies:
@@ -292,14 +338,19 @@ def turn_off_policies(scen, baseline_schedule, beta_policies, import_policies, c
                         imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, n_days)), vals=np.append(i_cases, [import_policies[policy]['n_imports']] * (n_days-relax_day)))
                     if policy in clip_policies:
                         adapt_clip_policies[policy]['dates'] = sc.dcp([policy_dates[policy][-1], relax_day])
+                    if policy in trace_policies:
+                        adapt_trace_policies[policy]['end_day'] = relax_day
+                        adapt_trace_policies[policy]['coverage'] = [cov for c, cov in enumerate(adapt_trace_policies[policy]['coverage']) if adapt_trace_policies[policy]['dates'][ c] < relax_day]
+                        adapt_trace_policies[policy]['dates'] = [day for day in adapt_trace_policies[policy]['dates'] if day < relax_day]
                     policy_dates[policy].append(relax_day)
             else:
                 print('Not turning off policy %s at day %s because it was never on.' % (policy, str(relax_day)))
-    return baseline_schedule, imports_dict, adapt_clip_policies, policy_dates
+    return baseline_schedule, imports_dict, adapt_clip_policies, adapt_trace_policies,  policy_dates
 
-def turn_on_policies(scen, baseline_schedule, beta_policies, import_policies, clip_policies, i_cases, n_days, policy_dates, imports_dict):
+def turn_on_policies(scen, baseline_schedule, beta_policies, import_policies, clip_policies, trace_policies, i_cases, n_days, policy_dates, imports_dict):
     adapt_beta_policies = beta_policies
     adapt_clip_policies = clip_policies
+    adapt_trace_policies = trace_policies
     for policy in scen['turn_on']:
         new_pol_dates = scen['turn_on'][policy]
         date_trigger = False
@@ -338,10 +389,28 @@ def turn_on_policies(scen, baseline_schedule, beta_policies, import_policies, cl
                         adapt_clip_policies[policy + 'v2']['dates'] = new_pol_dates
                         if not date_trigger:
                             policy_dates[policy].extend(new_pol_dates)
+                            date_trigger = True
                     else:
                         adapt_clip_policies[policy + 'v2']['dates'] = [new_pol_dates[0], n_days]
                         if not date_trigger:
                             policy_dates[policy].extend([new_pol_dates[0], n_days])
+                            date_trigger = True
+                if policy in trace_policies:
+                    adapt_trace_policies[policy + 'v2']= sc.dcp(adapt_trace_policies[policy])
+                    if len(new_pol_dates) > 1:
+                        adapt_trace_policies[policy + 'v2']['start_day'] = start_day
+                        adapt_trace_policies[policy + 'v2']['dates'] = [start_day]
+                        adapt_trace_policies[policy + 'v2']['end_day'] = new_pol_dates[1]
+                        adapt_trace_policies[policy + 'v2']['coverage'] = [adapt_trace_policies[policy]['coverage'][-1]] # Start coverage where it was when trace_app was first ended, not sure what best option is here
+                        if not date_trigger:
+                            policy_dates[policy].extend(new_pol_dates)
+                    else:
+                        adapt_trace_policies[policy + 'v2']['start_day'] = start_day
+                        adapt_trace_policies[policy + 'v2']['dates'] = [start_day]
+                        adapt_trace_policies[policy + 'v2']['end_day'] = None
+                        adapt_trace_policies[policy + 'v2']['coverage'] = [adapt_trace_policies[policy]['coverage'][-1]]  # Start coverage where it was when trace_app was first ended, not sure what best option is here
+                        if not date_trigger:
+                            policy_dates[policy].append(start_day)
         else:
             if policy in adapt_beta_policies:
                 if len(new_pol_dates) > 1:
@@ -375,19 +444,36 @@ def turn_on_policies(scen, baseline_schedule, beta_policies, import_policies, cl
                     adapt_clip_policies[policy + 'v2']['dates'] = [new_pol_dates[0], n_days]
                     if not date_trigger:
                         policy_dates[policy] = [new_pol_dates[0], n_days]
-    return baseline_schedule, imports_dict, adapt_clip_policies, policy_dates
+            if policy in trace_policies:
+                adapt_trace_policies[policy + 'v2'] = sc.dcp(adapt_trace_policies[policy])
+                if len(new_pol_dates) > 1:
+                    adapt_trace_policies[policy + 'v2']['start_day'] = start_day
+                    adapt_trace_policies[policy + 'v2']['dates'] = [start_day]
+                    adapt_trace_policies[policy + 'v2']['end_day'] = new_pol_dates[1]
+                    adapt_trace_policies[policy + 'v2']['coverage'] = [adapt_trace_policies[policy]['coverage'][-1]] # Start coverage where it was when trace_app was first ended, not sure what best option is here
+                    if not date_trigger:
+                        policy_dates[policy] = new_pol_dates
+                else:
+                    adapt_trace_policies[policy + 'v2']['start_day'] = start_day
+                    adapt_trace_policies[policy + 'v2']['dates'] = [start_day]
+                    adapt_trace_policies[policy + 'v2']['end_day'] = None
+                    adapt_trace_policies[policy + 'v2']['coverage'] = [adapt_trace_policies[policy]['coverage'][-1]]  # Start coverage where it was when trace_app was first ended, not sure what best option is here
+                    if not date_trigger:
+                        policy_dates[policy] = [start_day]
+    return baseline_schedule, imports_dict, adapt_clip_policies, adapt_trace_policies, policy_dates
 
-def replace_policies(scen, baseline_schedule, beta_policies, import_policies, clip_policies, i_cases, n_days, policy_dates, imports_dict):
+def replace_policies(scen, baseline_schedule, beta_policies, import_policies, clip_policies, trace_policies, i_cases, n_days, policy_dates, imports_dict):
     adapt_beta_policies = beta_policies
     adapt_clip_policies = clip_policies
+    adapt_trace_policies = trace_policies
     for old_pol in scen['replace']:
         old_pol_dates = scen['replace'][old_pol]['dates']
         old_pol_reps = scen['replace'][old_pol]['replacements']
         old_date_trigger = False
         if old_pol in policy_dates:
-            if len(policy_dates[old_pol]) % 2 == 0:
+            if len(policy_dates[old_pol]) % 2 == 0 and policy_dates[old_pol][-1] < old_pol_dates[0]:
                 print('Not replacing policy %s at day %s because it is already off.' % (old_pol, str(old_pol_dates[0])))
-            elif policy_dates[old_pol][-1] > old_pol_dates[0]:
+            elif len(policy_dates[old_pol]) % 2 != 0 and policy_dates[old_pol][-1] > old_pol_dates[0]:
                 print('Not replacing policy %s at day %s because it is already off. It will be turned on again on day %s' % (old_pol, str(old_pol_dates[0]), str(policy_dates[old_pol][-1])))
             else:
                 if old_pol in beta_policies:
@@ -402,6 +488,13 @@ def replace_policies(scen, baseline_schedule, beta_policies, import_policies, cl
                         old_date_trigger = True
                 if old_pol in clip_policies:
                     adapt_clip_policies[old_pol]['dates'][1] = old_pol_dates[0]
+                    if not old_date_trigger:
+                        policy_dates[old_pol].append(old_pol_dates[0])
+                        old_date_trigger = True
+                if old_pol in trace_policies:
+                    adapt_trace_policies[old_pol]['end_day'] = old_pol_dates[0]
+                    adapt_trace_policies[old_pol]['coverage'] = [cov for c, cov in enumerate(adapt_trace_policies[old_pol]['coverage']) if adapt_trace_policies[old_pol]['dates'][c] < old_pol_dates[0]]
+                    adapt_trace_policies[old_pol]['dates'] = [day for day in adapt_trace_policies[old_pol]['dates'] if day < old_pol_dates[0]]
                     if not old_date_trigger:
                         policy_dates[old_pol].append(old_pol_dates[0])
                 for n, new_policy in enumerate(old_pol_reps):
@@ -451,27 +544,37 @@ def replace_policies(scen, baseline_schedule, beta_policies, import_policies, cl
                                         policy_dates[new_policy].extend([old_pol_dates[n], n_days])
                                         date_trigger = True
                             if new_policy in adapt_clip_policies:
-                                if n == 0:
-                                    adapt_clip_policies[new_policy + 'v2'] = sc.dcp(adapt_clip_policies[new_policy])
-                                    if len(old_pol_dates) > 1:
-                                        adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], old_pol_dates[n+1]]
-                                        if not date_trigger:
-                                            policy_dates[new_policy].extend([old_pol_dates[n], old_pol_dates[n+1]])
-                                    else:
-                                        adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], n_days]
-                                        if not date_trigger:
-                                            policy_dates[new_policy].extend([old_pol_dates[n], n_days])
-                                else:
+                                if n != 0:
                                     adapt_clip_policies[old_pol_reps[n - 1] + 'v2'][1] = old_pol_dates[n]
-                                    adapt_clip_policies[new_policy + 'v2'] = sc.dcp(adapt_clip_policies[new_policy])
-                                    if len(old_pol_dates) > n + 1:
-                                        adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], old_pol_dates[n+1]]
-                                        if not date_trigger:
-                                            policy_dates[new_policy].extend([old_pol_dates[n], old_pol_dates[n+1]])
-                                    else:
-                                        adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], n_days]
-                                        if not date_trigger:
-                                            policy_dates[new_policy].extend([old_pol_dates[n], n_days])
+                                adapt_clip_policies[new_policy + 'v2'] = sc.dcp(adapt_clip_policies[new_policy])
+                                if len(old_pol_dates) > 1:
+                                    adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], old_pol_dates[n+1]]
+                                    if not date_trigger:
+                                        policy_dates[new_policy].extend([old_pol_dates[n], old_pol_dates[n+1]])
+                                        date_trigger = True
+                                else:
+                                    adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], n_days]
+                                    if not date_trigger:
+                                        policy_dates[new_policy].extend([old_pol_dates[n], n_days])
+                                        date_trigger = True
+                            if new_policy in adapt_trace_policies:
+                                if n != 0:
+                                    adapt_trace_policies[old_pol_reps[n - 1] + 'v2'][1] = old_pol_dates[n]
+                                adapt_trace_policies[new_policy + 'v2'] = sc.dcp(adapt_trace_policies[new_policy])
+                                if len(old_pol_dates) > 1:
+                                    adapt_trace_policies[new_policy + 'v2']['start_day'] = old_pol_dates[n]
+                                    adapt_trace_policies[new_policy + 'v2']['end_day'] = old_pol_dates[n+1]
+                                    adapt_trace_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n]]
+                                    adapt_trace_policies[new_policy + 'v2']['coverage'] = [adapt_trace_policies[new_policy]['coverage'][-1]] # Start coverage where it was when trace_app was first ended, not sure what best option is here
+                                    if not date_trigger:
+                                        policy_dates[new_policy].extend([old_pol_dates[n], old_pol_dates[n+1]])
+                                else:
+                                    adapt_trace_policies[new_policy + 'v2']['start_day'] = old_pol_dates[n]
+                                    adapt_trace_policies[new_policy + 'v2']['end_day'] = None
+                                    adapt_trace_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n]]
+                                    adapt_trace_policies[new_policy + 'v2']['coverage'] = [adapt_trace_policies[new_policy]['coverage'][-1]]  # Start coverage where it was when trace_app was first ended, not sure what best option is here
+                                    if not date_trigger:
+                                        policy_dates[new_policy].append(old_pol_dates[n])
                     else:
                         if new_policy in adapt_beta_policies:
                             if n == 0:
@@ -512,30 +615,38 @@ def replace_policies(scen, baseline_schedule, beta_policies, import_policies, cl
                                     policy_dates[new_policy] = [old_pol_dates[n], n_days]
                                     date_trigger = True
                         if new_policy in adapt_clip_policies:
-                            if n == 0:
-                                adapt_clip_policies[new_policy + 'v2'] = sc.dcp(adapt_clip_policies[new_policy])
-                                if len(old_pol_dates) > 1:
-                                    adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], old_pol_dates[n+1]]
-                                    if not date_trigger:
-                                        policy_dates[new_policy] = [old_pol_dates[n], old_pol_dates[n+1]]
-                                else:
-                                    adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], n_days]
-                                    if not date_trigger:
-                                        policy_dates[new_policy] = [old_pol_dates[n], n_days]
-                            else:
+                            if n != 0:
                                 adapt_clip_policies[old_pol_reps[n - 1] + 'v2'][1] = old_pol_dates[n]
-                                adapt_clip_policies[new_policy + 'v2'] = sc.dcp(adapt_clip_policies[new_policy])
-                                if len(old_pol_dates) > n + 1:
-                                    adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], old_pol_dates[n+1]]
-                                    if not date_trigger:
-                                        policy_dates[new_policy] = [old_pol_dates[n], old_pol_dates[n+1]]
-                                else:
-                                    adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], n_days]
-                                    if not date_trigger:
-                                        policy_dates[new_policy] = [old_pol_dates[n], n_days]
+                            adapt_clip_policies[new_policy + 'v2'] = sc.dcp(adapt_clip_policies[new_policy])
+                            if len(old_pol_dates) > 1:
+                                adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], old_pol_dates[n+1]]
+                                if not date_trigger:
+                                    policy_dates[new_policy] = [old_pol_dates[n], old_pol_dates[n+1]]
+                            else:
+                                adapt_clip_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n], n_days]
+                                if not date_trigger:
+                                    policy_dates[new_policy] = [old_pol_dates[n], n_days]
+                        if new_policy in adapt_trace_policies:
+                            if n != 0:
+                                adapt_trace_policies[old_pol_reps[n - 1] + 'v2'][1] = old_pol_dates[n]
+                            adapt_trace_policies[new_policy + 'v2'] = sc.dcp(adapt_trace_policies[new_policy])
+                            if len(old_pol_dates) > 1:
+                                adapt_trace_policies[new_policy + 'v2']['start_day'] = old_pol_dates[n]
+                                adapt_trace_policies[new_policy + 'v2']['end_day'] = old_pol_dates[n+1]
+                                adapt_trace_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n]]
+                                adapt_trace_policies[new_policy + 'v2']['coverage'] = [adapt_trace_policies[new_policy]['coverage'][-1]] # Start coverage where it was when trace_app was first ended, not sure what best option is here
+                                if not date_trigger:
+                                    policy_dates[new_policy] = [old_pol_dates[n], old_pol_dates[n+1]]
+                            else:
+                                adapt_trace_policies[new_policy + 'v2']['start_day'] = old_pol_dates[n]
+                                adapt_trace_policies[new_policy + 'v2']['end_day'] = None
+                                adapt_trace_policies[new_policy + 'v2']['dates'] = [old_pol_dates[n]]
+                                adapt_trace_policies[new_policy + 'v2']['coverage'] = [adapt_trace_policies[new_policy]['coverage'][-1]]  # Start coverage where it was when trace_app was first ended, not sure what best option is here
+                                if not date_trigger:
+                                    policy_dates[new_policy] = [old_pol_dates[n]]
         else:
             print('Policy %s could not be replaced because it is not running.' % old_pol)
-    return baseline_schedule, imports_dict, adapt_clip_policies, policy_dates
+    return baseline_schedule, imports_dict, adapt_clip_policies, adapt_trace_policies, policy_dates
 
 def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,

@@ -43,6 +43,16 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Read a variety of policies from databook sheet 'policies', and set up the baseline according to their start and end dates
     policies = policy_changes.load_pols(databook_path=extra_pars['databook_path'], layers=pars['contacts'].keys(),
                                         start_day=pars['start_day'])
+    # ToDO: Tracing app policies need to be added to policies sheet and to policy read in function, also add start day (and end day?) to policies['policy_dates']
+    policies['trace_policies'] = {'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
+                                                             'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
+                                                             'social'], # Layers which the app can target, excluding beach, child_care and aged_care
+                                                  'coverage': [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4], # app coverage at time in days
+                                                  'dates': [60, 75, 90, 110, 135, 160, 180, 200], # days when app coverage changes
+                                                  'trace_time': 0,
+                                                  'start_day': 60,
+                                                  'end_day': None}}
+    policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
     # Set up a baseline scenario that includes all policy changes to date
     base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars)
 
@@ -92,30 +102,39 @@ if __name__ == '__main__': # need this to run in parallel on windows
         #torun['Relax physical distancing'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         #torun['Relax physical distancing']['replace']['communication'] = {'replacements': ['comm2'], 'dates': [60]}
 
-        torun['Schools open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Schools open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        torun['Schools open']['turn_off'] = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
-        torun['Pubs open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Pubs open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        torun['Pubs open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
-        torun['Community sports start'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Community sports start']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [extra_pars['relax_day'], extra_pars['relax_day']]}
-        torun['Cafe/restaurant open with 4sqm'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Cafe/restaurant open with 4sqm']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        torun['Cafe/restaurant open with 4sqm']['replace']['cafe_restaurant0'] = {'replacements': ['cafe_restaurant_4sqm'], 'dates': [extra_pars['relax_day']]}
-        torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Schools open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Schools open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        #torun['Schools open']['turn_off'] = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
+        #torun['Pubs open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Pubs open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        #torun['Pubs open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
+        #torun['Community sports start'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Community sports start']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [extra_pars['relax_day'], extra_pars['relax_day']]}
+        #torun['Cafe/restaurant open with 4sqm'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Cafe/restaurant open with 4sqm']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        #torun['Cafe/restaurant open with 4sqm']['replace']['cafe_restaurant0'] = {'replacements': ['cafe_restaurant_4sqm'], 'dates': [extra_pars['relax_day']]}
+        #torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
-        torun['Large events']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+        #torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
+        #torun['Large events']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
         #torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         #torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [extra_pars['relax_day']]}
-        torun['Social gatherings <10'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Social gatherings <10']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
-        torun['Social gatherings <10']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        torun['Pub+cafe+events+sport'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Pub+cafe+events+sport']['turn_off'] = {'off_pols': ['large_events', 'pub_bar0', 'cafe_restaurant0', 'cSports'], 'dates': [60,90,120,150]}
-        torun['Pub+cafe+events+sport']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+        #torun['Social gatherings <10'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Social gatherings <10']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
+        #torun['Social gatherings <10']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
+        #torun['Pub+cafe+events+sport'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        #torun['Pub+cafe+events+sport']['turn_off'] = {'off_pols': ['large_events', 'pub_bar0', 'cafe_restaurant0', 'cSports'], 'dates': [60,90,120,150]}
+        #torun['Pub+cafe+events+sport']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
 
+        torun['Trace app off then replace schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Trace app off'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['Trace app off then on'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+
+        torun['Trace app off then replace schools']['turn_off'] = {'off_pols': ['tracing_app'], 'dates': [100]}
+        torun['Trace app off then replace schools']['replace']['schools'] = {'replacements': ['tracing_app'], 'dates': [120]}
+        torun['Trace app off']['turn_off'] = {'off_pols': ['tracing_app'], 'dates': [100]}
+        torun['Trace app off then on']['turn_off'] = {'off_pols': ['tracing_app'], 'dates': [100]}
+        torun['Trace app off then on']['turn_on'] = {'tracing_app': [150]}
         labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
 
         scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)

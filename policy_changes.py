@@ -45,6 +45,9 @@ def set_baseline(policies, pars, extra_pars):
     n_days = pars['n_days']
     trace_probs = extra_pars['trace_probs']
     trace_time = extra_pars['trace_time']
+    restart_imports = extra_pars['restart_imports']
+    restart_imports_length = extra_pars['restart_imports_length']
+    relax_day = extra_pars['relax_day']
 
     baseline_policies = utils.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for d, dates in enumerate(policies['policy_dates']):  # add start and end dates to beta layer, import and edge clipping policies
@@ -62,14 +65,24 @@ def set_baseline(policies, pars, extra_pars):
                 policies['import_policies'][dates]['dates'] = np.arange(policies['policy_dates'][dates][0], n_days)
             if dates in policies['clip_policies']:
                 policies['clip_policies'][dates]['dates'] = [policies['policy_dates'][dates][0], n_days]
+    app_layers = policies['trace_policies']['tracing_app']['layers']
+    app_cov = policies['trace_policies']['tracing_app']['coverage']
+    app_dates = policies['trace_policies']['tracing_app']['dates']
+    app_start = policies['trace_policies']['tracing_app']['start_day']
+    app_end = policies['trace_policies']['tracing_app']['end_day']
+    app_trace_time = policies['trace_policies']['tracing_app']['trace_time']
+
 
     base_scenarios = {}  # create baseline scenario according to policies from databook
     base_scenarios['baseline'] = {
         'name': 'Baseline',
         'pars': {'interventions': [baseline_policies,
-                cv.dynamic_pars({'n_imports': dict(days=range(len(i_cases)), vals=i_cases)}),
+                cv.dynamic_pars({  # jump start with imported infections
+                    'n_imports': dict(days=np.append(range(len(i_cases)),  np.arange(relax_day, restart_imports_length)), vals=np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day)))
+                }),
                 cv.test_num(daily_tests=(daily_tests), symp_test=10.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
+                utils.AppBasedTracing(layers=app_layers, coverage=app_cov, days=app_dates, start_day=app_start, end_day=app_end, trace_time=app_trace_time) # Adding tracing app to baseline, remove if not the right idea
             ]
         }
     }
@@ -93,6 +106,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
     beta_policies = policies['beta_policies']
     clip_policies = policies['clip_policies']
     import_policies = policies['import_policies']
+    trace_policies = policies['trace_policies']
     i_cases = extra_pars['i_cases']
     daily_tests = extra_pars['daily_tests']
     n_days = pars['n_days']
@@ -124,7 +138,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
                 }),
                 cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=10.0, quar_test=1.0,
                             sensitivity=0.7, test_delay=3, loss_prob=0),
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0) # Don't add tracing app, either it's not in baseline and shouldn't be here or it is in baseline and is relaxed here
             ]
         }
     }
@@ -143,31 +157,31 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
             scenarios['Full relaxation'] = sc.dcp(relax_scenarios['Full relaxation'])
         else:
             torun[run_pols] = sc.dcp(utils.check_policy_changes(torun[run_pols]))  # runs check on consistency across input off/on/replace policies and dates and remove inconsistencies
-            beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies = sc.dcp(baseline_policies), sc.dcp(policies['clip_policies']), \
+            beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies, adapt_trace_policies = sc.dcp(baseline_policies), sc.dcp(policies['clip_policies']), \
                                                                                                      sc.dcp(policies['beta_policies']), sc.dcp(policies['policy_dates']), \
-                                                                                                     sc.dcp(policies['import_policies'])
+                                                                                                     sc.dcp(policies['import_policies']), sc.dcp(policies['trace_policies'])
             imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
                                 vals=np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day)))
             for off_on in torun[run_pols]:
                 if off_on == 'turn_off':
-                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.turn_off_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
-                                                                                                              import_policies,adapt_clip_policies,i_cases, n_days, policy_dates, imports_dict))
+                    beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = sc.dcp(utils.turn_off_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
+                                                                                                              import_policies, adapt_clip_policies, adapt_trace_policies, i_cases, n_days, policy_dates, imports_dict))
                     # for each policy, check if it's already off at specified date, if it's on then turn off at specified date. Update beta, import and clip.
                 elif off_on == 'turn_on':
-                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.turn_on_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
-                                                                                                              import_policies,adapt_clip_policies,i_cases, n_days, policy_dates, imports_dict))
+                    beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = sc.dcp(utils.turn_on_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
+                                                                                                              import_policies, adapt_clip_policies, adapt_trace_policies, i_cases, n_days, policy_dates, imports_dict))
                     # for each policy, check if it's already on at specified date, if it's off then turn on at specified date and off at
                     # specified date (if input). Update beta, import and clip.
                 elif off_on == 'replace':
-                    beta_schedule, imports_dict, clip_schedule, policy_dates = sc.dcp(utils.replace_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
-                                                                                                              import_policies,adapt_clip_policies,i_cases, n_days, policy_dates, imports_dict))
+                    beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = sc.dcp(utils.replace_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
+                                                                                                              import_policies, adapt_clip_policies, adapt_trace_policies, i_cases, n_days, policy_dates, imports_dict))
                     # for each policy, check if it's already off at specified date, if it's on then check if first replacement policy is
                     # already on at specified date, if replacement is off then turn on and iterate with following replacements. Update beta, import and clip.
                 else:
                     print(
                         'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
-            scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, clip_schedule, pars, extra_pars))
-            del clip_schedule
+            scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, trace_schedule, clip_schedule, pars, extra_pars))
+            del clip_schedule, trace_schedule
             scenario_policies[run_pols] = beta_schedule
 
     return scenarios, scenario_policies
