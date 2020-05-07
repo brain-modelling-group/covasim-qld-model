@@ -4,7 +4,7 @@ def load_pars():
     import pandas as pd
     import numpy as np
 
-    setting = 'Australia'
+    setting = 'Botswana'
 
     date = '2020may05'
     folder = f'results_{date}'
