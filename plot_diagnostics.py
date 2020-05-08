@@ -69,7 +69,7 @@ for i in range(0,pars['pop_size']-1):
 h_struct = h_struct / np.array((1, 2, 3, 4, 5, 6)) # account for over counting of households
 fig_pop1, axs1 = matplotlib.pyplot.subplots(2, 2, **{'figsize': (10,8)})
 axs1[0, 0].bar(np.arange(0, 116), age_dist)
-axs1[0, 0].set_title("Age distribution of Australian population")
+axs1[0, 0].set_title("Age distribution of Victorian population")
 axs1[0, 1].bar(np.arange(0, 115), age_struct)
 axs1[0, 1].set_title("Age distribution of model population")
 axs1[1, 0].bar(np.array(('1','2','3','4','5','6+')),house_dist)
@@ -93,7 +93,7 @@ plt.savefig(fname=dirname + '/figures/distributions.png')
 mixing_matrix, bin_lower, bin_upper = load_pop.get_mixing_matrix(extra_pars['databook_path'], 'contact matrices-home')
 mixing_matrix = mixing_matrix.iloc[::-1]
 
-fig3, axs3 = matplotlib.pyplot.subplots(1, 1,**{'figsize': (10,10)})
+fig3, axs3 = matplotlib.pyplot.subplots(1, 1,**{'figsize': (4,4)})
 g = sns.heatmap(mixing_matrix)
 fig3 = g.get_figure()
 fig3.savefig(dirname + "/figures/H_mixing.png")

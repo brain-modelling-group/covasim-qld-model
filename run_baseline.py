@@ -17,7 +17,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            # 'gen_pop'
+            'gen_pop'
             ]
     for_powerpoint = False
     verbose    = 1
@@ -37,7 +37,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         sc.saveobj(extra_pars['popfile'], popdict)
 
     # manually adjust some parameters for calibration, outside of Excel read-in
-    pars['beta'] = 0.18 # Scale beta
+    pars['beta'] = 0.125 # Scale beta
     pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
     pars['n_days'] = 60
 
@@ -48,7 +48,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies = policy_changes.load_pols(databook_path=extra_pars['databook_path'], layers=pars['contacts'].keys(),
                                         start_day=pars['start_day'])
     # Set up a baseline scenario that includes all policy changes to date
-    base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars)
+    base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars, popdict)
 
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=base_scenarios)
     scens.run(verbose=verbose)

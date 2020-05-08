@@ -15,7 +15,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-           # 'gen_pop',
+             'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]
@@ -47,7 +47,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies['trace_policies'] = {'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
                                                              'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
                                                              'social'], # Layers which the app can target, excluding beach, child_care and aged_care
-                                                  'coverage': [0.9, 0.9], # app coverage at time in days
+                                                  'coverage': [0., 0.], # app coverage at time in days
                                                   'dates': [extra_pars['relax_day'], 100], # days when app coverage changes
                                                   'trace_time': 0,
                                                   'start_day': extra_pars['relax_day'],
@@ -56,35 +56,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Set up a baseline scenario that includes all policy changes to date
     base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars)
 
-    '''
-    The required structure for the torun dict is:
-    torun[scen_name] = {
-                        'turn_off': {'off_pols': [off_pol_1, ..., off_pol_n], 'dates': [day_1, ..., day_n]},
-                        'turn_on': {on_pol_1: [start_day_1, end_day_1], ..., on_pol_m: [start_day_m, end_day_m]},
-                        'replace': {old_pol_1: {'replacements': [new_pol_11, ..., new_pol_1p], 'dates': [start_day_11, ..., start_day_1p, end_day_1]},
-                                    ...
-                                    old_pol_q: {'replacements': [new_pol_q1, ..., new_pol_qr], 'dates': [start_day_q1, ..., start_day_qr, end_day_q]}}
-                        }
 
-    The baseline scenario is automatically added to the scenarios first.
-    The relax all policies scenario must be added to the torun dict as the key 'Full relaxation' or 'Full relax'.
-    Adding policies to the turn_off dict must be added as a list of policies and a list of days to turn them off. Works with beta layer, import and clip edges policies.
-    The policy being turned off must be on in the baseline or nothing will happen.
-    Adding policies to the turn_on dict must be input as a dict of {policy_name: [start_day, end_day]} for each policy, 
-    with end_day being optional and n_days being used if it is not included. Import policies don't really work here as of yet.
-    To add a policy it must either not be running in baseline, or end before start_day otherwise it will not be added (the scenario will still run).
-    Adding policies to the replace dict must be input as a dict of dicts in the form 
-    {policy_name: {'replacements': [policy_1,...,policy_n], 'dates': [start_day_1,..., start_day_n, end_day]}} for each policy, 
-    with end_day being optional and n_days being used if it is not included. I think import policies work here, but testing hasn't been expansive.
-    To add a replacement policy it must either not be running in baseline, or end before start_day otherwise it will not be added (the scenario will still run).
-    
-    The function check_policy_changes reads the scenario being run from torun and checks for clashes between policies being turned off/policies being replaced 
-    and policies being turned on/policies being replaced. It removes clashing policy changes, prioritising replacements over turning policies off/on.
-    For example, if the pub_bar0 policy (running from day 21 to n_day) was set in the turn_off dict with a date of day 70 AND it was set 
-    in the replace dict (as an old_pol) with a date of day 100 then it would be removed from the turn_off dict. I haven't figured out how to check
-    consistencies across the replacement policies so please check that they are sensible (e.g., don't replace the same policy twice in the same scenario etc).
-    Other checks for whether policies are off/on before being turned off/on are included within the turn_off_policies, turn_on_policies and replace_policies functions.
-    '''
     torun2 = {}
     torun2['Pubs/bars open with app'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun2['Pubs/bars open with app']['replace']['communication'] = {'replacements': ['comm_relax'],
@@ -96,8 +68,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
     torun2['Pubs/bars open']['replace']['communication'] = {'replacements': ['comm_relax'],
                                                             'dates': [extra_pars['relax_day']]}
     labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
-    #torun = plot_scenarios.plot_scenarios('2',extra_pars)
-    scenarios, scenario_policies = policy_changes.create_scens(torun2, policies, baseline_policies, base_scenarios, pars, extra_pars)
+    torun = plot_scenarios.plot_scenarios('1',extra_pars)
+    scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
 
         #fig = scenario_policies['Full relax'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
         #fig.show()

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import datetime as dt
 import pylab as pl
+from covasim import defaults as cvd
 
 
 
@@ -244,6 +245,62 @@ class AppBasedTracing(cv.Intervention):
         if len(just_diagnosed_inds):
             sim.people.trace(just_diagnosed_inds, trace_prob, self.trace_time)
         return
+
+
+class UpdateNetworks(cv.Intervention):
+    def __init__(self, layers, contact_numbers, popdict, start_day=0, end_day=None):
+        """
+        Update random networks at each time step
+        Args:
+            layers: List of layer names traceable by the app e.g. ['Household','Beach']
+            start_day (int): intervention start day.
+            end_day (int): intervention end day
+            contact_numbers: dictionary of average contacts for each layer
+        """
+        super().__init__()
+        self.layers = layers
+        self.start_day = start_day
+        self.end_day = end_day
+        self.contact_numbers = contact_numbers
+        self.popdict = popdict
+        return
+    def initialize(self, sim):
+        super().initialize(sim)
+        self.start_day = sim.day(self.start_day)
+        self.end_day = sim.day(self.end_day)
+        return
+    def apply(self, sim):
+        t = sim.t
+        if t < self.start_day:
+            return
+        elif self.end_day is not None and t > self.end_day:
+            return
+
+        # Loop over dynamic keys
+        for lkey in self.layers:
+            # Remove existing contacts
+            sim.people.contacts.pop(lkey)
+
+            # Create new contacts
+            inds = [] # identify the index of people who are in the layer
+            for k in range(len(self.popdict['contacts'])):
+                if len(self.popdict['contacts'][k][lkey]) > 0:
+                    inds.append(k)
+
+
+            n_new = self.contact_numbers[lkey] * len(inds) # average contacts for this layer
+            new_contacts = {}  # Initialize
+            new_contacts['p1'] = np.random.choice(inds, min(n_new, len(inds)))
+            new_contacts['p2'] = np.random.choice(inds, min(n_new, len(inds)))
+            new_contacts['beta'] = np.ones(min(n_new, len(inds)), dtype=cvd.default_float)
+
+            # Add to contacts
+            sim.people.add_contacts(new_contacts, lkey=lkey)
+            sim.people.contacts[lkey].validate()
+
+        return
+
+
 
 def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, clip_policies, pars, extra_pars):
 
