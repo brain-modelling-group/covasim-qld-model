@@ -7,6 +7,7 @@ import matplotlib.ticker as ticker
 import datetime as dt
 import pylab as pl
 from covasim import defaults as cvd
+import load_pop
 
 
 
@@ -252,7 +253,7 @@ class UpdateNetworks(cv.Intervention):
         """
         Update random networks at each time step
         Args:
-            layers: List of layer names traceable by the app e.g. ['Household','Beach']
+            layers: List of layer names to resample
             start_day (int): intervention start day.
             end_day (int): intervention end day
             contact_numbers: dictionary of average contacts for each layer
@@ -264,17 +265,16 @@ class UpdateNetworks(cv.Intervention):
         self.contact_numbers = contact_numbers
         self.popdict = popdict
         return
+
     def initialize(self, sim):
         super().initialize(sim)
         self.start_day = sim.day(self.start_day)
         self.end_day = sim.day(self.end_day)
-        self.inds = {}
+        self._include = {} # For each layer, store a boolean array capturing whether that person is in the layer or not
         for lkey in self.layers: # get indices for people in each layer
-            self.inds[lkey] = []
-            for k in range(len(self.popdict['contacts'])):
-                if len(self.popdict['contacts'][k][lkey]) > 0:
-                    self.inds[lkey].append(k)
+            self._include[lkey] = [len(x[lkey])>0 for x in self.popdict['contacts']]
         return
+
     def apply(self, sim):
         t = sim.t
         if t < self.start_day:
@@ -284,22 +284,16 @@ class UpdateNetworks(cv.Intervention):
 
         # Loop over dynamic keys
         for lkey in self.layers:
+
             # Remove existing contacts
-            sim.people.contacts.pop(lkey)
+            del sim.people.contacts[lkey]
 
-            # Create new contacts
-           # inds = [] # identify the index of people who are in the layer
-           # for k in range(len(self.popdict['contacts'])):
-           #     if len(self.popdict['contacts'][k][lkey]) > 0:
-           #         inds.append(k)
+            # Sample new contacts
+            new_contacts = {}
+            new_contacts['p1'], new_contacts['p2'] = load_pop.random_contacts(self._include[lkey], self.contact_numbers[lkey], array_output=True)
+            new_contacts['beta'] = np.ones(new_contacts['p1'].shape, dtype=cvd.default_float)
 
-            n_new = self.contact_numbers[lkey] * len(self.inds[lkey]) # total number of contacts for this layer
-            new_contacts = {}  # Initialize
-            new_contacts['p1'] = np.random.choice(self.inds[lkey], n_new)
-            new_contacts['p2'] = np.random.choice(self.inds[lkey], n_new)
-            new_contacts['beta'] = np.ones(n_new, dtype=cvd.default_float)
-
-            # Add to contacts
+            # Add new contacts
             sim.people.add_contacts(new_contacts, lkey=lkey)
             sim.people.contacts[lkey].validate()
 

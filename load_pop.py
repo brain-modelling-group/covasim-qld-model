@@ -2,6 +2,7 @@ import os
 from collections import defaultdict
 
 import covasim.utils as cvu
+import covasim.defaults as cvd
 import numpy as np
 import pandas as pd
 
@@ -37,6 +38,8 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
 
     The `include` argument allows a subset of the population to be selected
 
+    Note that a person can contact themselves, and can contact the same person multiple times
+
     Args:
         include: Boolean array with length equal to population size, containing True if the person is eligible for contacts
         mean_contacts_per_person: Mean number of contacts (Poisson distribution)
@@ -45,24 +48,25 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
         If array_output=False, return a contacts dictionary {1:[2,3,4],2:[1,5,6]} with keys for source person,
         and a values being a list of target contacts.
 
-        If array_output=True, return arrays
+        If array_output=True, return arrays with `source` and `target` indexes. These could be interleaved to produce an edge list
+        representation of the edges
 
     """
-    # Weights should have the same number of entries as the total population size
 
-    include_inds = np.nonzero(include)[0]
-    n_contacts = len(include_inds)*mean_contacts_per_person
-    contacts = {}
-    n_eligible = len(include_inds)
-    for p in range(len(include)):
-        if not include[p]:
-            contacts[p] = []
-        else:
-            n_contacts = cvu.poisson(mean_contacts_per_person)  # Draw the number of Poisson contacts for this person
-            contact_inds = cvu.choose(n_eligible-1, min(n_eligible-1, n_contacts))  # Choose people at random. These index the include_inds array
-            contact_inds[contact_inds>=p] += 1  # Offset the indexes by 1 for the excluded current person
-            contacts[p] = include_inds[contact_inds]  # Convert the sampled indexes to the actual person IDs
-    return contacts
+    include_inds = np.nonzero(include)[0].astype(cvd.default_int) # These are the indexes (person IDs) of people in the layer
+    n_people = len(include_inds)
+    n_contacts = n_people*mean_contacts_per_person
+    source = include_inds[np.array(cvu.choose_r(max_n=n_people, n=n_contacts))]  # Choose with replacement
+    target = include_inds[np.array(cvu.choose_r(max_n=n_people, n=n_contacts))]
+
+    if array_output:
+        return source, target
+    else:
+        contacts = defaultdict(list)
+        for s,t in zip(source, target):
+            contacts[s].append(t)
+        contacts = {p:contacts[p] if p in contacts else list() for p in include_inds}
+        return contacts
 
 def create_clustering(people_to_cluster, mean_cluster_size):
     """
