@@ -112,7 +112,7 @@ def set_baseline(policies, pars, extra_pars, popdict):
     return base_scenarios, baseline_policies
 
 
-def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars):
+def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars, popdict):
     import sciris as sc
     import covasim as cv
     import numpy as np
@@ -132,6 +132,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
     restart_imports_length = extra_pars['restart_imports_length']
     relax_day = extra_pars['relax_day']
     future_tests = extra_pars['future_daily_tests']
+    dynam_layers = extra_pars['dynam_layer']  # note this is in a different dictionary to pars, to avoid conflicts
 
     relax_scenarios = {}
     scenario_policies = {}
@@ -154,7 +155,8 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
                 }),
                 cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=10.0, quar_test=1.0,
                             sensitivity=0.7, test_delay=3, loss_prob=0),
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0) # Don't add tracing app, either it's not in baseline and shouldn't be here or it is in baseline and is relaxed here
+                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0), # Don't add tracing app, either it's not in baseline and shouldn't be here or it is in baseline and is relaxed here
+                utils.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
             ]
         }
     }
@@ -196,7 +198,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
                 else:
                     print(
                         'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
-            scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, trace_schedule, clip_schedule, pars, extra_pars))
+            scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, trace_schedule, clip_schedule, pars, extra_pars, popdict))
             del clip_schedule, trace_schedule
             scenario_policies[run_pols] = beta_schedule
 

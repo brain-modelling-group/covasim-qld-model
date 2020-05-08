@@ -287,12 +287,11 @@ class UpdateNetworks(cv.Intervention):
                 if len(self.popdict['contacts'][k][lkey]) > 0:
                     inds.append(k)
 
-
-            n_new = self.contact_numbers[lkey] * len(inds) # average contacts for this layer
+            n_new = self.contact_numbers[lkey] * len(inds) # total number of contacts for this layer
             new_contacts = {}  # Initialize
-            new_contacts['p1'] = np.random.choice(inds, min(n_new, len(inds)))
-            new_contacts['p2'] = np.random.choice(inds, min(n_new, len(inds)))
-            new_contacts['beta'] = np.ones(min(n_new, len(inds)), dtype=cvd.default_float)
+            new_contacts['p1'] = np.random.choice(inds, n_new)
+            new_contacts['p2'] = np.random.choice(inds, n_new)
+            new_contacts['beta'] = np.ones(n_new, dtype=cvd.default_float)
 
             # Add to contacts
             sim.people.add_contacts(new_contacts, lkey=lkey)
@@ -301,14 +300,14 @@ class UpdateNetworks(cv.Intervention):
         return
 
 
-
-def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, clip_policies, pars, extra_pars):
+def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, clip_policies, pars, extra_pars, popdict):
 
     daily_tests = extra_pars['daily_tests']
     n_days = pars['n_days']
     trace_probs = extra_pars['trace_probs']
     trace_time = extra_pars['trace_time']
     future_tests = extra_pars['future_daily_tests']
+    dynam_layers = extra_pars['dynam_layer']  # note this is in a different dictionary to pars, to avoid conflicts
 
     scenarios[run] = {'name': run,
                       'pars': {
@@ -318,7 +317,8 @@ def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, cli
                             'n_imports': imports_dict
                         }),
                         cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=10.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                        cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0)
+                        cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
+                        UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
                             ]
                         }
                      }

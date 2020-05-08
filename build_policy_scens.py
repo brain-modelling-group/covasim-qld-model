@@ -54,7 +54,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
                                                   'end_day': None}}
     policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
     # Set up a baseline scenario that includes all policy changes to date
-    base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars)
+    base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars, popdict)
 
 
     torun2 = {}
@@ -69,7 +69,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
                                                             'dates': [extra_pars['relax_day']]}
     labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
     torun = plot_scenarios.plot_scenarios('1',extra_pars)
-    scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
+    scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
 
         #fig = scenario_policies['Full relax'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
         #fig.show()

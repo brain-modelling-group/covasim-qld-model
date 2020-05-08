@@ -37,7 +37,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         sc.saveobj(extra_pars['popfile'], popdict)
 
     # manually adjust some parameters for calibration, outside of Excel read-in
-    pars['beta'] = 0.125 # Scale beta
+    pars['beta'] = 0.1 # Scale beta
     pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
     pars['n_days'] = 60
 
