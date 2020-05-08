@@ -15,7 +15,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-             'gen_pop',
+           #  'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]

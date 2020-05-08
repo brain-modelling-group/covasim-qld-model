@@ -268,6 +268,12 @@ class UpdateNetworks(cv.Intervention):
         super().initialize(sim)
         self.start_day = sim.day(self.start_day)
         self.end_day = sim.day(self.end_day)
+        self.inds = {}
+        for lkey in self.layers: # get indices for people in each layer
+            self.inds[lkey] = []
+            for k in range(len(self.popdict['contacts'])):
+                if len(self.popdict['contacts'][k][lkey]) > 0:
+                    self.inds[lkey].append(k)
         return
     def apply(self, sim):
         t = sim.t
@@ -282,15 +288,15 @@ class UpdateNetworks(cv.Intervention):
             sim.people.contacts.pop(lkey)
 
             # Create new contacts
-            inds = [] # identify the index of people who are in the layer
-            for k in range(len(self.popdict['contacts'])):
-                if len(self.popdict['contacts'][k][lkey]) > 0:
-                    inds.append(k)
+           # inds = [] # identify the index of people who are in the layer
+           # for k in range(len(self.popdict['contacts'])):
+           #     if len(self.popdict['contacts'][k][lkey]) > 0:
+           #         inds.append(k)
 
-            n_new = self.contact_numbers[lkey] * len(inds) # total number of contacts for this layer
+            n_new = self.contact_numbers[lkey] * len(self.inds[lkey]) # total number of contacts for this layer
             new_contacts = {}  # Initialize
-            new_contacts['p1'] = np.random.choice(inds, n_new)
-            new_contacts['p2'] = np.random.choice(inds, n_new)
+            new_contacts['p1'] = np.random.choice(self.inds[lkey], n_new)
+            new_contacts['p2'] = np.random.choice(self.inds[lkey], n_new)
             new_contacts['beta'] = np.ones(n_new, dtype=cvd.default_float)
 
             # Add to contacts
