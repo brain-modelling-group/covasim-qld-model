@@ -29,7 +29,7 @@ def clusters_to_contacts(clusters):
 
     return {x: np.array(list(y)) for x, y in contacts.items()}
 
-def random_contacts(include, mean_contacts_per_person):
+def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
     """
     Sample random contacts
 
@@ -40,33 +40,53 @@ def random_contacts(include, mean_contacts_per_person):
     Args:
         include: Boolean array with length equal to population size, containing True if the person is eligible for contacts
         mean_contacts_per_person: Mean number of contacts (Poisson distribution)
-
+        array_output: Return contacts as arrays or as dicts
     Returns:
-        Dictionary {1:[2,3,4],2:[1,5,6]} with keys for source person, and a values being a list of target contacts.
+        If array_output=False, return a contacts dictionary {1:[2,3,4],2:[1,5,6]} with keys for source person,
+        and a values being a list of target contacts.
+
+        If array_output=True, return arrays
 
     """
     # Weights should have the same number of entries as the total population size
-    contacts = {}
+
     include_inds = np.nonzero(include)[0]
+    n_contacts = len(include_inds)*mean_contacts_per_person
+    contacts = {}
     n_eligible = len(include_inds)
     for p in range(len(include)):
-        if include[p] == 0:
+        if not include[p]:
             contacts[p] = []
         else:
             n_contacts = cvu.poisson(mean_contacts_per_person)  # Draw the number of Poisson contacts for this person
             contact_inds = cvu.choose(n_eligible-1, min(n_eligible-1, n_contacts))  # Choose people at random. These index the include_inds array
-            include_inds_minus_self = np.delete(include_inds, np.where(include_inds == p)) # need to exclude being a contact of themselves
-            contacts[p] = include_inds_minus_self[contact_inds] # Convert the sampled indexes to the actual person IDs
+            contact_inds[contact_inds>=p] += 1  # Offset the indexes by 1 for the excluded current person
+            contacts[p] = include_inds[contact_inds]  # Convert the sampled indexes to the actual person IDs
     return contacts
 
 def create_clustering(people_to_cluster, mean_cluster_size):
-    #This function puts people into disconnected clusters. Everyone in each cluster is connected to one another
+    """
+    Return random clustering of people
+
+    Args:
+        people_to_cluster: Indexes of people to cluster e.g. [1,5,10,12,13]
+        mean_cluster_size: Mean cluster size (poisson distribution)
+
+    Returns: List of lists of clusters e.g. [[1,5],[10,12,13]]
+    """
+
+    # people_to_cluster = np.random.permutation(people_to_cluster) # Optionally shuffle people to cluster - in theory not necessary?
     clusters = []
-    while len(people_to_cluster)>0:
-        new_cluster_size = max(cvu.poisson(mean_cluster_size),2)
-        new_cluster = np.random.choice(people_to_cluster, min(len(people_to_cluster), new_cluster_size), replace=False)
-        clusters.append(new_cluster.tolist())
-        people_to_cluster = [x for x in people_to_cluster if x not in new_cluster]
+    n_people = len(people_to_cluster)
+    n_remaining = n_people
+
+    while n_remaining > 0:
+        this_cluster =  cvu.poisson(mean_cluster_size)  # Sample the cluster size
+        if this_cluster > n_remaining:
+            this_cluster = n_remaining
+        clusters.append(people_to_cluster[(n_people-n_remaining)+np.arange(this_cluster)].tolist())
+        n_remaining -= this_cluster
+
     return clusters
 
 def get_mixing_matrix(databook_path, sheet_name: str):
