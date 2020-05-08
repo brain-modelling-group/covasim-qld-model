@@ -17,7 +17,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            'gen_pop'
+            #'gen_pop'
             ]
     for_powerpoint = False
     verbose    = 1
@@ -35,9 +35,11 @@ if __name__ == '__main__': # need this to run in parallel on windows
     if 'gen_pop' in todo:
         popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets, setting=extra_pars['setting'])
         sc.saveobj(extra_pars['popfile'], popdict)
+    else:
+        popdict = sc.loadobj(extra_pars['popfile'])
 
     # manually adjust some parameters for calibration, outside of Excel read-in
-    pars['beta'] = 0.1 # Scale beta
+    pars['beta'] = 0.12 # Scale beta
     pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
     pars['n_days'] = 60
 

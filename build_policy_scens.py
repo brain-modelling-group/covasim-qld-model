@@ -36,6 +36,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
     if 'gen_pop' in todo:
         popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets, setting=extra_pars['setting'])
         sc.saveobj(extra_pars['popfile'], popdict)
+    else:
+        popdict = sc.loadobj(extra_pars['popfile'])
 
     sim = cv.Sim(pars, popfile=extra_pars['popfile'], datafile=extra_pars['data_path'], pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=extra_pars['popfile'])
