@@ -65,12 +65,26 @@ def set_baseline(policies, pars, extra_pars):
                 policies['import_policies'][dates]['dates'] = np.arange(policies['policy_dates'][dates][0], n_days)
             if dates in policies['clip_policies']:
                 policies['clip_policies'][dates]['dates'] = [policies['policy_dates'][dates][0], n_days]
+    if 'trace policies' not in policies:
+        policies['trace_policies'] = {
+            'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
+                                       'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
+                                       'social'],
+                            # Layers which the app can target, excluding beach, child_care and aged_care
+                            'coverage': [0.],  # app coverage at time in days
+                            'dates': [0.],  # days when app coverage changes
+                            'trace_time': 0,
+                            'start_day': 0,
+                            'end_day': None}}
+        policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
+
     app_layers = policies['trace_policies']['tracing_app']['layers']
     app_cov = policies['trace_policies']['tracing_app']['coverage']
     app_dates = policies['trace_policies']['tracing_app']['dates']
     app_start = policies['trace_policies']['tracing_app']['start_day']
     app_end = policies['trace_policies']['tracing_app']['end_day']
     app_trace_time = policies['trace_policies']['tracing_app']['trace_time']
+
 
 
     base_scenarios = {}  # create baseline scenario according to policies from databook

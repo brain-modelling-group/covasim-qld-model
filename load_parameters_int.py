@@ -4,7 +4,7 @@ def load_pars():
     import pandas as pd
     import numpy as np
 
-    setting = 'Botswana'
+    setting = 'Australia'
 
     date = '2020may05'
     folder = f'results_{date}'
@@ -101,7 +101,8 @@ def load_data(databook_path, start_day, end_day, data_path, setting=None):
     import pandas as pd
     import numpy as np
 
-    epi_data_path = '~/Documents/GitHub/covid-19-data/public/data/owid-covid-data.xlsx'
+    #epi_data_path = '~/Documents/GitHub/covid-19-data/public/data/owid-covid-data.xlsx'
+    epi_data_path = '~\Desktop\GitHub\covid-19-data\public\data\owid-covid-data.xlsx'
     sd = pd.read_excel(epi_data_path, header=0, index_col=[1, 2])
     other_par = pd.read_excel(databook_path, sheet_name='other_par', index_col=0)
 

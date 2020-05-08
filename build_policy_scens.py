@@ -5,7 +5,7 @@ Load Australian epi data
 import matplotlib
 import sciris as sc
 import covasim as cv
-import utils, load_parameters, load_pop, policy_changes, os
+import utils, load_parameters, load_pop, policy_changes, os, plot_scenarios
 dirname = os.path.dirname(os.path.abspath(__file__))
 import load_parameters_int, load_pop_int
 
@@ -47,10 +47,10 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies['trace_policies'] = {'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
                                                              'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
                                                              'social'], # Layers which the app can target, excluding beach, child_care and aged_care
-                                                  'coverage': [0.5, 0.5], # app coverage at time in days
-                                                  'dates': [90, 100], # days when app coverage changes
+                                                  'coverage': [99, 99], # app coverage at time in days
+                                                  'dates': [extra_pars['relax_day'], 100], # days when app coverage changes
                                                   'trace_time': 0,
-                                                  'start_day': 90,
+                                                  'start_day': extra_pars['relax_day'],
                                                   'end_day': None}}
     policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
     # Set up a baseline scenario that includes all policy changes to date
@@ -85,64 +85,23 @@ if __name__ == '__main__': # need this to run in parallel on windows
     consistencies across the replacement policies so please check that they are sensible (e.g., don't replace the same policy twice in the same scenario etc).
     Other checks for whether policies are off/on before being turned off/on are included within the turn_off_policies, turn_on_policies and replace_policies functions.
     '''
-    if 'runsim_indiv' in todo: # run and plot a collection of policy scenarios together
-        torun = {}
-        #torun['Full relax'] = {}
-        #torun['test1'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        # torun['test1']['turn_off']['Schools'] = ['schools']
-        # torun['test1']['turn_off']['Pubs'] = ['pub_bar0']
-        # torun['test1']['turn_off']['schools + pubs'] = ['schools', 'pub_bar0']
-        # torun['test1']['turn_off']['Border opening'] = ['travel_dom']
-        #torun['test1']['turn_off'] = {'off_pols': ['schools', 'retail', 'pub_bar0', 'travel_dom'], 'dates': [60, 60, 65, 70]}
-        #torun['test1']['turn_on']['child_care'] = [60, 150]
-        #torun['test1']['turn_on']['NE_health'] = [60, 120]
-        #torun['test1']['turn_on']['schools'] = [80, 200]
-        #torun['test1']['replace']['outdoor2'] = {'replacements': ['outdoor10', 'outdoor200'], 'dates': [60, 90, 150]}
-        #torun['test1']['replace']['NE_work'] = {'replacements': ['church_4sqm'], 'dates': [70, 150]}
-        #torun['Relax physical distancing'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Relax physical distancing']['replace']['communication'] = {'replacements': ['comm2'], 'dates': [60]}
-
-        #torun['Schools open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Schools open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        #torun['Schools open']['turn_off'] = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
-        torun['Pubs open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['Pubs open']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        torun['Pubs open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
-        #torun['Community sports start'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Community sports start']['turn_off'] = {'off_pols': ['cSports', 'communication'], 'dates': [extra_pars['relax_day'], extra_pars['relax_day']]}
-        #torun['Cafe/restaurant open with 4sqm'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Cafe/restaurant open with 4sqm']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        #torun['Cafe/restaurant open with 4sqm']['replace']['cafe_restaurant0'] = {'replacements': ['cafe_restaurant_4sqm'], 'dates': [extra_pars['relax_day']]}
-        #torun['Large events'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        # torun['Schools + relax']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [60]}
-        #torun['Large events']['turn_off'] = {'off_pols': ['large_events'], 'dates': [60]}
-        #torun['Large events']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
-        #torun['Return non-essential workers'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Return non-essential workers']['turn_off'] = {'off_pols': ['NE_work'], 'dates': [extra_pars['relax_day']]}
-        #torun['Social gatherings <10'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Social gatherings <10']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
-        #torun['Social gatherings <10']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-        #torun['Pub+cafe+events+sport'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Pub+cafe+events+sport']['turn_off'] = {'off_pols': ['large_events', 'pub_bar0', 'cafe_restaurant0', 'cSports'], 'dates': [60,90,120,150]}
-        #torun['Pub+cafe+events+sport']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
-
-        #torun['Trace app off then replace schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        #torun['Trace app off'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['pub bar no app'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-
-        #torun['Trace app off then replace schools']['turn_off'] = {'off_pols': ['tracing_app'], 'dates': [100]}
-        #torun['Trace app off then replace schools']['replace']['schools'] = {'replacements': ['tracing_app'], 'dates': [120]}
-        #torun['Trace app off']['turn_off'] = {'off_pols': ['tracing_app'], 'dates': [100]}
-        torun['pub bar no app']['turn_off'] = {'off_pols': ['pub_bar0', 'tracing_app'], 'dates': [60, 151]}
-        torun['pub bar no app']['replace']['communication'] = {'replacements': ['comm_relax'],
-                                                          'dates': [extra_pars['relax_day']]}
-       # torun['Trace app off then on']['turn_on'] = {'tracing_app': [60]}
-        labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
-
-        scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars)
+    torun2 = {}
+    torun2['Pubs/bars open with app'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+    torun2['Pubs/bars open with app']['replace']['communication'] = {'replacements': ['comm_relax'],
+                                                                     'dates': [extra_pars['relax_day']]}
+    torun2['Pubs/bars open with app']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
+    torun2['Pubs/bars open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+    torun2['Pubs/bars open']['turn_off'] = {'off_pols': ['pub_bar0', 'tracing_app'],
+                                            'dates': [extra_pars['relax_day'], extra_pars['relax_day'] + 1]}
+    torun2['Pubs/bars open']['replace']['communication'] = {'replacements': ['comm_relax'],
+                                                            'dates': [extra_pars['relax_day']]}
+    labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
+    #torun = plot_scenarios.plot_scenarios('2',extra_pars)
+    scenarios, scenario_policies = policy_changes.create_scens(torun2, policies, baseline_policies, base_scenarios, pars, extra_pars)
 
         #fig = scenario_policies['Full relax'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
         #fig.show()
+
 
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)
@@ -151,7 +110,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
         # Configure plotting
-        fig_args = dict(figsize=(5, 10))
+        fig_args = dict(figsize=(5, 5))
         this_fig_path = dirname + '/figures/scens' + 'tests.png'
         to_plot_cum = ['cum_infections', 'cum_diagnoses', 'cum_recoveries']
         to_plot_daily = ['new_infections', 'new_diagnoses', 'new_recoveries', 'new_deaths']
@@ -160,7 +119,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         if for_powerpoint:
             to_plot1 = ['new_infections', 'cum_infections', 'cum_deaths']
         else:
-            to_plot1 = ['new_infections', 'r_eff', 'cum_deaths']
+            to_plot1 = ['new_infections', 'cum_infections']
 
         utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
                           fig_args=fig_args,font_size=8, y_lim={'r_eff': 3}, to_plot=to_plot1)

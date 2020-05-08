@@ -6,9 +6,10 @@ import matplotlib
 import pandas as pd
 import sciris as sc
 import covasim as cv
-import utils, load_parameters, load_pop, policy_changes
+import utils, load_parameters, load_pop, policy_changes, os
 import load_parameters_int, load_pop_int
 import numpy as np
+dirname = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == '__main__': # need this to run in parallel on windows
 
@@ -36,9 +37,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
         sc.saveobj(extra_pars['popfile'], popdict)
 
     # manually adjust some parameters for calibration, outside of Excel read-in
-    pars['beta'] = 0.125 # Scale beta
+    pars['beta'] = 0.18 # Scale beta
     pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
-    pars['n_days'] = 70
+    pars['n_days'] = 60
 
     sim = cv.Sim(pars, popfile=extra_pars['popfile'], datafile=extra_pars['data_path'], pop_size=pars['pop_size'])
     sim.initialize(save_pop=False, load_pop=True, popfile=extra_pars['popfile'])
@@ -55,11 +56,17 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Configure plotting
     do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
     fig_args = dict(figsize=(5, 10))
-    this_fig_path = extra_pars['file_path'] + 'baseline.png'
+    this_fig_path = dirname + '/figures/baseline.png'
     if for_powerpoint:
         to_plot1 = scens.results['new_infections']
     else:
         to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
 
-    utils.policy_plot(scens, plot_ints=False, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28, fig_args=fig_args,
+    utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=14, fig_args=fig_args,
                font_size=8, to_plot=to_plot1)
+
+    labels = utils.pretty_label
+    fig =baseline_policies.plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'],
+                                                     pretty_labels=labels)
+    fig.savefig(fname=dirname + '/figures/base_policies.png')
+    # fig.show()
