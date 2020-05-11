@@ -66,16 +66,16 @@ def set_baseline(policies, pars, extra_pars, popdict):
                 policies['import_policies'][dates]['dates'] = np.arange(policies['policy_dates'][dates][0], n_days)
             if dates in policies['clip_policies']:
                 policies['clip_policies'][dates]['dates'] = [policies['policy_dates'][dates][0], n_days]
-    if 'trace policies' not in policies:
+    if 'trace_policies' not in policies.keys():
         policies['trace_policies'] = {
             'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
                                        'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
                                        'social'],
                             # Layers which the app can target, excluding beach, child_care and aged_care
-                            'coverage': [0.],  # app coverage at time in days
-                            'dates': [0.],  # days when app coverage changes
+                            'coverage': [0.0],  # app coverage at time in days
+                            'dates': [60.],  # days when app coverage changes
                             'trace_time': 0,
-                            'start_day': 0,
+                            'start_day': 60,
                             'end_day': None}}
         policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
 

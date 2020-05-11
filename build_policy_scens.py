@@ -1,6 +1,3 @@
-'''
-Load Australian epi data
-'''
 
 import matplotlib
 import sciris as sc
@@ -10,12 +7,11 @@ dirname = os.path.dirname(os.path.abspath(__file__))
 import load_parameters_int, load_pop_int
 
 if __name__ == '__main__': # need this to run in parallel on windows
-
     # What to do
     todo = ['loaddata',
             'showplot',
             'saveplot',
-           #  'gen_pop',
+            'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]
@@ -30,11 +26,17 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Process and read in data
     if 'loaddata' in todo:
         sd, extra_pars['i_cases'], extra_pars['daily_tests'] = load_parameters.load_data(databook_path=extra_pars['databook_path'],
-                                                                                         start_day=pars['start_day'], end_day=extra_pars['end_day'], data_path=extra_pars['data_path'], setting=extra_pars['setting'])
+                                                                                         start_day=pars['start_day'],
+                                                                                         end_day=extra_pars['end_day'],
+                                                                                         data_path=extra_pars['data_path'],
+                                                                                         setting=extra_pars['setting'])
 
     #### diagnose population structure
     if 'gen_pop' in todo:
-        popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'], contact_numbers=pars['contacts'], population_subsets = population_subsets, setting=extra_pars['setting'])
+        popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'],
+                                                  contact_numbers=pars['contacts'],
+                                                  population_subsets = population_subsets,
+                                                  setting=extra_pars['setting'])
         sc.saveobj(extra_pars['popfile'], popdict)
     else:
         popdict = sc.loadobj(extra_pars['popfile'])
@@ -49,7 +51,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies['trace_policies'] = {'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
                                                              'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
                                                              'social'], # Layers which the app can target, excluding beach, child_care and aged_care
-                                                  'coverage': [0., 0.], # app coverage at time in days
+                                                  'coverage': [0.05, 0.05], # app coverage at time in days
                                                   'dates': [extra_pars['relax_day'], 100], # days when app coverage changes
                                                   'trace_time': 0,
                                                   'start_day': extra_pars['relax_day'],
@@ -58,34 +60,24 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Set up a baseline scenario that includes all policy changes to date
     base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars, popdict)
 
-
-    torun2 = {}
-    torun2['Pubs/bars open with app'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-    torun2['Pubs/bars open with app']['replace']['communication'] = {'replacements': ['comm_relax'],
-                                                                     'dates': [extra_pars['relax_day']]}
-    torun2['Pubs/bars open with app']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
-    torun2['Pubs/bars open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-    torun2['Pubs/bars open']['turn_off'] = {'off_pols': ['pub_bar0', 'tracing_app'],
-                                            'dates': [extra_pars['relax_day'], extra_pars['relax_day'] + 1]}
-    torun2['Pubs/bars open']['replace']['communication'] = {'replacements': ['comm_relax'],
-                                                            'dates': [extra_pars['relax_day']]}
-    labels = utils.pretty_labels # A list of short, but nicer labels for policies currently in vic-data
     torun = plot_scenarios.plot_scenarios('1',extra_pars)
     scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
 
-        #fig = scenario_policies['Full relax'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
-        #fig.show()
+    #labels = utils.pretty_labels  # A list of short, but nicer labels for policies currently in vic-data
+    #fig = scenario_policies['Full relax'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
+    #fig.show()
 
 
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)
 
+
     if 'doplot_indiv' in todo:
         do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
         # Configure plotting
-        fig_args = dict(figsize=(5, 5))
-        this_fig_path = dirname + '/figures/scens' + 'tests.png'
+        fig_args = dict(figsize=(5, 2.5))
+        this_fig_path = dirname + '/figures/COVIDSafe_pubs' + '_20.png'
         to_plot_cum = ['cum_infections', 'cum_diagnoses', 'cum_recoveries']
         to_plot_daily = ['new_infections', 'new_diagnoses', 'new_recoveries', 'new_deaths']
         to_plot_health = ['cum_severe', 'cum_critical', 'cum_deaths']
@@ -93,7 +85,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         if for_powerpoint:
             to_plot1 = ['new_infections', 'cum_infections', 'cum_deaths']
         else:
-            to_plot1 = ['new_infections', 'cum_infections']
+            to_plot1 = ['cum_infections']
 
         utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
                           fig_args=fig_args,font_size=8, y_lim={'r_eff': 3}, to_plot=to_plot1)

@@ -47,10 +47,12 @@ pars, metapars, extra_pars, population_subsets = load_parameters.load_pars()
 sd, extra_pars['i_cases'], extra_pars['daily_tests'] = load_parameters.load_data(databook_path=extra_pars['databook_path'],
                                                                                          start_day=pars['start_day'], end_day=extra_pars['end_day'], data_path=extra_pars['data_path'])
 
-popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'],
-                                              contact_numbers=pars['contacts'], population_subsets=population_subsets)
-sc.saveobj(extra_pars['file_path'] + 'temp_pop', popdict)
-
+#popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'],
+#                                          contact_numbers=pars['contacts'],
+#                                          population_subsets=population_subsets,
+#                                          setting=extra_pars['setting'])
+#sc.saveobj(extra_pars['popfile'], popdict)
+popdict = sc.loadobj(extra_pars['popfile'])
 house_dist, age_dist = get_distributions(extra_pars['databook_path'])
 
 s_struct, w_struct, c_struct, church_struct = [],[],[],[]
@@ -90,8 +92,8 @@ plt.savefig(fname=dirname + '/figures/distributions.png')
 
 
 ## Mixing matrix
-mixing_matrix, bin_lower, bin_upper = load_pop.get_mixing_matrix(extra_pars['databook_path'], 'contact matrices-home')
-mixing_matrix = mixing_matrix.iloc[::-1]
+mixing_matrix0, bin_lower, bin_upper = load_pop.get_mixing_matrix(extra_pars['databook_path'], 'contact matrices-home')
+mixing_matrix = mixing_matrix0.iloc[::-1]
 
 fig3, axs3 = matplotlib.pyplot.subplots(1, 1,**{'figsize': (4,4)})
 g = sns.heatmap(mixing_matrix)
@@ -99,6 +101,64 @@ fig3 = g.get_figure()
 fig3.savefig(dirname + "/figures/H_mixing.png")
 #fig2.show()
 
+school_matrix = sc.dcp(mixing_matrix0)
+school_matrix[school_matrix > 0] = 0
+work_matrix = sc.dcp(mixing_matrix0)
+work_matrix[work_matrix > 0] = 0
+comm_matrix = sc.dcp(mixing_matrix0)
+comm_matrix[comm_matrix > 0] = 0
+bin_lower = [int(x.split('-')[0]) for x in school_matrix.index]
+bin_upper = [int(x.split('-')[1]) for x in school_matrix.index]
+
+
+for j in range(len(popdict['contacts'])):
+    if len(popdict['contacts'][j]['S']) > 0:
+        for i in range(len(school_matrix.index)):
+            if popdict['age'][j]>= bin_lower[i] and popdict['age'][j]< bin_upper[i]:
+                school_con = popdict['contacts'][j]['S']
+                age_con = popdict['age'][school_con] # to avoid over counting contacts
+                for k, age in enumerate(age_con):
+                    for l in range(len(school_matrix.index)):
+                        if age >= bin_lower[l] and age <bin_upper[l]:
+                            school_matrix[school_matrix.index[i]][l] += 1
+
+for j in range(len(popdict['contacts'])):
+    if len(popdict['contacts'][j]['W']) > 0:
+        for i in range(len(school_matrix.index)):
+            if popdict['age'][j]>= bin_lower[i] and popdict['age'][j]< bin_upper[i]:
+                work_con = popdict['contacts'][j]['W']
+                age_con = popdict['age'][work_con] # to avoid over counting contacts
+                for k, age in enumerate(age_con):
+                    for l in range(len(work_matrix.index)):
+                        if age >= bin_lower[l] and age <bin_upper[l]:
+                            work_matrix[work_matrix.index[i]][l] += 1
+
+
+for j in range(len(popdict['contacts'])):
+    if len(popdict['contacts'][j]['public_parks']) > 0:
+        for i in range(len(comm_matrix.index)):
+            if popdict['age'][j]>= bin_lower[i] and popdict['age'][j]< bin_upper[i]:
+                comm_con = popdict['contacts'][j]['public_parks']
+                age_con = popdict['age'][comm_con] # to avoid over counting contacts
+                for k, age in enumerate(age_con):
+                    for l in range(len(comm_matrix.index)):
+                        if age >= bin_lower[l] and age <bin_upper[l]:
+                            comm_matrix[comm_matrix.index[i]][l] += 1
+school_matrix = school_matrix.iloc[::-1]
+work_matrix = work_matrix.iloc[::-1]
+comm_matrix = comm_matrix.iloc[::-1]
+fig4, axs4 = matplotlib.pyplot.subplots(1, 1,**{'figsize': (4,4)})
+sch = sns.heatmap(school_matrix)
+fig4 = sch.get_figure()
+fig4.savefig(dirname + "/figures/S_mixing.png")
+fig5, axs5 = matplotlib.pyplot.subplots(1, 1,**{'figsize': (4,4)})
+wk = sns.heatmap(work_matrix)
+fig5 = wk.get_figure()
+fig5.savefig(dirname + "/figures/W_mixing.png")
+fig6, axs6 = matplotlib.pyplot.subplots(1, 1,**{'figsize': (4,4)})
+comm = sns.heatmap(comm_matrix)
+fig6 = comm.get_figure()
+fig6.savefig(dirname + "/figures/C_mixing.png")
 
 ## Networks
 pars['pop_size'] = 200

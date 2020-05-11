@@ -17,7 +17,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            #'gen_pop'
+            'gen_pop'
             ]
     for_powerpoint = False
     verbose    = 1
@@ -67,7 +67,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=14, fig_args=fig_args,
                font_size=8, to_plot=to_plot1)
 
-    labels = utils.pretty_label
+    labels = utils.pretty_labels
     fig =baseline_policies.plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'],
                                                      pretty_labels=labels)
     fig.savefig(fname=dirname + '/figures/base_policies.png')
