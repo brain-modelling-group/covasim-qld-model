@@ -71,27 +71,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['App cov = '+str(round(100*cov))]['Pubs/bars open with app (' + str(round(100*cov)) + '%)']['turn_off'] = policy
         scenarios1, scenario_policies1 = policy_changes.create_scens(torun['App cov = '+str(round(100*cov))], policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
         scenarios = {**scenarios, **scenarios1}
-    """
-    policies['trace_policies']['tracing_app']['coverage'] = [0.1]
-    torun2 = {}
-    torun2['Pubs/bars open with app (10%)'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-    torun2['Pubs/bars open with app (10%)']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-    torun2['Pubs/bars open with app (10%)']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
-    scenarios2, scenario_policies2 = policy_changes.create_scens(torun2, policies, baseline_policies, base_scenarios, pars,extra_pars, popdict)
-    policies['trace_policies']['tracing_app']['coverage'] = [0.2]
-    torun3 = {}
-    torun3['Pubs/bars open with app (20%)'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-    torun3['Pubs/bars open with app (20%)']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-    torun3['Pubs/bars open with app (20%)']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
-    scenarios3, scenario_policies3 = policy_changes.create_scens(torun3, policies, baseline_policies, base_scenarios, pars,extra_pars, popdict)
-    torun4 = {}
-    policies['trace_policies']['tracing_app']['coverage'] = [0.3]
-    torun4['Pubs/bars open with app (30%)'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-    torun4['Pubs/bars open with app (30%)']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
-    torun4['Pubs/bars open with app (30%)']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
-    scenarios4, scenario_policies4 = policy_changes.create_scens(torun4, policies, baseline_policies, base_scenarios, pars,extra_pars, popdict)
-    scenarios = {**scenarios, **scenarios2, **scenarios2, **scenarios3, **scenarios4}
-    """
+
 
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)

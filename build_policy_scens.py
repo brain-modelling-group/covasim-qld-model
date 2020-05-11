@@ -11,7 +11,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            'gen_pop',
+            #'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]
@@ -63,13 +63,12 @@ if __name__ == '__main__': # need this to run in parallel on windows
     torun = plot_scenarios.plot_scenarios('1',extra_pars)
     scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
 
-    #labels = utils.pretty_labels  # A list of short, but nicer labels for policies currently in vic-data
-    #fig = scenario_policies['Full relax'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
+    labels = utils.pretty_labels  # A list of short, but nicer labels for policies currently in vic-data
+    #fig = scenario_policies['Cafes/restaurants open'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
     #fig.show()
 
-
     scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
-    scens.run(verbose=verbose)
+    scens.run(verbose=verbose, debug=False)
 
 
     if 'doplot_indiv' in todo:

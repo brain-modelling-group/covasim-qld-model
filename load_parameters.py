@@ -26,7 +26,7 @@ def load_pars():
     pars = cv.make_pars()  # generate some defaults
     metapars = cv.make_metapars()
     metapars['n_runs'] = other_par['value'].n_runs
-
+    metapars['noise'] = 0
     pars['pop_size'] = other_par['value'].pop_size
     pars['pop_scale'] = other_par['value'].pop_scale
     pars['rescale'] = other_par['value'].rescale

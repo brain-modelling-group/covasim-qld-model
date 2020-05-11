@@ -263,16 +263,15 @@ class UpdateNetworks(cv.Intervention):
         self.start_day = start_day
         self.end_day = end_day
         self.contact_numbers = contact_numbers
-        self.popdict = popdict
+        self._include = {}  # For each layer, store a boolean array capturing whether that person is in the layer or not
+        for lkey in self.layers:  # get indices for people in each layer
+            self._include[lkey] = [len(x[lkey]) > 0 for x in popdict['contacts']]
         return
 
     def initialize(self, sim):
         super().initialize(sim)
         self.start_day = sim.day(self.start_day)
         self.end_day = sim.day(self.end_day)
-        self._include = {} # For each layer, store a boolean array capturing whether that person is in the layer or not
-        for lkey in self.layers: # get indices for people in each layer
-            self._include[lkey] = [len(x[lkey])>0 for x in self.popdict['contacts']]
         return
 
     def apply(self, sim):
