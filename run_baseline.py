@@ -39,8 +39,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
         popdict = sc.loadobj(extra_pars['popfile'])
 
     # manually adjust some parameters for calibration, outside of Excel read-in
-    pars['beta'] = 0.12 # Scale beta
-    pars['diag_factor'] = 1.6 # Scale proportion asymptomatic
+    pars['beta'] = 0.070#Scale beta
+    pars['diag_factor'] = 1.4# Scale proportion asymptomatic
     pars['n_days'] = 60
 
     sim = cv.Sim(pars, popfile=extra_pars['popfile'], datafile=extra_pars['data_path'], pop_size=pars['pop_size'])
@@ -68,7 +68,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
                font_size=8, to_plot=to_plot1)
 
     labels = utils.pretty_labels
-    fig =baseline_policies.plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'],
-                                                     pretty_labels=labels)
-    fig.savefig(fname=dirname + '/figures/base_policies.png')
+    #ig =baseline_policies.plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'],
+    #                                                pretty_labels=labels)
+    #ig.savefig(fname=dirname + '/figures/base_policies.png')
     # fig.show()

@@ -12,7 +12,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            #'gen_pop',
+            'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]
@@ -55,34 +55,38 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Set up a baseline scenario that includes all policy changes to date
     base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars, popdict)
 
-    cov_values = [0.05, 0.1,0.2,0.3,0.4]
-    policy = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
+    cov_values = [0.1, 0.25, 0.5, 0.75, 1.0]
+    policy = {'off_pols': ['schools'], 'dates': [extra_pars['relax_day']]}
     torun = {}
-    torun['No app'] = {}
-    torun['No app']['Pubs/bars open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-    torun['No app']['Pubs/bars open']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
-    torun['No app']['Pubs/bars open']['turn_off'] = policy
-    scenarios, scenario_policies = policy_changes.create_scens(torun['No app'], policies, baseline_policies, base_scenarios,pars, extra_pars, popdict)
+    torun['comparison'] = {}
+    torun['comparison']['Social gatherings <10 (25% transmission risk relative to households)'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+    torun['comparison']['Social gatherings <10 (25% transmission risk relative to households)']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
+    torun['comparison']['Social gatherings <10 (25% transmission risk relative to households)']['replace']['communication'] = {'replacements': ['comm_relax'],
+                                                                   'dates': [extra_pars['relax_day']]}
+    torun['comparison']['Social gatherings <10 (25% transmission risk relative to households)']['replace']['outdoor2'] = {'replacements': ['outdoor10'],'dates': [extra_pars['relax_day']]}
+    scenarios, scenario_policies = policy_changes.create_scens(torun['comparison'], policies, baseline_policies, base_scenarios,pars, extra_pars, popdict)
+    school_scens = {}
+    school_scens['base'] = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
+    school_scens['base'].run(verbose=verbose)
+    plot_scens = sc.dcp(school_scens['base'])
     for i, cov in enumerate(cov_values):
-        policies['trace_policies']['tracing_app']['coverage'] = [cov]
-        torun['App cov = '+str(round(100*cov))] = {}
-        torun['App cov = '+str(round(100*cov))]['Pubs/bars open with app (' + str(round(100*cov)) + '%)'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
-        torun['App cov = '+str(round(100*cov))]['Pubs/bars open with app (' + str(round(100*cov)) + '%)']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
-        torun['App cov = '+str(round(100*cov))]['Pubs/bars open with app (' + str(round(100*cov)) + '%)']['turn_off'] = policy
-        scenarios1, scenario_policies1 = policy_changes.create_scens(torun['App cov = '+str(round(100*cov))], policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
-        scenarios = {**scenarios, **scenarios1}
+        sim.pars['beta_layer']['S'] = pars['beta_layer']['H'] * cov
+        torun['School transmission risk relative to household = '+str(round(100*cov))] = {}
+        torun['School transmission risk relative to household = '+str(round(100*cov))]['School (transmission rel. household = ' + str(round(100*cov)) + '%)'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['School transmission risk relative to household = '+str(round(100*cov))]['School (transmission rel. household = ' + str(round(100*cov)) + '%)']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+        torun['School transmission risk relative to household = '+str(round(100*cov))]['School (transmission rel. household = ' + str(round(100*cov)) + '%)']['turn_off'] = policy
+        scenarios1, scenario_policies1 = policy_changes.create_scens(torun['School transmission risk relative to household = '+str(round(100*cov))], policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
+        school_scens[i] = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios1)
+        school_scens[i].run(verbose=verbose)
+        plot_scens.results['cum_infections'].update(school_scens[i].results['cum_infections'])
 
-
-    scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
-    scens.run(verbose=verbose)
 
     if 'doplot_indiv' in todo:
         do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
-        # Configure plotting
         fig_args = dict(figsize=(5, 2.5))
-        this_fig_path = dirname + '/figures/COVIDSafe_pubs' + '.png'
+        this_fig_path = dirname + '/figures/schools' + '.png'
         to_plot1 = ['cum_infections']
 
-        utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
+        utils.policy_plot(plot_scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
                           fig_args=fig_args,font_size=8, y_lim={'r_eff': 3}, to_plot=to_plot1)

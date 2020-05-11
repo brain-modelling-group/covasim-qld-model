@@ -73,9 +73,9 @@ def set_baseline(policies, pars, extra_pars, popdict):
                                        'social'],
                             # Layers which the app can target, excluding beach, child_care and aged_care
                             'coverage': [0.0],  # app coverage at time in days
-                            'dates': [60.],  # days when app coverage changes
+                            'dates': [0.],  # days when app coverage changes
                             'trace_time': 0,
-                            'start_day': 60,
+                            'start_day': 0,
                             'end_day': None}}
         policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
 

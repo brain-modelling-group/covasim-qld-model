@@ -11,7 +11,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            #'gen_pop',
+            'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]
@@ -51,10 +51,10 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies['trace_policies'] = {'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
                                                              'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
                                                              'social'], # Layers which the app can target, excluding beach, child_care and aged_care
-                                                  'coverage': [0.05, 0.05], # app coverage at time in days
-                                                  'dates': [extra_pars['relax_day'], 100], # days when app coverage changes
+                                                  'coverage': [0.05, 0.3], # app coverage at time in days
+                                                  'dates': [60, 90], # days when app coverage changes
                                                   'trace_time': 0,
-                                                  'start_day': extra_pars['relax_day'],
+                                                  'start_day': 60,
                                                   'end_day': None}}
     policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
     # Set up a baseline scenario that includes all policy changes to date
@@ -75,8 +75,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
         do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
         # Configure plotting
-        fig_args = dict(figsize=(5, 2.5))
-        this_fig_path = dirname + '/figures/COVIDSafe_pubs' + '_20.png'
+        fig_args = dict(figsize=(5, 5))
+        this_fig_path = dirname + '/figures/combination' + '.png'
         to_plot_cum = ['cum_infections', 'cum_diagnoses', 'cum_recoveries']
         to_plot_daily = ['new_infections', 'new_diagnoses', 'new_recoveries', 'new_deaths']
         to_plot_health = ['cum_severe', 'cum_critical', 'cum_deaths']
@@ -84,7 +84,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         if for_powerpoint:
             to_plot1 = ['new_infections', 'cum_infections', 'cum_deaths']
         else:
-            to_plot1 = ['cum_infections']
+            to_plot1 = ['cum_infections', 'new_infections']
 
         utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
                           fig_args=fig_args,font_size=8, y_lim={'r_eff': 3}, to_plot=to_plot1)
