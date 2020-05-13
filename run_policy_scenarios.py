@@ -51,7 +51,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     policies['trace_policies'] = {'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
                                                              'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
                                                              'social'], # Layers which the app can target, excluding beach, child_care and aged_care
-                                                  'coverage': [0.05, 0.3], # app coverage at time in days
+                                                  'coverage': [0.05, 0.05], # app coverage at time in days
                                                   'dates': [60, 90], # days when app coverage changes
                                                   'trace_time': 0,
                                                   'start_day': 60,

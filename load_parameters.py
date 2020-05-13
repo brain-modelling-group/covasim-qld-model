@@ -84,7 +84,7 @@ def load_pars():
     extra_pars['relax_day'] = other_par['value'].relax_day
     extra_pars['future_daily_tests'] = other_par['value'].future_daily_tests
     extra_pars['dynam_layer'] = ['C', 'beach','entertainment','cafe_restaurant','pub_bar', 'transport','national_parks','public_parks','large_events']
-    pars['beta'] = 0.070  # Scale beta
+    pars['beta'] = 0.225  # Scale beta
     pars['diag_factor'] = 1.4  # Scale proportion asymptomatic
 
     return pars, metapars, extra_pars, population_subsets

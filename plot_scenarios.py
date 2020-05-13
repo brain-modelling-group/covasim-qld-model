@@ -123,8 +123,38 @@ def plot_scenarios(scenario_number, extra_pars):
     torun4['Social + app to 30% + schools']['turn_off'] = {'off_pols': ['social', 'schools'],'dates': [extra_pars['relax_day'], 90]}
     torun4['Social + app to 30% + schools']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
     torun4['Social + app to 30% + schools']['replace']['outdoor2'] = {'replacements': ['outdoor10'],'dates': [extra_pars['relax_day']]}
-
     scenarios['4'] = torun4
+
+    torun5 = {}
+    torun5['Pubs/bars open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+    torun5['Pubs/bars open']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+    torun5['Pubs/bars open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
+    torun5['Cafes/restaurants open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+    torun5['Cafes/restaurants open']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+    torun5['Cafes/restaurants open']['turn_off'] = {'off_pols': ['cafe_restaurant0'], 'dates': [extra_pars['relax_day']]}
+    scenarios['5'] = torun5
+
+
     torun = scenarios[scenario_number]
     return torun
 
+"""
+    cov_values = [0.6, 0.8, 1.0]
+    policy = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
+    torun = {}
+    torun['No app'] = {}
+    torun['No app']['Pubs/bars open with 50% reduced trans.'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+    torun['No app']['Pubs/bars open with 50% reduced trans.']['replace']['communication'] = {'replacements': ['comm_relax'],
+                                                                     'dates': [extra_pars['relax_day']]}
+    torun['No app']['Pubs/bars open with 50% reduced trans.']['replace']['pub_bar0'] = {'replacements': ['pub_bar_4sqm'],
+                                                                                    'dates': [extra_pars['relax_day']]}
+    scenarios, scenario_policies = policy_changes.create_scens(torun['No app'], policies, baseline_policies, base_scenarios,pars, extra_pars, popdict)
+    for i, cov in enumerate(cov_values):
+        policies['trace_policies']['tracing_app']['coverage'] = [cov]
+        torun['App cov = '+str(round(100*cov))] = {}
+        torun['App cov = '+str(round(100*cov))]['Pubs/bars open with ID checks (' + str(round(100*cov)) + '%)'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
+        torun['App cov = '+str(round(100*cov))]['Pubs/bars open with ID checks (' + str(round(100*cov)) + '%)']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+        torun['App cov = '+str(round(100*cov))]['Pubs/bars open with ID checks (' + str(round(100*cov)) + '%)']['turn_off'] = policy
+        scenarios1, scenario_policies1 = policy_changes.create_scens(torun['App cov = '+str(round(100*cov))], policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
+        scenarios = {**scenarios, **scenarios1}
+"""
