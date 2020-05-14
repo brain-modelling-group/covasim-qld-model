@@ -95,7 +95,7 @@ def set_baseline(policies, pars, extra_pars, popdict):
                 cv.dynamic_pars({  # jump start with imported infections
                     'n_imports': dict(days=np.append(range(len(i_cases)),  np.arange(relax_day, restart_imports_length)), vals=np.append(i_cases, [0] * (restart_imports_length - relax_day)))
                 }),
-                cv.test_num(daily_tests=(daily_tests), symp_test=10.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                cv.test_num(daily_tests=(daily_tests), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
                 utils.AppBasedTracing(layers=app_layers, coverage=app_cov, days=app_dates, start_day=app_start, end_day=app_end, trace_time=app_trace_time), # Adding tracing app to baseline, remove if not the right idea
                 utils.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)

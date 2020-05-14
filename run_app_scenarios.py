@@ -12,7 +12,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     todo = ['loaddata',
             'showplot',
             'saveplot',
-            #'gen_pop',
+            'gen_pop',
             'runsim_indiv',
             'doplot_indiv',
             ]
@@ -55,12 +55,13 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Set up a baseline scenario that includes all policy changes to date
     base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars, popdict)
 
-    cov_values = [0.05, 0.1,0.2,0.3,0.4]
+    cov_values = [0.1,0.2,0.3,0.4]
     policy = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
     torun = {}
     torun['No app'] = {}
     torun['No app']['Pubs/bars open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun['No app']['Pubs/bars open']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+    torun['No app']['Pubs/bars open']['replace']['outdoor2'] = {'replacements': ['outdoor10'], 'dates': [extra_pars['relax_day']]}
     torun['No app']['Pubs/bars open']['turn_off'] = policy
     scenarios, scenario_policies = policy_changes.create_scens(torun['No app'], policies, baseline_policies, base_scenarios,pars, extra_pars, popdict)
     for i, cov in enumerate(cov_values):
@@ -68,6 +69,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['App cov = '+str(round(100*cov))] = {}
         torun['App cov = '+str(round(100*cov))]['Pubs/bars open with app (' + str(round(100*cov)) + '%)'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
         torun['App cov = '+str(round(100*cov))]['Pubs/bars open with app (' + str(round(100*cov)) + '%)']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+        torun['App cov = '+str(round(100*cov))]['Pubs/bars open with app (' + str(round(100*cov)) + '%)']['replace']['outdoor2'] = {'replacements': ['outdoor10'],'dates': [extra_pars['relax_day']]}
         torun['App cov = '+str(round(100*cov))]['Pubs/bars open with app (' + str(round(100*cov)) + '%)']['turn_off'] = policy
         scenarios1, scenario_policies1 = policy_changes.create_scens(torun['App cov = '+str(round(100*cov))], policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
         scenarios = {**scenarios, **scenarios1}
@@ -80,9 +82,9 @@ if __name__ == '__main__': # need this to run in parallel on windows
         do_show, do_save = ('showplot' in todo), ('saveplot' in todo)
 
         # Configure plotting
-        fig_args = dict(figsize=(5, 2.5))
+        fig_args = dict(figsize=(5, 5))
         this_fig_path = dirname + '/figures/COVIDSafe_pubs' + '.png'
-        to_plot1 = ['cum_infections']
+        to_plot1 = ['cum_infections', 'new_infections']
 
         utils.policy_plot(scens, plot_ints=True, do_save=do_save, do_show=do_show, fig_path=this_fig_path, interval=28,
-                          fig_args=fig_args,font_size=8, y_lim={'r_eff': 3}, to_plot=to_plot1)
+                          fig_args=fig_args,font_size=8, y_lim={'r_eff': 3,'cum_infections': 30000, 'new_infections': 2000}, to_plot=to_plot1)

@@ -36,6 +36,8 @@ def plot_scenarios(scenario_number, extra_pars):
 
     torun1['Pubs/bars open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun1['Pubs/bars open']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+    torun1['Pubs/bars open']['replace']['outdoor2'] = {'replacements': ['outdoor10'],
+                                                               'dates': [extra_pars['relax_day']]}
     torun1['Pubs/bars open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
     torun1['Schools'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun1['Schools']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
@@ -46,6 +48,8 @@ def plot_scenarios(scenario_number, extra_pars):
     torun1['Community sports start'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun1['Community sports start']['turn_off'] = {'off_pols': ['cSports'], 'dates': [extra_pars['relax_day']]}
     torun1['Community sports start']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+    torun1['Community sports start']['replace']['outdoor2'] = {'replacements': ['outdoor200'],
+                                                              'dates': [extra_pars['relax_day']]}
     torun1['Social gatherings <10'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun1['Social gatherings <10']['turn_off'] = {'off_pols': ['social'], 'dates': [extra_pars['relax_day']]}
     torun1['Social gatherings <10']['replace']['communication'] = {'replacements': ['comm_relax'], 'dates': [extra_pars['relax_day']]}
@@ -55,6 +59,8 @@ def plot_scenarios(scenario_number, extra_pars):
     torun1['Large events']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
     torun1['Cafes/restaurants open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun1['Cafes/restaurants open']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+    torun1['Cafes/restaurants open']['replace']['outdoor2'] = {'replacements': ['outdoor10'],
+                                                               'dates': [extra_pars['relax_day']]}
     torun1['Cafes/restaurants open']['turn_off'] = {'off_pols': ['cafe_restaurant0'], 'dates': [extra_pars['relax_day']]}
     #torun1['Beaches'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     #torun1['Beaches']['replace']['communication'] = {'replacements': ['comm_relax'],
@@ -126,11 +132,16 @@ def plot_scenarios(scenario_number, extra_pars):
     scenarios['4'] = torun4
 
     torun5 = {}
+   # torun5['Full relax'] = {}
     torun5['Pubs/bars open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun5['Pubs/bars open']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+    torun5['Pubs/bars open']['replace']['outdoor2'] = {'replacements': ['outdoor10'],
+                                                            'dates': [extra_pars['relax_day']]}
     torun5['Pubs/bars open']['turn_off'] = {'off_pols': ['pub_bar0'], 'dates': [extra_pars['relax_day']]}
     torun5['Cafes/restaurants open'] = {'turn_off': {}, 'turn_on': {}, 'replace': {}}
     torun5['Cafes/restaurants open']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
+    torun5['Cafes/restaurants open']['replace']['outdoor2'] = {'replacements': ['outdoor10'],
+                                                       'dates': [extra_pars['relax_day']]}
     torun5['Cafes/restaurants open']['turn_off'] = {'off_pols': ['cafe_restaurant0'], 'dates': [extra_pars['relax_day']]}
     scenarios['5'] = torun5
 
