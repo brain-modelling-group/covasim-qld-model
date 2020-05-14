@@ -39,8 +39,8 @@ if __name__ == '__main__': # need this to run in parallel on windows
         popdict = sc.loadobj(extra_pars['popfile'])
 
     # manually adjust some parameters for calibration, outside of Excel read-in
-    pars['beta'] = 0.225#Scale beta
-    pars['diag_factor'] = 1.4# Scale proportion asymptomatic
+    pars['beta'] = 0.135#Scale beta
+    #pars['diag_factor'] = 1.4# Scale proportion asymptomatic
     pars['n_days'] = 60
 
     sim = cv.Sim(pars, popfile=extra_pars['popfile'], datafile=extra_pars['data_path'], pop_size=pars['pop_size'])

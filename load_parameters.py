@@ -38,13 +38,15 @@ def load_pars():
 
     pars['contacts'] = {}
     pars['beta_layer'] = {}
-    pars['quar_eff'] = {}
-    pars['diag_factor'] = other_par['value'].diag_factor
+    pars['quar_factor'] = {}
+    pars['iso_factor'] = {}
+
 
     for i in subset_names:
         pars['contacts'].update({i: layers['contacts'][i]})
         pars['beta_layer'].update({i: layers['beta_layer'][i]})
-        pars['quar_eff'].update({i: layers['quar_eff'][i]})
+        pars['quar_factor'].update({i: layers['quar_eff'][i]})
+        pars['iso_factor'].update({i: 0.})
 
     subset_names2 = subset_names[4:]
 
@@ -84,8 +86,8 @@ def load_pars():
     extra_pars['relax_day'] = other_par['value'].relax_day
     extra_pars['future_daily_tests'] = other_par['value'].future_daily_tests
     extra_pars['dynam_layer'] = ['C', 'beach','entertainment','cafe_restaurant','pub_bar', 'transport','national_parks','public_parks','large_events']
-    pars['beta'] = 0.225  # Scale beta
-    pars['diag_factor'] = 1.4  # Scale proportion asymptomatic
+    pars['beta'] = 0.135  # Scale beta
+    #pars['diag_factor'] = 1.4  # Scale proportion asymptomatic
 
     return pars, metapars, extra_pars, population_subsets
 
