@@ -1,77 +1,88 @@
 """Class for storing and managing project data"""
 import covasim as cv
+import os
 import pandas as pd
+import sciris as sc
+import warnings
 
 
-class Data:
-    def __init__(self, setting=None):
-        self.setting = setting
-        self.pars = {}
-        self.metapars = {}
-        self.popdata = {}
-        self.policies = {}
-        self.other_pars = {}
-        self.parnames = ['contacts', 'beta_layer', 'quar_eff']
-
-    def read_pars(self, databook):
-        """Read parameter values from databook"""
-
-        # read in networks (layers)
-        layers = databook.parse("layers", index_col=0)
-        layers = layers.to_dict(orient="dict")
-
-        # create parameters dict
-        self.pars = {key: layers.get(key) for key in self.parnames}
-        return
-
-    def read_metapars(self, databook):
-        # TODO
-        return
-
-    def update_pars(self, newpars):
-        """Update values in self.pars with those in newpars"""
-
-        if set(newpars.keys()) != set(self.pars.keys()):
-            print("Warning: new keys and values will be added to the existing parameters dictionary")
-
-        self.pars.update(newpars)
-        return
-
-    def update_metapars(self, new_metapars):
-        """Update values in self.metapars with those in new_metapars"""
-
-        if set(new_metapars.keys()) != set(self.metapars.keys()):
-            print("Warning: new keys and values will be added to the existing meta-parameters dictionary")
-
-        self.metapars.update(new_metapars)
-        return
-
-def _get_pars(dataobj, databook):
-    """"""
-    dataobj.read_pars(databook)
-    pars = cv.make_pars(**dataobj.pars)
-    dataobj.update_pars(pars)
-    return dataobj
-
-# TODO: usage of such strutures needs to be rethought.
-# TODO: Perhaps splitting up spreadsheet differently will help
-# def _get_metapars(dataobj, databook):
-
-#     metapars = cv.make_metapars()  # defaults
-#     other_pars = databook.parse("other_par", index_col=0)['value']
-#     other_pars = other_pars.to_dict()
-#     metapars['n_runs'] = other_pars
-#     return
+def par_keys():
+    par_keys = ['contacts', 'beta_layer', 'quar_eff',
+                'pop_size', 'pop_scale', 'rescale',
+                'rescale_threshold', 'rescale_factor',
+                'pop_infected', 'start_day', 'end_day',
+                'n_days', 'diag_factor']
+    return par_keys
 
 
-def load_databook(file_path, file_name):
-    databook = pd.ExcelFile(f'{file_path}/{file_name}.xlsx')
+def metapar_keys():
+    metapar_keys = ['n_runs', 'noise']
+    return metapar_keys
+
+
+def _get_ndays(start_day, end_day):
+    """Calculates the number of days for simulation"""
+    # get start and end date
+    start_day = sc.readdate(str(start_day))
+    end_day = sc.readdate(str(end_day))
+    n_days = end_day - start_day
+    return n_days
+
+
+def _get_pars(databook):
+    """
+    Read in the parameter values from the databook.
+    If values are not specified in the databook, default values will be taken from Covasim
+
+    :param databook: a pandas ExcelFile object
+    :return: dictionary of complete parameter values
+    """
+
+    # read in networks (layers)
+    layers = databook.parse("layers", index_col=0)
+    layers = layers.to_dict(orient="dict")
+
+    # read other_par
+    other_pars = databook.parse("other_par", index_col=0)['value']
+    other_pars = other_pars.to_dict()
+
+    other_pars['n_days'] = _get_ndays(other_pars['start_day'], other_pars['end_day'])
+
+    # retrieve values from both dicts & use to update default values
+    pars = {}
+    for key in par_keys():
+        if layers.get(key) is not None:
+            pars[key] = layers.get(key)
+        elif other_pars.get(key) is not None:
+            pars[key] = other_pars.get(key)
+        else:
+            warnings.warn(f'Parameter key "{key}" not found in spreadsheet data')
+
+    pars = cv.make_pars(**pars)
+    return pars
+
+
+def _get_metapars():
+    # TODO: ignoring spreadsheet currently, should all be set in code
+    metapars = cv.make_metapars()
+    return metapars
+
+
+# TODO:
+def _get_extrapars(databook):
+    pass
+
+
+def load_databook(root, file_name):
+    file_path = os.path.join(root, 'data', file_name)
+    file_path += '.xlsx'
+    databook = pd.ExcelFile(file_path)
     return databook
 
 
-def setup_dataobj(file_path, file_name, setting):
-    databook = load_databook(file_path, file_name)
-    dataobj = Data(setting)
-    dataobj = _get_pars(dataobj, databook)
-    # dataobj = _get_metapars(dataobj, databook)
-    return dataobj
+def read_data(root, file_name):
+    databook = load_databook(root, file_name)
+    pars = _get_pars(databook)
+    metapars = _get_metapars()
+    # extrapars = _get_extrapars(databook)
+    return pars, metapars
