@@ -206,6 +206,24 @@ class PolicySchedule(cv.Intervention):
 
         return fig
 
+
+class SeedInfection(cv.Intervention):
+    def __init__(self, infections: dict):
+        super().__init__()
+        self.infections = infections  #: Dictionary mapping {day: n_infections}
+
+    def apply(self, sim):
+        if sim.t in self.infections:
+            susceptible_inds = cvu.true(sim.people.susceptible)
+
+            if len(susceptible_inds) < self.infections[sim.t]:
+                raise Exception('Insufficient people available to infect')
+
+            targets = cvu.choose(len(susceptible_inds), self.infections[sim.t])
+            target_inds = susceptible_inds[targets]
+            sim.people.infect(inds=target_inds)
+
+
 class AppBasedTracing(cv.Intervention):
     def __init__(self, days, coverage, layers, start_day=0, end_day=None, trace_time=0):
         """
