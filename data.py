@@ -80,9 +80,12 @@ def load_databook(root, file_name):
     return databook
 
 
-def read_data(root, file_name):
-    databook = load_databook(root, file_name)
+def read_params(databook):
     pars = _get_pars(databook)
     metapars = _get_metapars()
     # extrapars = _get_extrapars(databook)
     return pars, metapars
+
+def read_popdata(databook):
+    pass
+    # return popdata

@@ -1,6 +1,3 @@
-import data
-
-
 class Parameters:
     def __init__(self,
                  setting=None,
@@ -30,21 +27,3 @@ class Parameters:
 
         self.metapars.update(new_metapars)
         return
-
-
-def get_parameters(root, file_name, setting):
-    # read all data
-    pars, metapars = data.read_data(root, file_name)
-
-    # create Parameters object & populate
-    params = Parameters(setting=setting,
-                        pars=pars,
-                        metapars=metapars)
-    return params
-
-
-
-class PopulationData:
-    def __init__(self):
-        self.foo = None
-
