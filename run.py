@@ -1,10 +1,11 @@
-import data
 import os
+import parameters
 
 # file path
 root = os.path.dirname(os.path.abspath(__file__))
-root += "/data"
 
 # create data object
-setting = "victoria"
-dataobj = data.setup_dataobj(root, "vic-data", setting)
+setting = 'victoria'
+file_name = 'vic-data'
+
+params = parameters.get_parameters(root, file_name, setting)
