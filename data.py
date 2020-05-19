@@ -7,17 +7,33 @@ import warnings
 
 
 def par_keys():
-    par_keys = ['contacts', 'beta_layer', 'quar_eff',
+    keys = ['contacts', 'beta_layer', 'quar_eff',
                 'pop_size', 'pop_scale', 'rescale',
                 'rescale_threshold', 'rescale_factor',
                 'pop_infected', 'start_day', 'end_day',
                 'n_days', 'diag_factor']
-    return par_keys
+    return keys
 
 
 def metapar_keys():
-    metapar_keys = ['n_runs', 'noise']
-    return metapar_keys
+    keys = ['n_runs', 'noise']
+    return keys
+
+
+def extrapar_keys():
+    keys = ['trace_probs', 'trace_time', 'restart_imports',
+            'restart_imports_length', 'relax_day', 'future_daily_tests']
+    return keys
+
+
+def dynamic_layers():
+    """These are the layers that are re-generated at each time step since the contact networks are dynamic.
+    Layers not in this list are treated as static contact networks"""
+
+    layers = ['C', 'beach', 'entertainment',
+              'cafe_restaurant', 'pub_bar', 'transport',
+              'national_parks', 'public_parks', 'large_events']
+    return layers
 
 
 def _get_ndays(start_day, end_day):
@@ -68,9 +84,26 @@ def _get_metapars():
     return metapars
 
 
-# TODO:
 def _get_extrapars(databook):
-    pass
+
+    # get those in the layers sheet
+    layers = databook.parse('layers', index_col=0)
+    layers = layers.to_dict(orient="dict")
+    # those in other_par sheet
+    otherpar = databook.parse('other_par', index_col=0)['value']
+
+    extrapars = {}
+    for key in extrapar_keys():
+        if layers.get(key) is not None:
+            extrapars[key] = layers.get(key)
+        elif otherpar.get(key) is not None:
+            extrapars[key] = otherpar.get(key)
+        else:
+            warnings.warn(f'Extra-parameter key "{key}" not found in spreadsheet data')
+
+    extrapars['dynam_layer'] = dynamic_layers()  # currently not from spreadsheet
+
+    return extrapars
 
 
 def load_databook(root, file_name):
@@ -83,8 +116,8 @@ def load_databook(root, file_name):
 def read_params(databook):
     pars = _get_pars(databook)
     metapars = _get_metapars()
-    # extrapars = _get_extrapars(databook)
-    return pars, metapars
+    extrapars = _get_extrapars(databook)
+    return pars, metapars, extrapars
 
 def read_popdata(databook):
     pass
