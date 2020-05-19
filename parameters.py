@@ -4,13 +4,15 @@ class Parameters:
                  pars=None,
                  metapars=None,
                  extrapars=None,
-                 betavals=None):
+                 betavals=None,
+                 epidata_loc=None):
 
         self.setting = setting
         self.pars = pars
         self.metapars = metapars
         self.extrapars = extrapars
         self.betavals = betavals
+        self.epi_loc = epidata_loc
 
     def update_pars(self, newpars):
         """Update values in self.pars with those in newpars"""
