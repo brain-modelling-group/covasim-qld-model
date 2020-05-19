@@ -26,6 +26,11 @@ def extrapar_keys():
     return keys
 
 
+def layerchar_keys():
+    keys = ['proportion', 'age_lb', 'age_ub', 'cluster_type']
+    return keys
+
+
 def dynamic_layers():
     """These are the layers that are re-generated at each time step since the contact networks are dynamic.
     Layers not in this list are treated as static contact networks"""
@@ -106,6 +111,26 @@ def _get_extrapars(databook):
     return extrapars
 
 
+def _get_layerchars(databook):
+    """
+    Read in the layer characteristics
+    :param databook:
+    :return: a dit of layer characteristics
+    """
+
+    layers = databook.parse('layers', index_col=0)
+    layers = layers.to_dict(orient='dict')
+
+    layerchars = {}
+    for key in layerchar_keys():
+        if layers.get(key) is not None:
+            layerchars[key] = layers.get(key)
+        else:
+            warnings.warn(f'Layer characteristics key "{key}" not found in spreadsheet data')
+
+    return layerchars
+
+
 def load_databook(root, file_name):
     file_path = os.path.join(root, 'data', file_name)
     file_path += '.xlsx'
@@ -117,8 +142,5 @@ def read_params(databook):
     pars = _get_pars(databook)
     metapars = _get_metapars()
     extrapars = _get_extrapars(databook)
-    return pars, metapars, extrapars
-
-def read_popdata(databook):
-    pass
-    # return popdata
+    layerchars = _get_layerchars(databook)
+    return pars, metapars, extrapars, layerchars

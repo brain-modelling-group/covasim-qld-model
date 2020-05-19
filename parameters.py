@@ -4,6 +4,7 @@ class Parameters:
                  pars=None,
                  metapars=None,
                  extrapars=None,
+                 layerchars=None,
                  betavals=None,
                  epidata_loc=None):
 
@@ -11,6 +12,7 @@ class Parameters:
         self.pars = pars
         self.metapars = metapars
         self.extrapars = extrapars
+        self.layerchars = layerchars
         self.betavals = betavals
         self.epi_loc = epidata_loc
 
