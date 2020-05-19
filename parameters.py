@@ -1,4 +1,19 @@
 class Parameters:
+    """
+    The Parameters class is a container for the various types of parameters
+    required for an application of Covasim.
+    Some parameter attributes are used directly by Covasim while others
+    are used both prior to and during the simulation to provide greater
+    resolution than Covasim currently provides.
+
+    Args:
+        pars (dict): parameters used directly by Covasim
+        metapars (dict): meta-parameters used directly by Covasim
+        extrapars (dict): additional parameters that allow greater layer resolution
+        layerchars (dict): network characteristics that determine from which subset of the population the layers are generated
+    """
+
+
     def __init__(self,
                  setting=None,
                  pars=None,

@@ -139,6 +139,10 @@ def load_databook(root, file_name):
 
 
 def read_params(databook):
+    """
+    Read all the necessary parameters from the databook
+    """
+
     pars = _get_pars(databook)
     metapars = _get_metapars()
     extrapars = _get_extrapars(databook)
