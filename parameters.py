@@ -13,7 +13,6 @@ class Parameters:
         layerchars (dict): network characteristics that determine from which subset of the population the layers are generated
     """
 
-
     def __init__(self,
                  setting=None,
                  pars=None,
