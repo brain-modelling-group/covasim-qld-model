@@ -131,6 +131,13 @@ def _get_layerchars(databook):
     return layerchars
 
 
+def read_popdata(databook):
+    age_dist = databook.parse('age_sex')['Total']
+    household_dist = databook.parse('households')['no. households']
+    household_dist.index += 1  # represents the no. of people in each household
+    return age_dist, household_dist
+
+
 def read_tests_imported(databook):
     """Reads in the imported cases & daily tests."""
 
