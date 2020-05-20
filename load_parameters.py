@@ -39,13 +39,16 @@ def load_pars():
     pars['contacts'] = {}
     pars['beta_layer'] = {}
     pars['quar_factor'] = {}
-    metapars['noise'] = 0
+    pars['dynam_layer'] = {}
+    del pars['pop_type']
 
     for i in subset_names:
         pars['contacts'].update({i: layers['contacts'][i]})
         pars['beta_layer'].update({i: layers['beta_layer'][i]})
         pars['quar_factor'].update({i: layers['quar_eff'][i]})
         pars['iso_factor'].update({i: layers['iso_factor'][i]})
+        pars['dynam_layer'].update({i: 0})
+
     #pars['iso_factor']['H'] = 1.0
     #pars['iso_factor']['C'] = 0.1
     subset_names2 = subset_names[4:]
