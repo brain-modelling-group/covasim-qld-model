@@ -93,6 +93,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     import matplotlib.pyplot as plt
     import numpy as np
     import scipy.stats as stats
+    import textwrap
 
     def positive_kde(vals,npts=100):
         value_range = (vals.min(), vals.max())
@@ -101,39 +102,37 @@ if __name__ == '__main__': # need this to run in parallel on windows
         y = 2*kernel(x)
         return x,y
 
+
+
+    del scenarios['Full relaxation']
+
     p_less_than_50 = []
     p_less_than_100 = []
     labels = []
 
-    fig, ax = plt.subplots()
+
     for scen_name in scenarios.keys():
         vals = np.array([x.results['cum_infections'][-1] for x in sims[scen_name]])
         p_less_than_50.append(sum(vals<50)/len(vals))
         p_less_than_100.append(sum(vals<100)/len(vals))
-        labels.append(scen_name)
-        x,y = positive_kde(vals)
-        # y,x = np.histogram(vals,50)
-        # x = x[:-1]+np.diff(x)/2
-        h = plt.plot(x, y, label=scen_name)[0]
-    plt.title('Number of infections after 30 days')
-    plt.ylabel('Probability density')
-    plt.legend()
 
     idx = np.argsort(p_less_than_100)[::-1]
     p_gt_50 = 1-np.array(p_less_than_50)
     p_gt_100 = 1-np.array(p_less_than_100)
-
-    labels = np.array(labels)
     ind = np.arange(len(idx))  # the x locations for the groups
-    width = 0.35  # the width of the bars: can also be len(x) sequence
-    plt.figure()
+    width = 0.5  # the width of the bars: can also be len(x) sequence
+    plt.style.use('default')
+    fig, ax = plt.subplots()
     p1 = plt.bar(ind, p_gt_50[idx]-p_gt_100[idx],width, bottom=p_gt_100[idx], label='> 50', color='b')
     p2 = plt.bar(ind, p_gt_100[idx], width, label='> 100', color='r')
     plt.ylabel('Probability')
     plt.title('Probability of outbreak size')
-    plt.xticks(ind, labels[idx],rotation=0)
+    wrapped_labels = np.array(['\n'.join(textwrap.wrap(x.capitalize(),20)) for x in scenarios.keys()])
+    plt.xticks(ind, wrapped_labels[idx],rotation=0)
     plt.legend()
     plt.show()
+    fig.set_size_inches(16, 7)
+    fig.savefig('probability_bars.png', bbox_inches='tight', dpi=300, transparent=False)
 
     # Boxplot of infection size
     records = []
@@ -147,27 +146,11 @@ if __name__ == '__main__': # need this to run in parallel on windows
     data = []
     for scen in scenarios.keys():
         data.append(df.loc[scen,'Infections'].values)
-    fig4, ax4 = plt.subplots()
-    ax4.boxplot(data, showfliers=False)
-    plt.xticks(1+np.arange(len(scenarios)), list(scenarios.keys()))
-    plt.title('Infection size after 30 days')
-
-    # Doubling time plots - it looks a bit noisy though
-
-    data = []
-    for scen in scenarios.keys():
-        data.append(df.loc[scen,'Doubling time'].values)
-    fig4, ax4 = plt.subplots()
-    plt.xticks(1+np.arange(len(scenarios)), list(scenarios.keys()))
-    ax4.boxplot(data, showfliers=False)
-
-
-
     fig, ax = plt.subplots()
-    for scen_name in scenarios.keys():
-        vals = np.array([x.results['doubling_time'][-21:-7].mean() for x in sims[scen_name]])
-        print(f'{scen_name}: {vals.mean()}')
-        x,y = positive_kde(vals)
-        h = plt.plot(x, y, label=scen_name)[0]
-    plt.title('Doubling time 7-14 days after initial infection')
-    plt.legend()
+    ax.boxplot(data, showfliers=False)
+    wrapped_labels = np.array(['\n'.join(textwrap.wrap(x.capitalize(),20)) for x in scenarios.keys()])
+
+    plt.xticks(1+np.arange(len(scenarios)), wrapped_labels)
+    plt.title('Infection size after 30 days')
+    fig.set_size_inches(16, 7)
+    fig.savefig('infection_size.png', bbox_inches='tight', dpi=300, transparent=False)
