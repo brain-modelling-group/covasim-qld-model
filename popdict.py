@@ -24,13 +24,9 @@ def get_household_heads(age_dist, n_households):
 
 
 
+def get_popdict(household_dist, age_dist, pop_size):
+    n_households = get_numhouseholds(household_dist, pop_size)
+    household_heads = get_household_heads(age_dist, n_households)
 
-# def read_sex(databook):
-#     sex = databook.parse('age_sex')
-#     sex['frac_male'] = sex['Male'] / (sex['Male'] + sex['Female'])
-#     sex['frac_male'] = sex['frac_male'].fillna(0.5)  # if 0, replace with 0.5
-#
+    return
 
-class PopulationData:
-    def __init__(self):
-        self.foo = None
