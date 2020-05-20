@@ -5,12 +5,14 @@ import covasim as cv
 import utils, load_parameters, load_pop, policy_changes, os, plot_scenarios
 dirname = os.path.dirname(os.path.abspath(__file__))
 import load_parameters_int, load_pop_int
+import tqdm
+import pandas as pd
 
 if __name__ == '__main__': # need this to run in parallel on windows
     # What to do
     todo = ['loaddata',
             'gen_pop',
-            'gen_results', # Re-run the simulations, otherwise load pre-existing results
+            # 'gen_results', # Re-run the simulations, otherwise load pre-existing results
             ]
 
     for_powerpoint = False
@@ -74,103 +76,98 @@ if __name__ == '__main__': # need this to run in parallel on windows
     for scenario in scenarios.values():
         scenario['pars']['interventions'].append(utils.SeedInfection({61:1}))
 
-    scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
+
     if 'gen_results' in todo:
-        scens.run(verbose=verbose, debug=False, par_args={'ncpus':ncpus})
-        scens.save('susceptibility_dump')
+        for i, (scen_name, scen) in enumerate(scenarios.items()):
+            scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios={scen_name:scen})
+            scens.run(verbose=verbose, debug=False, par_args={'ncpus':ncpus})
+            scens.save(f'susceptibility_{i}.scen')
+        raise Exception('Results complete')
     else:
-        scens = cv.Scenarios.load('susceptibility_dump')
+        sims = {}
+        for i, (scen_name, scen) in enumerate(tqdm.tqdm(scenarios.items())):
+            scens = cv.Scenarios.load(f'susceptibility_{i}.scen')
+            sims[scen_name] = scens.sims[scen_name]
 
     # Susceptibility distribution plots
     import matplotlib.pyplot as plt
     import numpy as np
     import scipy.stats as stats
 
+    def positive_kde(vals,npts=100):
+        value_range = (vals.min(), vals.max())
+        kernel = stats.gaussian_kde(np.concatenate([vals.ravel(),-vals.ravel()]))
+        x = np.linspace(*value_range, npts)
+        y = 2*kernel(x)
+        return x,y
+
+    p_less_than_50 = []
     p_less_than_100 = []
     labels = []
 
     fig, ax = plt.subplots()
     for scen_name in scenarios.keys():
-        vals = np.array([x.results['cum_infections'][-1] for x in scens.sims[scen_name]])
-        value_range = (vals.min(), vals.max())
-        kernel = stats.gaussian_kde(vals.ravel())
+        vals = np.array([x.results['cum_infections'][-1] for x in sims[scen_name]])
+        p_less_than_50.append(sum(vals<50)/len(vals))
         p_less_than_100.append(sum(vals<100)/len(vals))
-        # p_less_than_100.append(kernel.integrate_box(0,100)) # This is OK only if the KDE is good
         labels.append(scen_name)
-        scale_up_range = 1.5  # Increase kernel density x range
-        span = np.average(value_range) + np.diff(value_range) * [-1, 1] / 2 * scale_up_range
-        x = np.linspace(*span, 100)
-        h = plt.plot(x, kernel(x), label=scen_name)[0]
-        color = h.get_color()
+        x,y = positive_kde(vals)
+        # y,x = np.histogram(vals,50)
+        # x = x[:-1]+np.diff(x)/2
+        h = plt.plot(x, y, label=scen_name)[0]
     plt.title('Number of infections after 30 days')
+    plt.ylabel('Probability density')
     plt.legend()
 
     idx = np.argsort(p_less_than_100)[::-1]
-    p_less_than_100 = np.array(p_less_than_100)
+    p_gt_50 = 1-np.array(p_less_than_50)
+    p_gt_100 = 1-np.array(p_less_than_100)
+
     labels = np.array(labels)
     ind = np.arange(len(idx))  # the x locations for the groups
     width = 0.35  # the width of the bars: can also be len(x) sequence
     plt.figure()
-    # p1 = plt.bar(ind, p_less_than_100[idx], width, label='< 100', color='b')
-    p2 = plt.bar(ind, (1-p_less_than_100[idx]), width, label='> 100', color='r')
+    p1 = plt.bar(ind, p_gt_50[idx]-p_gt_100[idx],width, bottom=p_gt_100[idx], label='> 50', color='b')
+    p2 = plt.bar(ind, p_gt_100[idx], width, label='> 100', color='r')
     plt.ylabel('Probability')
-    plt.title('Probability of outbreak exceeding 100 people after 30 days')
-    plt.xticks(ind, labels[idx])
+    plt.title('Probability of outbreak size')
+    plt.xticks(ind, labels[idx],rotation=0)
+    plt.legend()
     plt.show()
 
-    # R_eff is quite noisy, maybe the algorithm could be changed
-    # fig, ax = plt.subplots()
-    # for scen_name in torun.keys():
-    #     if scen_name == 'baseline':
-    #         continue
-    #     vals = np.array([x.results['r_eff'][-21:-7].mean() for x in scens.sims[scen_name]])
-    #     value_range = (vals.min(), vals.max())
-    #     kernel = stats.gaussian_kde(vals.ravel())
-    #     scale_up_range = 1.5  # Increase kernel density x range
-    #     span = np.average(value_range) + np.diff(value_range) * [-1, 1] / 2 * scale_up_range
-    #     x = np.linspace(*span, 100)
-    #     h = plt.plot(x, kernel(x), label=scen_name)[0]
-    #     color = h.get_color()
-    # plt.title('R_eff 7-14 days after initial infection')
-    # plt.legend()
+    # Boxplot of infection size
+    records = []
+    for scen_name in scenarios.keys():
+        for sim in sims[scen_name]:
+            infections = sim.results['cum_infections'][-1]
+            doubling_time = sim.results['doubling_time'][-21:-7].mean()
+            records.append((scen_name,infections, doubling_time))
+    df = pd.DataFrame.from_records(records, columns=['Scenario','Infections','Doubling time'],index='Scenario')
+
+    data = []
+    for scen in scenarios.keys():
+        data.append(df.loc[scen,'Infections'].values)
+    fig4, ax4 = plt.subplots()
+    ax4.boxplot(data, showfliers=False)
+    plt.xticks(1+np.arange(len(scenarios)), list(scenarios.keys()))
+    plt.title('Infection size after 30 days')
+
+    # Doubling time plots - it looks a bit noisy though
+
+    data = []
+    for scen in scenarios.keys():
+        data.append(df.loc[scen,'Doubling time'].values)
+    fig4, ax4 = plt.subplots()
+    plt.xticks(1+np.arange(len(scenarios)), list(scenarios.keys()))
+    ax4.boxplot(data, showfliers=False)
+
+
 
     fig, ax = plt.subplots()
     for scen_name in scenarios.keys():
-        vals = np.array([x.results['doubling_time'][-21:-7].mean() for x in scens.sims[scen_name]])
+        vals = np.array([x.results['doubling_time'][-21:-7].mean() for x in sims[scen_name]])
         print(f'{scen_name}: {vals.mean()}')
-        value_range = (vals.min(), vals.max())
-        kernel = stats.gaussian_kde(vals.ravel())
-        scale_up_range = 1.5  # Increase kernel density x range
-        span = np.average(value_range) + np.diff(value_range) * [-1, 1] / 2 * scale_up_range
-        x = np.linspace(*span, 100)
-        h = plt.plot(x, kernel(x), label=scen_name)[0]
-        color = h.get_color()
+        x,y = positive_kde(vals)
+        h = plt.plot(x, y, label=scen_name)[0]
     plt.title('Doubling time 7-14 days after initial infection')
     plt.legend()
-
-
-    # Just to check that a full exponential fit gives comparable results - it does
-    #
-    # def fit_doubling_time(sim):
-    #     log_y = np.log(sim.results['cum_infections'][-21:-7])
-    #     x = np.arange(0, len(log_y))
-    #     coefs = np.polyfit(x, log_y, 1)
-    #     doubling_time = np.log(2)/coefs[0]
-    #     return doubling_time
-    #
-    # fig, ax = plt.subplots()
-    # for scen_name in torun.keys():
-    #     if scen_name == 'baseline':
-    #         continue
-    #     vals = np.array(list(map(fit_doubling_time, scens.sims[scen_name])))
-    #     print(f'{scen_name}: {vals.mean()}')
-    #
-    #     value_range = (vals.min(), vals.max())
-    #     kernel = stats.gaussian_kde(vals.ravel())
-    #     scale_up_range = 1.5  # Increase kernel density x range
-    #     span = np.average(value_range) + np.diff(value_range) * [-1, 1] / 2 * scale_up_range
-    #     x = np.linspace(*span, 100)
-    #     h = plt.plot(x, kernel(x), label=scen_name)[0]
-    #     color = h.get_color()
-    # plt.title('Doubling time (exponential fit) after initial infection')
-    # plt.legend()
