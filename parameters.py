@@ -1,3 +1,6 @@
+import data
+
+
 class Parameters:
     """
     The Parameters class is a container for the various types of parameters
@@ -49,3 +52,19 @@ class Parameters:
 
         self.metapars.update(new_metapars)
         return
+
+
+def setup_params(databook, setting, epidata_loc):
+    """Read in the required parameter types and put in container
+    :return a Parameters container object"""
+    pars, metapars, extrapars, layerchars = data.read_params(databook)
+    imported_cases, daily_tests = data.read_tests_imported(databook)
+    params = Parameters(setting=setting,
+                        pars=pars,
+                        metapars=metapars,
+                        extrapars=extrapars,
+                        layerchars=layerchars,
+                        imported_cases=imported_cases,
+                        daily_tests=daily_tests,
+                        epidata_loc=epidata_loc)
+    return params
