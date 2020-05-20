@@ -131,6 +131,16 @@ def _get_layerchars(databook):
     return layerchars
 
 
+def read_tests_imported(databook):
+    """Reads in the imported cases & daily tests."""
+
+    epidata = databook.parse('epi_data')
+    imported_cases = epidata['daily_imported_cases'].to_numpy()
+    imported_cases = imported_cases[6:] # shift 7 days back to account for lag in reporting time
+    daily_tests = epidata['new_tests'].to_numpy()
+    return imported_cases, daily_tests
+
+
 def load_databook(root, file_name):
     file_path = os.path.join(root, 'data', file_name)
     file_path += '.xlsx'
