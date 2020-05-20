@@ -79,7 +79,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
 
     if 'gen_results' in todo:
         for i, (scen_name, scen) in enumerate(scenarios.items()):
-            scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios={scen_name:scen})
+            scens = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios={scen_name:scen})
             scens.run(verbose=verbose, debug=False, par_args={'ncpus':ncpus})
             scens.save(f'susceptibility_{i}.scen')
         raise Exception('Results complete')

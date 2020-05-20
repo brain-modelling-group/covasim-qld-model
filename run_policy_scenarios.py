@@ -67,7 +67,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     #fig = scenario_policies['Cafes/restaurants open'].plot_gantt(max_time=pars['n_days'], start_date=pars['start_day'], pretty_labels=labels)
     #fig.show()
 
-    scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
+    scens = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose, debug=False)
 
 

@@ -110,7 +110,7 @@ scenarios['Fullrelax'] = {
 baseline_policies.plot_gantt()
 relax_all_policies.plot_gantt()
 
-scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars = metapars, scenarios=scenarios)
+scens = cv.Scenarios(sim=sim, basepars=pars, metapars = metapars, scenarios=scenarios)
 scens.run(verbose=verbose, debug=True)
 to_plot1 = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
 fig_args = dict(figsize=(8, 8))

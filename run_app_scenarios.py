@@ -75,7 +75,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         scenarios = {**scenarios, **scenarios1}
 
 
-    scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
+    scens = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios=scenarios)
     scens.run(verbose=verbose)
 
     if 'doplot_indiv' in todo:

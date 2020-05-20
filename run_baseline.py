@@ -51,7 +51,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     # Set up a baseline scenario that includes all policy changes to date
     base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars, popdict)
 
-    scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=base_scenarios)
+    scens = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios=base_scenarios)
     scens.run(verbose=verbose)
 
     # Configure plotting

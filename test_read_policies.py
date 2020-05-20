@@ -119,7 +119,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     for run in pols_to_relax:
         scenarios = sc.dcp(base_scenarios)
         scenarios[run] = relax_scenarios[run]
-        scens = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
+        scens = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios=scenarios)
         scens.run(verbose=verbose)
 
         do_show, do_save = ('showplot' in todo), ('saveplot' in todo)

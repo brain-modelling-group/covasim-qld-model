@@ -66,7 +66,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
     torun['comparison']['Social gatherings <10 (25% transmission risk relative to households)']['replace']['outdoor2'] = {'replacements': ['outdoor10'],'dates': [extra_pars['relax_day']]}
     scenarios, scenario_policies = policy_changes.create_scens(torun['comparison'], policies, baseline_policies, base_scenarios,pars, extra_pars, popdict)
     school_scens = {}
-    school_scens['base'] = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios)
+    school_scens['base'] = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios=scenarios)
     school_scens['base'].run(verbose=verbose)
     plot_scens = sc.dcp(school_scens['base'])
     for i, cov in enumerate(cov_values):
@@ -76,7 +76,7 @@ if __name__ == '__main__': # need this to run in parallel on windows
         torun['School transmission risk relative to household = '+str(round(100*cov))]['School (transmission rel. household = ' + str(round(100*cov)) + '%)']['replace']['communication'] = {'replacements': ['comm_relax'],'dates': [extra_pars['relax_day']]}
         torun['School transmission risk relative to household = '+str(round(100*cov))]['School (transmission rel. household = ' + str(round(100*cov)) + '%)']['turn_off'] = policy
         scenarios1, scenario_policies1 = policy_changes.create_scens(torun['School transmission risk relative to household = '+str(round(100*cov))], policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
-        school_scens[i] = cv.Scenarios(sim=sim, basepars=sim.pars, metapars=metapars, scenarios=scenarios1)
+        school_scens[i] = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios=scenarios1)
         school_scens[i].run(verbose=verbose)
         plot_scens.results['cum_infections'].update(school_scens[i].results['cum_infections'])
 
