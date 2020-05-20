@@ -3,7 +3,7 @@ import numpy as np
 
 def get_numhouseholds(household_dist, pop_size):
     """Calculates the number of households we need to create to meet the population size"""
-    n_people = household_dist.index * household_dist  # n_people = household_size * n_households
+    n_people = sum(household_dist.index * household_dist)  # n_people = household_size * n_households
     household_percent = household_dist / n_people
     n_households = (pop_size * household_percent).round().astype(int)
     n_households[1] += pop_size - sum(n_households * n_households.index)  # adjust single-person households to fill the gap
