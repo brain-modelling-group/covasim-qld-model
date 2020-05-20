@@ -74,8 +74,6 @@ def plot_scenarios(scenario_number, extra_pars):
                                                            'dates': [extra_pars['relax_day']]}
     torun1['Entertainment']['turn_off'] = {'off_pols': ['entertainment'],
                                      'dates': [extra_pars['relax_day']]}
-    torun1['Full relax'] = {}
-
     scenarios['1'] = torun1
 
     torun2 = {}
