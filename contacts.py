@@ -61,7 +61,7 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
         return source, target
     else:
         contacts = collections.defaultdict(list)
-        for s,t in zip(source, target):
+        for s, t in zip(source, target):
             contacts[s].append(t)
         contacts = {p:contacts[p] if p in contacts else list() for p in include_inds}
         return contacts
@@ -85,7 +85,12 @@ def make_hcontacts(n_households, pop_size, household_heads, uids, mixing_matrix,
 
 def make_scontacts(uids, ages, s_contacts):
     """Create school contacts, with children of each age clustered in groups"""
-    class_cl  = cl.make_sclusters(uids, ages, s_contacts)
+    class_cl = cl.make_sclusters(uids, ages, s_contacts)
     class_co = clusters_to_contacts(class_cl)
     return class_co
 
+
+def make_wcontacts(uids, ages, w_contacts):
+    work_cl = cl.make_wclusters(uids, ages, w_contacts)
+    work_co = clusters_to_contacts(work_cl)
+    return work_co

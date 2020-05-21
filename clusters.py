@@ -100,3 +100,10 @@ def make_sclusters(uids, ages, s_contacts):
             classroom_clusters[i] += adult_uid
 
     return classroom_clusters
+
+
+def make_wclusters(uids, ages, w_contacts):
+    work_idx = np.logical_and(ages > 18, ages <= 65)
+    work_uids = uids[work_idx]
+    workplace_clusters = create_clustering(work_uids, w_contacts)
+    return workplace_clusters
