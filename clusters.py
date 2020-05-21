@@ -45,3 +45,38 @@ def sample_household_cluster(mixing_matrix, bin_lower, bin_upper, reference_age,
 
     return np.array(ages)
 
+
+def make_household_clusters(n_households, pop_size, household_heads, mixing_matrix, age_l, age_u):
+    """
+
+    :param n_households:
+    :param pop_size:
+    :param household_heads:
+    :param mixing_matrix:
+    :param age_l:
+    :param age_u:
+    :return:
+    """
+
+    h_clusters = []
+    h_ages = np.zeros(pop_size, dtype=int)
+    h_complete = 0
+    p_complete = 0
+
+    for h_size, h_num in n_households.iteritems():
+        for household in range(h_num):
+            head = household_heads[h_complete]
+
+            household_ages = sample_household_cluster(mixing_matrix,
+                                                      age_l,
+                                                      age_u,
+                                                      head,
+                                                      h_size)
+            h_ages[p_complete:p_complete+h_size] = household_ages
+
+            h_ids = np.arange(start=p_complete, stop=p_complete+h_size).tolist()
+            h_clusters.append(h_ids)
+
+            h_complete += 1
+            p_complete += h_size
+    return h_clusters, h_ages
