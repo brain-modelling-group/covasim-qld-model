@@ -35,16 +35,28 @@ def get_popdict(household_dist, age_dist, pop_size, mixing_matrix, age_l, age_u,
     # household contacts
     n_households = get_numhouseholds(household_dist, pop_size)
     household_heads = get_household_heads(age_dist, n_households)
-    h_contacts, ages = co.make_hcontacts(n_households, pop_size, household_heads, uids, mixing_matrix, age_l, age_u)
+    h_contacts, ages = co.make_hcontacts(n_households,
+                                         pop_size,
+                                         household_heads,
+                                         uids,
+                                         mixing_matrix,
+                                         age_l,
+                                         age_u)
 
     # school contacts
-    s_contacts = co.make_scontacts(uids, ages, contact_no['S'])
+    social_no = contact_no['S']
+    s_contacts = co.make_scontacts(uids, ages, social_no)
 
     # workplace contacts
-    w_contacts = co.make_wcontacts(uids, ages, contact_no['W'])
+    work_no = contact_no['W']
+    w_contacts = co.make_wcontacts(uids, ages, work_no)
 
-    # random community matrices
-    
+    # random community contacts
+    com_no = contact_no['C']
+    c_contacts = co.random_contacts(ages, com_no)
+
+
+
 
 
     return
