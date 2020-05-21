@@ -15,6 +15,12 @@ def setup(root, file_name, setting, epidata_loc='epi_data'):
     # get mixing matrix
     mixing_matrix, bin_lower, bin_upper = data.read_mixing_matrix(databook)
 
-    # popdict.get_popdict()
+    popdict.get_popdict(household_dist,
+                        age_dist,
+                        params.pars['pop_size'],
+                        mixing_matrix,
+                        bin_lower,
+                        bin_upper,
+                        params.pars['contacts'])
 
     return params
