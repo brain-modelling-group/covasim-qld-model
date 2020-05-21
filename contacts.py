@@ -2,6 +2,7 @@ import collections
 import covasim.defaults as cvd
 import covasim.utils as cvu
 import numpy as np
+import clusters as cl
 
 
 def clusters_to_contacts(clusters):
@@ -64,3 +65,19 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
             contacts[s].append(t)
         contacts = {p:contacts[p] if p in contacts else list() for p in include_inds}
         return contacts
+
+
+def make_hcontacts(n_households, pop_size, household_heads, mixing_matrix, age_l, age_u):
+    """
+
+    :param n_households:
+    :param pop_size:
+    :param household_heads:
+    :param mixing_matrix:
+    :param lb:
+    :param ub:
+    :return:
+    """
+    h_clusters, h_ages = cl.make_household_clusters(n_households, pop_size, household_heads, mixing_matrix, age_l, age_u)
+    h_contacts = clusters_to_contacts(h_clusters)
+    return h_contacts
