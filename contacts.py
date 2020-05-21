@@ -67,7 +67,7 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
         return contacts
 
 
-def make_hcontacts(n_households, pop_size, household_heads, mixing_matrix, age_l, age_u):
+def make_hcontacts(n_households, pop_size, household_heads, uids, mixing_matrix, age_l, age_u):
     """
 
     :param n_households:
@@ -78,6 +78,15 @@ def make_hcontacts(n_households, pop_size, household_heads, mixing_matrix, age_l
     :param ub:
     :return:
     """
-    h_clusters, h_ages = cl.make_household_clusters(n_households, pop_size, household_heads, mixing_matrix, age_l, age_u)
+    h_clusters, h_ages = cl.make_household_clusters(n_households, pop_size, household_heads, uids, mixing_matrix, age_l, age_u)
     h_contacts = clusters_to_contacts(h_clusters)
-    return h_contacts
+    return h_contacts, h_ages
+
+
+def make_scontacts(uids, h_ages, contact_no):
+    """Create school contacts, with children of each age clustered in groups"""
+    # get the UIDs of the
+    school_ages = np.arange(start=5, stop=18)
+
+    school_children = uids[school_ages]
+
