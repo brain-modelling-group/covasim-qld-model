@@ -83,10 +83,9 @@ def make_hcontacts(n_households, pop_size, household_heads, uids, mixing_matrix,
     return h_contacts, h_ages
 
 
-def make_scontacts(uids, h_ages, contact_no):
+def make_scontacts(uids, ages, s_contacts):
     """Create school contacts, with children of each age clustered in groups"""
-    # get the UIDs of the
-    school_ages = np.arange(start=5, stop=18)
-
-    school_children = uids[school_ages]
+    class_cl  = cl.make_sclusters(uids, ages, s_contacts)
+    class_co = clusters_to_contacts(class_cl)
+    return class_co
 
