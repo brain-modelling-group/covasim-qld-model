@@ -1,4 +1,5 @@
 import numpy as np
+import contacts as co
 
 
 def get_numhouseholds(household_dist, pop_size):
@@ -11,7 +12,7 @@ def get_numhouseholds(household_dist, pop_size):
 
 
 def get_household_heads(age_dist, n_households):
-    """Selects the ages of the household heads by randomly choosing selecting from the available ages"""
+    """Selects the ages of the household heads by randomly selecting from the available ages"""
     # prevent anyone under the age of 18 being chosen
     age_dist.iloc[0:18] = 0
     # decrease probability of someone aged 18-28 being chosen
@@ -23,10 +24,15 @@ def get_household_heads(age_dist, n_households):
     return household_heads
 
 
+def get_uids(pop_size):
+    people_id = np.arange(start=0, stop=pop_size, step=1)
+    return people_id
 
-def get_popdict(household_dist, age_dist, pop_size):
+
+def get_popdict(household_dist, age_dist, pop_size, mixing_matrix, age_l, age_u, contact_no):
     n_households = get_numhouseholds(household_dist, pop_size)
+    uids = get_uids(pop_size)
     household_heads = get_household_heads(age_dist, n_households)
-
+    h_contacts, ages = co.make_hcontacts(n_households, pop_size, household_heads, uids, mixing_matrix, age_l, age_u)
+    s_contacts = co.make_scontacts(uids, ages, contact_no['S'])
     return
-
