@@ -46,7 +46,7 @@ def sample_household_cluster(mixing_matrix, bin_lower, bin_upper, reference_age,
     return np.array(ages)
 
 
-def make_household_clusters(n_households, pop_size, household_heads, mixing_matrix, age_l, age_u):
+def make_household_clusters(n_households, pop_size, household_heads, uids, mixing_matrix, age_l, age_u):
     """
 
     :param n_households:
@@ -56,27 +56,32 @@ def make_household_clusters(n_households, pop_size, household_heads, mixing_matr
     :param age_l:
     :param age_u:
     :return:
+        h_clusters: a list of lists in which each sublist contains
+                    the IDs of the people who live in a specific household
+        ages: flattened array of ages, corresponding to the UID positions
     """
 
     h_clusters = []
-    h_ages = np.zeros(pop_size, dtype=int)
-    h_complete = 0
-    p_complete = 0
+    ages = np.zeros(pop_size, dtype=int)
+    h_added = 0
+    p_added = 0
 
     for h_size, h_num in n_households.iteritems():
         for household in range(h_num):
-            head = household_heads[h_complete]
-
+            head = household_heads[h_added]
+            # get ages of people in household
             household_ages = sample_household_cluster(mixing_matrix,
                                                       age_l,
                                                       age_u,
                                                       head,
                                                       h_size)
-            h_ages[p_complete:p_complete+h_size] = household_ages
-
-            h_ids = np.arange(start=p_complete, stop=p_complete+h_size).tolist()
+            # add ages to ages array
+            ub = p_added + h_size
+            ages[p_added:ub] = household_ages
+            # get associated UID that defines a household cluster
+            h_ids = uids[p_added:ub]
             h_clusters.append(h_ids)
-
-            h_complete += 1
-            p_complete += h_size
-    return h_clusters, h_ages
+            # increment sliding windows
+            h_added += 1
+            p_added += h_size
+    return h_clusters, ages
