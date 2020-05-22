@@ -1,4 +1,3 @@
-"""Class for storing and managing project data"""
 import covasim as cv
 import os
 import pandas as pd
@@ -31,13 +30,22 @@ def layerchar_keys():
     return keys
 
 
-def dynamic_layers():
+def _dynamic_layer_keys():
     """These are the layers that are re-generated at each time step since the contact networks are dynamic.
     Layers not in this list are treated as static contact networks"""
 
     layers = ['C', 'beach', 'entertainment',
               'cafe_restaurant', 'pub_bar', 'transport',
               'national_parks', 'public_parks', 'large_events']
+    return layers
+
+
+def default_layer_keys():
+    """
+    These are the standard layer keys: household (H), school (S), workplace (W) and community (C)
+    :return:
+    """
+    layers = ['H', 'S', 'W', 'C']
     return layers
 
 
@@ -106,8 +114,6 @@ def _get_extrapars(databook):
         else:
             warnings.warn(f'Extra-parameter key "{key}" not found in spreadsheet data')
 
-    extrapars['dynam_layer'] = dynamic_layers()  # currently not from spreadsheet
-
     return extrapars
 
 
@@ -129,6 +135,21 @@ def _get_layerchars(databook):
             warnings.warn(f'Layer characteristics key "{key}" not found in spreadsheet data')
 
     return layerchars
+
+
+def get_layer_keys(databook):
+    """
+    Get the names of custom layers
+    :param databook:
+    :return:
+    """
+    layers = databook.parse('layers', index_col=0)
+    allkeys = layers.index.tolist()
+    default_keys = default_layer_keys()
+    custom_keys = list(set(allkeys) - set(default_keys))  # remove custom keys
+    all_dynamic_keys = _dynamic_layer_keys()
+    dynamic_keys = list(set(all_dynamic_keys).intersection(allkeys))  # dynamic keys that are listed in spreadsheet
+    return default_keys, custom_keys, dynamic_keys
 
 
 # def read_sex(databook):

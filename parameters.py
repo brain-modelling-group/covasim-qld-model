@@ -25,7 +25,10 @@ class Parameters:
                  imported_cases=None,
                  daily_tests=None,
                  betavals=None,
-                 epidata_loc=None):
+                 epidata_loc=None,
+                 default_lkeys=None,
+                 custom_lkeys=None,
+                 dynamic_lkeys=None):
 
         self.setting = setting
         self.pars = pars
@@ -36,6 +39,9 @@ class Parameters:
         self.daily_test = daily_tests
         self.betavals = betavals
         self.epidata_loc = epidata_loc
+        self.default_lkeys = default_lkeys
+        self.custom_lkeys = custom_lkeys
+        self.dynamic_lkeys = dynamic_lkeys
 
     def update_pars(self, newpars):
         """Update values in self.pars with those in newpars"""
@@ -58,7 +64,9 @@ def setup_params(databook, setting, epidata_loc):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
     pars, metapars, extrapars, layerchars = data.read_params(databook)
+    default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)
     imported_cases, daily_tests = data.read_tests_imported(databook)
+
     params = Parameters(setting=setting,
                         pars=pars,
                         metapars=metapars,
@@ -66,5 +74,8 @@ def setup_params(databook, setting, epidata_loc):
                         layerchars=layerchars,
                         imported_cases=imported_cases,
                         daily_tests=daily_tests,
-                        epidata_loc=epidata_loc)
+                        epidata_loc=epidata_loc,
+                        default_lkeys=default_lkeys,
+                        custom_lkeys=custom_lkeys,
+                        dynamic_lkeys=dynamic_lkeys)
     return params
