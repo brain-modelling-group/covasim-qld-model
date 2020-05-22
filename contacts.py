@@ -67,18 +67,15 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
         return contacts
 
 
-def make_hcontacts(n_households, pop_size, household_heads, uids, mixing_matrix, age_l, age_u):
+def make_hcontacts(n_households, pop_size, household_heads, uids, contact_matrix):
     """
 
     :param n_households:
     :param pop_size:
     :param household_heads:
-    :param mixing_matrix:
-    :param lb:
-    :param ub:
     :return:
     """
-    h_clusters, h_ages = cl.make_household_clusters(n_households, pop_size, household_heads, uids, mixing_matrix, age_l, age_u)
+    h_clusters, h_ages = cl.make_household_clusters(n_households, pop_size, household_heads, uids, contact_matrix)
     h_contacts = clusters_to_contacts(h_clusters)
     return h_contacts, h_ages
 

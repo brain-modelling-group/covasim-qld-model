@@ -46,20 +46,20 @@ def sample_household_cluster(mixing_matrix, bin_lower, bin_upper, reference_age,
     return np.array(ages)
 
 
-def make_household_clusters(n_households, pop_size, household_heads, uids, mixing_matrix, age_l, age_u):
+def make_household_clusters(n_households, pop_size, household_heads, uids, contact_matrix):
     """
 
     :param n_households:
     :param pop_size:
     :param household_heads:
-    :param mixing_matrix:
-    :param age_l:
-    :param age_u:
     :return:
         h_clusters: a list of lists in which each sublist contains
                     the IDs of the people who live in a specific household
         ages: flattened array of ages, corresponding to the UID positions
     """
+    mixing_matrix = contact_matrix['matrix']
+    age_lb = contact_matrix['age_lb']
+    age_ub = contact_matrix['age_ub']
 
     h_clusters = []
     ages = np.zeros(pop_size, dtype=int)
@@ -71,8 +71,8 @@ def make_household_clusters(n_households, pop_size, household_heads, uids, mixin
             head = household_heads[h_added]
             # get ages of people in household
             household_ages = sample_household_cluster(mixing_matrix,
-                                                      age_l,
-                                                      age_u,
+                                                      age_lb,
+                                                      age_ub,
                                                       head,
                                                       h_size)
             # add ages to ages array

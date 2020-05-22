@@ -29,7 +29,13 @@ def get_uids(pop_size):
     return people_id
 
 
-def get_popdict(household_dist, age_dist, pop_size, mixing_matrix, age_l, age_u, contact_no):
+def get_popdict(params):
+    pop_size = params.pars['pop_size']
+    household_dist = params.household_dist
+    age_dist = params.age_dist
+    contact_matrix = params.contact_matrix
+    n_contacts = params.pars['contacts']
+
     uids = get_uids(pop_size)
 
     # household contacts
@@ -39,20 +45,18 @@ def get_popdict(household_dist, age_dist, pop_size, mixing_matrix, age_l, age_u,
                                          pop_size,
                                          household_heads,
                                          uids,
-                                         mixing_matrix,
-                                         age_l,
-                                         age_u)
+                                         contact_matrix)
 
     # school contacts
-    social_no = contact_no['S']
+    social_no = n_contacts['S']
     s_contacts = co.make_scontacts(uids, ages, social_no)
 
     # workplace contacts
-    work_no = contact_no['W']
+    work_no = n_contacts['W']
     w_contacts = co.make_wcontacts(uids, ages, work_no)
 
     # random community contacts
-    com_no = contact_no['C']
+    com_no = n_contacts['C']
     c_contacts = co.random_contacts(ages, com_no)
 
 
