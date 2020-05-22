@@ -30,6 +30,8 @@ def get_uids(pop_size):
 
 
 def get_popdict(params):
+    contacts = {}
+
     pop_size = params.pars['pop_size']
     household_dist = params.household_dist
     age_dist = params.age_dist
@@ -50,17 +52,26 @@ def get_popdict(params):
     # school contacts
     social_no = n_contacts['S']
     s_contacts = co.make_scontacts(uids, ages, social_no)
+    contacts.update(s_contacts)
 
     # workplace contacts
     work_no = n_contacts['W']
     w_contacts = co.make_wcontacts(uids, ages, work_no)
+    contacts.update(w_contacts)
 
     # random community contacts
     com_no = n_contacts['C']
     c_contacts = co.random_contacts(ages, com_no)
+    contacts.update(c_contacts)
 
+    # Custom layers: those that are not households, work, school or community
+    custom_lkeys = params.custom_lkeys
+    cluster_types = params.layerchars['cluster_type']
+    pop_proportion = params.layerchars['proportion']
+    age_lb = params.layerchars['age_lb'] # todo: potentially confusing with the age_up in the contact matrix
+    age_ub = params.layerchars['age_ub']
 
-
-
+    custom_contacts = co.make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, pop_proportion, age_lb, age_ub)
+    contacts.update(custom_contacts)
 
     return

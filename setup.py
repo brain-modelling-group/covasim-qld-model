@@ -8,4 +8,4 @@ def setup(root, file_name, setting, epidata_loc='epi_data'):
 
     popdict.get_popdict(params)
 
-    return params
+    return
