@@ -107,3 +107,15 @@ def make_wclusters(uids, ages, w_contacts):
     work_uids = uids[work_idx]
     workplace_clusters = create_clustering(work_uids, w_contacts)
     return workplace_clusters
+
+
+def make_custom_clusters(uids, pop_size, ages, custom_lkeys, pop_proportion, age_lb, age_ub):
+    for custom_key in custom_lkeys:
+        agel = age_lb[custom_key]
+        ageu = age_ub[custom_key]
+        n_people = int(pop_proportion[custom_key] * pop_size)
+        in_layer = np.logical_and(ages > agel, ages < ageu)
+        layer_id = uids[in_layer]
+        # sample with replacement so that we have enough people for the layer
+        layer_pop = np.random.choice(layer_id, size=n_people)
+    return layer_pop, in_layer
