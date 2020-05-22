@@ -66,9 +66,11 @@ class Parameters:
         return
 
 
-def setup_params(databook, setting, epidata_loc):
+def setup_params(root, file_name, setting, epidata_loc):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
+
+    databook = data.load_databook(root, file_name)
 
     # get the several parameter types & layer names
     pars, metapars, extrapars, layerchars = data.read_params(databook)
