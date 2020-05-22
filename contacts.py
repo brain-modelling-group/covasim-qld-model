@@ -130,3 +130,27 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
             contacts[s].append(t)
         contacts = {p: contacts[p] if p in contacts else list() for p in include_inds}
         return contacts
+
+
+def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, pop_proportion, age_lb, age_ub):
+    contacts = {}
+
+    for layer_key in custom_lkeys:
+        cl_type = cluster_types[layer_key]
+        num_contacts = n_contacts[layer_key]
+        custom_clusters, in_layer = cl.make_custom_clusters(uids, pop_size, ages, custom_lkeys, pop_proportion, age_lb, age_ub)
+        # handle the cluster types differently
+        if cl_type == 'complete':   # number of contacts not used for complete
+            contacts[layer_key] = clusters_to_contacts([custom_clusters])
+        elif cl_type == 'random':
+            contacts[layer_key] = random_contacts(in_layer, num_contacts)
+        elif cl_type == 'cluster':
+            in_layer_inds = np.where(in_layer)
+            clus = [cl.create_clustering(in_layer_inds, num_contacts)]
+            contacts[layer_key] = clusters_to_contacts(clus)
+        else:
+            raise Exception(f'Error: Unknown network structure: {cl_type}')
+
+    return contacts
+
+
