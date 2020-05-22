@@ -175,21 +175,26 @@ def read_tests_imported(databook):
     return imported_cases, daily_tests
 
 
-def read_mixing_matrix(databook):
+def read_contact_matrix(databook):
     """
     Load Prem et al. matrices then transform into a symmetric matrix
     :param databook:
     :return:
     """
+    contact_matrix = {}
     mixing_matrix0 = databook.parse(sheet_name='contact matrices-home', usecols=range(17), index_col=0)
     # make symmetric with ((rowi, colj) + (rowj, coli)) / 2
     mixing_matrix = mixing_matrix0.copy()
     for i in range(len(mixing_matrix0)):
         for j in range(len(mixing_matrix0)):
             mixing_matrix.values[i, j] = (mixing_matrix0.values[i, j] + mixing_matrix0.values[j, i]) / 2.0
-    bin_lower = [int(x.split('-')[0]) for x in mixing_matrix.index]  # lower age in bin
-    bin_upper = [int(x.split('-')[1]) for x in mixing_matrix.index]  # upper age in bin
-    return mixing_matrix, bin_lower, bin_upper
+    age_lb = [int(x.split('-')[0]) for x in mixing_matrix.index]  # lower age in bin
+    age_ub = [int(x.split('-')[1]) for x in mixing_matrix.index]  # upper age in bin
+
+    contact_matrix['matrix'] = mixing_matrix
+    contact_matrix['age_lb'] = age_lb
+    contact_matrix['age_ub'] = age_ub
+    return contact_matrix
 
 
 def load_databook(root, file_name):

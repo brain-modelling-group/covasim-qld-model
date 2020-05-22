@@ -22,6 +22,9 @@ class Parameters:
                  metapars=None,
                  extrapars=None,
                  layerchars=None,
+                 household_dist=None,
+                 age_dist=None,
+                 contact_matrix=None,
                  imported_cases=None,
                  daily_tests=None,
                  betavals=None,
@@ -35,6 +38,9 @@ class Parameters:
         self.metapars = metapars
         self.extrapars = extrapars
         self.layerchars = layerchars
+        self.household_dist = household_dist
+        self.age_dist = age_dist
+        self.contact_matrix = contact_matrix
         self.imported_cases = imported_cases
         self.daily_test = daily_tests
         self.betavals = betavals
@@ -63,15 +69,27 @@ class Parameters:
 def setup_params(databook, setting, epidata_loc):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
+
+    # get the several parameter types & layer names
     pars, metapars, extrapars, layerchars = data.read_params(databook)
     default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)
+
     imported_cases, daily_tests = data.read_tests_imported(databook)
+
+    # read in a store population-related data
+    age_dist, household_dist = data.read_popdata(databook)
+
+    # get mixing matrix & age brackets
+    contact_matrix = data.read_contact_matrix(databook)
 
     params = Parameters(setting=setting,
                         pars=pars,
                         metapars=metapars,
                         extrapars=extrapars,
                         layerchars=layerchars,
+                        household_dist=household_dist,
+                        age_dist=age_dist,
+                        contact_matrix=contact_matrix,
                         imported_cases=imported_cases,
                         daily_tests=daily_tests,
                         epidata_loc=epidata_loc,
