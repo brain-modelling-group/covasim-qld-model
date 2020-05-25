@@ -76,7 +76,13 @@ class Parameters:
         return
 
     def print_pars(self):
+        print("--- PARAMETERS ---")
         for key, value in sorted(self.pars.items()):
+            print(f'- {key}: {value}')
+
+    def print_metapars(self):
+        print("--- METAPARAMETERS ---")
+        for key, value in sorted(self.metapars.items()):
             print(f'- {key}: {value}')
 
 
