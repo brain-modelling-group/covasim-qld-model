@@ -139,7 +139,6 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
         num_contacts = n_contacts[layer_key]
         custom_clusters, in_layer = cl.make_custom_clusters(uids, pop_size, ages, custom_lkeys, pop_proportion, age_lb, age_ub)
         # handle the cluster types differently
-        print(layer_key)
         if cl_type == 'complete':   # number of contacts not used for complete clusters
             contacts[layer_key] = clusters_to_contacts([custom_clusters])
         elif cl_type == 'random':
