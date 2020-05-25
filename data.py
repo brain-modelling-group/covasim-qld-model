@@ -92,7 +92,6 @@ def _get_pars(databook):
 
 
 def _get_metapars():
-    # TODO: ignoring spreadsheet currently, should all be set in code
     metapars = cv.make_metapars()
     return metapars
 
