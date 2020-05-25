@@ -15,9 +15,11 @@ def get_popdict(params):
     return popdict
 
 
-def setup(root, file_name, setting, epidata_loc='epi_data'):
+def setup(root, file_name, setting, custom_pars=None, metapars=None, epidata_loc='epi_data'):
 
     params = parameters.setup_params(root, file_name, setting, epidata_loc)
+    params.update_pars(custom_pars)
+    params.update_metapars(metapars)
 
     popdict = get_popdict(params)
 
