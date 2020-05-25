@@ -141,7 +141,6 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
         # handle the cluster types differently
         print(layer_key)
         if cl_type == 'complete':   # number of contacts not used for complete clusters
-            # TODO: believe big slow-down when making complete pSport network, since 44 contacts per person.
             contacts[layer_key] = clusters_to_contacts([custom_clusters])
         elif cl_type == 'random':
             contacts[layer_key] = random_contacts(in_layer, num_contacts)
@@ -156,9 +155,7 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
 
 
 def convert_contacts(contacts, uids, all_lkeys):
-    # convert to structure compatible with Covasim
-    # iterate over all the layers, check if UID is a key, if not, add an empty array
-    # basically, want to remove UID being a key to being the index in outer_list
+    """ Convert contacts structure to be compatible with Covasim"""
     contacts_list = [None] * len(uids)
     for layer_key in all_lkeys:
         layer_contacts = contacts[layer_key]
