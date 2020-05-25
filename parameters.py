@@ -27,7 +27,7 @@ class Parameters:
                  contact_matrix=None,
                  imported_cases=None,
                  daily_tests=None,
-                 betavals=None,
+                 beta_vals=None,
                  epidata_loc=None,
                  all_lkeys=None,
                  default_lkeys=None,
@@ -44,7 +44,7 @@ class Parameters:
         self.contact_matrix = contact_matrix
         self.imported_cases = imported_cases
         self.daily_test = daily_tests
-        self.betavals = betavals
+        self.beta_vals = beta_vals
         self.epidata_loc = epidata_loc
         self.all_lkeys = all_lkeys
         self.default_lkeys = default_lkeys
@@ -53,16 +53,24 @@ class Parameters:
 
     def update_pars(self, newpars):
         """Update values in self.pars with those in newpars"""
+        if newpars is None:
+            return
 
-        if set(newpars.keys()) != set(self.pars.keys()):
-            print("Warning: new keys and values will be added to the existing parameters dictionary")
+        for key in newpars.keys():
+            if self.pars.get(key) is None:
+                print(f'Warning: new key "{key}" will be added to existing parameters dictionary')
 
         self.pars.update(newpars)
         return
 
     def update_metapars(self, new_metapars):
-        if set(new_metapars.keys()) != set(self.metapars.keys()):
-            print("Warning: new keys and values will be added to the existing meta-parameters dictionary")
+        """Update values in self.metapars with those in new_metapars"""
+        if new_metapars is None:
+            return
+
+        for key in new_metapars.keys():
+            if self.metapars.get(key) is None:
+                print(f'Warning: new key "{key}" will be added to existing meta-parameters dictionary')
 
         self.metapars.update(new_metapars)
         return
