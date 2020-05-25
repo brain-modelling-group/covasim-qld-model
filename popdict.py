@@ -48,21 +48,25 @@ def get_popdict(params):
                                          household_heads,
                                          uids,
                                          contact_matrix)
+    contacts['H'] = h_contacts
 
     # school contacts
-    social_no = n_contacts['S']
+    key = 'S'
+    social_no = n_contacts[key]
     s_contacts = co.make_scontacts(uids, ages, social_no)
-    contacts.update(s_contacts)
+    contacts[key] = s_contacts
 
     # workplace contacts
-    work_no = n_contacts['W']
+    key = 'W'
+    work_no = n_contacts[key]
     w_contacts = co.make_wcontacts(uids, ages, work_no)
-    contacts.update(w_contacts)
+    contacts[key] = w_contacts
 
     # random community contacts
-    com_no = n_contacts['C']
+    key = 'C'
+    com_no = n_contacts[key]
     c_contacts = co.random_contacts(ages, com_no)
-    contacts.update(c_contacts)
+    contacts[key] = c_contacts
 
     # Custom layers: those that are not households, work, school or community
     custom_lkeys = params.custom_lkeys
