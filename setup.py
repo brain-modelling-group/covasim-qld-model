@@ -16,9 +16,9 @@ def get_popdict(params):
     return popdict
 
 
-def setup(root, file_name, setting, pars=None, metapars=None, epidata_loc='epi_data'):
+def setup(root, databook_name, epidata_name, setting, pars=None, metapars=None):
 
-    params = parameters.setup_params(root, file_name, setting, metapars, epidata_loc)
+    params = parameters.setup_params(root, databook_name, setting, metapars)
     params.update_pars(pars)
 
     popdict = get_popdict(params)

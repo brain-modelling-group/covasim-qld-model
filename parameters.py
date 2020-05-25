@@ -28,7 +28,6 @@ class Parameters:
                  imported_cases=None,
                  daily_tests=None,
                  beta_vals=None,
-                 epidata_loc=None,
                  all_lkeys=None,
                  default_lkeys=None,
                  custom_lkeys=None,
@@ -45,7 +44,6 @@ class Parameters:
         self.imported_cases = imported_cases
         self.daily_test = daily_tests
         self.beta_vals = beta_vals
-        self.epidata_loc = epidata_loc
         self.all_lkeys = all_lkeys
         self.default_lkeys = default_lkeys
         self.custom_lkeys = custom_lkeys
@@ -88,7 +86,7 @@ class Parameters:
             print(f'- {key}: {value}')
 
 
-def setup_params(root, file_name, setting, metapars, epidata_loc):
+def setup_params(root, file_name, setting, metapars):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
 
@@ -116,7 +114,6 @@ def setup_params(root, file_name, setting, metapars, epidata_loc):
                         contact_matrix=contact_matrix,
                         imported_cases=imported_cases,
                         daily_tests=daily_tests,
-                        epidata_loc=epidata_loc,
                         all_lkeys=all_lkeys,
                         default_lkeys=default_lkeys,
                         custom_lkeys=custom_lkeys,
