@@ -75,6 +75,10 @@ class Parameters:
         self.metapars.update(new_metapars)
         return
 
+    def print_pars(self):
+        for key, value in sorted(self.pars.items()):
+            print(f'- {key}: {value}')
+
 
 def setup_params(root, file_name, setting, epidata_loc):
     """Read in the required parameter types and put in container
