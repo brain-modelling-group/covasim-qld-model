@@ -149,7 +149,7 @@ def get_layer_keys(databook):
     custom_keys = list(set(allkeys) - set(default_keys))  # remove custom keys
     all_dynamic_keys = _dynamic_layer_keys()
     dynamic_keys = list(set(all_dynamic_keys).intersection(allkeys))  # dynamic keys that are listed in spreadsheet
-    return default_keys, custom_keys, dynamic_keys
+    return allkeys, default_keys, custom_keys, dynamic_keys
 
 
 # def read_sex(databook):

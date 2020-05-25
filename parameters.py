@@ -29,6 +29,7 @@ class Parameters:
                  daily_tests=None,
                  betavals=None,
                  epidata_loc=None,
+                 all_lkeys=None,
                  default_lkeys=None,
                  custom_lkeys=None,
                  dynamic_lkeys=None):
@@ -45,6 +46,7 @@ class Parameters:
         self.daily_test = daily_tests
         self.betavals = betavals
         self.epidata_loc = epidata_loc
+        self.all_lkeys = all_lkeys
         self.default_lkeys = default_lkeys
         self.custom_lkeys = custom_lkeys
         self.dynamic_lkeys = dynamic_lkeys
@@ -74,7 +76,7 @@ def setup_params(root, file_name, setting, epidata_loc):
 
     # get the several parameter types & layer names
     pars, metapars, extrapars, layerchars = data.read_params(databook)
-    default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)
+    all_lkeys, default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)
 
     imported_cases, daily_tests = data.read_tests_imported(databook)
 
@@ -95,6 +97,7 @@ def setup_params(root, file_name, setting, epidata_loc):
                         imported_cases=imported_cases,
                         daily_tests=daily_tests,
                         epidata_loc=epidata_loc,
+                        all_lkeys=all_lkeys,
                         default_lkeys=default_lkeys,
                         custom_lkeys=custom_lkeys,
                         dynamic_lkeys=dynamic_lkeys)
