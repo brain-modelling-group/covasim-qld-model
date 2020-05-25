@@ -1,3 +1,4 @@
+import covasim as cv
 import contacts as co
 import parameters
 
@@ -17,9 +18,8 @@ def get_popdict(params):
 
 def setup(root, file_name, setting, pars=None, metapars=None, epidata_loc='epi_data'):
 
-    params = parameters.setup_params(root, file_name, setting, epidata_loc)
+    params = parameters.setup_params(root, file_name, setting, metapars, epidata_loc)
     params.update_pars(pars)
-    params.update_metapars(metapars)
 
     popdict = get_popdict(params)
 

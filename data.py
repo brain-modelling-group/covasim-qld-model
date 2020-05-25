@@ -1,4 +1,3 @@
-import covasim as cv
 import os
 import pandas as pd
 import sciris as sc
@@ -87,13 +86,7 @@ def _get_pars(databook):
         else:
             warnings.warn(f'Parameter key "{key}" not found in spreadsheet data')
 
-    pars = cv.make_pars(**pars)
     return pars
-
-
-def _get_metapars():
-    metapars = cv.make_metapars()
-    return metapars
 
 
 def _get_extrapars(databook):
@@ -209,7 +202,6 @@ def read_params(databook):
     """
 
     pars = _get_pars(databook)
-    metapars = _get_metapars()
     extrapars = _get_extrapars(databook)
     layerchars = _get_layerchars(databook)
-    return pars, metapars, extrapars, layerchars
+    return pars, extrapars, layerchars

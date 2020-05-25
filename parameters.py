@@ -51,26 +51,28 @@ class Parameters:
         self.custom_lkeys = custom_lkeys
         self.dynamic_lkeys = dynamic_lkeys
 
-    def update_pars(self, newpars):
+    def update_pars(self, newpars, verbose=1):
         """Update values in self.pars with those in newpars"""
         if newpars is None:
             return
 
-        for key in newpars.keys():
-            if self.pars.get(key) is None:
-                print(f'Warning: new key "{key}" will be added to existing parameters dictionary')
+        if verbose:
+            print("The following will be updated in the parameters dictionary...")
+            for key in newpars.keys():
+                print(key)
 
         self.pars.update(newpars)
         return
 
-    def update_metapars(self, new_metapars):
+    def update_metapars(self, new_metapars, verbose=1):
         """Update values in self.metapars with those in new_metapars"""
         if new_metapars is None:
             return
 
-        for key in new_metapars.keys():
-            if self.metapars.get(key) is None:
-                print(f'Warning: new key "{key}" will be added to existing meta-parameters dictionary')
+        if verbose:
+            print("The following will be updated in the meta-parameters dictionary...")
+            for key in new_metapars.keys():
+                print(key)
 
         self.metapars.update(new_metapars)
         return
@@ -86,14 +88,14 @@ class Parameters:
             print(f'- {key}: {value}')
 
 
-def setup_params(root, file_name, setting, epidata_loc):
+def setup_params(root, file_name, setting, metapars, epidata_loc):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
 
     databook = data.load_databook(root, file_name)
 
     # get the several parameter types & layer names
-    pars, metapars, extrapars, layerchars = data.read_params(databook)
+    pars, extrapars, layerchars = data.read_params(databook)
     all_lkeys, default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)
 
     imported_cases, daily_tests = data.read_tests_imported(databook)
