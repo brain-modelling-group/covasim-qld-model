@@ -22,6 +22,7 @@ class Parameters:
                  metapars=None,
                  extrapars=None,
                  layerchars=None,
+                 policies=None,
                  household_dist=None,
                  age_dist=None,
                  contact_matrix=None,
@@ -38,6 +39,7 @@ class Parameters:
         self.metapars = metapars
         self.extrapars = extrapars
         self.layerchars = layerchars
+        self.policies = policies
         self.household_dist = household_dist
         self.age_dist = age_dist
         self.contact_matrix = contact_matrix
@@ -96,7 +98,9 @@ def setup_params(root, file_name, setting, metapars):
     pars, extrapars, layerchars = data.read_params(databook)
     all_lkeys, default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)
 
-    imported_cases, daily_tests = data.read_tests_imported(databook)
+    policies = data.read_policies(databook, all_lkeys)
+
+    imported_cases, daily_tests = [None, None]  # data.read_tests_imported(databook)  # TODO: fix
 
     # read in a store population-related data
     age_dist, household_dist = data.read_popdata(databook)
@@ -109,6 +113,7 @@ def setup_params(root, file_name, setting, metapars):
                         metapars=metapars,
                         extrapars=extrapars,
                         layerchars=layerchars,
+                        policies=policies,
                         household_dist=household_dist,
                         age_dist=age_dist,
                         contact_matrix=contact_matrix,
