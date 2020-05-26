@@ -1,3 +1,4 @@
+import math
 import os
 import pandas as pd
 import sciris as sc
@@ -53,7 +54,7 @@ def _get_ndays(start_day, end_day):
     # get start and end date
     start_day = sc.readdate(str(start_day))
     end_day = sc.readdate(str(end_day))
-    n_days = end_day - start_day
+    n_days = (end_day - start_day).days
     return n_days
 
 
@@ -127,6 +128,63 @@ def _get_layerchars(databook):
             warnings.warn(f'Layer characteristics key "{key}" not found in spreadsheet data')
 
     return layerchars
+
+
+def read_policies(databook, all_lkeys):
+    """
+    Read in the policies sheet
+    :param databook:
+    :return:
+    """
+    policies = {}
+    policies['beta_policies'] = {}
+    policies['import_policies'] = {}
+    policies['clip_policies'] = {}
+    policies['policy_dates'] = {}
+
+    pols = databook.parse('policies-lockdown', index_col=0, skiprows=1)
+    start_sim = databook.parse("other_par", index_col=0)['value']['start_day']
+    for pol_name, row in pols.iterrows():
+
+        # get the number of days til policy starts and ends (relative to simulation start)
+        start_pol = row['start_date']
+        end_pol = row['end_date']
+        if not pd.isna(start_pol):
+            days_to_start = _get_ndays(start_sim, start_pol)
+            n_days = [days_to_start]
+            if not pd.isna(end_pol):
+                days_to_end = _get_ndays(start_sim, end_pol)
+                n_days.append(days_to_end)
+            policies['policy_dates'][pol_name] = n_days
+
+        # check if there is a change in beta values on this layer (i.e. change in transmission risk)
+        beta_vals = row['beta':'aged_care']
+        beta_change = beta_vals.prod()  # multiply series together
+        if math.isclose(beta_change, 1, abs_tol=1e-9):
+            policies['beta_policies'][pol_name] = {}
+            for layer_key in all_lkeys:
+                beta = row['beta']
+                beta_layer = row[layer_key]
+                policies['beta_policies'][pol_name][layer_key] = beta * beta_layer
+
+        # policies impacting imported cases
+        imports = row['imported_infections']
+        if imports > 0:
+            policies['import_policies'][pol_name] = {'n_imports': imports}
+
+        # policies that remove people from layers
+        to_clip = [row['clip_edges_layer'], row['clip_edges']]
+        percent_to_clip = to_clip[1]
+        if not pd.isna(percent_to_clip):
+            policies['clip_policies'][pol_name] = {}
+            policies['clip_policies'][pol_name]['change'] = percent_to_clip
+            layers_to_clip = to_clip[0]
+            if not pd.isna(layers_to_clip):
+                policies['clip_policies'][pol_name]['layers'] = [lk for lk in all_lkeys if lk in layers_to_clip]
+            else:
+                policies['clip_policies'][pol_name]['layers'] = all_lkeys
+
+    return policies
 
 
 def get_layer_keys(databook):
