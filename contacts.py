@@ -154,15 +154,19 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
 
 
 def convert_contacts(contacts, uids, all_lkeys):
-    """ Convert contacts structure to be compatible with Covasim"""
+    """ Convert contacts structure to be compatible with Covasim
+
+    :return a list of length pop_size, where each entry is a dictionary by layer,
+            and each dictionary entry is the UIDs of the agent's contacts"""
     contacts_list = [None] * len(uids)
-    for layer_key in all_lkeys:
-        layer_contacts = contacts[layer_key]
-        for uid in uids:
+    for uid in uids:
+        contacts_list[uid] = {}
+        for layer_key in all_lkeys:
+            layer_contacts = contacts[layer_key]
             if layer_contacts.get(uid) is not None:
-                contacts_list[uid] = layer_contacts[uid]
+                contacts_list[uid][layer_key] = layer_contacts[uid]
             else:
-                contacts_list[uid] = np.empty(0)
+                contacts_list[uid][layer_key] = np.empty(0)
     return contacts_list
 
 
