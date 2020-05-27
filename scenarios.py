@@ -17,7 +17,7 @@ def set_baseline(params, popdict):
     restart_imports = extra_pars['restart_imports']
     restart_imports_length = extra_pars['restart_imports_length']
     relax_day = extra_pars['relax_day']
-    dynam_layers = extra_pars['dynam_layer']
+    dynam_layers = params.dynamic_lkeys
 
     baseline_policies = utils.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for d, dates in enumerate(policies['policy_dates']):  # add start and end dates to beta layer, import and edge clipping policies
