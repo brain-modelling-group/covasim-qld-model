@@ -89,17 +89,16 @@ def make_household_clusters(n_households, pop_size, household_heads, uids, conta
 
 def make_sclusters(uids, ages, s_contacts):
     # filter UIDs array so that it only contains children between ages 5-18
+    classrooms = []
     for age in range(5, 18):
         age_idx = ages == age
         children_thisage = uids[age_idx]
-        classroom_clusters = create_clustering(children_thisage, s_contacts)
-        # add random adult to each classroom cluster
-        for i in range(len(classroom_clusters)):
-            adult_idx = ages > 18
-            adult_uid = [np.random.choice(uids[adult_idx])]
-            classroom_clusters[i] += adult_uid
-
-    return classroom_clusters
+        classrooms.extend(create_clustering(children_thisage, s_contacts))
+    for i in range(len(classrooms)):
+        adult_idx = ages > 18
+        adult_uid = [np.random.choice(uids[adult_idx])]
+        classrooms[i].extend(adult_uid)
+    return classrooms
 
 
 def make_wclusters(uids, ages, w_contacts):
