@@ -40,7 +40,7 @@ def setup(root,
                           load_popdict=load_popdict,
                           save_popdict=save_popdict)
 
-    sim = cv.Sim(pars=pars,
+    sim = cv.Sim(pars=params.pars,
                  datafile=epidata_name,
                  popfile=popfile,
                  pop_size=params.pars['pop_size'])
