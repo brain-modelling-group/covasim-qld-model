@@ -44,7 +44,7 @@ class Parameters:
         self.age_dist = age_dist
         self.contact_matrix = contact_matrix
         self.imported_cases = imported_cases
-        self.daily_test = daily_tests
+        self.daily_tests = daily_tests
         self.beta_vals = beta_vals
         self.all_lkeys = all_lkeys
         self.default_lkeys = default_lkeys

@@ -49,10 +49,7 @@ def setup(root,
                    popfile=popfile)
 
     # TODO: currently only doing baseline scenarios
-    base_scenarios, base_policies = scenarios.set_baseline(params.policies,
-                                                           params.pars,
-                                                           params.extrapars,
-                                                           popdict)
+    base_scenarios, base_policies = scenarios.set_baseline(params, popdict)
     scens = cv.Scenarios(sim=sim,
                          basepars=sim.pars,
                          metapars=metapars,

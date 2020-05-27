@@ -3,16 +3,21 @@ import numpy as np
 import covasim as cv
 import sciris as sc
 
-def set_baseline(policies, pars, extra_pars, popdict):
-    i_cases = extra_pars['i_cases']
-    daily_tests = extra_pars['daily_tests']
+def set_baseline(params, popdict):
+
+    #unpack
+    policies = params.policies
+    i_cases = params.imported_cases
+    daily_tests = params.daily_tests
+    pars = params.pars
     n_days = pars['n_days']
+    extra_pars = params.extrapars
     trace_probs = extra_pars['trace_probs']
     trace_time = extra_pars['trace_time']
     restart_imports = extra_pars['restart_imports']
     restart_imports_length = extra_pars['restart_imports_length']
     relax_day = extra_pars['relax_day']
-    dynam_layers = extra_pars['dynam_layer'] # note this is in a different dictionary to pars, to avoid conflicts
+    dynam_layers = extra_pars['dynam_layer']
 
     baseline_policies = utils.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for d, dates in enumerate(policies['policy_dates']):  # add start and end dates to beta layer, import and edge clipping policies
