@@ -99,8 +99,7 @@ def setup_params(root, file_name, setting, metapars):
     all_lkeys, default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)
 
     # read in policy data
-    n_days = pars['n_days']
-    policies = data.read_policies(databook, all_lkeys, n_days)
+    policies = data.read_policies(databook, all_lkeys)
 
     imported_cases, daily_tests = data.read_tests_imported(databook)  # TODO: this will break once sheet is deleted
 

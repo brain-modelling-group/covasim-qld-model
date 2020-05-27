@@ -137,16 +137,25 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
     for layer_key in custom_lkeys:
         cl_type = cluster_types[layer_key]
         num_contacts = n_contacts[layer_key]
-        custom_clusters, in_layer = cl.make_custom_clusters(uids, pop_size, ages, custom_lkeys, pop_proportion, age_lb, age_ub)
+        # get the uid of people in the layer
+        n_people = int(pop_proportion[layer_key] * pop_size)
+        # randomly choose people from right age
+        agel = age_lb[layer_key]
+        ageu = age_ub[layer_key]
+        inds = np.random.choice(uids[(ages > agel) & (ages < ageu)], n_people)
+        # 1 if in layer, else 0
+        in_layer = np.zeros_like(ages)
+        in_layer[inds] = 1
+
         # handle the cluster types differently
         if cl_type == 'complete':   # number of contacts not used for complete clusters
-            contacts[layer_key] = clusters_to_contacts([custom_clusters])
+            contacts[layer_key] = clusters_to_contacts([inds])
         elif cl_type == 'random':
             contacts[layer_key] = random_contacts(in_layer, num_contacts)
         elif cl_type == 'cluster':
-            in_layer_inds = np.where(in_layer)[0] #todo: currently return tuple (error), also could be more efficient doing this earlier
-            clus = cl.create_clustering(in_layer_inds, num_contacts)
-            contacts[layer_key] = clusters_to_contacts(clus)
+            miniclusters = []
+            miniclusters.extend(cl.create_clustering(inds, num_contacts))
+            contacts[layer_key] = clusters_to_contacts(miniclusters)
         else:
             raise Exception(f'Error: Unknown network structure: {cl_type}')
 
