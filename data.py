@@ -184,6 +184,20 @@ def read_policies(databook, all_lkeys):
             else:
                 policies['clip_policies'][pol_name]['layers'] = all_lkeys
 
+    # TODO: this needs to go in spreadsheet
+    # add in tracing policies, currently just app
+    policies['trace_policies'] = {
+        'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
+                                   'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
+                                   'social'],
+                        # Layers which the app can target, excluding beach, child_care and aged_care
+                        'coverage': [0.0],  # app coverage at time in days
+                        'dates': [0.],  # days when app coverage changes
+                        'trace_time': 0,
+                        'start_day': 0,
+                        'end_day': None}}
+    policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
+
     return policies
 
 

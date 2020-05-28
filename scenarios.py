@@ -14,7 +14,6 @@ def set_baseline(params, popdict):
     extra_pars = params.extrapars
     trace_probs = extra_pars['trace_probs']
     trace_time = extra_pars['trace_time']
-    restart_imports = extra_pars['restart_imports']
     restart_imports_length = extra_pars['restart_imports_length']
     relax_day = extra_pars['relax_day']
     dynam_layers = params.dynamic_lkeys
@@ -35,18 +34,6 @@ def set_baseline(params, popdict):
                 policies['import_policies'][dates]['dates'] = np.arange(policies['policy_dates'][dates][0], n_days)
             if dates in policies['clip_policies']:
                 policies['clip_policies'][dates]['dates'] = [policies['policy_dates'][dates][0], n_days]
-    if 'trace_policies' not in policies.keys():
-        policies['trace_policies'] = {
-            'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
-                                       'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
-                                       'social'],
-                            # Layers which the app can target, excluding beach, child_care and aged_care
-                            'coverage': [0.0],  # app coverage at time in days
-                            'dates': [0.],  # days when app coverage changes
-                            'trace_time': 0,
-                            'start_day': 0,
-                            'end_day': None}}
-        policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
 
     app_layers = policies['trace_policies']['tracing_app']['layers']
     app_cov = policies['trace_policies']['tracing_app']['coverage']
@@ -54,8 +41,6 @@ def set_baseline(params, popdict):
     app_start = policies['trace_policies']['tracing_app']['start_day']
     app_end = policies['trace_policies']['tracing_app']['end_day']
     app_trace_time = policies['trace_policies']['tracing_app']['trace_time']
-
-
 
     base_scenarios = {}  # create baseline scenario according to policies from databook
     base_scenarios['baseline'] = {
