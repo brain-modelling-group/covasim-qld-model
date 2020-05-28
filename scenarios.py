@@ -3,6 +3,7 @@ import numpy as np
 import covasim as cv
 import sciris as sc
 
+
 def set_baseline(params, popdict):
 
     #unpack
@@ -67,23 +68,57 @@ def set_baseline(params, popdict):
     return base_scenarios, baseline_policies
 
 
-def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars, popdict):
+def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, clip_policies, pars, extra_pars, popdict):
 
-    policy_dates = policies['policy_dates']
-    beta_policies = policies['beta_policies']
-    clip_policies = policies['clip_policies']
-    import_policies = policies['import_policies']
-    trace_policies = policies['trace_policies']
-    i_cases = extra_pars['i_cases']
     daily_tests = extra_pars['daily_tests']
     n_days = pars['n_days']
     trace_probs = extra_pars['trace_probs']
     trace_time = extra_pars['trace_time']
-    restart_imports = extra_pars['restart_imports']
-    restart_imports_length = extra_pars['restart_imports_length']
-    relax_day = extra_pars['relax_day']
     future_tests = extra_pars['future_daily_tests']
     dynam_layers = extra_pars['dynam_layer']  # note this is in a different dictionary to pars, to avoid conflicts
+
+    scenarios[run] = {'name': run,
+                      'pars': {
+                      'interventions': [
+                        beta_policies,
+                        cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
+                            'n_imports': imports_dict
+                        }),
+                        cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                        cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
+                        utils.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
+                            ]
+                        }
+                     }
+    for trace_pol in trace_policies:
+        details = trace_policies[trace_pol]
+        scenarios[run]['pars']['interventions'].append(utils.AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
+    # add edge clipping policies to relax scenario
+    for policy in clip_policies:
+        if len(clip_policies[policy]) >= 3:
+            details = clip_policies[policy]
+            scenarios[run]['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer: details['change'] for layer in details['layers']}))
+    return scenarios
+
+
+def create_scens(torun, baseline_policies, base_scenarios, params, popdict):
+    pars = params.pars
+    extra_pars = params.extrapars
+    policy_dates = params.policies['policy_dates']
+    beta_policies = params.policies['beta_policies']
+    clip_policies = params.policies['clip_policies']
+    trace_policies = params.policies['trace_policies']
+    import_policies = params.policies['import_policies']
+    i_cases = params.imported_cases
+    daily_tests = params.daily_tests
+    n_days = params.pars['n_days']
+    trace_probs = params.extrapars['trace_probs']
+    trace_time = params.extrapars['trace_probs']
+    restart_imports = params.extrapars['restart_imports']
+    restart_imports_length = params.extrapars['restart_imports_length']
+    relax_day = params.extrapars['relax_day']
+    future_tests = params.extrapars['future_daily_tests']
+    dynam_layers = params.dynamic_lkeys
 
     relax_scenarios = {}
     scenario_policies = {}
@@ -126,9 +161,9 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
             scenarios['Full relaxation'] = sc.dcp(relax_scenarios['Full relaxation'])
         else:
             torun[run_pols] = sc.dcp(utils.check_policy_changes(torun[run_pols]))  # runs check on consistency across input off/on/replace policies and dates and remove inconsistencies
-            beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies, adapt_trace_policies = sc.dcp(baseline_policies), sc.dcp(policies['clip_policies']), \
-                                                                                                     sc.dcp(policies['beta_policies']), sc.dcp(policies['policy_dates']), \
-                                                                                                     sc.dcp(policies['import_policies']), sc.dcp(policies['trace_policies'])
+            beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies, adapt_trace_policies = sc.dcp(baseline_policies), sc.dcp(clip_policies), \
+                                                                                                     sc.dcp(beta_policies), sc.dcp(policy_dates), \
+                                                                                                     sc.dcp(import_policies), sc.dcp(trace_policies)
             imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
                                 vals=np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day)))
             for off_on in torun[run_pols]:
@@ -149,7 +184,7 @@ def create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra
                 else:
                     print(
                         'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
-            scenarios = sc.dcp(utils.create_scen(scenarios, run_pols, beta_schedule, imports_dict, trace_schedule, clip_schedule, pars, extra_pars, popdict))
+            scenarios = sc.dcp(create_scen(scenarios, run_pols, beta_schedule, imports_dict, trace_schedule, clip_schedule, pars, extra_pars, popdict))
             del clip_schedule, trace_schedule
             scenario_policies[run_pols] = beta_schedule
 
