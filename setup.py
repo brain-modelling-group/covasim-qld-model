@@ -1,5 +1,6 @@
 import covasim as cv
 import contacts as co
+import numpy as np
 import parameters
 import scenarios
 import sciris as sc
@@ -22,6 +23,14 @@ def get_popdict(params, popfile, load_popdict, save_popdict):
     return popdict
 
 
+def set_rand_seed(metapars):
+    if metapars.get('seed') is None:
+        seed = 1
+    else:
+        seed = metapars['seed']
+    np.random.seed(seed)
+
+
 def setup(root,
           databook_name,
           epidata_name,
@@ -32,7 +41,9 @@ def setup(root,
           save_popdict=True,
           popfile='data/popfile_v2.obj'):
 
-    params = parameters.setup_params(root, databook_name, setting, metapars) # TODO: need metapars here?
+    set_rand_seed(metapars)
+
+    params = parameters.setup_params(root, databook_name, setting, metapars)
     params.update_pars(pars)
 
     popdict = get_popdict(params=params,
