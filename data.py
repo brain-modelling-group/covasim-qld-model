@@ -160,7 +160,7 @@ def read_policies(databook, all_lkeys):
         # check if there is a change in beta values on this layer (i.e. change in transmission risk)
         beta_vals = row['beta':'aged_care']
         beta_change = beta_vals.prod()  # multiply series together
-        if math.isclose(beta_change, 1, abs_tol=1e-9):
+        if not math.isclose(beta_change, 1, abs_tol=1e-9):
             policies['beta_policies'][pol_name] = {}
             for layer_key in all_lkeys:
                 beta = row['beta']
