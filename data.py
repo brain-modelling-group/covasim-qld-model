@@ -9,7 +9,7 @@ def par_keys():
     keys = ['contacts', 'beta_layer', 'quar_eff',
             'pop_size', 'pop_scale', 'rescale',
             'rescale_threshold', 'rescale_factor',
-            'pop_infected', 'start_day', 'end_day',
+            'pop_infected', 'start_day',
             'n_days', 'diag_factor']
     return keys
 
@@ -142,13 +142,13 @@ def read_policies(databook, all_lkeys):
     policies['clip_policies'] = {}
     policies['policy_dates'] = {}
 
-    pols = databook.parse('policies-lockdown', index_col=0, skiprows=1)
+    pols = databook.parse('policies', index_col=0, skiprows=1)
     start_sim = databook.parse("other_par", index_col=0)['value']['start_day']
     for pol_name, row in pols.iterrows():
 
         # get the number of days til policy starts and ends (relative to simulation start)
-        start_pol = row['start_date']
-        end_pol = row['end_date']
+        start_pol = row['Date implemented (implicitly or explicitly)']
+        end_pol = row['Date ended/replaced']
         if not pd.isna(start_pol):
             days_to_start = _get_ndays(start_sim, start_pol)
             n_days = [days_to_start]
