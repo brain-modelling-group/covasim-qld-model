@@ -4,6 +4,57 @@ import covasim as cv
 import sciris as sc
 
 
+def define_scenarios(scens):
+    """
+
+    :param scens: Dict with the following structure
+    User input structure: {'name_of_scen': {
+                                            'replace': [[pols_to_replace], [replacement_pols], [dates]],
+                                            'turnoff': [[pols_to_turnoff], [dates]],
+                                            'turnon' : [[pols_to_turnon], [dates]]
+                                            }
+                            }`
+    :return:
+    """
+    scenarios = {}
+    # TODO: need to ensure don't overwrite when going through replace/turnon/turnoff
+    for name, scen in scens.items():
+        scenarios[name] = {}
+        # replace policies
+        kind = 'replace'
+        if scen.get(kind) is not None:
+            scenarios[name][kind] = {}
+            rep_scen = scen[kind]
+            to_replace = rep_scen[0]
+            replacements = rep_scen[1]
+            dates = rep_scen[2]
+            for i, pol_name in enumerate(to_replace):
+                # this line assumes correspondence by index
+                scenarios[name][kind][pol_name] = {'replacements': replacements[i],
+                                                   'dates': dates[i]}
+        # turn off policies
+        kind = 'turn_off'
+        if scen.get(kind) is not None:
+            scenarios[name][kind] = {}
+            scenarios[name][kind]['off_pols'] = {}
+            off_scen = scens[kind]
+            to_turnoff = off_scen[0]
+            dates = off_scen[1]
+            scenarios[name][kind] = {'off_pols': to_turnoff,
+                                     'dates': dates} # TODO: check how this is meant to be structured
+
+        # turn on policies
+        # TODO: for some reason structured differently to turn_off. Actually prefer the turn_on method
+        # for turning off, it is turn_off:{off_pols: [pol_names], dates: [dates]}
+        # but for turning on, it is turn_on: {pol_name:[startdate, enddate]}
+        kind = 'turn_on'
+        if scen.get(kind) is not None:
+            scenarios[name][kind] = {}
+            scenarios[name][kind]['off_pols'] = {}
+
+    return scenarios
+
+
 def set_baseline(params, popdict):
 
     #unpack
