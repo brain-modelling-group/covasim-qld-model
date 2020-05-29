@@ -4,10 +4,10 @@ import covasim as cv
 import sciris as sc
 
 
-def define_scenarios(scens):
+def define_scenarios(policy_change):
     """
 
-    :param scens: Dict with the following structure
+    :param policy_change: Dict with the following structure
                             {'name_of_scen': {
                                             'replace': ([to_replace1, to_replace2,...], [[replacements1], [replacements2]], [[start_date1, end_date1], [start_date2, end_date2]]),
                                             'turn_off': ([pol1, pol2,...], [date1, date2,...]),
@@ -19,7 +19,7 @@ def define_scenarios(scens):
     """
 
     scenarios = {}
-    for name, scen in scens.items():
+    for name, scen in policy_change.items():
         scenarios[name] = {}
         # replace policies
         kind = 'replace'
