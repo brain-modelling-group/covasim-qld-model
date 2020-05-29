@@ -8,16 +8,17 @@ def define_scenarios(scens):
     """
 
     :param scens: Dict with the following structure
-    User input structure: {'name_of_scen': {
-                                            'replace': [[pols_to_replace], [replacement_pols], [dates]],
-                                            'turnoff': [[pols_to_turnoff], [dates]],
-                                            'turnon' : [[pols_to_turnon], [dates]]
+                            {'name_of_scen': {
+                                            'replace': ([to_replace1, to_replace2,...], [[replacements1], [replacements2]], [[start_date1, end_date1], [start_date2, end_date2]]),
+                                            'turn_off': ([pol1, pol2,...], [date1, date2,...]),
+                                            'turn_on' : ([pol1, pol2,...], [date1, date,...])
                                             }
                             }`
+    Note that 'replace' & 'turn_on' types can have end dates append to the end of their date lists.
     :return:
     """
+
     scenarios = {}
-    # TODO: need to ensure don't overwrite when going through replace/turnon/turnoff
     for name, scen in scens.items():
         scenarios[name] = {}
         # replace policies
@@ -29,28 +30,35 @@ def define_scenarios(scens):
             replacements = rep_scen[1]
             dates = rep_scen[2]
             for i, pol_name in enumerate(to_replace):
+                rep_dates = dates[i]
+                rep_pols = replacements[i]
                 # this line assumes correspondence by index
-                scenarios[name][kind][pol_name] = {'replacements': replacements[i],
-                                                   'dates': dates[i]}
+                scenarios[name][kind][pol_name] = {'replacements': rep_pols,
+                                                   'dates': rep_dates}
         # turn off policies
         kind = 'turn_off'
         if scen.get(kind) is not None:
             scenarios[name][kind] = {}
             scenarios[name][kind]['off_pols'] = {}
-            off_scen = scens[kind]
+            off_scen = scen[kind]
             to_turnoff = off_scen[0]
             dates = off_scen[1]
             scenarios[name][kind] = {'off_pols': to_turnoff,
-                                     'dates': dates} # TODO: check how this is meant to be structured
+                                     'dates': dates}
 
         # turn on policies
-        # TODO: for some reason structured differently to turn_off. Actually prefer the turn_on method
-        # for turning off, it is turn_off:{off_pols: [pol_names], dates: [dates]}
-        # but for turning on, it is turn_on: {pol_name:[startdate, enddate]}
         kind = 'turn_on'
         if scen.get(kind) is not None:
             scenarios[name][kind] = {}
-            scenarios[name][kind]['off_pols'] = {}
+            on_scen = scen[kind]
+            to_turnon = on_scen[0]
+            dates = on_scen[1]
+            for i, pol_name in enumerate(to_turnon):
+                start_date = [dates[i]]
+                if len(dates) == len(to_turnon) + 1:  # has end date
+                    end_date = dates[-1]
+                    start_date.append(end_date)
+                scenarios[name][kind][pol_name] = start_date
 
     return scenarios
 
