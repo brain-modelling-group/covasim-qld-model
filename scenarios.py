@@ -212,6 +212,9 @@ def define_scenarios(policy_change, params, popdict):
     # create baseline
     base_scenarios, base_policies = set_baseline(params, popdict)
 
+    if policy_change is None:
+        return base_scenarios
+
     # unpack
     pars = params.pars
     contacts = pars['contacts']
