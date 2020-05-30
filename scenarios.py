@@ -133,7 +133,7 @@ def create_scens(scen_opts,
 
     for name, scen in scen_opts.items():
         pols = altered_pols[name]
-        beta_schedule = baseline_policies
+        beta_schedule = sc.dcp(baseline_policies)
         adapt_clip_pols = pols['clip_policies']
         adapt_beta_pols = pols['beta_policies']
         policy_dates = pols['policy_dates']
