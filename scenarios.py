@@ -1,66 +1,9 @@
-import utils
-import numpy as np
 import covasim as cv
+import numpy as np
 import sciris as sc
+import utils
 
-
-def define_scenarios(policy_change):
-    """
-
-    :param policy_change: Dict with the following structure
-                            {'name_of_scen': {
-                                            'replace': ([to_replace1, to_replace2,...], [[replacements1], [replacements2]], [[start_date1, end_date1], [start_date2, end_date2]]),
-                                            'turn_off': ([pol1, pol2,...], [date1, date2,...]),
-                                            'turn_on' : ([pol1, pol2,...], [date1, date,...])
-                                            }
-                            }`
-    Note that 'replace' & 'turn_on' types can have end dates append to the end of their date lists.
-    :return:
-    """
-
-    scenarios = {}
-    for name, scen in policy_change.items():
-        scenarios[name] = {}
-        # replace policies
-        kind = 'replace'
-        if scen.get(kind) is not None:
-            scenarios[name][kind] = {}
-            rep_scen = scen[kind]
-            to_replace = rep_scen[0]
-            replacements = rep_scen[1]
-            dates = rep_scen[2]
-            for i, pol_name in enumerate(to_replace):
-                rep_dates = dates[i]
-                rep_pols = replacements[i]
-                # this line assumes correspondence by index
-                scenarios[name][kind][pol_name] = {'replacements': rep_pols,
-                                                   'dates': rep_dates}
-        # turn off policies
-        kind = 'turn_off'
-        if scen.get(kind) is not None:
-            scenarios[name][kind] = {}
-            scenarios[name][kind]['off_pols'] = {}
-            off_scen = scen[kind]
-            to_turnoff = off_scen[0]
-            dates = off_scen[1]
-            scenarios[name][kind] = {'off_pols': to_turnoff,
-                                     'dates': dates}
-
-        # turn on policies
-        kind = 'turn_on'
-        if scen.get(kind) is not None:
-            scenarios[name][kind] = {}
-            on_scen = scen[kind]
-            to_turnon = on_scen[0]
-            dates = on_scen[1]
-            for i, pol_name in enumerate(to_turnon):
-                start_date = [dates[i]]
-                if len(dates) == len(to_turnon) + 1:  # has end date
-                    end_date = dates[-1]
-                    start_date.append(end_date)
-                scenarios[name][kind][pol_name] = start_date
-
-    return scenarios
+from copy import deepcopy as dcp
 
 
 def set_baseline(params, popdict):
@@ -127,16 +70,22 @@ def set_baseline(params, popdict):
     return base_scenarios, baseline_policies
 
 
-def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, clip_policies, pars, extra_pars, popdict):
+def create_scen(scenarios,
+                name,
+                popdict,
+                contacts,
+                beta_policies,
+                imports_dict,
+                trace_policies,
+                clip_policies,
+                n_days,
+                daily_tests,
+                trace_probs,
+                trace_time,
+                future_tests,
+                dynamic_lkeys):
 
-    daily_tests = extra_pars['daily_tests']
-    n_days = pars['n_days']
-    trace_probs = extra_pars['trace_probs']
-    trace_time = extra_pars['trace_time']
-    future_tests = extra_pars['future_daily_tests']
-    dynam_layers = extra_pars['dynam_layer']  # note this is in a different dictionary to pars, to avoid conflicts
-
-    scenarios[run] = {'name': run,
+    scenarios[name] = {'name': name,
                       'pars': {
                       'interventions': [
                         beta_policies,
@@ -145,148 +94,227 @@ def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, cli
                         }),
                         cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                         cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
-                        utils.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
+                        utils.UpdateNetworks(layers=dynamic_lkeys, contact_numbers=contacts, popdict=popdict)
                             ]
                         }
                      }
     for trace_pol in trace_policies:
         details = trace_policies[trace_pol]
-        scenarios[run]['pars']['interventions'].append(utils.AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
+        scenarios[name]['pars']['interventions'].append(utils.AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
     # add edge clipping policies to relax scenario
     for policy in clip_policies:
         if len(clip_policies[policy]) >= 3:
             details = clip_policies[policy]
-            scenarios[run]['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer: details['change'] for layer in details['layers']}))
+            scenarios[name]['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer: details['change'] for layer in details['layers']}))
     return scenarios
 
 
-def create_scens(torun, baseline_policies, base_scenarios, params, popdict):
+def create_scens(scen_opts,
+                 altered_pols,
+                 baseline_policies,
+                 base_scenarios,
+                 popdict,
+                 contacts,
+                 i_cases,
+                 daily_tests,
+                 trace_time,
+                 trace_probs,
+                 future_tests,
+                 n_days,
+                 relax_day,
+                 restart_imports_length,
+                 restart_imports,
+                 dynamic_lkeys):
+
+    scenarios = base_scenarios
+
+    imports_dict = {'days': np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
+                    'vals': np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day))}
+
+    for name, scen in scen_opts.items():
+        pols = altered_pols[name]
+        beta_schedule = baseline_policies
+        adapt_clip_pols = pols['clip_policies']
+        adapt_beta_pols = pols['beta_policies']
+        policy_dates = pols['policy_dates']
+        import_pols = pols['import_policies']
+        adapt_trace_pols = pols['trace_policies']
+
+        for change in scen.keys():
+            if change == 'turn_off':
+                beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = utils.turn_off_policies(scen=scen,
+                                                                                                                   baseline_schedule=beta_schedule,
+                                                                                                                   beta_policies=adapt_beta_pols,
+                                                                                                                   import_policies=import_pols,
+                                                                                                                   clip_policies=adapt_clip_pols,
+                                                                                                                   trace_policies=adapt_trace_pols,
+                                                                                                                   i_cases=i_cases,
+                                                                                                                   n_days=n_days,
+                                                                                                                   policy_dates=policy_dates,
+                                                                                                                   imports_dict=imports_dict)
+            elif change == 'turn_on':
+                beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = utils.turn_on_policies(scen=scen,
+                                                                                                                   baseline_schedule=beta_schedule,
+                                                                                                                   beta_policies=adapt_beta_pols,
+                                                                                                                   import_policies=import_pols,
+                                                                                                                   clip_policies=adapt_clip_pols,
+                                                                                                                   trace_policies=adapt_trace_pols,
+                                                                                                                   i_cases=i_cases,
+                                                                                                                   n_days=n_days,
+                                                                                                                   policy_dates=policy_dates,
+                                                                                                                   imports_dict=imports_dict)
+            elif change == 'replace':
+                beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = utils.replace_policies(scen=scen,
+                                                                                                                  baseline_schedule=beta_schedule,
+                                                                                                                  beta_policies=adapt_beta_pols,
+                                                                                                                   import_policies=import_pols,
+                                                                                                                   clip_policies=adapt_clip_pols,
+                                                                                                                   trace_policies=adapt_trace_pols,
+                                                                                                                   i_cases=i_cases,
+                                                                                                                   n_days=n_days,
+                                                                                                                   policy_dates=policy_dates,
+                                                                                                                   imports_dict=imports_dict)
+            else:
+                print(
+                    'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % change)
+            scenarios = create_scen(scenarios=scenarios,
+                                    name=name,
+                                    popdict=popdict,
+                                    contacts=contacts,
+                                    beta_policies=beta_schedule,
+                                    imports_dict=imports_dict,
+                                    trace_policies=trace_schedule,
+                                    clip_policies=clip_schedule,
+                                    n_days=n_days,
+                                    daily_tests=daily_tests,
+                                    trace_probs=trace_probs,
+                                    trace_time=trace_time,
+                                    future_tests=future_tests,
+                                    dynamic_lkeys=dynamic_lkeys)
+
+    return scenarios
+
+
+def define_scenarios(policy_change, params, popdict):
+    """
+
+    :param policy_change: Dict with the following structure
+                            {'name_of_scen': {
+                                            'replace': ([to_replace1, to_replace2,...], [[replacements1], [replacements2]], [[start_date1, end_date1], [start_date2, end_date2]]),
+                                            'turn_off': ([pol1, pol2,...], [date1, date2,...]),
+                                            'turn_on' : ([pol1, pol2,...], [date1, date,...])
+                                            }
+                            }`
+    Note that 'replace' & 'turn_on' types can have end dates append to the end of their date lists.
+    :return:
+    """
+
+    # create baseline
+    base_scenarios, base_policies = set_baseline(params, popdict)
+
+    # unpack
     pars = params.pars
+    contacts = pars['contacts']
+    policies = params.policies
     extra_pars = params.extrapars
-    policy_dates = params.policies['policy_dates']
-    beta_policies = params.policies['beta_policies']
-    clip_policies = params.policies['clip_policies']
-    trace_policies = params.policies['trace_policies']
-    import_policies = params.policies['import_policies']
     i_cases = params.imported_cases
+    n_days = pars['n_days']
     daily_tests = params.daily_tests
-    n_days = params.pars['n_days']
-    trace_probs = params.extrapars['trace_probs']
-    trace_time = params.extrapars['trace_probs']
-    restart_imports = params.extrapars['restart_imports']
-    restart_imports_length = params.extrapars['restart_imports_length']
-    relax_day = params.extrapars['relax_day']
-    future_tests = params.extrapars['future_daily_tests']
-    dynam_layers = params.dynamic_lkeys
+    trace_probs = extra_pars['trace_probs']
+    trace_time = extra_pars['trace_time']
+    restart_imports = extra_pars['restart_imports']
+    restart_imports_length = extra_pars['restart_imports_length']
+    relax_day = extra_pars['relax_day']
+    future_tests = extra_pars['future_daily_tests']
+    dynamic_lkeys = params.dynamic_lkeys
 
-    relax_scenarios = {}
-    scenario_policies = {}
-    scenario_policies['baseline'] = sc.dcp(baseline_policies)
+    # create scenarios from replacing, turning off/on policies
+    scen_opts = {}
+    # scenarios = {}
+    altered_pols = {}
+    altered_pars = {}
+    for name, scen in policy_change.items():
+        scen_opts[name] = {}
 
-    # Relax all policies
-    relax_all_policies = sc.dcp(baseline_policies)
-    for dates in policy_dates:
-        if len(policy_dates[dates]) == 1 and dates in beta_policies:
-            relax_all_policies.end(dates, relax_day)
+        # replace policies
+        kind = 'replace'
+        if scen.get(kind) is not None:
+            scen_opts[name][kind] = {}
+            rep_scen = scen[kind]
+            to_replace = rep_scen[0]
+            replacements = rep_scen[1]
+            dates = rep_scen[2]
+            for i, pol_name in enumerate(to_replace):
+                rep_dates = dates[i]
+                rep_pols = replacements[i]
+                # this line assumes correspondence by index
+                scen_opts[name][kind][pol_name] = {'replacements': rep_pols,
+                                                   'dates': rep_dates}
 
-    relax_scenarios['Full relaxation'] = {
-        'name': 'Full relaxation',
-        'pars': {
-            'interventions': [
-                relax_all_policies,
-                cv.dynamic_pars({  # jump start with imported infections
-                    'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(relax_day, min(n_days,restart_imports_length))),
-                                      vals=np.append(i_cases, [restart_imports] * (min(n_days,restart_imports_length) - relax_day)))
-                }),
-                cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=10.0, quar_test=1.0,
-                            sensitivity=0.7, test_delay=3, loss_prob=0),
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0), # Don't add tracing app, either it's not in baseline and shouldn't be here or it is in baseline and is relaxed here
-                utils.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
-            ]
-        }
-    }
-    for policy in clip_policies:  # Add relaxed clip edges policies
-        if policy in policy_dates:
-            details = clip_policies[policy]
-            relax_scenarios['Full relaxation']['pars']['interventions'].append(
-                cv.clip_edges(start_day=details['dates'][0], end_day=relax_day,
-                              change={layer: details['change'] for layer in details['layers']}))
+        # turn off policies
+        kind = 'turn_off'
+        if scen.get(kind) is not None:
+            scen_opts[name][kind] = {}
+            scen_opts[name][kind]['off_pols'] = {}
+            off_scen = scen[kind]
+            to_turnoff = off_scen[0]
+            dates = off_scen[1]
+            scen_opts[name][kind] = {'off_pols': to_turnoff,
+                                     'dates': dates}
 
-    scenario_policies['Full relax'] = relax_all_policies
-    scenarios = sc.dcp(base_scenarios)  # Always add baseline scenario
+        # turn on policies
+        kind = 'turn_on'
+        if scen.get(kind) is not None:
+            scen_opts[name][kind] = {}
+            on_scen = scen[kind]
+            to_turnon = on_scen[0]
+            dates = on_scen[1]
+            for i, pol_name in enumerate(to_turnon):
+                start_date = [dates[i]]
+                if len(dates) == len(to_turnon) + 1:  # has end date
+                    end_date = dates[-1]
+                    start_date.append(end_date)
+                scen_opts[name][kind][pol_name] = start_date
 
-    for run_pols in torun:
-        if run_pols == 'Full relaxation' or run_pols == 'Full relax':
-            scenarios['Full relaxation'] = sc.dcp(relax_scenarios['Full relaxation'])
+        # validate & correct
+        scen_opts[name] = utils.check_policy_changes(scen_opts[name])
+
+        # handle change in app coverage
+        kind = 'app_cov'
+        if scen.get(kind) is not None:
+            pols = dcp(policies)  # avoid changing for other scenarios
+            new_cov = scen[kind]
+            pols['trace_policies']['tracing_app']['coverage'] = [new_cov]
         else:
-            torun[run_pols] = sc.dcp(utils.check_policy_changes(torun[run_pols]))  # runs check on consistency across input off/on/replace policies and dates and remove inconsistencies
-            beta_schedule, adapt_clip_policies, adapt_beta_policies, policy_dates, import_policies, adapt_trace_policies = sc.dcp(baseline_policies), sc.dcp(clip_policies), \
-                                                                                                     sc.dcp(beta_policies), sc.dcp(policy_dates), \
-                                                                                                     sc.dcp(import_policies), sc.dcp(trace_policies)
-            imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
-                                vals=np.append(i_cases, [restart_imports] * (restart_imports_length - relax_day)))
-            for off_on in torun[run_pols]:
-                if off_on == 'turn_off':
-                    beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = sc.dcp(utils.turn_off_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
-                                                                                                              import_policies, adapt_clip_policies, adapt_trace_policies, i_cases, n_days, policy_dates, imports_dict))
-                    # for each policy, check if it's already off at specified date, if it's on then turn off at specified date. Update beta, import and clip.
-                elif off_on == 'turn_on':
-                    beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = sc.dcp(utils.turn_on_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
-                                                                                                              import_policies, adapt_clip_policies, adapt_trace_policies, i_cases, n_days, policy_dates, imports_dict))
-                    # for each policy, check if it's already on at specified date, if it's off then turn on at specified date and off at
-                    # specified date (if input). Update beta, import and clip.
-                elif off_on == 'replace':
-                    beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = sc.dcp(utils.replace_policies(torun[run_pols], beta_schedule, adapt_beta_policies,
-                                                                                                              import_policies, adapt_clip_policies, adapt_trace_policies, i_cases, n_days, policy_dates, imports_dict))
-                    # for each policy, check if it's already off at specified date, if it's on then check if first replacement policy is
-                    # already on at specified date, if replacement is off then turn on and iterate with following replacements. Update beta, import and clip.
-                else:
-                    print(
-                        'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % off_on)
-            scenarios = sc.dcp(create_scen(scenarios, run_pols, beta_schedule, imports_dict, trace_schedule, clip_schedule, pars, extra_pars, popdict))
-            del clip_schedule, trace_schedule
-            scenario_policies[run_pols] = beta_schedule
+            pols = policies
+        altered_pols[name] = pols
 
-    return scenarios, scenario_policies
+        # school transmission risk, relative to household
+        kind = 'school_risk'
+        if scen.get(kind) is not None:
+            parsc = dcp(pars)
+            new_risk = scen[kind]
+            parsc['beta_layer']['S'] = parsc['beta_layer']['H'] * new_risk
+        else:
+            parsc = pars
+        altered_pars[name] = parsc
 
+    # create the scenarios
+    scenarios = create_scens(scen_opts=scen_opts,
+                             altered_pols=altered_pols,
+                             baseline_policies=base_policies,
+                             base_scenarios=base_scenarios,
+                             popdict=popdict,
+                             contacts=contacts,
+                             i_cases=i_cases,
+                             daily_tests=daily_tests,
+                             trace_time=trace_time,
+                             trace_probs=trace_probs,
+                             future_tests=future_tests,
+                             n_days=n_days,
+                             relax_day=relax_day,
+                             restart_imports_length=restart_imports_length,
+                             restart_imports=restart_imports,
+                             dynamic_lkeys=dynamic_lkeys)
 
-#### UNFINISHED SECOND VERSION ####
-# def get_baseline_scen(params):
-#     # unpack
-#     policies = params.policies
-#     imported_cases = params.imported_cases
-#     daily_tests = params.daily_tests
-#     extra_pars = params.extra_pars
-#     trace_probs = extra_pars['trace_probs']
-#     trace_time = extra_pars['trace_time']
-#     restart_imports = extra_pars['restart_imports']
-#     restart_imports_length = extra_pars['restart_imports_length']
-#     relax_day = extra_pars['relax_day']
-#     dynam_layers = extra_pars['dynam_layer']
-#
-#     # create dynamic interventions # TODO: need to specify day and value lists
-#     # par_list = ['n_imports']
-#     # day_list =
-#     # val_list =
-#     # dynamic_intervention = interventions.get_dynamic_intervention(par_list=par_list,
-#     #                                                           day_list=day_list,
-#     #                                                           val_list=val_list)
-#
-#     # numbers to test
-#     tests = interventions.get_num_tests(daily_tests=daily_tests,
-#                                     symp_test=5.0,
-#                                     quar_test=1.0,
-#                                     sensitivity=0.7,
-#                                     loss_prob=0.0,
-#                                     test_delay=3)
-#
-#     # contact tracing
-#
-#     # edge clipping policies
-#     for pol_name in policies['clip_policies']:
-#
-#
-#     # baseline scenario
-#     base_scens = {'baseline': {'name': 'Baseline', 'pars': {'interventions': [tests]}}}
-#
-#     return base_scens
+    return scenarios

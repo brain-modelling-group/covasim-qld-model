@@ -35,22 +35,27 @@ def setup(root,
           databook_name,
           epidata_name,
           setting,
+          policy_change=None,
           pars=None,
           metapars=None,
           load_popdict=True,
           save_popdict=True,
           popfile='data/popfile_v2.obj'):
 
+    # for reproducible results
     set_rand_seed(metapars)
 
+    # setup parameters
     params = parameters.setup_params(root, databook_name, setting, metapars)
-    params.update_pars(pars)
+    params.update_pars(pars)  # use user input parameters
 
+    # setup population dictionary
     popdict = get_popdict(params=params,
                           popfile=popfile,
                           load_popdict=load_popdict,
                           save_popdict=save_popdict)
 
+    # setup simulation
     sim = cv.Sim(pars=params.pars,
                  datafile=epidata_name,
                  popfile=popfile,
@@ -59,10 +64,8 @@ def setup(root,
                    load_pop=True,
                    popfile=popfile)
 
-    # TODO: currently only doing baseline scenarios
-    base_scenarios, base_policies = scenarios.set_baseline(params, popdict)
-    scens = cv.Scenarios(sim=sim,
-                         basepars=sim.pars,
-                         metapars=metapars,
-                         scenarios=base_scenarios)
+    # setup scenarios
+    scens = scenarios.define_scenarios(policy_change=policy_change, params=params, popdict=popdict)
+    scens = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios=scens)
+
     return scens

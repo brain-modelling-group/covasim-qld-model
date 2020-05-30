@@ -194,7 +194,7 @@ def read_policies(databook, all_lkeys):
                         'coverage': [0.05],  # app coverage at time in days
                         'dates': [60],  # days when app coverage changes
                         'trace_time': 0,
-                        'start_day': 0,
+                        'start_day': 60,
                         'end_day': None}}
     policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
 

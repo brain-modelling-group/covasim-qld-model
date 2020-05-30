@@ -163,7 +163,6 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
 
             households_completed += 1
             people_added += household_size
-
     popdict['age'] = np.array(popdict['age'])
     contacts['H'] = clusters_to_contacts(household_clusters)
 
@@ -229,7 +228,6 @@ def get_australian_popdict(databook_path, pop_size=100, contact_numbers={'H': 4,
     for i in range(0,pop_size):
         d = {layer: contacts[layer][i] if i in contacts[layer] else [] for layer in contacts}
         popdict['contacts'].append(d)
-
     return popdict
 
 
