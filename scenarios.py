@@ -205,10 +205,12 @@ def define_scenarios(policy_change, params, popdict):
                             {'name_of_scen': {
                                             'replace': ([to_replace1, to_replace2,...], [[replacements1], [replacements2]], [[start_date1, end_date1], [start_date2, end_date2]]),
                                             'turn_off': ([pol1, pol2,...], [date1, date2,...]),
-                                            'turn_on' : ([pol1, pol2,...], [date1, date,...])
+                                            'turn_on' : ([pol1, pol2,...], [date1, date,...]),
+                                            'app_cov': float,
+                                            'school_risk': float
                                             }
                             }`
-    Note that 'replace' & 'turn_on' types can have end dates append to the end of their date lists.
+    Note that 'replace' & 'turn_on' types can have end dates appended to the end of their date lists.
     :return:
     """
 
