@@ -332,7 +332,7 @@ def create_scen(scenarios, run, beta_policies, imports_dict, trace_policies, cli
     return scenarios
 
 def check_policy_changes(scenario: dict):
-    if scenario['turn_off'] and scenario['replace']:
+    if scenario.get('turn_off') is not None and scenario.get('replace') is not None:
         clash_off_replace_pols = {policy: p for p, policy in enumerate(scenario['turn_off']['off_pols']) if policy in scenario['replace'].keys()}
         if clash_off_replace_pols:
             off_dates = [scenario['turn_off']['dates'][p] for p in list(clash_off_replace_pols.values())]
@@ -344,7 +344,7 @@ def check_policy_changes(scenario: dict):
                         print('The torun dict had a clash between turning off and replacing policy %s. Replacement has been prioritised.' % scenario['turn_off']['off_pols'][date_index])
                         del scenario['turn_off']['off_pols'][date_index]
                         del scenario['turn_off']['dates'][date_index]
-    if scenario['turn_on'] and scenario['replace']:
+    if scenario.get('turn_on') is not None and scenario.get('replace') is not None:
         clash_on_replace_pols = {}
         for old_pol in scenario['replace']:
             clash_on_replace_pols[old_pol] = {policy: p for p, policy in enumerate(scenario['turn_on']) if policy in scenario['replace'][old_pol]['replacements']}
