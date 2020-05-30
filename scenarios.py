@@ -143,7 +143,7 @@ def create_scens(scen_opts,
         for change in scen.keys():
             if change == 'turn_off':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    utils.turn_off_policies(scen=scen,
+                    sc.dcp(utils.turn_off_policies(scen=scen,
                                             baseline_schedule=beta_schedule,
                                             beta_policies=adapt_beta_pols,
                                             import_policies=import_pols,
@@ -152,10 +152,10 @@ def create_scens(scen_opts,
                                             i_cases=i_cases,
                                             n_days=n_days,
                                             policy_dates=policy_dates,
-                                            imports_dict=imports_dict)
+                                            imports_dict=imports_dict))
             elif change == 'turn_on':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    utils.turn_on_policies(scen=scen,
+                    sc.dcp(utils.turn_on_policies(scen=scen,
                                            baseline_schedule=beta_schedule,
                                            beta_policies=adapt_beta_pols,
                                            import_policies=import_pols,
@@ -164,10 +164,10 @@ def create_scens(scen_opts,
                                            i_cases=i_cases,
                                            n_days=n_days,
                                            policy_dates=policy_dates,
-                                           imports_dict=imports_dict)
+                                           imports_dict=imports_dict))
             elif change == 'replace':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    utils.replace_policies(scen=scen,
+                    sc.dcp(utils.replace_policies(scen=scen,
                                            baseline_schedule=beta_schedule,
                                            beta_policies=adapt_beta_pols,
                                            import_policies=import_pols,
@@ -176,7 +176,7 @@ def create_scens(scen_opts,
                                            i_cases=i_cases,
                                            n_days=n_days,
                                            policy_dates=policy_dates,
-                                           imports_dict=imports_dict)
+                                           imports_dict=imports_dict))
             else:
                 print(
                     'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % change)

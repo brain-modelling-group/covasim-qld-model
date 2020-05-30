@@ -27,11 +27,8 @@ if __name__ == '__main__':
     save_popdict = True
     popfile = 'data/popfile_v2.obj'
 
-    policy_change = {'myscen': {'replace': (['communcation', 'beach0'], [['comm_relax'], ['beach2']], [[1], [4]]),
-                                'turn_off': (['communication'], [1]),
-                                'turn_on': (['communication'], [2]),
-                                'app_cov': 0.2,
-                                'school_risk': 0.2}}
+    policy_change = {'relax comm': {'replace': (['communication'], [['comm_relax']], [[20]])},
+                     'turn off comm': {'turn_off': (['communication'], [20])}}
 
     scens = setup.setup(root=root,
                         databook_name=file_name,
@@ -43,6 +40,7 @@ if __name__ == '__main__':
                         load_popdict=load_popdict,
                         save_popdict=save_popdict,
                         popfile=popfile)
+
     scens.run()
 
     plot.plot_scens(scens, do_save=False)
