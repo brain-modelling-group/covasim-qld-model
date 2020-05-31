@@ -307,6 +307,16 @@ def define_scenarios(policy_change, params, popdict):
             parsc = pars
         altered_pars[name] = parsc
 
+        # school transmission risk, relative to household
+        kind = 'pub_risk'
+        if scen.get(kind) is not None:
+            pols = dcp(policies)  # avoid changing for other scenarios
+            new_risk = scen[kind]
+            pols['beta_policies']['pub_bar_4sqm']['pub_bar'] = new_risk
+        else:
+            pols = policies
+        altered_pols[name] = pols
+
     # create the scenarios
     scenarios = create_scens(scen_opts=scen_opts,
                              altered_pols=altered_pols,
