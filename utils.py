@@ -1,3 +1,4 @@
+import numpy as np
 import os
 
 
@@ -31,6 +32,15 @@ def get_file_paths(db_name, epi_name, pop_name, root=None):
                                                 pop_name=pop_name,
                                                 root=root)
     return db_path, epi_path, pop_path
+
+
+def set_rand_seed(metapars):
+    if metapars.get('seed') is None:
+        seed = 1
+    else:
+        seed = metapars['seed']
+    np.random.seed(seed)
+    return
 
 
 def par_keys():

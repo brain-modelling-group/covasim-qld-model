@@ -1,8 +1,9 @@
+import clusters as cl
 import collections
 import covasim.defaults as cvd
 import covasim.utils as cvu
 import numpy as np
-import clusters as cl
+import sciris as sc
 
 
 def clusters_to_contacts(clusters):
@@ -268,3 +269,20 @@ def make_contacts(params):
     contacts_list = convert_contacts(contacts, uids, all_lkeys)
 
     return contacts_list, ages, uids
+
+
+def get_popdict(params, popfile, load_popdict, save_popdict):
+    if load_popdict:
+        popdict = sc.loadobj(popfile)
+    else:
+        contacts, ages, uids = make_contacts(params)
+
+        # create the popdict object
+        popdict = {}
+        popdict['contacts'] = contacts
+        popdict['age'] = ages
+        popdict['uid'] = uids
+        if save_popdict:
+            sc.saveobj(popfile, popdict)
+
+    return popdict
