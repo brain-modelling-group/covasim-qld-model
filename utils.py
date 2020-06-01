@@ -44,7 +44,7 @@ def set_rand_seed(metapars):
 
 
 def par_keys():
-    keys = ['contacts', 'beta_layer', 'quar_eff',
+    keys = ['contacts', 'beta_layer', 'quar_factor',
             'pop_size', 'pop_scale', 'rescale',
             'rescale_threshold', 'rescale_factor',
             'pop_infected', 'start_day',
