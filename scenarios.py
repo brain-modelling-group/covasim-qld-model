@@ -1,7 +1,7 @@
 import covasim as cv
 import numpy as np
 import sciris as sc
-import policies
+import policy_updates
 
 
 def set_baseline(params, popdict):
@@ -19,7 +19,7 @@ def set_baseline(params, popdict):
     relax_day = extra_pars['relax_day']
     dynam_layers = params.dynamic_lkeys
 
-    baseline_policies = policies.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
+    baseline_policies = policy_updates.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for d, dates in enumerate(policies['policy_dates']):  # add start and end dates to beta layer, import and edge clipping policies
         if len(policies['policy_dates'][dates]) == 2: # meaning the policy starts and finishes in baseline period
             if dates in policies['beta_policies']:
@@ -53,8 +53,8 @@ def set_baseline(params, popdict):
                 }),
                 cv.test_num(daily_tests=(daily_tests), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
-                policies.AppBasedTracing(layers=app_layers, coverage=app_cov, days=app_dates, start_day=app_start, end_day=app_end, trace_time=app_trace_time), # Adding tracing app to baseline, remove if not the right idea
-                policies.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
+                policy_updates.AppBasedTracing(layers=app_layers, coverage=app_cov, days=app_dates, start_day=app_start, end_day=app_end, trace_time=app_trace_time), # Adding tracing app to baseline, remove if not the right idea
+                policy_updates.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
             ]
         }
     }
@@ -92,13 +92,13 @@ def create_scen(scenarios,
                         }),
                         cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                         cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
-                        policies.UpdateNetworks(layers=dynamic_lkeys, contact_numbers=contacts, popdict=popdict)
+                        policy_updates.UpdateNetworks(layers=dynamic_lkeys, contact_numbers=contacts, popdict=popdict)
                             ]
                         }
                      }
     for trace_pol in trace_policies:
         details = trace_policies[trace_pol]
-        scenarios[name]['pars']['interventions'].append(policies.AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
+        scenarios[name]['pars']['interventions'].append(policy_updates.AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
     # add edge clipping policies to relax scenario
     for policy in clip_policies:
         if len(clip_policies[policy]) >= 3:
@@ -141,40 +141,40 @@ def create_scens(scen_opts,
         for change in scen.keys():
             if change == 'turn_off':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    sc.dcp(policies.turn_off_policies(scen=scen,
-                                            baseline_schedule=beta_schedule,
-                                            beta_policies=adapt_beta_pols,
-                                            import_policies=import_pols,
-                                            clip_policies=adapt_clip_pols,
-                                            trace_policies=adapt_trace_pols,
-                                            i_cases=i_cases,
-                                            n_days=n_days,
-                                            policy_dates=policy_dates,
-                                            imports_dict=imports_dict))
+                    sc.dcp(policy_updates.turn_off_policies(scen=scen,
+                                                            baseline_schedule=beta_schedule,
+                                                            beta_policies=adapt_beta_pols,
+                                                            import_policies=import_pols,
+                                                            clip_policies=adapt_clip_pols,
+                                                            trace_policies=adapt_trace_pols,
+                                                            i_cases=i_cases,
+                                                            n_days=n_days,
+                                                            policy_dates=policy_dates,
+                                                            imports_dict=imports_dict))
             elif change == 'turn_on':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    sc.dcp(policies.turn_on_policies(scen=scen,
-                                           baseline_schedule=beta_schedule,
-                                           beta_policies=adapt_beta_pols,
-                                           import_policies=import_pols,
-                                           clip_policies=adapt_clip_pols,
-                                           trace_policies=adapt_trace_pols,
-                                           i_cases=i_cases,
-                                           n_days=n_days,
-                                           policy_dates=policy_dates,
-                                           imports_dict=imports_dict))
+                    sc.dcp(policy_updates.turn_on_policies(scen=scen,
+                                                           baseline_schedule=beta_schedule,
+                                                           beta_policies=adapt_beta_pols,
+                                                           import_policies=import_pols,
+                                                           clip_policies=adapt_clip_pols,
+                                                           trace_policies=adapt_trace_pols,
+                                                           i_cases=i_cases,
+                                                           n_days=n_days,
+                                                           policy_dates=policy_dates,
+                                                           imports_dict=imports_dict))
             elif change == 'replace':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    sc.dcp(policies.replace_policies(scen=scen,
-                                           baseline_schedule=beta_schedule,
-                                           beta_policies=adapt_beta_pols,
-                                           import_policies=import_pols,
-                                           clip_policies=adapt_clip_pols,
-                                           trace_policies=adapt_trace_pols,
-                                           i_cases=i_cases,
-                                           n_days=n_days,
-                                           policy_dates=policy_dates,
-                                           imports_dict=imports_dict))
+                    sc.dcp(policy_updates.replace_policies(scen=scen,
+                                                           baseline_schedule=beta_schedule,
+                                                           beta_policies=adapt_beta_pols,
+                                                           import_policies=import_pols,
+                                                           clip_policies=adapt_clip_pols,
+                                                           trace_policies=adapt_trace_pols,
+                                                           i_cases=i_cases,
+                                                           n_days=n_days,
+                                                           policy_dates=policy_dates,
+                                                           imports_dict=imports_dict))
             else:
                 print(
                     'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % change)
@@ -283,7 +283,7 @@ def define_scenarios(policy_change, params, popdict):
                 scen_opts[name][kind][pol_name] = start_date
 
         # validate & correct
-        scen_opts[name] = policies.check_policy_changes(scen_opts[name])
+        scen_opts[name] = policy_updates.check_policy_changes(scen_opts[name])
 
         # handle change in app coverage
         kind = 'app_cov'
