@@ -4,6 +4,7 @@ import numpy as np
 import parameters
 import scenarios
 import sciris as sc
+import utils
 
 
 def get_popdict(params, popfile, load_popdict, save_popdict):
@@ -15,7 +16,7 @@ def get_popdict(params, popfile, load_popdict, save_popdict):
         # create the popdict object
         popdict = {}
         popdict['contacts'] = contacts
-        popdict['age'] = ages  # TODO: check this
+        popdict['age'] = ages
         popdict['uid'] = uids
         if save_popdict:
             sc.saveobj(popfile, popdict)
@@ -31,38 +32,42 @@ def set_rand_seed(metapars):
     np.random.seed(seed)
 
 
-def setup(root,
-          databook_name,
-          epidata_name,
+def setup(db_name,
+          epi_name,
           setting,
           policy_change=None,
           pars=None,
           metapars=None,
           load_popdict=True,
           save_popdict=True,
-          popfile='data/popfile_v2.obj'):
+          pop_name='popfile.obj'):
 
     # for reproducible results
     set_rand_seed(metapars)
 
+    # get file paths
+    db_path, epi_path, pop_path = utils.get_file_paths(db_name=db_name,
+                                                       epi_name=epi_name,
+                                                       pop_name=pop_name)
+
     # setup parameters
-    params = parameters.setup_params(root, databook_name, setting, metapars)
+    params = parameters.setup_params(db_path, setting, metapars)
     params.update_pars(pars)  # use user input parameters
 
     # setup population dictionary
     popdict = get_popdict(params=params,
-                          popfile=popfile,
+                          popfile=pop_path,
                           load_popdict=load_popdict,
                           save_popdict=save_popdict)
 
     # setup simulation
     sim = cv.Sim(pars=params.pars,
-                 datafile=epidata_name,
-                 popfile=popfile,
+                 datafile=epi_path,
+                 popfile=pop_path,
                  pop_size=params.pars['pop_size'])
     sim.initialize(save_pop=False,
                    load_pop=True,
-                   popfile=popfile)
+                   popfile=pop_path)
 
     # setup scenarios
     scens = scenarios.define_scenarios(policy_change=policy_change, params=params, popdict=popdict)

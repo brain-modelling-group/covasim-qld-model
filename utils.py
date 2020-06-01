@@ -1,5 +1,36 @@
-def handle_paths(root, databook_name, epidata_name, popfile):
-    pass
+import os
+
+
+def _format_paths(db_name, epi_name, pop_name, root):
+
+    # databook
+    databook_path = os.path.join(root, 'data', db_name)
+    if 'xlsx' not in db_name:
+        databook_path += '.xlsx'
+
+    # epidata
+    epidata_path = os.path.join(root, 'data', epi_name)
+    if 'xlsx' not in epi_name:
+        epidata_path += '.xlsx'
+
+    # pop_name
+    pop_path = os.path.join(root, 'data', pop_name)
+    if 'obj' not in pop_name:
+        pop_path += '.obj'
+
+    return databook_path, epidata_path, pop_path
+
+
+def get_file_paths(db_name, epi_name, pop_name, root=None):
+
+    if root is None:
+        root = os.path.dirname(__file__)
+
+    db_path, epi_path, pop_path = _format_paths(db_name=db_name,
+                                                epi_name=epi_name,
+                                                pop_name=pop_name,
+                                                root=root)
+    return db_path, epi_path, pop_path
 
 
 def par_keys():

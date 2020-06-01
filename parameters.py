@@ -88,11 +88,11 @@ class Parameters:
             print(f'- {key}: {value}')
 
 
-def setup_params(root, file_name, setting, metapars):
+def setup_params(db_path, setting, metapars):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
 
-    databook = data.load_databook(root, file_name)
+    databook = data.load_databook(db_path)
 
     # get the several parameter types & layer names
     pars, extrapars, layerchars = data.read_params(databook)
@@ -101,7 +101,7 @@ def setup_params(root, file_name, setting, metapars):
     # read in policy data
     policies = data.read_policies(databook, all_lkeys)
 
-    imported_cases, daily_tests = data.read_tests_imported(databook)  # TODO: this will break once sheet is deleted
+    imported_cases, daily_tests = data.read_tests_imported(databook)
 
     # read in a store population-related data
     age_dist, household_dist = data.read_popdata(databook)

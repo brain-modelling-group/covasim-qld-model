@@ -1,5 +1,4 @@
 import math
-import os
 import pandas as pd
 import sciris as sc
 import utils
@@ -218,10 +217,8 @@ def read_contact_matrix(databook):
     return contact_matrix
 
 
-def load_databook(root, file_name):
-    file_path = os.path.join(root, 'data', file_name)
-    file_path += '.xlsx'
-    databook = pd.ExcelFile(file_path)
+def load_databook(db_path):
+    databook = pd.ExcelFile(db_path)
     return databook
 
 

@@ -2,15 +2,12 @@ import os
 import setup
 import plot
 
-
 if __name__ == '__main__':
-    # file path
-    root = os.path.dirname(os.path.abspath(__file__))
 
-    # data location
+    # file names
     setting = 'victoria'
-    file_name = 'vic-data'
-    epidata_name = 'data/vic-epi-data.xlsx'
+    db_name = 'vic-data'
+    epi_name = 'vic-epi-data'
 
     # parameters & meta-parameters
     pars = {'pop_size': int(2e4),
@@ -25,21 +22,18 @@ if __name__ == '__main__':
     # popdict settings
     load_popdict = False
     save_popdict = True
-    popfile = 'data/popfile_v2.obj'
 
     policy_change = {'relax comm': {'replace': (['communication'], [['comm_relax']], [[20]])},
                      'turn off comm': {'turn_off': (['communication'], [20])}}
 
-    scens = setup.setup(root=root,
-                        databook_name=file_name,
-                        epidata_name=epidata_name,
+    scens = setup.setup(db_name=db_name,
+                        epi_name=epi_name,
                         setting=setting,
                         policy_change=policy_change,
                         pars=pars,
                         metapars=metapars,
                         load_popdict=load_popdict,
-                        save_popdict=save_popdict,
-                        popfile=popfile)
+                        save_popdict=save_popdict)
 
     scens.run()
 
