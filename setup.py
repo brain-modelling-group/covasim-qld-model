@@ -39,8 +39,7 @@ def setup(db_name,
                  popfile=pop_path,
                  pop_size=params.pars['pop_size'])
     sim.initialize(save_pop=False,
-                   load_pop=True,
-                   popfile=pop_path)
+                   load_pop=True)
 
     # setup scenarios
     scens = scenarios.define_scenarios(policy_change=policy_change, params=params, popdict=popdict)
