@@ -6,7 +6,7 @@ import sciris as sc
 
 from covasim import defaults as cvd
 from matplotlib.ticker import StrMethodFormatter
-from utils import PolicySchedule
+from policies import PolicySchedule
 
 
 def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,

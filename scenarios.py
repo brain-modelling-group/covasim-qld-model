@@ -1,14 +1,12 @@
 import covasim as cv
 import numpy as np
 import sciris as sc
-import utils
-
-from copy import deepcopy as dcp
+import policies
 
 
 def set_baseline(params, popdict):
 
-    #unpack
+    # unpack
     policies = params.policies
     i_cases = params.imported_cases
     daily_tests = params.daily_tests
@@ -21,7 +19,7 @@ def set_baseline(params, popdict):
     relax_day = extra_pars['relax_day']
     dynam_layers = params.dynamic_lkeys
 
-    baseline_policies = utils.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
+    baseline_policies = policies.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for d, dates in enumerate(policies['policy_dates']):  # add start and end dates to beta layer, import and edge clipping policies
         if len(policies['policy_dates'][dates]) == 2: # meaning the policy starts and finishes in baseline period
             if dates in policies['beta_policies']:
@@ -55,8 +53,8 @@ def set_baseline(params, popdict):
                 }),
                 cv.test_num(daily_tests=(daily_tests), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
-                utils.AppBasedTracing(layers=app_layers, coverage=app_cov, days=app_dates, start_day=app_start, end_day=app_end, trace_time=app_trace_time), # Adding tracing app to baseline, remove if not the right idea
-                utils.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
+                policies.AppBasedTracing(layers=app_layers, coverage=app_cov, days=app_dates, start_day=app_start, end_day=app_end, trace_time=app_trace_time), # Adding tracing app to baseline, remove if not the right idea
+                policies.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
             ]
         }
     }
@@ -94,13 +92,13 @@ def create_scen(scenarios,
                         }),
                         cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                         cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
-                        utils.UpdateNetworks(layers=dynamic_lkeys, contact_numbers=contacts, popdict=popdict)
+                        policies.UpdateNetworks(layers=dynamic_lkeys, contact_numbers=contacts, popdict=popdict)
                             ]
                         }
                      }
     for trace_pol in trace_policies:
         details = trace_policies[trace_pol]
-        scenarios[name]['pars']['interventions'].append(utils.AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
+        scenarios[name]['pars']['interventions'].append(policies.AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
     # add edge clipping policies to relax scenario
     for policy in clip_policies:
         if len(clip_policies[policy]) >= 3:
@@ -143,7 +141,7 @@ def create_scens(scen_opts,
         for change in scen.keys():
             if change == 'turn_off':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    sc.dcp(utils.turn_off_policies(scen=scen,
+                    sc.dcp(policies.turn_off_policies(scen=scen,
                                             baseline_schedule=beta_schedule,
                                             beta_policies=adapt_beta_pols,
                                             import_policies=import_pols,
@@ -155,7 +153,7 @@ def create_scens(scen_opts,
                                             imports_dict=imports_dict))
             elif change == 'turn_on':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    sc.dcp(utils.turn_on_policies(scen=scen,
+                    sc.dcp(policies.turn_on_policies(scen=scen,
                                            baseline_schedule=beta_schedule,
                                            beta_policies=adapt_beta_pols,
                                            import_policies=import_pols,
@@ -167,7 +165,7 @@ def create_scens(scen_opts,
                                            imports_dict=imports_dict))
             elif change == 'replace':
                 beta_schedule, imports_dict, clip_schedule, trace_schedule, policy_dates = \
-                    sc.dcp(utils.replace_policies(scen=scen,
+                    sc.dcp(policies.replace_policies(scen=scen,
                                            baseline_schedule=beta_schedule,
                                            beta_policies=adapt_beta_pols,
                                            import_policies=import_pols,
@@ -285,12 +283,12 @@ def define_scenarios(policy_change, params, popdict):
                 scen_opts[name][kind][pol_name] = start_date
 
         # validate & correct
-        scen_opts[name] = utils.check_policy_changes(scen_opts[name])
+        scen_opts[name] = policies.check_policy_changes(scen_opts[name])
 
         # handle change in app coverage
         kind = 'app_cov'
         if scen.get(kind) is not None:
-            pols = dcp(policies)  # avoid changing for other scenarios
+            pols = sc.dcp(policies)  # avoid changing for other scenarios
             new_cov = scen[kind]
             pols['trace_policies']['tracing_app']['coverage'] = [new_cov]
         else:
@@ -300,7 +298,7 @@ def define_scenarios(policy_change, params, popdict):
         # school transmission risk, relative to household
         kind = 'school_risk'
         if scen.get(kind) is not None:
-            parsc = dcp(pars)
+            parsc = sc.dcp(pars)
             new_risk = scen[kind]
             parsc['beta_layer']['S'] = parsc['beta_layer']['H'] * new_risk
         else:
@@ -310,7 +308,7 @@ def define_scenarios(policy_change, params, popdict):
         # school transmission risk, relative to household
         kind = 'pub_risk'
         if scen.get(kind) is not None:
-            pols = dcp(policies)  # avoid changing for other scenarios
+            pols = sc.dcp(policies)  # avoid changing for other scenarios
             new_risk = scen[kind]
             pols['beta_policies']['pub_bar_4sqm']['pub_bar'] = new_risk
         else:

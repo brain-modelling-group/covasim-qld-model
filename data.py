@@ -2,51 +2,8 @@ import math
 import os
 import pandas as pd
 import sciris as sc
+import utils
 import warnings
-
-
-def par_keys():
-    keys = ['contacts', 'beta_layer', 'quar_eff',
-            'pop_size', 'pop_scale', 'rescale',
-            'rescale_threshold', 'rescale_factor',
-            'pop_infected', 'start_day',
-            'n_days', 'diag_factor']
-    return keys
-
-
-def metapar_keys():
-    keys = ['n_runs', 'noise']
-    return keys
-
-
-def extrapar_keys():
-    keys = ['trace_probs', 'trace_time', 'restart_imports',
-            'restart_imports_length', 'relax_day', 'future_daily_tests']
-    return keys
-
-
-def layerchar_keys():
-    keys = ['proportion', 'age_lb', 'age_ub', 'cluster_type']
-    return keys
-
-
-def _dynamic_layer_keys():
-    """These are the layers that are re-generated at each time step since the contact networks are dynamic.
-    Layers not in this list are treated as static contact networks"""
-
-    layers = ['C', 'beach', 'entertainment',
-              'cafe_restaurant', 'pub_bar', 'transport',
-              'national_parks', 'public_parks', 'large_events']
-    return layers
-
-
-def default_layer_keys():
-    """
-    These are the standard layer keys: household (H), school (S), workplace (W) and community (C)
-    :return:
-    """
-    layers = ['H', 'S', 'W', 'C']
-    return layers
 
 
 def _get_ndays(start_day, end_day):
@@ -79,7 +36,7 @@ def _get_pars(databook):
 
     # retrieve values from both dicts & use to update default values
     pars = {}
-    for key in par_keys():
+    for key in utils.par_keys():
         if layers.get(key) is not None:
             pars[key] = layers.get(key)
         elif other_pars.get(key) is not None:
@@ -99,7 +56,7 @@ def _get_extrapars(databook):
     otherpar = databook.parse('other_par', index_col=0)['value']
 
     extrapars = {}
-    for key in extrapar_keys():
+    for key in utils.extrapar_keys():
         if layers.get(key) is not None:
             extrapars[key] = layers.get(key)
         elif otherpar.get(key) is not None:
@@ -121,7 +78,7 @@ def _get_layerchars(databook):
     layers = layers.to_dict(orient='dict')
 
     layerchars = {}
-    for key in layerchar_keys():
+    for key in utils.layerchar_keys():
         if layers.get(key) is not None:
             layerchars[key] = layers.get(key)
         else:
@@ -209,9 +166,9 @@ def get_layer_keys(databook):
     """
     layers = databook.parse('layers', index_col=0)
     allkeys = layers.index.tolist()
-    default_keys = default_layer_keys()
+    default_keys = utils.default_layer_keys()
     custom_keys = list(set(allkeys) - set(default_keys))  # remove custom keys
-    all_dynamic_keys = _dynamic_layer_keys()
+    all_dynamic_keys = utils._dynamic_layer_keys()
     dynamic_keys = list(set(all_dynamic_keys).intersection(allkeys))  # dynamic keys that are listed in spreadsheet
     return allkeys, default_keys, custom_keys, dynamic_keys
 
