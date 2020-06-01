@@ -2,6 +2,12 @@ import numpy as np
 import os
 
 
+def epi_data_url():
+    """Contains URL of global epi data for COVID-19"""
+    url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/ecdc/full_data.csv'
+    return url
+
+
 def _format_paths(db_name, epi_name, pop_name, root):
 
     # databook

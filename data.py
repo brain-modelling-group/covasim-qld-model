@@ -195,6 +195,16 @@ def read_tests_imported(databook):
     return imported_cases, daily_tests
 
 
+def read_epi_data(where='url', **kwargs):
+    """By default, will return daily global data from URL below"""
+    if where == 'url':
+        url = utils.epi_data_url()
+        epidata = pd.read_csv(url, **kwargs)
+    else:
+        epidata = pd.read_csv(where, **kwargs)
+    return epidata
+
+
 def read_contact_matrix(databook):
     """
     Load Prem et al. matrices then transform into a symmetric matrix
