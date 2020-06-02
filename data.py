@@ -195,13 +195,31 @@ def read_tests_imported(databook):
     return imported_cases, daily_tests
 
 
-def read_epi_data(where='url', **kwargs):
+def read_epi_data(where, **kwargs):
     """By default, will return daily global data from URL below"""
     if where == 'url':
         url = utils.epi_data_url()
         epidata = pd.read_csv(url, **kwargs)
     else:
         epidata = pd.read_csv(where, **kwargs)
+    return epidata
+
+
+def format_epidata(epidata):
+    """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
+    epidata_dict = {}
+    countries = epidata['location'].unique()
+    for c in countries:
+        this_country = epidata.loc[epidata['location'] == c]
+        this_country = this_country.reset_index(drop=True)  # reset row numbers
+        this_country = this_country[['date', 'new_cases', 'new_deaths', 'total_cases', 'total_deaths']]  # drop unwanted columns
+        epidata_dict[c] = this_country
+    return epidata_dict
+
+
+def get_epi_data(where='url', **kwargs):
+    epidata = read_epi_data(where=where, **kwargs)
+    epidata = format_epidata(epidata)
     return epidata
 
 
