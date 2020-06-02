@@ -14,36 +14,57 @@ def _get_ndays(start_day, end_day):
     return n_days
 
 
-def _get_pars(databook):
+def _get_pars(locations, databook):
     """
-    Read in the parameter values from the databook.
-    If values are not specified in the databook, default values will be taken from Covasim
-
-    :param databook: a pandas ExcelFile object
-    :return: dictionary of complete parameter values
+    Read in & format the parameters for each location.
+    :return a dictionary of form (location, pars)
     """
+    # household
+    hlayer = databook.parse('layer-household', header=0, index_col=0)
+    hlayer = hlayer.loc[locations].to_dict(orient='index')
 
-    # read in networks (layers)
-    layers = databook.parse("layers", index_col=0)
-    layers = layers.to_dict(orient="dict")
+    # school
+    slayer = databook.parse('layer-school', header=0, index_col=0)
+    slayer = slayer.loc[locations].to_dict(orient='index')
 
-    # read other_par
-    other_pars = databook.parse("other_par", index_col=0)['value']
-    other_pars = other_pars.to_dict()
+    # work
+    wlayer = databook.parse('layer-work', header=0, index_col=0)
+    wlayer = wlayer.loc[locations].to_dict(orient='index')
 
-    other_pars['n_days'] = _get_ndays(other_pars['start_day'], other_pars['end_day'])
+    # community
+    clayer = databook.parse('layer-community', header=0, index_col=0)
+    clayer = clayer.loc[locations].to_dict(orient='index')
 
-    # retrieve values from both dicts & use to update default values
-    pars = {}
-    for key in utils.par_keys():
-        if layers.get(key) is not None:
-            pars[key] = layers.get(key)
-        elif other_pars.get(key) is not None:
-            pars[key] = other_pars.get(key)
-        else:
-            warnings.warn(f'Parameter key "{key}" not found in spreadsheet data')
+    # the parameters that are in a different sheet
+    other_pars = databook.parse("other_par", index_col=0)
+    other_pars = other_pars.loc[locations].to_dict(orient='index')
 
-    return pars
+    all_pars = {}
+    for location in locations:
+        pars = {}
+        h = hlayer[location]
+        s = slayer[location]
+        w = wlayer[location]
+        c = clayer[location]
+        o = other_pars[location]
+        for key in utils.par_keys():
+            if key == 'n_days':
+                ndays = _get_ndays(o['start_day'], o['end_day'])
+                temp = {key: ndays}
+            elif h.get(key) is not None:  # assume if in this, will be in S, W & C
+                temp = {key: {'H': h[key],
+                              'S': s[key],
+                              'W': w[key],
+                              'C': c[key]}
+                        }
+            elif o.get(key) is not None:
+                temp = {key: o[key]}
+            else:
+                warnings.warn(f'Parameter key "{key}" not found in spreadsheet data')
+            pars.update(temp)
+        all_pars[location] = pars
+
+    return all_pars
 
 
 def _get_extrapars(databook):
@@ -205,21 +226,23 @@ def read_epi_data(where, **kwargs):
     return epidata
 
 
-def format_epidata(epidata):
+def format_epidata(locations, epidata):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
+    if isinstance(locations, str):
+        locations = [locations]
+
     epidata_dict = {}
-    countries = epidata['location'].unique()
-    for c in countries:
-        this_country = epidata.loc[epidata['location'] == c]
+    for l in locations:
+        this_country = epidata.loc[epidata['location'] == l]
         this_country = this_country.reset_index(drop=True)  # reset row numbers
         this_country = this_country[['date', 'new_cases', 'new_deaths', 'total_cases', 'total_deaths']]  # drop unwanted columns
-        epidata_dict[c] = this_country
+        epidata_dict[l] = this_country
     return epidata_dict
 
 
-def get_epi_data(where='url', **kwargs):
-    epidata = read_epi_data(where=where, **kwargs)
-    epidata = format_epidata(epidata)
+def get_epi_data(locations, where, **kwargs):
+    epidata = read_epi_data(where, **kwargs)
+    epidata = format_epidata(locations, epidata)
     return epidata
 
 
