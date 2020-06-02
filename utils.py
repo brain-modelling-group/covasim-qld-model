@@ -54,7 +54,7 @@ def par_keys():
             'pop_size', 'pop_scale', 'rescale',
             'rescale_threshold', 'rescale_factor',
             'pop_infected', 'start_day',
-            'n_days', 'diag_factor']
+            'n_days', 'iso_factor']
     return keys
 
 
