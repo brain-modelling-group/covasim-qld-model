@@ -268,26 +268,35 @@ def get_epi_data(locations, where, **kwargs):
     return epidata
 
 
-def read_contact_matrix(databook):
+def read_contact_matrix(locations, databook):
     """
     Load Prem et al. matrices then transform into a symmetric matrix
     :param databook:
     :return:
     """
-    contact_matrix = {}
-    mixing_matrix0 = databook.parse(sheet_name='contact matrices-home', usecols=range(17), index_col=0)
-    # make symmetric with ((rowi, colj) + (rowj, coli)) / 2
-    mixing_matrix = mixing_matrix0.copy()
-    for i in range(len(mixing_matrix0)):
-        for j in range(len(mixing_matrix0)):
-            mixing_matrix.values[i, j] = (mixing_matrix0.values[i, j] + mixing_matrix0.values[j, i]) / 2.0
-    age_lb = [int(x.split('-')[0]) for x in mixing_matrix.index]  # lower age in bin
-    age_ub = [int(x.split('-')[1]) for x in mixing_matrix.index]  # upper age in bin
 
-    contact_matrix['matrix'] = mixing_matrix
-    contact_matrix['age_lb'] = age_lb
-    contact_matrix['age_ub'] = age_ub
-    return contact_matrix
+    matrix_sheet = databook.parse('contact matrices-home', usecols="A:R", index_col=[0,1])
+
+    all_matrices = {}
+
+    for location in locations:
+        mixing_matrix0 = matrix_sheet.loc[location]
+        contact_matrix = {}
+        # make symmetric with ((rowi, colj) + (rowj, coli)) / 2
+        mixing_matrix = mixing_matrix0.copy()
+        for i in range(len(mixing_matrix0)):
+            for j in range(len(mixing_matrix0)):
+                mixing_matrix.values[i, j] = (mixing_matrix0.values[i, j] + mixing_matrix0.values[j, i]) / 2.0
+        age_lb = [int(x.split('-')[0]) for x in mixing_matrix.index]  # lower age in bin
+        age_ub = [int(x.split('-')[1]) for x in mixing_matrix.index]  # upper age in bin
+
+        contact_matrix['matrix'] = mixing_matrix
+        contact_matrix['age_lb'] = age_lb
+        contact_matrix['age_ub'] = age_ub
+
+        all_matrices[location] = contact_matrix
+
+    return all_matrices
 
 
 def load_databook(db_path):
