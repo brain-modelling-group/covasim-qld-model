@@ -15,10 +15,13 @@ def _format_paths(db_name, epi_name, pop_name, root):
     if 'xlsx' not in db_name:
         databook_path += '.xlsx'
 
-    # epidata
-    epidata_path = os.path.join(root, 'data', epi_name)
-    if 'xlsx' not in epi_name:
-        epidata_path += '.xlsx'
+    if epi_name == 'url':
+        epidata_path = 'url'
+    else:
+        # must be stored elsewhere
+        epidata_path = os.path.join(root, 'data', epi_name)
+        if 'xlsx' not in epi_name:
+            epidata_path += '.xlsx'
 
     # pop_name
     pop_path = os.path.join(root, 'data', pop_name)
