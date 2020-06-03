@@ -36,9 +36,10 @@ def _get_pars(locations, databook):
     clayer = clayer.loc[locations].to_dict(orient='index')
 
     # the parameters that are in a different sheet
-    other_pars = databook.parse("other_par", index_col=0)
+    other_pars = databook.parse('other_par', index_col=0)
     other_pars = other_pars.loc[locations].to_dict(orient='index')
 
+    # structure the parameters for each country according to Covasim pars dictionary
     all_pars = {}
     for location in locations:
         pars = {}
@@ -67,23 +68,49 @@ def _get_pars(locations, databook):
     return all_pars
 
 
-def _get_extrapars(databook):
+def _get_extrapars(locations, databook):
 
-    # get those in the layers sheet
-    layers = databook.parse('layers', index_col=0)
-    layers = layers.to_dict(orient="dict")
+    # household
+    hlayer = databook.parse('layer-household', header=0, index_col=0)
+    hlayer = hlayer.loc[locations].to_dict(orient='index')
+
+    # school
+    slayer = databook.parse('layer-school', header=0, index_col=0)
+    slayer = slayer.loc[locations].to_dict(orient='index')
+
+    # work
+    wlayer = databook.parse('layer-work', header=0, index_col=0)
+    wlayer = wlayer.loc[locations].to_dict(orient='index')
+
+    # community
+    clayer = databook.parse('layer-community', header=0, index_col=0)
+    clayer = clayer.loc[locations].to_dict(orient='index')
+
     # those in other_par sheet
-    otherpar = databook.parse('other_par', index_col=0)['value']
+    other_pars = databook.parse('other_par', index_col=0)
+    other_pars = other_pars.loc[locations].to_dict(orient='index')
 
-    extrapars = {}
-    for key in utils.extrapar_keys():
-        if layers.get(key) is not None:
-            extrapars[key] = layers.get(key)
-        elif otherpar.get(key) is not None:
-            extrapars[key] = otherpar.get(key)
-        else:
-            warnings.warn(f'Extra-parameter key "{key}" not found in spreadsheet data')
-
+    all_extrapars = {}
+    for location in locations:
+        extrapars = {}
+        h = hlayer[location]
+        s = slayer[location]
+        w = wlayer[location]
+        c = clayer[location]
+        o = other_pars[location]
+        for key in utils.extrapar_keys():
+            if h.get(key) is not None:  # assume is in this, will be in S, W & C
+                temp = {key: {'H': h[key],
+                              'S': s[key],
+                              'W': w[key],
+                              'C': c[key]}
+                }
+            elif o.get(key) is not None:
+                temp = {key: o[key]}
+            else:
+                warnings.warn(f'Parameter key "{key}" not found in spreadsheet data')
+            extrapars.update(temp)
+        all_extrapars[location] = extrapars
     return extrapars
 
 
