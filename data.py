@@ -14,11 +14,7 @@ def _get_ndays(start_day, end_day):
     return n_days
 
 
-def _get_pars(locations, databook):
-    """
-    Read in & format the parameters for each location.
-    :return a dictionary of form (location, pars)
-    """
+def _get_layers(locations, databook):
     # household
     hlayer = databook.parse('layer-household', header=0, index_col=0)
     hlayer = hlayer.loc[locations].to_dict(orient='index')
@@ -34,6 +30,16 @@ def _get_pars(locations, databook):
     # community
     clayer = databook.parse('layer-community', header=0, index_col=0)
     clayer = clayer.loc[locations].to_dict(orient='index')
+    return hlayer, slayer, wlayer, clayer
+
+
+def _get_pars(locations, databook):
+    """
+    Read in & format the parameters for each location.
+    :return a dictionary of form (location, pars)
+    """
+
+    hlayer, slayer, wlayer, clayer = _get_layers(locations, databook)
 
     # the parameters that are in a different sheet
     other_pars = databook.parse('other_par', index_col=0)
@@ -70,21 +76,7 @@ def _get_pars(locations, databook):
 
 def _get_extrapars(locations, databook):
 
-    # household
-    hlayer = databook.parse('layer-household', header=0, index_col=0)
-    hlayer = hlayer.loc[locations].to_dict(orient='index')
-
-    # school
-    slayer = databook.parse('layer-school', header=0, index_col=0)
-    slayer = slayer.loc[locations].to_dict(orient='index')
-
-    # work
-    wlayer = databook.parse('layer-work', header=0, index_col=0)
-    wlayer = wlayer.loc[locations].to_dict(orient='index')
-
-    # community
-    clayer = databook.parse('layer-community', header=0, index_col=0)
-    clayer = clayer.loc[locations].to_dict(orient='index')
+    hlayer, slayer, wlayer, clayer = _get_layers(locations, databook)
 
     # those in other_par sheet
     other_pars = databook.parse('other_par', index_col=0)
@@ -114,24 +106,29 @@ def _get_extrapars(locations, databook):
     return extrapars
 
 
-def _get_layerchars(databook):
-    """
-    Read in the layer characteristics
-    :param databook:
-    :return: a dit of layer characteristics
-    """
+def _get_layerchars(locations, databook):
 
-    layers = databook.parse('layers', index_col=0)
-    layers = layers.to_dict(orient='dict')
+    hlayer, slayer, wlayer, clayer = _get_layers(locations, databook)
 
-    layerchars = {}
-    for key in utils.layerchar_keys():
-        if layers.get(key) is not None:
-            layerchars[key] = layers.get(key)
-        else:
-            warnings.warn(f'Layer characteristics key "{key}" not found in spreadsheet data')
-
-    return layerchars
+    all_layerchars = {}
+    for location in locations:
+        layerchars = {}
+        h = hlayer[location]
+        s = slayer[location]
+        w = wlayer[location]
+        c = clayer[location]
+        for key in utils.layerchar_keys():
+            if h.get(key) is not None:
+                temp = {key: {'H': h[key],
+                              'S': s[key],
+                              'W': w[key],
+                              'C': c[key]}
+                }
+            else:
+                warnings.warn(f'Layer characteristics key "{key}" not found in spreadsheet data')
+            layerchars.update(temp)
+        all_layerchars[location] = layerchars
+    return all_layerchars
 
 
 def read_policies(databook, all_lkeys):
