@@ -131,61 +131,73 @@ def _get_layerchars(locations, databook):
     return all_layerchars
 
 
-def read_policies(databook, all_lkeys):
+def read_policies(locations, databook):
     """
     Read in the policies sheet
     :param databook:
     :return:
     """
-    policies = {}
-    policies['beta_policies'] = {}
-    policies['import_policies'] = {}
-    policies['clip_policies'] = {}
-    policies['policy_dates'] = {}
 
-    pols = databook.parse('policies', index_col=0, skiprows=1)
-    start_sim = databook.parse("other_par", index_col=0)['value']['start_day']
-    for pol_name, row in pols.iterrows():
+    layer_keys = utils.default_layer_keys()
 
-        # get the number of days til policy starts and ends (relative to simulation start)
-        start_pol = row['Date implemented (implicitly or explicitly)']
-        end_pol = row['Date ended/replaced']
-        if not pd.isna(start_pol):
-            days_to_start = _get_ndays(start_sim, start_pol)
-            n_days = [days_to_start]
-            if not pd.isna(end_pol):
-                days_to_end = _get_ndays(start_sim, end_pol)
-                n_days.append(days_to_end)
-            policies['policy_dates'][pol_name] = n_days
+    start_days = databook.parse('other_par', index_col=0, header=0).to_dict(orient='index')
+    pol_sheet = databook.parse('policies', index_col=[0,1], header=0)  # index by first 2 cols to avoid NAs in first col
 
-        # check if there is a change in beta values on this layer (i.e. change in transmission risk)
-        beta_vals = row['beta':'aged_care']
-        beta_change = beta_vals.prod()  # multiply series together
-        if not math.isclose(beta_change, 1, abs_tol=1e-9):
-            policies['beta_policies'][pol_name] = {}
-            for layer_key in all_lkeys:
-                beta = row['beta']
-                beta_layer = row[layer_key]
-                policies['beta_policies'][pol_name][layer_key] = beta * beta_layer
+    all_policies = {}
+    for location in locations:
+        start_sim = start_days[location]['start_day']
+        pols = pol_sheet.loc[location]
 
-        # policies impacting imported cases
-        imports = row['imported_infections']
-        if imports > 0:
-            policies['import_policies'][pol_name] = {'n_imports': imports}
+        policies = {}
+        policies['beta_policies'] = {}
+        policies['import_policies'] = {}
+        policies['clip_policies'] = {}
+        policies['policy_dates'] = {}
 
-        # policies that remove people from layers
-        to_clip = [row['clip_edges_layer'], row['clip_edges']]
-        percent_to_clip = to_clip[1]
-        if not pd.isna(percent_to_clip):
-            policies['clip_policies'][pol_name] = {}
-            policies['clip_policies'][pol_name]['change'] = percent_to_clip
-            layers_to_clip = to_clip[0]
-            if not pd.isna(layers_to_clip):
-                policies['clip_policies'][pol_name]['layers'] = [lk for lk in all_lkeys if lk in layers_to_clip]
-            else:
-                policies['clip_policies'][pol_name]['layers'] = all_lkeys
 
-    return policies
+        for pol_name, row in pols.iterrows():
+
+            # get the number of days til policy starts and ends (relative to simulation start)
+            start_pol = row['Date implemented (implicitly or explicitly)']
+            end_pol = row['Date ended/replaced']
+            if not pd.isna(start_pol):
+                days_to_start = _get_ndays(start_sim, start_pol)
+                n_days = [days_to_start]
+                if not pd.isna(end_pol):
+                    days_to_end = _get_ndays(start_sim, end_pol)
+                    n_days.append(days_to_end)
+                policies['policy_dates'][pol_name] = n_days
+
+            # check if there is a change in beta values on this layer (i.e. change in transmission risk)
+            beta_vals = row['beta':'C']
+            beta_change = beta_vals.prod()  # multiply series together
+            if not math.isclose(beta_change, 1, abs_tol=1e-9):
+                policies['beta_policies'][pol_name] = {}
+                for layer_key in layer_keys:
+                    beta = row['beta']
+                    beta_layer = row[layer_key]
+                    policies['beta_policies'][pol_name][layer_key] = beta * beta_layer
+
+            # policies impacting imported cases
+            imports = row['imported_infections']
+            if imports > 0:
+                policies['import_policies'][pol_name] = {'n_imports': imports}
+
+            # policies that remove people from layers
+            to_clip = [row['clip_edges_layer'], row['clip_edges']]
+            percent_to_clip = to_clip[1]
+            if not pd.isna(percent_to_clip):
+                policies['clip_policies'][pol_name] = {}
+                policies['clip_policies'][pol_name]['change'] = percent_to_clip
+                layers_to_clip = to_clip[0]
+                if not pd.isna(layers_to_clip):
+                    policies['clip_policies'][pol_name]['layers'] = [lk for lk in layer_keys if lk in layers_to_clip]
+                else:
+                    policies['clip_policies'][pol_name]['layers'] = layer_keys
+
+        all_policies[location] = policies
+
+    return all_policies
 
 
 def get_layer_keys(databook):
