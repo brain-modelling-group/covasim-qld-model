@@ -18,8 +18,3 @@ policy_change = {'Australia': {'relax comm': {'replace': (['communication'], [['
                  'New Zealand': {'relax comm': {'replace': (['communication'], [['comm_relax']], [[20]])}}}
 
 
-
-import data
-db = data.load_databook('/Users/samwork/Documents/GitHub/covasim-australia/data_int/input_data.xlsx')
-print(data.read_contact_matrix(locations, db))
-
