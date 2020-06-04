@@ -104,7 +104,7 @@ def _get_extrapars(locations, databook):
                 warnings.warn(f'Parameter key "{key}" not found in spreadsheet data')
             extrapars.update(temp)
         all_extrapars[location] = extrapars
-    return extrapars
+    return all_extrapars
 
 
 def _get_layerchars(locations, databook):
