@@ -17,7 +17,7 @@ class Parameters:
     """
 
     def __init__(self,
-                 setting=None,
+                 location=None,
                  pars=None,
                  metapars=None,
                  extrapars=None,
@@ -34,7 +34,7 @@ class Parameters:
                  custom_lkeys=None,
                  dynamic_lkeys=None):
 
-        self.setting = setting
+        self.location = location
         self.pars = pars
         self.metapars = metapars
         self.extrapars = extrapars
@@ -57,7 +57,7 @@ class Parameters:
             return
 
         if verbose:
-            print("The following will be updated in the parameters dictionary...")
+            print(f'The following will be updated in {self.location} parameters dictionary...')
             for key in newpars.keys():
                 print(key)
 
@@ -88,28 +88,20 @@ class Parameters:
             print(f'- {key}: {value}')
 
 
-def setup_params(db_path, setting, metapars):
+def setup_params(location, loc_data, metapars, user_pars):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
 
-    databook = data.load_databook(db_path)
+    # all_lkeys, default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)  # TODO: not using these other layers currently
+    pars = loc_data['pars']
+    extrapars = loc_data['extrapars']
+    layerchars = loc_data['layerchars']
+    policies = loc_data['policies']
+    household_dist = loc_data['household_dist']
+    age_dist = loc_data['age_dist']
+    contact_matrix = loc_data['contact_matrix']
 
-    # get the several parameter types & layer names
-    pars, extrapars, layerchars = data.read_params(databook)
-    all_lkeys, default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)
-
-    # read in policy data
-    policies = data.read_policies(databook, all_lkeys)
-
-    imported_cases, daily_tests = data.read_tests_imported(databook)
-
-    # read in a store population-related data
-    age_dist, household_dist = data.read_popdata(databook)
-
-    # get mixing matrix & age brackets
-    contact_matrix = data.read_contact_matrix(databook)
-
-    params = Parameters(setting=setting,
+    params = Parameters(location=location,
                         pars=pars,
                         metapars=metapars,
                         extrapars=extrapars,
@@ -117,11 +109,13 @@ def setup_params(db_path, setting, metapars):
                         policies=policies,
                         household_dist=household_dist,
                         age_dist=age_dist,
-                        contact_matrix=contact_matrix,
-                        imported_cases=imported_cases,
-                        daily_tests=daily_tests,
-                        all_lkeys=all_lkeys,
-                        default_lkeys=default_lkeys,
-                        custom_lkeys=custom_lkeys,
-                        dynamic_lkeys=dynamic_lkeys)
+                        contact_matrix=contact_matrix)
+                        # imported_cases=imported_cases,
+                        # daily_tests=daily_tests,
+                        # all_lkeys=all_lkeys,
+                        # default_lkeys=default_lkeys,
+                        # custom_lkeys=custom_lkeys,
+                        # dynamic_lkeys=dynamic_lkeys)
+    if user_pars is not None:  # overwrite the parameter values from the databook
+        params.update_pars(user_pars)
     return params
