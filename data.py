@@ -1,4 +1,5 @@
 import math
+import numpy as np
 import pandas as pd
 import sciris as sc
 import utils
@@ -221,11 +222,37 @@ def get_layer_keys(databook):
 #     sex['frac_male'] = sex['frac_male'].fillna(0.5)  # if 0, replace with 0.5
 
 
-def read_popdata(databook):
-    age_dist = databook.parse('age_sex')['Total']
-    household_dist = databook.parse('households')['no. households']
-    household_dist.index += 1  # represents the no. of people in each household
-    return age_dist, household_dist
+def read_popdata(locations, databook):
+    agedist_sheet = databook.parse('age_sex', index_col=[0,1], usecols="A:R")  # ignore totals column
+    household_sheet = databook.parse('households', index_col=[0])
+
+    all_agedist = {}
+    all_householddist = {}
+    for location in locations:
+
+        # age distribution
+        # total number of men & women in each age bracket
+        totals = agedist_sheet.loc[location, 'Male'] + agedist_sheet.loc[location, 'Female']
+        # break up bracket into individual years, distribute numbers uniformly
+        age_dist = {}
+        for age_group in totals.index:
+            age_total = totals[age_group]
+            age_l = int(age_group.split('-')[0])
+            age_u = int(age_group.split('-')[1])
+            age_interval = np.arange(age_l, age_u)
+            to_distrib = int(age_total / len(age_interval))
+            temp = {age: to_distrib for age in age_interval}
+            age_dist.update(temp)
+
+        all_agedist[location] = pd.Series(age_dist)
+
+        # household distribution
+        household_dist = household_sheet.loc[location]
+        household_dist.index = [1,2,3,4,5,6]  # used as the number of people per household
+
+        all_householddist[location] = household_dist
+
+    return all_agedist, all_householddist
 
 
 def read_tests_imported(databook):
