@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     scens = setup.setup(db_name=db_name,
                         epi_name=epi_name,
-                        setting=setting,
+                        locations=setting,
                         policy_change=policy_change,
                         pars=pars,
                         metapars=metapars,
