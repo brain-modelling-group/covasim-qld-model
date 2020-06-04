@@ -331,12 +331,43 @@ def load_databook(db_path):
     return databook
 
 
-def read_params(databook):
+def read_params(locations, db):
     """
     Read all the necessary parameters from the databook
     """
 
-    pars = _get_pars(databook)
-    extrapars = _get_extrapars(databook)
-    layerchars = _get_layerchars(databook)
+    pars = _get_pars(locations, db)
+    extrapars = _get_extrapars(locations, db)
+    layerchars = _get_layerchars(locations, db)
     return pars, extrapars, layerchars
+
+
+def read_data(locations, db_name, epi_name, pop_name):
+    """Reads in all data in the appropriate format"""
+    db_path, epi_path, pop_path = utils.get_file_paths(db_name=db_name,
+                                                       epi_name=epi_name,
+                                                       pop_name=pop_name)
+
+    db = load_databook(db_path)
+
+    pars, extrapars, layerchars = read_params(locations, db)
+    policies = read_policies(locations, db)
+    contact_matrix = read_contact_matrix(locations, db)
+    epidata = get_epi_data(locations, epi_path)
+    age_dist, household_dist = read_popdata(locations, db)
+    # imported_cases, daily_tests = read_tests_imported(db)
+
+    # convert so that outer key is the location
+    all_data = {}
+    for location in locations:
+        all_data[location] = {'pars': pars[location],
+                             'extrapars': extrapars[location],
+                             'layerchars': layerchars[location],
+                             'policies': policies[location],
+                             'contact_matrix': contact_matrix[location],
+                             'epidata': epidata[location],
+                             'age_dist': age_dist[location],
+                             'household_dist': household_dist[location]
+                             }
+
+    return all_data
