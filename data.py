@@ -248,7 +248,7 @@ def read_popdata(locations, databook):
 
         # household distribution
         household_dist = household_sheet.loc[location]
-        household_dist.index = [1,2,3,4,5,6]  # used as the number of people per household
+        household_dist.index = [1, 2, 3, 4, 5, 6]  # used as the number of people per household
 
         all_householddist[location] = household_dist
 
