@@ -139,7 +139,7 @@ def read_policies(locations, databook):
     :return:
     """
 
-    layer_keys = utils.default_layer_keys()
+    layer_keys = utils.default_lkeys()
 
     start_days = databook.parse('other_par', index_col=0, header=0).to_dict(orient='index')
     pol_sheet = databook.parse('policies', index_col=[0,1], header=0)  # index by first 2 cols to avoid NAs in first col
@@ -199,21 +199,6 @@ def read_policies(locations, databook):
         all_policies[location] = policies
 
     return all_policies
-
-
-def get_layer_keys(databook):
-    """
-    Get the names of custom layers
-    :param databook:
-    :return:
-    """
-    layers = databook.parse('layers', index_col=0)
-    allkeys = layers.index.tolist()
-    default_keys = utils.default_layer_keys()
-    custom_keys = list(set(allkeys) - set(default_keys))  # remove custom keys
-    all_dynamic_keys = utils._dynamic_layer_keys()
-    dynamic_keys = list(set(all_dynamic_keys).intersection(allkeys))  # dynamic keys that are listed in spreadsheet
-    return allkeys, default_keys, custom_keys, dynamic_keys
 
 
 # def read_sex(databook):
@@ -342,11 +327,10 @@ def read_params(locations, db):
     return pars, extrapars, layerchars
 
 
-def read_data(locations, db_name, epi_name, pop_name):
+def read_data(locations, db_name, epi_name):
     """Reads in all data in the appropriate format"""
-    db_path, epi_path, pop_path = utils.get_file_paths(db_name=db_name,
-                                                       epi_name=epi_name,
-                                                       pop_name=pop_name)
+    db_path, epi_path = utils.get_file_paths(db_name=db_name,
+                                             epi_name=epi_name)
 
     db = load_databook(db_path)
 
@@ -356,6 +340,9 @@ def read_data(locations, db_name, epi_name, pop_name):
     epidata = get_epi_data(locations, epi_path)
     age_dist, household_dist = read_popdata(locations, db)
     # imported_cases, daily_tests = read_tests_imported(db)
+
+    # handle layer names
+    keys = utils.get_lkeys()
 
     # convert so that outer key is the location
     all_data = {}
@@ -367,7 +354,7 @@ def read_data(locations, db_name, epi_name, pop_name):
                              'contact_matrix': contact_matrix[location],
                              'epidata': epidata[location],
                              'age_dist': age_dist[location],
-                             'household_dist': household_dist[location]
-                             }
+                             'household_dist': household_dist[location],
+                             **keys}
 
     return all_data

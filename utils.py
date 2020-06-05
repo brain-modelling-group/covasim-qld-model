@@ -8,7 +8,7 @@ def epi_data_url():
     return url
 
 
-def _format_paths(db_name, epi_name, pop_name, root):
+def _format_paths(db_name, epi_name, root):
 
     # databook
     databook_path = os.path.join(root, 'data', db_name)
@@ -23,24 +23,19 @@ def _format_paths(db_name, epi_name, pop_name, root):
         if 'xlsx' not in epi_name:
             epidata_path += '.xlsx'
 
-    # pop_name
-    pop_path = os.path.join(root, 'data', pop_name)
-    if 'obj' not in pop_name:
-        pop_path += '.obj'
-
-    return databook_path, epidata_path, pop_path
+    return databook_path, epidata_path
 
 
-def get_file_paths(db_name, epi_name, pop_name, root=None):
+def get_file_paths(db_name, epi_name, root=None):
 
     if root is None:
         root = os.path.dirname(__file__)
 
-    db_path, epi_path, pop_path = _format_paths(db_name=db_name,
-                                                epi_name=epi_name,
-                                                pop_name=pop_name,
-                                                root=root)
-    return db_path, epi_path, pop_path
+    db_path, epi_path = _format_paths(db_name=db_name,
+                                      epi_name=epi_name,
+                                      root=root)
+
+    return db_path, epi_path
 
 
 def set_rand_seed(metapars):
@@ -77,20 +72,36 @@ def layerchar_keys():
     return keys
 
 
-def _dynamic_layer_keys():
+def dynamic_lkeys():
     """These are the layers that are re-generated at each time step since the contact networks are dynamic.
     Layers not in this list are treated as static contact networks"""
-
-    layers = ['C', 'beach', 'entertainment',
-              'cafe_restaurant', 'pub_bar', 'transport',
-              'national_parks', 'public_parks', 'large_events']
+    layers = ['C']
     return layers
 
 
-def default_layer_keys():
+def default_lkeys():
     """
     These are the standard layer keys: household (H), school (S), workplace (W) and community (C)
     :return:
     """
     layers = ['H', 'S', 'W', 'C']
     return layers
+
+
+def all_lkeys():
+    layers = ['H', 'S', 'W', 'C']
+    return layers
+
+
+def custom_lkeys():
+    """Layer keys that are part of the simulation but not by default"""
+    custom_lkeys = list(set(all_lkeys()) - set(default_lkeys()))
+    return custom_lkeys
+
+
+def get_lkeys():
+    keys = {'all_lkeys': all_lkeys(),
+            'default_lkeys': default_lkeys(),
+            'dynamic_lkeys': dynamic_lkeys(),
+            'custom_lkeys': custom_lkeys()}
+    return keys
