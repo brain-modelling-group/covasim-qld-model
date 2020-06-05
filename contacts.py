@@ -232,18 +232,14 @@ def make_contacts(params):
     return contacts_list, ages, uids
 
 
-def get_popdict(params, popfile, load_popdict, save_popdict):
-    if load_popdict:
-        popdict = sc.loadobj(popfile)
-    else:
-        contacts, ages, uids = make_contacts(params)
+def get_popdict(params):
 
-        # create the popdict object
-        popdict = {}
-        popdict['contacts'] = contacts
-        popdict['age'] = ages
-        popdict['uid'] = uids
-        if save_popdict:
-            sc.saveobj(popfile, popdict)
+    contacts, ages, uids = make_contacts(params)
+
+    # create the popdict object
+    popdict = {}
+    popdict['contacts'] = contacts
+    popdict['age'] = ages
+    popdict['uid'] = uids
 
     return popdict
