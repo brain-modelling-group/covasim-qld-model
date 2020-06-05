@@ -40,7 +40,6 @@ def setup_scens(locations,
 
 
         # setup simulation for this location
-        # TODO: need to pass pars if they are in the people class?
         sim = cv.Sim(pars=params.pars,
                      datafile=loc_epidata,
                      popfile=people,

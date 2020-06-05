@@ -51,8 +51,6 @@ def set_baseline(params, popdict):
         }
     }
 
-    #TODO: not being used in lockdown/non-lockdown
-
     # add edge clipping policies to baseline scenario
     for policy in policies['clip_policies']:
         details = policies['clip_policies'][policy]
