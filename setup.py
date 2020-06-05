@@ -23,13 +23,14 @@ def setup_scens(locations,
 
     all_scens = {}
     for location in locations:
-        
-        print(f'\n Creating scenarios for "{location}"...')
+
+        print(f'\nCreating scenarios for "{location}"...')
 
         loc_data = all_data[location]
         loc_epidata = all_data[location]['epidata']
         keys = all_data[location]
         loc_pars = user_pars[location]
+        loc_pol = policy_change[location]
 
         # setup parameters object for this simulation
         params = parameters.setup_params(location=location,
@@ -51,7 +52,7 @@ def setup_scens(locations,
         sim.initialize()
 
         # setup scenarios for this location
-        scens = scenarios.define_scenarios(policy_change=policy_change,
+        scens = scenarios.define_scenarios(policy_change=loc_pol,
                                            params=params,
                                            popdict=popdict)
         scens = cv.Scenarios(sim=sim,

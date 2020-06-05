@@ -1,6 +1,3 @@
-import data
-
-
 class Parameters:
     """
     The Parameters class is a container for the various types of parameters
@@ -57,7 +54,7 @@ class Parameters:
             return
 
         if verbose:
-            print(f'The following will be updated in {self.location} parameters dictionary...')
+            print(f'The following will be updated in the parameters dictionary...')
             for key in newpars.keys():
                 print(f'- {key}')
 
