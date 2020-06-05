@@ -36,13 +36,6 @@ def set_baseline(params, popdict):
             if dates in policies['clip_policies']:
                 policies['clip_policies'][dates]['dates'] = [policies['policy_dates'][dates][0], n_days]
 
-    app_layers = policies['trace_policies']['tracing_app']['layers']
-    app_cov = policies['trace_policies']['tracing_app']['coverage']
-    app_dates = policies['trace_policies']['tracing_app']['dates']
-    app_start = policies['trace_policies']['tracing_app']['start_day']
-    app_end = policies['trace_policies']['tracing_app']['end_day']
-    app_trace_time = policies['trace_policies']['tracing_app']['trace_time']
-
     base_scenarios = {}  # create baseline scenario according to policies from databook
     base_scenarios['baseline'] = {
         'name': 'Baseline',
@@ -53,11 +46,13 @@ def set_baseline(params, popdict):
                 }),
                 cv.test_num(daily_tests=(daily_tests), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
                 cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
-                policy_updates.AppBasedTracing(layers=app_layers, coverage=app_cov, days=app_dates, start_day=app_start, end_day=app_end, trace_time=app_trace_time), # Adding tracing app to baseline, remove if not the right idea
                 policy_updates.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
             ]
         }
     }
+
+    #TODO: not being used in lockdown/non-lockdown
+
     # add edge clipping policies to baseline scenario
     for policy in policies['clip_policies']:
         details = policies['clip_policies'][policy]
@@ -96,9 +91,7 @@ def create_scen(scenarios,
                             ]
                         }
                      }
-    for trace_pol in trace_policies:
-        details = trace_policies[trace_pol]
-        scenarios[name]['pars']['interventions'].append(policy_updates.AppBasedTracing(layers=details['layers'], coverage=details['coverage'], days=details['dates'], start_day=details['start_day'], end_day=details['end_day'], trace_time=details['trace_time']))
+
     # add edge clipping policies to relax scenario
     for policy in clip_policies:
         if len(clip_policies[policy]) >= 3:
@@ -136,7 +129,11 @@ def create_scens(scen_opts,
         adapt_beta_pols = pols['beta_policies']
         policy_dates = pols['policy_dates']
         import_pols = pols['import_policies']
-        adapt_trace_pols = pols['trace_policies']
+        # temp solution for not having trace policies currently
+        if pols.get('trace_policies') is not None:
+            adapt_trace_pols = pols['trace_policies']
+        else:
+            adapt_trace_pols = []
 
         for change in scen.keys():
             if change == 'turn_off':
