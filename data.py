@@ -1,18 +1,8 @@
 import math
 import numpy as np
 import pandas as pd
-import sciris as sc
 import utils
 import warnings
-
-
-def _get_ndays(start_day, end_day):
-    """Calculates the number of days for simulation"""
-    # get start and end date
-    start_day = sc.readdate(str(start_day))
-    end_day = sc.readdate(str(end_day))
-    n_days = (end_day - start_day).days
-    return n_days
 
 
 def _get_layers(locations, databook):

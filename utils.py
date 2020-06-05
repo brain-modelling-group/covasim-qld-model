@@ -1,5 +1,15 @@
 import numpy as np
 import os
+import sciris as sc
+
+
+def get_ndays(start_day, end_day):
+    """Calculates the number of days for simulation"""
+    # get start and end date
+    start_day = sc.readdate(str(start_day))
+    end_day = sc.readdate(str(end_day))
+    n_days = (end_day - start_day).days
+    return n_days
 
 
 def epi_data_url():
