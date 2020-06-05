@@ -1,7 +1,11 @@
+import contacts as co
 import covasim as cv
+import data
 import numpy as np
-import sciris as sc
+import parameters
 import policy_updates
+import sciris as sc
+import utils
 
 
 def set_baseline(params, popdict):
@@ -329,3 +333,69 @@ def define_scenarios(policy_change, params, popdict):
                              dynamic_lkeys=dynamic_lkeys)
 
     return scenarios
+
+
+def setup_scens(locations,
+                db_name,
+                epi_name,
+                policy_change,
+                user_pars,
+                metapars):
+
+    # for reproducible results
+    utils.set_rand_seed(metapars)
+
+    # return data relevant to each specified location in "locations"
+    all_data = data.read_data(locations=locations,
+                              db_name=db_name,
+                              epi_name=epi_name)
+
+    all_scens = {}
+    for location in locations:
+
+        print(f'\nCreating scenarios for "{location}"...')
+
+        loc_data = all_data[location]
+        loc_epidata = all_data[location]['epidata']
+        keys = all_data[location]
+        loc_pars = user_pars[location]
+        loc_pol = policy_change[location]
+
+        # setup parameters object for this simulation
+        params = parameters.setup_params(location=location,
+                                         loc_data=loc_data,
+                                         metapars=metapars,
+                                         user_pars=loc_pars,
+                                         keys=keys)
+
+        people, popdict = co.make_people(params)
+
+
+        # setup simulation for this location
+        sim = cv.Sim(pars=params.pars,
+                     datafile=loc_epidata,
+                     popfile=people,
+                     pop_size=params.pars['pop_size'],
+                     load_pop=True,
+                     save_pop=False)
+        sim.initialize()
+
+        # setup scenarios for this location
+        scens = define_scenarios(policy_change=loc_pol,
+                                 params=params,
+                                 popdict=popdict)
+        scens = cv.Scenarios(sim=sim,
+                             metapars=metapars,
+                             scenarios=scens)
+        all_scens[location] = scens
+
+    return all_scens
+
+
+def run_scens(scens):
+    """Runs scenarios for each country in scens"""
+
+    for location, scen in scens.items():
+        scen.run()
+
+    return scens
