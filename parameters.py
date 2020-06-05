@@ -99,6 +99,8 @@ def setup_params(location, loc_data, metapars, user_pars, keys):
     household_dist = loc_data['household_dist']
     age_dist = loc_data['age_dist']
     contact_matrix = loc_data['contact_matrix']
+    imported_cases = loc_data['imported_cases']
+    daily_tests = loc_data['daily_tests']
 
     all_lkeys = keys['all_lkeys']
     default_lkeys = keys['default_lkeys']

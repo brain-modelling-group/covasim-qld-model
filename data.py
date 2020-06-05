@@ -47,7 +47,7 @@ def _get_pars(locations, databook):
         o = other_pars[location]
         for key in utils.par_keys():
             if key == 'n_days':
-                ndays = _get_ndays(o['start_day'], o['end_day'])
+                ndays = utils.get_ndays(o['start_day'], o['end_day'])
                 temp = {key: ndays}
             elif h.get(key) is not None:  # assume if in this, will be in S, W & C
                 temp = {key: {'H': h[key],
@@ -152,10 +152,10 @@ def read_policies(locations, databook):
             start_pol = row['Date implemented (implicitly or explicitly)']
             end_pol = row['Date ended/replaced']
             if not pd.isna(start_pol):
-                days_to_start = _get_ndays(start_sim, start_pol)
+                days_to_start = utils.get_ndays(start_sim, start_pol)
                 n_days = [days_to_start]
                 if not pd.isna(end_pol):
-                    days_to_end = _get_ndays(start_sim, end_pol)
+                    days_to_end = utils.get_ndays(start_sim, end_pol)
                     n_days.append(days_to_end)
                 policies['policy_dates'][pol_name] = n_days
 
@@ -230,44 +230,70 @@ def read_popdata(locations, databook):
     return all_agedist, all_householddist
 
 
-def read_tests_imported(databook):
-    """Reads in the imported cases & daily tests."""
+def read_imported_cases(locations, epidata, pars, default_val=0):
+    """Read in the number of imported cases as a time series.
+    If not in the epidata, create one from the default_val"""
+    imported_cases = {}
+    if 'imported_cases' in epidata.columns:
+        for location in locations:
+            i_cases = epidata.loc[location]['imported_cases'].to_numpy()
+            imported_cases[location] = i_cases
 
-    epidata = databook.parse('epi_data')
-    imported_cases = epidata['daily_imported_cases'].to_numpy()
-    imported_cases = imported_cases[6:] # shift 7 days back to account for lag in reporting time
-    daily_tests = epidata['new_tests'].to_numpy()
-    return imported_cases, daily_tests
+    else:
+        # use default value
+        warnings.warn(f'Could not find imported_cases in epi data, replacing with {default_val}')
+        for location in locations:
+            n_days = pars[location]['n_days']
+            i_cases = np.full(shape=n_days, fill_value=default_val)
+            imported_cases[location] = i_cases
+
+    return imported_cases
 
 
-def read_epi_data(where, **kwargs):
+def read_daily_tests(locations, epidata, pars, default_val=0):
+    """Read in the number of tests performed daily.
+    If not in the epidata, create one from the default_val"""
+    daily_tests = {}
+    if 'new_tests' in epidata.columns:
+        for location in locations:
+            tests = epidata.loc[location]['new_tests'].to_numpy()
+            daily_tests[location] = tests
+    else:
+        warnings.warn(f'Could not find new_tests in epi data, replacing with {default_val}')
+        for location in locations:
+            n_days = pars[location]['n_days']
+            tests = np.full(shape=n_days, fill_value=default_val)
+            daily_tests[location] = tests
+    return daily_tests
+
+
+def read_epi_data(where, index_col='location', **kwargs):
     """By default, will return daily global data from URL below"""
     if where == 'url':
         url = utils.epi_data_url()
-        epidata = pd.read_csv(url, **kwargs)
+        epidata = pd.read_csv(url, index_col=index_col, **kwargs)
     else:
-        epidata = pd.read_csv(where, **kwargs)
+        epidata = pd.read_csv(where, index_col=index_col, **kwargs)
     return epidata
 
 
 def format_epidata(locations, epidata):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
-    if isinstance(locations, str):
-        locations = [locations]
-
     epidata_dict = {}
     for l in locations:
-        this_country = epidata.loc[epidata['location'] == l]
+        this_country = epidata.loc[l]
         this_country = this_country.reset_index(drop=True)  # reset row numbers
         this_country = this_country[['date', 'new_cases', 'new_deaths', 'total_cases', 'total_deaths']]  # drop unwanted columns
         epidata_dict[l] = this_country
     return epidata_dict
 
 
-def get_epi_data(locations, where, **kwargs):
+def get_epi_data(locations, where, pars, **kwargs):
     epidata = read_epi_data(where, **kwargs)
+    imported_cases = read_imported_cases(locations, epidata, pars)
+    daily_tests = read_daily_tests(locations, epidata, pars)
     epidata = format_epidata(locations, epidata)
-    return epidata
+    return epidata, imported_cases, daily_tests
 
 
 def read_contact_matrix(locations, databook):
@@ -327,9 +353,8 @@ def read_data(locations, db_name, epi_name):
     pars, extrapars, layerchars = read_params(locations, db)
     policies = read_policies(locations, db)
     contact_matrix = read_contact_matrix(locations, db)
-    epidata = get_epi_data(locations, epi_path)
+    epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars)
     age_dist, household_dist = read_popdata(locations, db)
-    # imported_cases, daily_tests = read_tests_imported(db)
 
     # handle layer names
     keys = utils.get_lkeys()
@@ -338,13 +363,15 @@ def read_data(locations, db_name, epi_name):
     all_data = {}
     for location in locations:
         all_data[location] = {'pars': pars[location],
-                             'extrapars': extrapars[location],
-                             'layerchars': layerchars[location],
-                             'policies': policies[location],
-                             'contact_matrix': contact_matrix[location],
-                             'epidata': epidata[location],
-                             'age_dist': age_dist[location],
-                             'household_dist': household_dist[location],
-                             **keys}
+                              'extrapars': extrapars[location],
+                              'layerchars': layerchars[location],
+                              'policies': policies[location],
+                              'contact_matrix': contact_matrix[location],
+                              'epidata': epidata[location],
+                              'age_dist': age_dist[location],
+                              'household_dist': household_dist[location],
+                              'imported_cases': imported_cases[location],
+                              'daily_tests': daily_tests[location],
+                              **keys}
 
     return all_data
