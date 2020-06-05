@@ -1,9 +1,9 @@
 import clusters as cl
 import collections
+import covasim as cv
 import covasim.defaults as cvd
 import covasim.utils as cvu
 import numpy as np
-import sciris as sc
 
 
 def clusters_to_contacts(clusters):
@@ -232,7 +232,7 @@ def make_contacts(params):
     return contacts_list, ages, uids
 
 
-def get_popdict(params):
+def make_people(params):
 
     contacts, ages, uids = make_contacts(params)
 
@@ -242,4 +242,6 @@ def get_popdict(params):
     popdict['age'] = ages
     popdict['uid'] = uids
 
-    return popdict
+    people = cv.People(pars=params.pars, **popdict)
+
+    return people, popdict

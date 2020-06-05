@@ -35,12 +35,14 @@ def setup_scens(locations,
                                          user_pars=loc_pars,
                                          keys=keys)
 
-        popdict = co.get_popdict(params=params)
+        people, popdict = co.make_people(params)
+
 
         # setup simulation for this location
+        # TODO: need to pass pars if they are in the people class?
         sim = cv.Sim(pars=params.pars,
                      datafile=loc_epidata,
-                     popfile=popdict,
+                     popfile=people,
                      pop_size=params.pars['pop_size'],
                      load_pop=True,
                      save_pop=False)
