@@ -59,7 +59,7 @@ class Parameters:
         if verbose:
             print(f'The following will be updated in {self.location} parameters dictionary...')
             for key in newpars.keys():
-                print(key)
+                print(f'- {key}')
 
         self.pars.update(newpars)
         return
@@ -72,7 +72,7 @@ class Parameters:
         if verbose:
             print("The following will be updated in the meta-parameters dictionary...")
             for key in new_metapars.keys():
-                print(key)
+                print(f'- {key}')
 
         self.metapars.update(new_metapars)
         return

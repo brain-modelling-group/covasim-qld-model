@@ -241,7 +241,7 @@ def read_imported_cases(locations, epidata, pars, default_val=0):
 
     else:
         # use default value
-        warnings.warn(f'Could not find imported_cases in epi data, replacing with {default_val}')
+        print(f'Unable to locate imported_cases in epi data, replacing with {default_val}')
         for location in locations:
             n_days = pars[location]['n_days']
             i_cases = np.full(shape=n_days, fill_value=default_val)
@@ -259,7 +259,7 @@ def read_daily_tests(locations, epidata, pars, default_val=0):
             tests = epidata.loc[location]['new_tests'].to_numpy()
             daily_tests[location] = tests
     else:
-        warnings.warn(f'Could not find new_tests in epi data, replacing with {default_val}')
+        print(f'Unable to locate new_tests in epi data, replacing with {default_val}')
         for location in locations:
             n_days = pars[location]['n_days']
             tests = np.full(shape=n_days, fill_value=default_val)
