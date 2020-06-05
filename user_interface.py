@@ -1,3 +1,4 @@
+import plot
 import scenarios
 
 
@@ -21,3 +22,8 @@ def setup_scens(locations,
 def run_scens(scens):
     scens = scenarios.run_scens(scens)
     return scens
+
+
+def policy_plot(scens):
+    # TODO: need to handle multiple locations
+    plot.policy_plot(scens, do_save=False)
