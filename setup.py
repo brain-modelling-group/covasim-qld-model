@@ -24,7 +24,7 @@ def setup_scens(locations,
     all_scens = {}
     for location in locations:
         loc_data = all_data[location]
-        loc_epidata = all_data[location]
+        loc_epidata = all_data[location]['epidata']
         keys = all_data[location]
         loc_pars = user_pars[location]
 
