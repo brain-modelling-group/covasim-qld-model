@@ -88,11 +88,10 @@ class Parameters:
             print(f'- {key}: {value}')
 
 
-def setup_params(location, loc_data, metapars, user_pars):
+def setup_params(location, loc_data, metapars, user_pars, keys):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
 
-    # all_lkeys, default_lkeys, custom_lkeys, dynamic_lkeys = data.get_layer_keys(databook)  # TODO: not using these other layers currently
     pars = loc_data['pars']
     extrapars = loc_data['extrapars']
     layerchars = loc_data['layerchars']
@@ -100,6 +99,11 @@ def setup_params(location, loc_data, metapars, user_pars):
     household_dist = loc_data['household_dist']
     age_dist = loc_data['age_dist']
     contact_matrix = loc_data['contact_matrix']
+
+    all_lkeys = keys['all_lkeys']
+    default_lkeys = keys['default_lkeys']
+    custom_lkeys = keys['custom_lkeys']
+    dynamic_lkeys = keys['dynamic_lkeys']
 
     params = Parameters(location=location,
                         pars=pars,
@@ -109,13 +113,13 @@ def setup_params(location, loc_data, metapars, user_pars):
                         policies=policies,
                         household_dist=household_dist,
                         age_dist=age_dist,
-                        contact_matrix=contact_matrix)
-                        # imported_cases=imported_cases,
-                        # daily_tests=daily_tests,
-                        # all_lkeys=all_lkeys,
-                        # default_lkeys=default_lkeys,
-                        # custom_lkeys=custom_lkeys,
-                        # dynamic_lkeys=dynamic_lkeys)
+                        contact_matrix=contact_matrix,
+                        imported_cases=imported_cases,
+                        daily_tests=daily_tests,
+                        all_lkeys=all_lkeys,
+                        default_lkeys=default_lkeys,
+                        custom_lkeys=custom_lkeys,
+                        dynamic_lkeys=dynamic_lkeys)
     if user_pars is not None:  # overwrite the parameter values from the databook
         params.update_pars(user_pars)
     return params
