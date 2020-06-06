@@ -50,7 +50,7 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
     sc.printv('Plotting...', 1, verbose)
 
     if to_plot is None:
-        to_plot = cvd.default_scen_plots
+        to_plot = cvd.get_scen_plots()
     to_plot = sc.dcp(to_plot)  # In case it's supplied as a dict
 
     # Handle input arguments -- merge user input with defaults
@@ -72,9 +72,10 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
 
     n_rows = np.ceil(len(to_plot) / n_cols)  # Number of subplot rows to have
     baseline_days = []
-    for rk, reskey in enumerate(to_plot):
+
+    for rk, title in enumerate(to_plot):
+        reskey = to_plot[rk][0]
         otherscen_days = []
-        title = scen.base_sim.results[reskey].name  # Get the name of this result from the base simulation
         if sep_figs:
             figs.append(pl.figure(**fig_args))
             ax = pl.subplot(111)
