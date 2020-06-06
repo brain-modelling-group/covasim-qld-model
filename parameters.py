@@ -48,7 +48,7 @@ class Parameters:
         self.custom_lkeys = custom_lkeys
         self.dynamic_lkeys = dynamic_lkeys
 
-    def update_pars(self, newpars, verbose=1):
+    def update_pars(self, newpars, verbose=0):
         """Update values in self.pars with those in newpars"""
         if newpars is None:
             return
@@ -61,7 +61,7 @@ class Parameters:
         self.pars.update(newpars)
         return
 
-    def update_metapars(self, new_metapars, verbose=1):
+    def update_metapars(self, new_metapars, verbose=0):
         """Update values in self.metapars with those in new_metapars"""
         if new_metapars is None:
             return
