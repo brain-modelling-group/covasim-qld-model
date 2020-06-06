@@ -14,8 +14,20 @@ def get_ndays(start_day, end_day):
 
 def epi_data_url():
     """Contains URL of global epi data for COVID-19"""
-    url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/ecdc/full_data.csv'
+    url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
     return url
+
+
+def colnames():
+    """Get the desired column names for the epi data"""
+    names = {'date': 'date',
+             'new_cases': 'new_diagnoses',
+             'new_deaths': 'new_deaths',
+             'new_tests': 'new_tests',
+             'total_tests': 'cum_tests',
+             'total_deaths': 'cum_deaths',
+             'total_cases': 'cum_infections'}
+    return names
 
 
 def _format_paths(db_name, epi_name, root):

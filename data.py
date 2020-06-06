@@ -279,11 +279,14 @@ def read_epi_data(where, index_col='location', **kwargs):
 
 def format_epidata(locations, epidata):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
+    # rename the columns
+    epidata = epidata.rename(columns=utils.colnames())
+    to_keep = ['date', 'cum_infections', 'new_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']
     epidata_dict = {}
     for l in locations:
         this_country = epidata.loc[l]
         this_country = this_country.reset_index(drop=True)  # reset row numbers
-        this_country = this_country[['date', 'new_cases', 'new_deaths', 'total_cases', 'total_deaths']]  # drop unwanted columns
+        this_country = this_country[to_keep]  # drop unwanted columns
         epidata_dict[l] = this_country
     return epidata_dict
 
