@@ -119,6 +119,8 @@ def setup_params(location, loc_data, metapars, user_pars, keys):
                         default_lkeys=default_lkeys,
                         custom_lkeys=custom_lkeys,
                         dynamic_lkeys=dynamic_lkeys)
-    if user_pars is not None:  # overwrite the parameter values from the databook
+
+    # if specified by user, overwrite parameter values from the databook
+    if user_pars is not None:
         params.update_pars(user_pars)
     return params
