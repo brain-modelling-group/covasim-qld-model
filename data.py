@@ -122,7 +122,7 @@ def _get_layerchars(locations, databook):
     return all_layerchars
 
 
-def read_policies(locations, databook):
+def read_policies(locations, databook, policy_vals):
     """
     Read in the policies sheet
     :param databook:
@@ -134,6 +134,14 @@ def read_policies(locations, databook):
     start_days = databook.parse('other_par', index_col=0, header=0).to_dict(orient='index')
     pol_sheet = databook.parse('policies', index_col=[0,1], header=0)  # index by first 2 cols to avoid NAs in first col
 
+    # update dataframe with any user values
+    for location in locations:
+        if policy_vals.get(location) is not None:
+            update = policy_vals[location]
+            for pol_name, vals in update.items():
+                for name, val in vals.items():
+                    pol_sheet.loc[(location, pol_name), name] = val  # pandas requires this very specific syntax for setting with multi-index
+
     all_policies = {}
     for location in locations:
         start_sim = start_days[location]['start_day']
@@ -144,7 +152,6 @@ def read_policies(locations, databook):
         policies['import_policies'] = {}
         policies['clip_policies'] = {}
         policies['policy_dates'] = {}
-
 
         for pol_name, row in pols.iterrows():
 
@@ -164,8 +171,8 @@ def read_policies(locations, databook):
             beta_change = beta_vals.prod()  # multiply series together
             if not math.isclose(beta_change, 1, abs_tol=1e-9):
                 policies['beta_policies'][pol_name] = {}
+                beta = row['beta']
                 for layer_key in layer_keys:
-                    beta = row['beta']
                     beta_layer = row[layer_key]
                     policies['beta_policies'][pol_name][layer_key] = beta * beta_layer
 
@@ -187,7 +194,6 @@ def read_policies(locations, databook):
                     policies['clip_policies'][pol_name]['layers'] = layer_keys
 
         all_policies[location] = policies
-
     return all_policies
 
 
@@ -349,7 +355,7 @@ def read_params(locations, db):
     return pars, extrapars, layerchars
 
 
-def read_data(locations, db_name, epi_name):
+def read_data(locations, db_name, epi_name, policy_vals):
     """Reads in all data in the appropriate format"""
     db_path, epi_path = utils.get_file_paths(db_name=db_name,
                                              epi_name=epi_name)
@@ -357,7 +363,7 @@ def read_data(locations, db_name, epi_name):
     db = load_databook(db_path)
 
     pars, extrapars, layerchars = read_params(locations, db)
-    policies = read_policies(locations, db)
+    policies = read_policies(locations, db, policy_vals)
     contact_matrix = read_contact_matrix(locations, db)
     epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars, extrapars)
     age_dist, household_dist = read_popdata(locations, db)

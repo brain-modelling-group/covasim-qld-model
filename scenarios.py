@@ -340,7 +340,8 @@ def setup_scens(locations,
                 epi_name,
                 policy_change,
                 user_pars,
-                metapars):
+                metapars,
+                policy_vals):
 
     # for reproducible results
     utils.set_rand_seed(metapars)
@@ -348,7 +349,8 @@ def setup_scens(locations,
     # return data relevant to each specified location in "locations"
     all_data = data.read_data(locations=locations,
                               db_name=db_name,
-                              epi_name=epi_name)
+                              epi_name=epi_name,
+                              policy_vals=policy_vals)
 
     all_scens = {}
     for location in locations:
