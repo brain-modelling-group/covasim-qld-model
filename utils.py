@@ -85,7 +85,8 @@ def metapar_keys():
 
 def extrapar_keys():
     keys = ['trace_probs', 'trace_time', 'restart_imports',
-            'restart_imports_length', 'relax_day', 'future_daily_tests']
+            'restart_imports_length', 'relax_day', 'future_daily_tests',
+            'undiag']
     return keys
 
 

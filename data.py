@@ -277,7 +277,7 @@ def read_epi_data(where, index_col='location', **kwargs):
     return epidata
 
 
-def format_epidata(locations, epidata):
+def format_epidata(locations, epidata, extrapars):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
     # rename the columns
     epidata = epidata.rename(columns=utils.colnames())
@@ -287,15 +287,18 @@ def format_epidata(locations, epidata):
         this_country = epidata.loc[l]
         this_country = this_country.reset_index(drop=True)  # reset row numbers
         this_country = this_country[to_keep]  # drop unwanted columns
+        # scale the cumulative infections by undiagnosed
+        undiagnosed = extrapars[l]['undiag']
+        this_country['cum_infections'] = this_country['cum_infections'] * (1 + undiagnosed)
         epidata_dict[l] = this_country
     return epidata_dict
 
 
-def get_epi_data(locations, where, pars, **kwargs):
+def get_epi_data(locations, where, pars, extrapars, **kwargs):
     epidata = read_epi_data(where, **kwargs)
     imported_cases = read_imported_cases(locations, epidata, pars)
     daily_tests = read_daily_tests(locations, epidata, pars)
-    epidata = format_epidata(locations, epidata)
+    epidata = format_epidata(locations, epidata, extrapars)
     return epidata, imported_cases, daily_tests
 
 
@@ -356,7 +359,7 @@ def read_data(locations, db_name, epi_name):
     pars, extrapars, layerchars = read_params(locations, db)
     policies = read_policies(locations, db)
     contact_matrix = read_contact_matrix(locations, db)
-    epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars)
+    epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars, extrapars)
     age_dist, household_dist = read_popdata(locations, db)
 
     # handle layer names
