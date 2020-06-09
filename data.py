@@ -149,8 +149,8 @@ def read_policies(locations, databook):
         for pol_name, row in pols.iterrows():
 
             # get the number of days til policy starts and ends (relative to simulation start)
-            start_pol = row['Date implemented (implicitly or explicitly)']
-            end_pol = row['Date ended/replaced']
+            start_pol = row['date_implemented']
+            end_pol = row['date_ended']
             if not pd.isna(start_pol):
                 days_to_start = utils.get_ndays(start_sim, start_pol)
                 n_days = [days_to_start]
