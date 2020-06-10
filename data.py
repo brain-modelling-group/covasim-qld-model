@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import pandas as pd
+import sciris as sc
 import utils
 import warnings
 
@@ -256,6 +257,33 @@ def read_imported_cases(locations, epidata, pars, default_val=0):
     return imported_cases
 
 
+def format_daily_tests(location, tests, default_val):
+
+    # not including the start values, find percenatage of nans
+    ind_notnan = np.where(np.isnan(tests) == False)[0]
+    first_notnan = ind_notnan[0]
+    num_nan = np.sum(np.isnan(tests[first_notnan:]))
+    percent_nan = num_nan / len(tests[first_notnan:])
+    if percent_nan > .2:  # arbitrarily 20%
+        print(f'Warning: "num_tests" column has {percent_nan}% nan values. Switching to av_daily_tests')
+        tests_copy = np.full(shape=len(tests), fill_value=default_val)
+
+    else:
+        # either the value is nan, in which case we fill with previous non-nan,
+        # or the value is a number, in which case store for use to fill later
+        replace_val = 0
+        tests_copy = sc.dcp(tests)
+        for i, val in np.ndenumerate(tests):
+            if np.isnan(val):
+                tests_copy[i] = replace_val
+            else:
+                replace_val = val
+
+        if np.isnan(tests_copy).any():
+            warnings.warn(f'"new_tests" column appears to be all nan for {location}')
+    return tests_copy
+
+
 def read_daily_tests(locations, epidata, pars, default_val=0):
     """Read in the number of tests performed daily.
     If not in the epidata, create one from the default_val"""
@@ -263,12 +291,16 @@ def read_daily_tests(locations, epidata, pars, default_val=0):
     if 'new_tests' in epidata.columns:
         for location in locations:
             tests = epidata.loc[location]['new_tests'].to_numpy()
+            tests = format_daily_tests(location, tests, default_val)
+            epidata.at[location, 'new_tests'] = tests  # pandas is weird
             daily_tests[location] = tests
     else:
         print(f'Unable to locate new_tests in epi data, replacing with {default_val}')
+        epidata['new_tests'] = [None] * len(epidata.index)
         for location in locations:
             n_days = pars[location]['n_days']
             tests = np.full(shape=n_days, fill_value=default_val)
+            epidata.at[location, 'new_tests'] = tests
             daily_tests[location] = tests
     return daily_tests
 
