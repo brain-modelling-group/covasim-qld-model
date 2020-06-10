@@ -42,8 +42,8 @@ def _format_paths(db_name, epi_name, root):
     else:
         # must be stored elsewhere
         epidata_path = os.path.join(root, 'data', epi_name)
-        if 'xlsx' not in epi_name:
-            epidata_path += '.xlsx'
+        if 'csv' not in epi_name:
+            epidata_path += '.csv'
 
     return databook_path, epidata_path
 
