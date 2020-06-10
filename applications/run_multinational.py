@@ -23,7 +23,8 @@ if __name__ == "__main__":
                 'rand_seed': 1}
 
     # if required, change the each policy beta, date_implemented & date_ended
-    policy_vals = {'Australia': {'lockdown': {'beta': .5}}}
+    policy_vals = {'Australia': {'lockdown': {'beta': .5}},
+                   'New Zealand': {'lockdown': {'beta': .5}}}
 
     # the policies to change during scenario runs
     policy_change = {'Australia': {'relax lockdown': {'replace': (['lockdown'], [['lockdown_relax']], [[20]])}},
