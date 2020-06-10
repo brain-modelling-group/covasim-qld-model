@@ -6,6 +6,7 @@ if __name__ == "__main__":
     locations = ['Australia','New Zealand']
     # the name of the databook
     db_name = 'input_data'
+    epi_name = 'epi-data'
 
     # country-specific parameters
     user_pars = {'Australia': {'pop_size': int(2e4),
@@ -31,7 +32,7 @@ if __name__ == "__main__":
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
                            db_name=db_name,
-                           epi_name='url',
+                           epi_name=epi_name,
                            policy_change=policy_change,
                            user_pars=user_pars,
                            metapars=metapars,
