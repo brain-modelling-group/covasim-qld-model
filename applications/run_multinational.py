@@ -5,8 +5,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Australia','New Zealand']
     # the name of the databook
-    db_name = 'input_data'
-    epi_name = 'epi-data'
+    db_name = 'input_data_countryX'
+    epi_name = 'epi_data_countryX'
 
     # country-specific parameters
     user_pars = {'Australia': {'pop_size': int(2e4),
