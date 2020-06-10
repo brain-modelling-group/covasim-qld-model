@@ -328,6 +328,10 @@ def format_epidata(locations, epidata, extrapars):
         # scale the cumulative infections by undiagnosed
         undiagnosed = extrapars[l]['undiag']
         this_country['cum_infections'] = this_country['cum_infections'] * (1 + undiagnosed)
+
+        # cumulative tests
+        this_country['cum_tests'] = this_country['new_tests'].cumsum()
+
         epidata_dict[l] = this_country
     return epidata_dict
 
