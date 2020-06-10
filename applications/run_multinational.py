@@ -3,17 +3,14 @@ import user_interface as ui
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Australia', 'New Zealand']
+    locations = ['Australia']
     # the name of the databook
     db_name = 'input_data'
 
     # country-specific parameters
     user_pars = {'Australia': {'pop_size': int(2e4),
                                'beta': 0.05,
-                               'n_days': 60},
-                'New Zealand': {'pop_size': int(2e4),
-                                'beta': 0.05,
-                                'n_days': 60}}
+                               'n_days': 60}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 2,
