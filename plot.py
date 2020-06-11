@@ -12,7 +12,7 @@ from policy_updates import PolicySchedule
 def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
-    do_show=True, sep_figs=False, verbose=None, y_lim=None):
+    do_show=True, sep_figs=False, verbose=1, y_lim=None):
 
     '''
     Plot the results -- can supply arguments for both the figure and the plots.
@@ -45,8 +45,8 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
         fig: Figure handle
     '''
 
-    if verbose is None:
-        verbose = scen['verbose']
+    # if verbose is None:
+    #     verbose = scen['verbose']
     sc.printv('Plotting...', 1, verbose)
 
     if to_plot is None:

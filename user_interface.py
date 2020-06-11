@@ -43,6 +43,5 @@ def run_scens(scens):
     return scens
 
 
-def policy_plot(scens):
-    # TODO: currently only takes in a single country at a time
-    plot.policy_plot(scens, do_save=False)
+def policy_plot(scens, plot_ints=True, to_plot=None, verbose=1):
+    plot.policy_plot(scens, plot_ints=plot_ints, to_plot=to_plot, verbose=verbose, do_save=False)
