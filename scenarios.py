@@ -133,7 +133,7 @@ def create_scens(scen_opts,
         import_pols = sc.dcp(pols['import_policies'])
         # temp solution for not having trace policies currently
         if pols.get('trace_policies') is not None:
-            adapt_trace_pols = pols['trace_policies']
+            adapt_trace_pols = sc.dcp(pols['trace_policies'])
         else:
             adapt_trace_pols = []
 
