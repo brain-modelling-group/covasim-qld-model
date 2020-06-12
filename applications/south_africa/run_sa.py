@@ -1,5 +1,4 @@
 import user_interface as ui
-import plot
 
 
 if __name__ == "__main__":
@@ -52,12 +51,5 @@ if __name__ == "__main__":
     # run the scenarios
     scens = ui.run_scens(scens)
 
-    plot.policy_plot(scens['WC'])
+    ui.policy_plot(scens['WC'])
 
-    plot.policy_plot(scens['WC'], to_plot=[['cum_diagnoses'], ['new_diagnoses']])
-    plot.policy_plot(scens['WC'], to_plot=[['new_infections']])
-
-    # plot.policy_plot(scens['NW'])
-    #
-    # plot.policy_plot(scens['NW'], to_plot=[['cum_diagnoses'], ['new_diagnoses']])
-    # plot.policy_plot(scens['NW'], to_plot=[['new_infections']])
