@@ -127,10 +127,10 @@ def create_scens(scen_opts,
     for name, scen in scen_opts.items():
         pols = altered_pols[name]
         beta_schedule = sc.dcp(baseline_policies)
-        adapt_clip_pols = pols['clip_policies']
-        adapt_beta_pols = pols['beta_policies']
-        policy_dates = pols['policy_dates']
-        import_pols = pols['import_policies']
+        adapt_clip_pols = sc.dcp(pols['clip_policies'])
+        adapt_beta_pols = sc.dcp(pols['beta_policies'])
+        policy_dates = sc.dcp(pols['policy_dates'])
+        import_pols = sc.dcp(pols['import_policies'])
         # temp solution for not having trace policies currently
         if pols.get('trace_policies') is not None:
             adapt_trace_pols = pols['trace_policies']
@@ -177,6 +177,9 @@ def create_scens(scen_opts,
             else:
                 print(
                     'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % change)
+
+            print('date when defined')
+            print(policy_dates)
             scenarios = create_scen(scenarios=scenarios,
                                     name=name,
                                     popdict=popdict,
