@@ -178,8 +178,6 @@ def create_scens(scen_opts,
                 print(
                     'Invalid policy change type %s added to to_run dict, types should be turn_off, turn_on or replace.' % change)
 
-            print('date when defined')
-            print(policy_dates)
             scenarios = create_scen(scenarios=scenarios,
                                     name=name,
                                     popdict=popdict,
