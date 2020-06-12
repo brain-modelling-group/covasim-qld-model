@@ -1,16 +1,23 @@
 import user_interface as ui
+import plot
 
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['EC']
+    locations = ['WC']
     # the name of the databook
     db_name = 'input_data_sa'
 
     # country-specific parameters
-    user_pars = {'EC': {'pop_size': int(2e4),
-                               'beta': 0.05,
-                               'n_days': 365}}
+    user_pars = {'WC': {'pop_size': int(10e4),
+                               'beta': 0.1,
+                               'n_days': 365,
+                        'pop_infected': 5000},
+                 'NW': {'pop_size': int(10e4),
+                        'beta': 0.1,
+                        'n_days': 100,
+                        'pop_infected': 5}
+                 }
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 3,
@@ -19,11 +26,20 @@ if __name__ == "__main__":
                 'rand_seed': 1}
 
     # if required, change the each policy beta, date_implemented & date_ended
-    policy_vals = {'EC': {'lockdown': {'beta': .64},
-                          'lockdown2': {'beta': .1}}}
+    policy_vals = {'WC': {'lockdown_s5': {'beta': .2},
+                          'lockdown_s4': {'beta': .3},
+                          'lockdown_s3': {'beta': .4}},
+                   'NW': {'lockdown_s5': {'beta': .2},
+                          'lockdown_s4': {'beta': .3},
+                          'lockdown_s3': {'beta': .4}}
+                   }
 
     # the policies to change during scenario runs
-    policy_change = {'EC': {'relax lockdown': {'replace': (['lockdown'], [['lockdown_relax']], [[200]])}}}
+    policy_change = {'WC': {'4 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5']], [[92]])},
+                     '2 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5']], [[79]])},
+                     'No relax': {'replace': (['lockdown_s3'], [['lockdown_s5']], [[67]])}},
+                     'NW': {'4 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5']], [[92]])}}
+                     }
 
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
@@ -36,4 +52,12 @@ if __name__ == "__main__":
     # run the scenarios
     scens = ui.run_scens(scens)
 
-    ui.policy_plot(scens['EC'])
+    plot.policy_plot(scens['WC'])
+
+    plot.policy_plot(scens['WC'], to_plot=[['cum_diagnoses'], ['new_diagnoses']])
+    plot.policy_plot(scens['WC'], to_plot=[['new_infections']])
+
+    # plot.policy_plot(scens['NW'])
+    #
+    # plot.policy_plot(scens['NW'], to_plot=[['cum_diagnoses'], ['new_diagnoses']])
+    # plot.policy_plot(scens['NW'], to_plot=[['new_infections']])
