@@ -74,7 +74,9 @@ def policy_plot(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None
     baseline_days = []
 
     for rk, title in enumerate(to_plot):
-        reskey = to_plot[rk][0]
+        reskey = to_plot[title]
+        if isinstance(reskey, list):  # if it came from an odict
+            reskey = reskey[0]
         otherscen_days = []
         if sep_figs:
             figs.append(pl.figure(**fig_args))

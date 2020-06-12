@@ -44,4 +44,13 @@ def run_scens(scens):
 
 
 def policy_plot(scens, plot_ints=True, to_plot=None, verbose=1):
+    """
+
+    :param scens: The scenarios for a specific location
+    :param plot_ints: Plot the interventions/policy changes over time
+    :param to_plot: a dictionary of which specifies the plot label and the results key.
+                    Eg. {'Cumulative infections': 'cum_infections'} will plot the 'cum_infections' data with the title 'Cumulative infections'
+    :param verbose:
+    :return:
+    """
     plot.policy_plot(scens, plot_ints=plot_ints, to_plot=to_plot, verbose=verbose, do_save=False)
