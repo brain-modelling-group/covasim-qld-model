@@ -51,8 +51,9 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
         to_plot = cvd.get_scen_plots()
     to_plot = sc.dcp(to_plot)  # In case it's supplied as a dict
 
-    plot_args = {'lw': 1, 'alpha': 0.7}
-    fill_args = {'alpha': 0.2}
+    plot_args = sc.mergedicts({'lw': 1, 'alpha': 0.7}, plot_args)
+    fill_args = sc.mergedicts({'alpha': 0.2}, fill_args)
+    legend_args = sc.mergedicts({'loc': 'best'}, legend_args)
 
     # one location per column
     ncols = len(scens.keys())
