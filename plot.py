@@ -51,190 +51,68 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
         to_plot = cvd.get_scen_plots()
     to_plot = sc.dcp(to_plot)  # In case it's supplied as a dict
 
-
-    #### NEW PLOTTING
     # one location per column
-    # ncols = len(scens.keys())
-    # nrows = len(to_plot)
-    ncols = len(to_plot)
-    nrows = len(scens.keys())
+    ncols = len(scens.keys())
+    nrows = len(to_plot)
 
     fig, axes = pl.subplots(nrows=nrows, ncols=ncols)
 
-    # plot each outcome as a column
-    for i, outcome in enumerate(to_plot):
-        axes[0, i].set_title(outcome)
+    # plot each location as a column
+    for i, loc in enumerate(scens):
 
-        # plot each location as a row
-        for j, loc in enumerate(scens):
-            scen = scens[loc]
-            axes[j, 0].set_ylabel(loc)
+        scen = scens[loc]
+        axes[0, i].set_title(loc)  # column title
 
-            reskey = to_plot[outcome]
+        # plot each outcome in to_plot as a row
+        for j, subplot_title in enumerate(to_plot):
+            baseline_days = []
+            otherscen_days = []
+
+            axes[j,0].set_ylabel(subplot_title)
+
+            this_subplot = axes[j, i]
+
+            reskey = to_plot[subplot_title]
             if isinstance(reskey, list):  # if it came from an odict
                 reskey = reskey[0]
 
             resdata = scen.results[reskey]
             colors = sc.gridcolors(len(resdata.items()))
 
-            # plot the outcome for each scenario
+            # plot the outcomes for each scenario
             for k, scenname in enumerate(resdata):
                 scendata = resdata[scenname]
-                axes[j, i].plot(scen.tvec, scendata.best, c=colors[k])
+                this_subplot.plot(scen.tvec, scendata.best, c=colors[k])
+
+            if plot_ints:
+                scennum = 0
+                for s, scenname in enumerate(scen.sims):
+                    if scenname.lower() != 'baseline':
+                        for intervention in scen.sims[scenname][0]['interventions']:
+                            if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule):
+                                otherscen_days = [day for day in intervention.days if
+                                                  day not in baseline_days and day not in otherscen_days]
+                            elif hasattr(intervention, 'start_day'):
+                                if intervention.start_day not in baseline_days and intervention.start_day not in otherscen_days and intervention.start_day != 0:
+                                    otherscen_days.append(intervention.start_day)
+                                if intervention.end_day not in baseline_days and intervention.end_day not in otherscen_days and isinstance(
+                                        intervention.end_day, int) and intervention.end_day < scen.sims[scenname][0][
+                                    'n_days']:
+                                    otherscen_days.append(intervention.end_day)
+                            for day in otherscen_days:
+                                this_subplot.axvline(x=day, color=colors[scennum], linestyle='--')
+                    else:
+                        for intervention in scen.sims[scenname][0]['interventions']:
+                            if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule):
+                                baseline_days = [day for day in intervention.days if day not in baseline_days]
+                            elif hasattr(intervention, 'start_day'):
+                                if intervention.start_day not in baseline_days and intervention.start_day != 0:
+                                    baseline_days.append(intervention.start_day)
+                            for day in baseline_days:
+                                this_subplot.axvline(x=day, color=colors[scennum], linestyle='--')
+                    scennum += 1
+
     pl.show()
-
-
-
-    # # plot each location as a column
-    # for i, loc in enumerate(scens):
-    #     scen = scens[loc]
-    #     axes[0, i].set_title(loc)  # column title
-    #
-    #     # plot each outcome in to_plot as a row
-    #     for j, subplot_title in enumerate(to_plot):
-    #         axes[j,0].set_ylabel(subplot_title, size='large')
-    #
-    #         reskey = to_plot[subplot_title]
-    #         if isinstance(reskey, list):  # if it came from an odict
-    #             reskey = reskey[0]
-    # 
-    #         resdata = scen.results[reskey]
-    #         colors = sc.gridcolors(len(resdata.items()))
-    #
-    #         # plot the outcomes for each scenario
-    #         for k, scenname in enumerate(resdata):
-    #             scendata = resdata[scenname]
-    #             axes[j,i].plot(scen.tvec, scendata.best, c=colors[k])
-    #
-    # pl.show()
-
-
-
-
-
-
-
-
-
-    #####
-
-
-
-    # # Handle input arguments -- merge user input with defaults
-    # fig_args = sc.mergedicts({'figsize': (16, 14)}, fig_args)
-    # plot_args = sc.mergedicts({'lw': 3, 'alpha': 0.7}, plot_args)
-    # axis_args = sc.mergedicts(
-    #     {'left': 0.15, 'bottom': 0.1, 'right': 0.95, 'top': 0.90, 'wspace': 0.25, 'hspace': 0.25}, axis_args)
-    # fill_args = sc.mergedicts({'alpha': 0.2}, fill_args)
-    # legend_args = sc.mergedicts({'loc': 'best'}, legend_args)
-    #
-    # if sep_figs:
-    #     figs = []
-    # else:
-    #     fig = pl.figure(**fig_args)
-    # pl.subplots_adjust(**axis_args)
-    # pl.rcParams['font.size'] = font_size
-    # if font_family:
-    #     pl.rcParams['font.family'] = font_family
-    #
-    # # one location per column
-    # n_cols = len(scens.keys())
-    # n_rows = len(to_plot)
-    # baseline_days = []
-    #
-    # for rk, title in enumerate(to_plot):
-    #     reskey = to_plot[title]
-    #     if isinstance(reskey, list):  # if it came from an odict
-    #         reskey = reskey[0]
-    #     otherscen_days = []
-    #     if sep_figs:
-    #         figs.append(pl.figure(**fig_args))
-    #         ax = pl.subplot(111)
-    #     else:
-    #         if rk == 0:
-    #             ax = pl.subplot(n_rows, n_cols, rk + 1)
-    #         else:
-    #             ax = pl.subplot(n_rows, n_cols, rk + 1, sharex=ax)
-    #
-    #     resdata = scen.results[reskey]
-    #     colors = sc.gridcolors(len(resdata.items()))
-    #     scennum = 0
-    #     for scenkey, scendata in resdata.items():
-    #
-    #         pl.fill_between(scen.tvec, scendata.low, scendata.high, **fill_args)
-    #         pl.plot(scen.tvec, scendata.best, label=scendata.name, c=colors[scennum], **plot_args)
-    #         scennum += 1
-    #         pl.title(title)
-    #         if rk == 0:
-    #             pl.legend(**legend_args)
-    #
-    #         pl.grid(grid)
-    #         if commaticks:
-    #             sc.commaticks()
-    #
-    #         if scen.base_sim.data is not None and reskey in scen.base_sim.data:
-    #             data_t = np.array((scen.base_sim.data.index - scen.base_sim['start_day']) / np.timedelta64(1, 'D'))
-    #             pl.plot(data_t, scen.base_sim.data[reskey], 'sk', **plot_args)
-    #
-    #         # Optionally reset tick marks (useful for e.g. plotting weeks/months)
-    #         if interval:
-    #             xmin, xmax = ax.get_xlim()
-    #             ax.set_xticks(pl.arange(xmin, xmax + 1, interval))
-    #
-    #         # Set xticks as dates
-    #         if as_dates:
-    #             @ticker.FuncFormatter
-    #             def date_formatter(x, pos):
-    #                 return (scen.base_sim['start_day'] + dt.timedelta(days=x)).strftime('%b-%d')
-    #
-    #             ax.xaxis.set_major_formatter(date_formatter)
-    #             if not interval:
-    #                 ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-    #
-    #     # Plot interventions
-    #     scennum = 0
-    #     if plot_ints:
-    #         for s, scen_name in enumerate(scen.sims):
-    #             if scen_name.lower() != 'baseline':
-    #                 for intervention in scen.sims[scen_name][0]['interventions']:
-    #                     if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule):
-    #                         otherscen_days = [day for day in intervention.days if day not in baseline_days and day not in otherscen_days]
-    #                     elif hasattr(intervention, 'start_day'):
-    #                         if intervention.start_day not in baseline_days and intervention.start_day not in otherscen_days and intervention.start_day != 0:
-    #                             otherscen_days.append(intervention.start_day)
-    #                         if intervention.end_day not in baseline_days and intervention.end_day not in otherscen_days and isinstance(intervention.end_day, int) and intervention.end_day < scen.sims[scen_name][0]['n_days']:
-    #                             otherscen_days.append(intervention.end_day)
-    #                     for day in otherscen_days:
-    #                         pl.axvline(x=day, color=colors[scennum], linestyle='--')
-    #                     #intervention.plot(scen.sims[scen_name][0], ax)
-    #             else:
-    #                 for intervention in scen.sims[scen_name][0]['interventions']:
-    #                     if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule) and rk == 0:
-    #                         baseline_days = [day for day in intervention.days if day not in baseline_days]
-    #                     elif hasattr(intervention, 'start_day'):
-    #                         if intervention.start_day not in baseline_days and intervention.start_day != 0:
-    #                             baseline_days.append(intervention.start_day)
-    #                     for day in baseline_days:
-    #                         pl.axvline(x=day, color=colors[scennum], linestyle='--')
-    #                     #intervention.plot(scen.sims[scen_name][0], ax)
-    #             scennum += 1
-    #     if y_lim:
-    #         if reskey in y_lim.keys():
-    #             ax.set_ylim((0, y_lim[reskey]))
-    #             if y_lim[reskey] < 20: # kind of arbitrary limit to add decimal places so that it doesn't just plot integer ticks on small ranges
-    #                 ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-    #
-    # # Ensure the figure actually renders or saves
-    # if do_save:
-    #     if fig_path is None:  # No figpath provided - see whether do_save is a figpath
-    #         fig_path = 'covasim_scenarios.png'  # Just give it a default name
-    #     fig_path = sc.makefilepath(fig_path)  # Ensure it's valid, including creating the folder
-    #     pl.savefig(fig_path)
-    #
-    # if do_show:
-    #     pl.show()
-    # else:
-    #     pl.close(fig)
 
     return fig
 

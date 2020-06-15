@@ -3,7 +3,7 @@ import user_interface as ui
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Australia','New Zealand']
+    locations = ['Australia', 'New Zealand']
     # the name of the databook
     db_name = 'input_data_countryX'
     epi_name = 'epi_data_countryX'
@@ -27,8 +27,9 @@ if __name__ == "__main__":
                    'New Zealand': {'lockdown': {'beta': .5}}}
 
     # the policies to change during scenario runs
-    policy_change = {'Australia': {'relax lockdown': {'replace': (['lockdown'], [['lockdown_relax']], [[20]])}},
-                     'New Zealand': {'relax lockdown': {'replace': (['lockdown'], [['lockdown_relax']], [[20]])}}}
+    policy_change = {'Australia': {'relax lockdown': {'replace': (['lockdown'], [['lockdown_relax']], [[20]])},
+                                   'turnoff': {'turn_off': (['lockdown'], [30])}},
+                     'New Zealand': {'relax lockdown': {'replace': (['lockdown'], [['lockdown_relax']], [[30]])}}}
 
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
@@ -41,4 +42,4 @@ if __name__ == "__main__":
     # run the scenarios
     scens = ui.run_scens(scens)
 
-    ui.policy_plot(scens['Australia'])
+    ui.policy_plot(scens)
