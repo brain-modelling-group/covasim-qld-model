@@ -43,14 +43,29 @@ def run_scens(scens):
     return scens
 
 
-def policy_plot(scens, plot_ints=True, to_plot=None, verbose=1):
+def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=True, do_show=True, do_save=False, fig_path=None, commaticks=True, verbose=1):
     """
 
-    :param scens: The scenarios for a specific location
-    :param plot_ints: Plot the interventions/policy changes over time
-    :param to_plot: a dictionary of which specifies the plot label and the results key.
-                    Eg. {'Cumulative infections': 'cum_infections'} will plot the 'cum_infections' data with the title 'Cumulative infections'
-    :param verbose:
+    :param scens (dict): Scenarios by location (dict)
+    :param scens_toplot (dict): the name of the scenarios you which to plot. Structure is {location_name: [list_of_scenarios]}
+                                If None, all scenarios are plotted.
+    :param outcomes_toplot: a dictionary of which specifies the plot label and the results key.
+                            Eg. {'Cumulative infections': 'cum_infections'} will plot the 'cum_infections' data with the title 'Cumulative infections'.
+                            If None, defaults are plotted
+    :param plot_ints (Bool): Whether or not to plot intervention start dates
+    :param do_show (bool): Whether or not to show the figure
+    :param do_save (bool): Whether or not to save the figure
+    :param fig_path (str):  Path to save the figure
+    :param commaticks (bool): use commas in y-tick labels
     :return:
     """
-    plot.policy_plot(scens, plot_ints=plot_ints, to_plot=to_plot, verbose=verbose, do_save=False)
+    fig = plot.policy_plot(scens,
+                           scens_toplot=scens_toplot,
+                           outcomes_toplot=outcomes_toplot,
+                           plot_ints=plot_ints,
+                           do_show=do_show,
+                           do_save=do_save,
+                           fig_path=fig_path,
+                           commaticks=commaticks,
+                           verbose=verbose)
+    return fig
