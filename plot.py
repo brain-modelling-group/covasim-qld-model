@@ -9,7 +9,7 @@ from matplotlib.ticker import StrMethodFormatter
 from policy_updates import PolicySchedule
 
 
-def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
+def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
     do_show=True, sep_figs=False, verbose=1, y_lim=None):
@@ -39,7 +39,6 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
         commaticks  (bool): Plot y-axis with commas rather than scientific notation
         do_show     (bool): Whether or not to show the figure
         sep_figs    (bool): Whether to show separate figures for different results instead of subplots
-        verbose     (bool): Display a bit of extra information
 
     Returns:
         fig: Figure handle
@@ -137,7 +136,17 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
                                 this_subplot.axvline(x=day, color=colors[scennum], linestyle='--')
                     scennum += 1
 
-    pl.show()
+    # Ensure the figure actually renders or saves
+    if do_save:
+        if fig_path is None:  # No figpath provided - see whether do_save is a figpath
+            fig_path = 'covasim_scenarios.png'  # Just give it a default name
+        fig_path = sc.makefilepath(fig_path)  # Ensure it's valid, including creating the folder
+        pl.savefig(fig_path)
+
+    if do_show:
+        pl.show()
+    else:
+        pl.close(fig)
 
     return fig
 

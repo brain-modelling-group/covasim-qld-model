@@ -43,14 +43,23 @@ def run_scens(scens):
     return scens
 
 
-def policy_plot(scens, plot_ints=True, to_plot=None, verbose=1):
+def policy_plot(scens, plot_ints=True, to_plot=None, do_show=True, do_save=False, fig_path=None, verbose=1):
     """
 
-    :param scens: The scenarios for a specific location
-    :param plot_ints: Plot the interventions/policy changes over time
+    :param scens (dict): Scenarios by location (dict)
+    :param plot_ints (Bool): Whether or not to plot intervention start dates
     :param to_plot: a dictionary of which specifies the plot label and the results key.
                     Eg. {'Cumulative infections': 'cum_infections'} will plot the 'cum_infections' data with the title 'Cumulative infections'
-    :param verbose:
+    :param do_show (bool): Whether or not to show the figure
+    :param do_save (bool): Whether or not to save the figure
+    :param fig_path (str):  Path to save the figure
     :return:
     """
-    plot.policy_plot(scens, plot_ints=plot_ints, to_plot=to_plot, verbose=verbose, do_save=False)
+    fig = plot.policy_plot(scens,
+                     plot_ints=plot_ints,
+                     to_plot=to_plot,
+                     do_show=do_show,
+                     do_save=do_save,
+                     fig_path=fig_path,
+                     verbose=verbose)
+    return fig
