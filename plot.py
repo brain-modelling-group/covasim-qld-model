@@ -51,6 +51,8 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
         to_plot = cvd.get_scen_plots()
     to_plot = sc.dcp(to_plot)  # In case it's supplied as a dict
 
+    plot_args = {'lw': 1, 'alpha': 0.7}
+
     # one location per column
     ncols = len(scens.keys())
     nrows = len(to_plot)
@@ -84,15 +86,20 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
                 scendata = resdata[scenname]
                 this_subplot.plot(scen.tvec, scendata.best, c=colors[k])
 
-                # Set xticks as dates
-                if as_dates:
-                    @ticker.FuncFormatter
-                    def date_formatter(x, pos):
-                        return (scen.base_sim['start_day'] + dt.timedelta(days=x)).strftime('%b-%d')
+            # plot the data
+            if scen.base_sim.data is not None and reskey in scen.base_sim.data:
+                data_t = np.array((scen.base_sim.data.index - scen.base_sim['start_day']) / np.timedelta64(1, 'D'))
+                this_subplot.plot(data_t, scen.base_sim.data[reskey], 'sk', **plot_args)
 
-                    this_subplot.xaxis.set_major_formatter(date_formatter)
-                    if not interval:
-                        this_subplot.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+            # Set xticks as dates
+            if as_dates:
+                @ticker.FuncFormatter
+                def date_formatter(x, pos):
+                    return (scen.base_sim['start_day'] + dt.timedelta(days=x)).strftime('%b-%d')
+
+                this_subplot.xaxis.set_major_formatter(date_formatter)
+                if not interval:
+                    this_subplot.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
             if plot_ints:
                 scennum = 0
