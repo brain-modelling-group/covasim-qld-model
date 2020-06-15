@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     # the policies to change during scenario runs
     policy_change = {'Australia': {'relax lockdown': {'replace': (['lockdown'], [['lockdown_relax']], [[20]])},
-                                   'turnoff': {'turn_off': (['lockdown'], [30])}},
+                                   'turn off lockdown': {'turn_off': (['lockdown'], [30])}},
                      'New Zealand': {'relax lockdown': {'replace': (['lockdown'], [['lockdown_relax']], [[30]])}}}
 
     # set up the scenarios
@@ -42,4 +42,10 @@ if __name__ == "__main__":
     # run the scenarios
     scens = ui.run_scens(scens)
 
-    ui.policy_plot(scens)
+    # plot
+    scens_toplot = {'Australia': ['baseline', 'relax lockdown', 'turn off lockdown'],
+                    'New Zealand': ['baseline', 'relax lockdown']}
+    outcomes_toplot = {'Cumulative infections': 'cum_infections',
+                       'New infections': 'new_infections',
+                       'Cumulative deaths': 'cum_deaths'}
+    ui.policy_plot(scens, scens_toplot=scens_toplot, outcomes_toplot=outcomes_toplot)
