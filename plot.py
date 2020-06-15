@@ -62,7 +62,11 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
     for i, loc in enumerate(scens):
 
         scen = scens[loc]
-        axes[0, i].set_title(loc)  # column title
+
+        if ncols == 1:
+            axes[0].set_title(loc)
+        else:
+            axes[0, i].set_title(loc)  # column title
 
         # get the scenarios to plot for this location
         s_toplot = None
@@ -75,9 +79,12 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
             baseline_days = []
             otherscen_days = []
 
-            axes[j,0].set_ylabel(subplot_title)
-
-            this_subplot = axes[j, i]
+            if ncols == 1:
+                axes[j].set_ylabel(subplot_title)
+                this_subplot = axes[j]
+            else:
+                axes[j,0].set_ylabel(subplot_title)
+                this_subplot = axes[j, i]
 
             reskey = outcomes_toplot[subplot_title]
             if isinstance(reskey, list):  # if it came from an odict
