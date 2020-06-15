@@ -61,10 +61,6 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
 
     fig, axes = pl.subplots(nrows=nrows, ncols=ncols, sharex='col')
 
-    # for plotting common legend
-    handles = []
-    labels = []
-
     # plot each location as a column
     for i, loc in enumerate(scens):
 
