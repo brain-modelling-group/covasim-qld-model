@@ -84,6 +84,16 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
                 scendata = resdata[scenname]
                 this_subplot.plot(scen.tvec, scendata.best, c=colors[k])
 
+                # Set xticks as dates
+                if as_dates:
+                    @ticker.FuncFormatter
+                    def date_formatter(x, pos):
+                        return (scen.base_sim['start_day'] + dt.timedelta(days=x)).strftime('%b-%d')
+
+                    this_subplot.xaxis.set_major_formatter(date_formatter)
+                    if not interval:
+                        this_subplot.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+
             if plot_ints:
                 scennum = 0
                 for s, scenname in enumerate(scen.sims):
