@@ -52,6 +52,7 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
     to_plot = sc.dcp(to_plot)  # In case it's supplied as a dict
 
     plot_args = {'lw': 1, 'alpha': 0.7}
+    fill_args = {'alpha': 0.2}
 
     # one location per column
     ncols = len(scens.keys())
@@ -84,7 +85,8 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
             # plot the outcomes for each scenario
             for k, scenname in enumerate(resdata):
                 scendata = resdata[scenname]
-                this_subplot.plot(scen.tvec, scendata.best, c=colors[k])
+                this_subplot.fill_between(scen.tvec, scendata.low, scendata.high, **fill_args)
+                this_subplot.plot(scen.tvec, scendata.best, label=scendata.name, c=colors[k], **plot_args)
 
             # plot the data
             if scen.base_sim.data is not None and reskey in scen.base_sim.data:
