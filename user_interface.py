@@ -43,7 +43,7 @@ def run_scens(scens):
     return scens
 
 
-def policy_plot(scens, plot_ints=True, to_plot=None, do_show=True, do_save=False, fig_path=None, verbose=1):
+def policy_plot(scens, plot_ints=True, to_plot=None, do_show=True, do_save=False, fig_path=None, commaticks=True, verbose=1):
     """
 
     :param scens (dict): Scenarios by location (dict)
@@ -53,13 +53,15 @@ def policy_plot(scens, plot_ints=True, to_plot=None, do_show=True, do_save=False
     :param do_show (bool): Whether or not to show the figure
     :param do_save (bool): Whether or not to save the figure
     :param fig_path (str):  Path to save the figure
+    :param commaticks (bool): use commas in y-tick labels
     :return:
     """
     fig = plot.policy_plot(scens,
-                     plot_ints=plot_ints,
-                     to_plot=to_plot,
-                     do_show=do_show,
-                     do_save=do_save,
-                     fig_path=fig_path,
-                     verbose=verbose)
+                           plot_ints=plot_ints,
+                           to_plot=to_plot,
+                           do_show=do_show,
+                           do_save=do_save,
+                           fig_path=fig_path,
+                           commaticks=commaticks,
+                           verbose=verbose)
     return fig

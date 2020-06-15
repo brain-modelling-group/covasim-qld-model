@@ -108,6 +108,10 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=No
                 if not interval:
                     this_subplot.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
+            # format y-axis to use commas
+            if commaticks:
+                sc.commaticks(fig=fig)
+
             if plot_ints:
                 scennum = 0
                 for s, scenname in enumerate(scen.sims):
