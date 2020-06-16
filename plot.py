@@ -56,7 +56,7 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
     ncols = len(scens.keys())
     nrows = len(outcomes_toplot)
 
-    fig, axes = pl.subplots(nrows=nrows, ncols=ncols, sharex='col', figsize=(5, 2))
+    fig, axes = pl.subplots(nrows=nrows, ncols=ncols, sharex='col', figsize=(8, 5))
 
     # plot each location as a column
     for i, loc in enumerate(scens):
@@ -165,7 +165,7 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
         if fig_path is None:  # No figpath provided - see whether do_save is a figpath
             fig_path = name + '.png'  # Just give it a default name
         fig_path = sc.makefilepath(fig_path)  # Ensure it's valid, including creating the folder
-        pl.savefig(fig_path)
+        pl.savefig(fig_path, dpi=300)
 
     if do_show:
         pl.show()
