@@ -12,7 +12,7 @@ from policy_updates import PolicySchedule
 def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False, do_save=False, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
-    do_show=True, sep_figs=False, verbose=1, y_lim=None):
+    do_show=True, sep_figs=False, verbose=1, y_lim=None, name = ' '):
 
     '''
     Plot the results -- can supply arguments for both the figure and the plots.
@@ -56,7 +56,7 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
     ncols = len(scens.keys())
     nrows = len(outcomes_toplot)
 
-    fig, axes = pl.subplots(nrows=nrows, ncols=ncols, sharex='col')
+    fig, axes = pl.subplots(nrows=nrows, ncols=ncols, sharex='col', figsize=(5, 2))
 
     # plot each location as a column
     for i, loc in enumerate(scens):
@@ -163,7 +163,7 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
     # Ensure the figure actually renders or saves
     if do_save:
         if fig_path is None:  # No figpath provided - see whether do_save is a figpath
-            fig_path = 'covasim_scenarios.png'  # Just give it a default name
+            fig_path = name + '.png'  # Just give it a default name
         fig_path = sc.makefilepath(fig_path)  # Ensure it's valid, including creating the folder
         pl.savefig(fig_path)
 

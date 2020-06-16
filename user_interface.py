@@ -43,7 +43,7 @@ def run_scens(scens):
     return scens
 
 
-def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=True, do_show=True, do_save=False, fig_path=None, commaticks=True, verbose=1):
+def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=True, do_show=True, do_save=False, fig_path=None, commaticks=True, verbose=1, name=''):
     """
 
     :param scens (dict): Scenarios by location (dict)
@@ -67,5 +67,6 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=True, 
                            do_save=do_save,
                            fig_path=fig_path,
                            commaticks=commaticks,
-                           verbose=verbose)
+                           verbose=verbose,
+                           name=name)
     return fig
