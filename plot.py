@@ -50,13 +50,17 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
 
     plot_args = sc.mergedicts({'lw': 1, 'alpha': 0.7}, plot_args)
     fill_args = sc.mergedicts({'alpha': 0.2}, fill_args)
-    legend_args = sc.mergedicts({'loc': 'best'}, legend_args)
+    legend_args = sc.mergedicts({'loc': 'upper left'}, legend_args)
 
     # one location per column
     ncols = len(scens.keys())
     nrows = len(outcomes_toplot)
 
     fig, axes = pl.subplots(nrows=nrows, ncols=ncols, sharex='col')
+
+    # for plotting common legend
+    handles = []
+    labels = []
 
     # plot each location as a column
     for i, loc in enumerate(scens):
@@ -101,6 +105,11 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
                 scendata = resdata[scen_name]
                 this_subplot.fill_between(scen.tvec, scendata.low, scendata.high, **fill_args)
                 this_subplot.plot(scen.tvec, scendata.best, label=scendata.name, c=colors[k], **plot_args)
+
+            # add legend to first plot in each column
+            if j == 0:
+                hs, lbs = this_subplot.get_legend_handles_labels()
+                this_subplot.legend(hs, lbs, **legend_args)
 
             # plot the data
             if scen.base_sim.data is not None and reskey in scen.base_sim.data:
