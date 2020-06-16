@@ -4,13 +4,13 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Manaus']
     # the name of the databook
-    db_name = 'input_data_brazil2'
+    db_name = 'input_data_brazil'
     epi_name = 'epi_data_brazil'
 
     # country-specific parameters
     user_pars = {'Manaus': {'pop_size': int(10e4),
-                               'beta': 0.09,
-                               'n_days': 365}}
+                               'beta': 0.05,
+                               'n_days': 200}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 3,
@@ -19,17 +19,17 @@ if __name__ == "__main__":
                 'rand_seed': 1}
 
     # if required, change the each policy beta, date_implemented & date_ended
-    policy_vals = {'Manaus': {'lockdown_1': {'beta': 0.06},
-                              'lockdown_2': {'beta': 0.09}, 
+    policy_vals = {'Manaus': {'lockdown_1': {'beta': 0.2},
+                              'lockdown_2': {'beta': 0.1}, 
                               'lockdown_3': {'beta': 0.1},
                               'relax_1': {'beta': 0.3}}}
 
     # Note that lockdown 3 comes into effect the first time at day 90
     
     # the policies to change during scenario runs
-    policy_change = {'Manaus': {'24 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
-                                                        [[272]])},
-                                '12 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
+    # policy_change = {'Manaus': {'24 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
+    #                                                     [[272]])},
+    policy_change = {'Manaus': {'12 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
                                                         [[188]])},
                                 '8 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
                                                         [[160]])}}}
