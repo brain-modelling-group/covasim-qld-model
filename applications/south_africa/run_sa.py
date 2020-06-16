@@ -1,32 +1,32 @@
 import user_interface as ui
-
+import pickle
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['GP']
+    locations = ['KZN']
     # the name of the databook
     db_name = 'input_data_sa'
 
     # country-specific parameters
     user_pars = {'WC': {'pop_size': int(10e4),
-                               'beta': 0.1,
-                               'n_days': 180,
+                        'beta': 0.015,
+                        'n_days': 339,
                         'pop_infected': 5000},
-                 'NW': {'pop_size': int(10e4),
-                        'beta': 0.1,
-                        'n_days': 100,
-                        'pop_infected': 5},
                  'GP': {'pop_size': int(10e4),
-                        'beta': 0.08,
-                        'n_days': 365,
+                        'beta': 0.032,
+                        'n_days': 339,
                         'pop_infected': 1000},
-                 'KZN': {'pop_size': int(10e4),
-                        'beta': 0.08,
-                        'n_days': 365,
-                        'pop_infected': 1000},
+                 'NW': {'pop_size': int(10e4),
+                        'beta': 0.032,
+                        'n_days': 339,
+                        'pop_infected': 20},
                  'FS': {'pop_size': int(10e4),
-                        'beta': 0.08,
-                        'n_days': 365,
+                        'beta': 0.032,
+                        'n_days': 339,
+                        'pop_infected': 250},
+                 'KZN': {'pop_size': int(10e4),
+                        'beta': 0.032,
+                        'n_days': 351,
                         'pop_infected': 1000},
                  }
 
@@ -37,46 +37,51 @@ if __name__ == "__main__":
                 'rand_seed': 1}
 
     # if required, change the each policy beta, date_implemented & date_ended
-    policy_vals = {'WC': {'lockdown_s5': {'beta': .2},
-                          'lockdown_s4': {'beta': .3},
-                          'lockdown_s3': {'beta': .4}},
-                   'NW': {'lockdown_s5': {'beta': .2},
-                          'lockdown_s4': {'beta': .3},
-                          'lockdown_s3': {'beta': .4}},
-                   'GP': {'lockdown_s5': {'beta': .2},
-                          'lockdown_s4': {'beta': .3},
-                          'lockdown_s3': {'beta': .4}},
-                   'KZN': {'lockdown_s5': {'beta': .2},
-                          'lockdown_s4': {'beta': .3},
-                          'lockdown_s3': {'beta': .4}},
-                   'FS': {'lockdown_s5': {'beta': .2},
-                          'lockdown_s4': {'beta': .3},
-                          'lockdown_s3': {'beta': .4}}
+    policy_vals = {'WC': {'lockdown_s5': {'beta': 1.45},
+                          'lockdown_s4': {'beta': 1.2},
+                          'lockdown_s3': {'beta': .75},
+                          'lockdown_s5_v2': {'beta': .1}},
+                   'GP': {'lockdown_s5': {'beta': .5},
+                          'lockdown_s4': {'beta': .75},
+                          'lockdown_s3': {'beta': 1.},
+                          'lockdown_s5_v2': {'beta': .4}},
+                   'NW': {'lockdown_s5': {'beta': .5},
+                          'lockdown_s4': {'beta': .75},
+                          'lockdown_s3': {'beta': 1.},
+                          'lockdown_s5_v2': {'beta': .4}},
+                   'FS': {'lockdown_s5': {'beta': .4},
+                          'lockdown_s4': {'beta': .5},
+                          'lockdown_s3': {'beta': 1.},
+                          'lockdown_s5_v2': {'beta': .4}},
+                   'KZN': {'lockdown_s5': {'beta': .35},
+                          'lockdown_s4': {'beta': .35},
+                          'lockdown_s3': {'beta': 1.},
+                          'lockdown_s5_v2': {'beta': .4}},
                    }
 
     # Note that stage three comes into effect the first time at day 67
 
     # the policies to change during scenario runs
-    policy_change = {'WC': {'4 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5']], [[92]])},
-                     '2 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5']], [[79]])},
-                     'No relax': {'replace': (['lockdown_s3'], [['lockdown_s5']], [[67]])}},
+    policy_change = {'WC': {'8 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 8*7, 67 + 8*7 + 10*7]])},
+                            '12 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 12*7, 67 + 12*7 + 10*7]])},
+                            '16 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 16*7, 67 + 16*7 + 10*7]])}},
 
-                     'GP': {'8 week relax': {'replace': (['lockdown_s3', 'lockdown_s3'], [['lockdown_s5'], ['lockdown_s5']],
-                                                         [[67 + 8*7, 67 + 8*7 + 10*7], [67 + 8*7 + 10*7 + 8*7, 67 + 8*7 + 20*7 + 8*7]])},
-                            '12 week relax': {'replace': (['lockdown_s3', 'lockdown_s3'], [['lockdown_s5'], ['lockdown_s5']],
-                                                          [[67 + 12*7, 67 + 12*7 + 10*7], [67 + 12*7 + 10*7 + 12*7, 67 + 12*7 + 20*7 + 12*7]])},
-                            '24 week relax': {'replace': (['lockdown_s3', 'lockdown_s3'], [['lockdown_s5'], ['lockdown_s5']],
-                                                          [[67 + 24*7, 67 + 24*7 + 10*7], [67 + 24*7 + 10*7 + 24*7, 67 + 24*7 + 20*7 + 24*7]])}}
+                     'GP': {'8 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 8 * 7, 67 + 8 * 7 + 10 * 7]])},
+                            '12 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 12 * 7, 67 + 12 * 7 + 10 * 7]])},
+                            '16 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 16 * 7, 67 + 16 * 7 + 10 * 7]])}},
 
-                     # 'GP': {'12 week relax': {
-                     #     'replace': (['lockdown_s3'], [['lockdown_s5']],
-                     #                 [[67 + 12 * 7, 67 + 12 * 7 + 10 * 7]])},
-                     #        '15 week relax': {
-                     #            'replace': (['lockdown_s3'], [['lockdown_s5']],
-                     #                        [[67 + 15 * 7, 67 + 15 * 7 + 10 * 7]])},
-                     #        '18 week relax': {
-                     #            'replace': (['lockdown_s3'], [['lockdown_s5']],
-                     #                        [[67 + 18 * 7, 67 + 18 * 7 + 10 * 7]])}}
+                     'NW': {'8 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 8 * 7, 67 + 8 * 7 + 10 * 7]])},
+                            '12 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 12 * 7, 67 + 12 * 7 + 10 * 7]])},
+                            '16 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 16 * 7, 67 + 16 * 7 + 10 * 7]])}},
+
+                     'FS': {'8 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 8 * 7, 67 + 8 * 7 + 10 * 7]])},
+                            '12 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 12 * 7, 67 + 12 * 7 + 10 * 7]])},
+                            '16 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 16 * 7, 67 + 16 * 7 + 10 * 7]])}},
+
+                     'KZN': {'8 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 8 * 7, 67 + 8 * 7 + 10 * 7]])},
+                            '12 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 12 * 7, 67 + 12 * 7 + 10 * 7]])},
+                            '16 week relax': {'replace': (['lockdown_s3'], [['lockdown_s5_v2']], [[67 + 16 * 7, 67 + 16 * 7 + 10 * 7]])}},
+
                      }
 
     # set up the scenarios
@@ -90,7 +95,6 @@ if __name__ == "__main__":
 
     # run the scenarios
     scens = ui.run_scens(scens)
+    filehandler = open('runs/' + locations[0] + '.obj', 'wb')
+    pickle.dump(scens, filehandler)
 
-    ui.policy_plot(scens[locations[0]])
-    ui.policy_plot(scens[locations[0]], to_plot={'New Infections': 'new_infections'})
-    ui.policy_plot(scens[locations[0]], to_plot={'Cumulative Diagnoses': 'cum_diagnoses'})
