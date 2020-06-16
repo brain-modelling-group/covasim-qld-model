@@ -10,38 +10,38 @@ if __name__ == "__main__":
     epi_name = 'epi_data_peru'
 
     # country-specific parameters
-    user_pars = {'Lima': {'pop_size': int(10e4),
-                               'beta': 0.135,
-                               'n_days': 10,
-                          'pop_infected': 350}
+    user_pars = {'Lima': {'pop_size': int(2e4),
+                               'beta': 0.1,
+                               'n_days': 100,
+                          'pop_infected': 50}
 
                  }
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 3,
+    metapars = {'n_runs': 1,
                 'noise': 0,
                 'verbose': 1,
                 'rand_seed': 1}
 
     # if required, change the each policy beta, date_implemented & date_ended
-    policy_vals = {'Lima': {'lockdown': {'beta': 0.27},
-                              'heavy_lockdown': {'beta': 0.18},
-                              'phase_1': {'beta': 0.19},
+    policy_vals = {'Lima': {'lockdown': {'beta': 0.3},
+                              'heavy_lockdown': {'beta': 0.14},
+                              'phase_1': {'beta': 0.15},
                               'phase_2': {'beta': 0.5},
-                              'phase_3': {'beta': 0.4},
-                              'phase_4': {'beta': 0.3}},
+                              'phase_3': {'beta': 0.19},
+                              'phase_4': {'beta': 0.8}},
                    }
     # the policies to change during scenario runs
 
     policy_change = {'Lima': {#'early relax 70%': {'replace': (['phase_1'], [['phase_2']], [[100]])},
-                              #'on time relax 50%': {'replace': (['phase_1'], [['phase_2']], [[150]])},
-                            #'Late relax 50%': {'replace': (['phase_1'], [['phase_2']], [[250]])},
-                              #'early relax 30%': {'replace': (['phase_1'], [['phase_3']], [[100]])},
-                              #'on time relax 40%': {'replace': (['phase_1'], [['phase_3']], [[150]])},
-                              #'Late relax 40%': {'replace': (['phase_1'], [['phase_3']], [[250]])},
+                            #'on time relax 50%': {'replace': (['heavy_lockdown'], [['phase_2']], [[150]])},
+                            #'Late relax 50%': {'replace': (['heavy_lockdown'], [['phase_2']], [[250]])},
+                            #'early relax 30%': {'replace': (['phase_1'], [['phase_3']], [[100]])},
+                            #'5% of restrictions lifted in August': {'replace': (['heavy_lockdown'], [['phase_3']], [[150]])},
+                            #'5% of restrictions lifted in November': {'replace': (['heavy_lockdown'], [['phase_3']], [[243]])},
                               #'early relax 25%': {'replace': (['phase_1'], [['phase_4']], [[100]])},
-                              #'on time relax 30%': {'replace': (['phase_1'], [['phase_4']], [[150]])},
-                              #'Late relax 30%': {'replace': (['phase_1'], [['phase_4']], [[250]])},
+                              #'On time relax 33%': {'replace': (['heavy_lockdown'], [['phase_4']], [[150]])},
+                              #'Late relax 33%': {'replace': (['heavy_lockdown'], [['phase_4']], [[250]])},
 
     }}
     # set up the scenarios
@@ -69,14 +69,14 @@ if __name__ == "__main__":
     #infections_late40 = sum(scens['Lima'].results['new_infections']['Late relax 40%']['best'][243:363])
     #print('infections on time 40% relax =', infections_late40)
 
-   # infections_ontime30 = sum(scens['Lima'].results['new_infections']['on time relax 30%']['best'][243:363])
-    #print('infections on time relax 30% =',infections_ontime30)
-    #infections_late30 = sum(scens['Lima'].results['new_infections']['Late relax 30%']['best'][243:363])
-    #print('infections Late relax 30%  =', infections_late30)
+    #infections_ontime30 = sum(scens['Lima'].results['new_infections']['5% of restrictions lifted in August']['best'][243:363])
+    #print('5% of restrictions lifted in August =',infections_ontime30)
+    #infections_late30 = sum(scens['Lima'].results['new_infections']['5% of restrictions lifted in November']['best'][243:363])
+    #print('5% of restrictions lifted in November  =', infections_late30)
 
     #PLOT
     scens_toplot = {'Lima': ['baseline']}
-    outcomes_toplot={'Cumulative Deaths': 'cum_deaths', 'New Infections': 'new_infections'}
-    ui.policy_plot(scens, to_plot={'Cumulative Deaths': 'cum_deaths', 'New Infections': 'new_infections'})
+    outcomes_toplot={'New Infections': 'new_infections','Cumulative Deaths': 'cum_deaths'}
+    ui.policy_plot(scens, scens_toplot=scens_toplot, outcomes_toplot=outcomes_toplot, plot_ints=False)
 
 
