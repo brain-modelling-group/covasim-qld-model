@@ -63,7 +63,9 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
 
         scen = scens[loc]
 
-        if ncols == 1:
+        if ncols == 1 & nrows == 1:
+            axes.set_title(loc)
+        elif ncols == 1 & nrows > 1:
             axes[0].set_title(loc)
         else:
             axes[0, i].set_title(loc)  # column title
@@ -79,7 +81,10 @@ def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False,
             baseline_days = []
             otherscen_days = []
 
-            if ncols == 1:
+            if ncols == 1 & nrows == 1:
+                axes.set_ylabel(subplot_title)
+                this_subplot = axes
+            elif ncols == 1 & nrows > 1:
                 axes[j].set_ylabel(subplot_title)
                 this_subplot = axes[j]
             else:
