@@ -9,8 +9,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Fortaleza': {'pop_size': int(10e4),
-                               'beta': 0.1,
-                               'n_days': 365}}
+                               'beta': 0.075,
+                               'n_days': 370}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 3,
@@ -22,18 +22,22 @@ if __name__ == "__main__":
     policy_vals = {'Fortaleza': {'lockdown_1': {'beta': 0.2},
                               'lockdown_2': {'beta': 0.15}, 
                               'lockdown_3': {'beta': 0.1},
-                              'relax_1': {'beta': 0.1}}}
+                              'relax_1': {'beta': 0.3},
+                              'relax_2': {'beta': 0.5}}}
 
     # Note that lockdown 3 comes into effect the first time at day 90
     
     # the policies to change during scenario runs
-    # policy_change = {'Fortaleza': {'24 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
-    #                                                     [[272]])},
-    policy_change = {'Fortaleza': {'16 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
+    
+    
+    policy_change = {'Fortaleza': {'lockdown reduced by 20% after 24 weeks': {'replace': (['lockdown_3'], [['relax_1']], 
                                                         [[216]])},
-                                '8 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
+                                'lockdown reduced by 20% after 12 weeks': {'replace': (['lockdown_3'], [['relax_1']], 
+                                                        [[188]])},
+                                'lockdown reduced by 20% after 8 weeks': {'replace': (['lockdown_3'], [['relax_1']], 
                                                         [[160]])}}
                      }
+                     
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
                            db_name=db_name,
@@ -53,8 +57,10 @@ if __name__ == "__main__":
 
 
     # number of infections that occurred between November and February
-    infections2 = sum(scens['Fortaleza'].results['new_infections']['16 week relax']['best'][234:354])
+    infections1 = sum(scens['Fortaleza'].results['new_infections']['lockdown reduced by 20% after 24 weeks']['best'][234:354])
+    print(infections1)
+    infections2 = sum(scens['Fortaleza'].results['new_infections']['lockdown reduced by 20% after 12 weeks']['best'][234:354])
     print(infections2)
-    infections3 = sum(scens['Fortaleza'].results['new_infections']['8 week relax']['best'][234:354])
+    infections3 = sum(scens['Fortaleza'].results['new_infections']['lockdown reduced by 20% after 8 weeks']['best'][234:354])
     print(infections3)
     
