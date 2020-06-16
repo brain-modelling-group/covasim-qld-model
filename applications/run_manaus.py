@@ -9,8 +9,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Manaus': {'pop_size': int(10e4),
-                               'beta': 0.05,
-                               'n_days': 365}}
+                               'beta': 0.1,
+                               'n_days': 370}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 3,
@@ -22,14 +22,19 @@ if __name__ == "__main__":
     policy_vals = {'Manaus': {'lockdown_1': {'beta': 0.2},
                               'lockdown_2': {'beta': 0.15}, 
                               'lockdown_3': {'beta': 0.1},
-                              'relax_1': {'beta': 0.3}}}
+                              'relax_1': {'beta': 0.3},
+                              'relax_2': {'beta': 0.5}}}
 
     # Note that lockdown 3 comes into effect the first time at day 90
     
     # the policies to change during scenario runs
-    policy_change = {'Manaus': {'12 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
+    
+    
+    policy_change = {'Manaus': {'lockdown reduced by 20% after 24 weeks': {'replace': (['lockdown_3'], [['relax_1']], 
+                                                        [[216]])},
+                                'lockdown reduced by 20% after 12 weeks': {'replace': (['lockdown_3'], [['relax_1']], 
                                                         [[188]])},
-                                '8 week relax': {'replace': (['lockdown_3'], [['relax_1']], 
+                                'lockdown reduced by 20% after 8 weeks': {'replace': (['lockdown_3'], [['relax_1']], 
                                                         [[160]])}}
                      }
                      
@@ -51,9 +56,11 @@ if __name__ == "__main__":
     ui.policy_plot(scens['Manaus'], to_plot={'New Daily Infections (Manaus)': 'new_infections'})
     
     # number of infections that occurred between November and February
-    infections2 = sum(scens['Manaus'].results['new_infections']['12 week relax']['best'][234:354])
+    infections1 = sum(scens['Manaus'].results['new_infections']['lockdown reduced by 20% after 24 weeks']['best'][234:354])
+    print(infections1)
+    infections2 = sum(scens['Manaus'].results['new_infections']['lockdown reduced by 20% after 12 weeks']['best'][234:354])
     print(infections2)
-    infections3 = sum(scens['Manaus'].results['new_infections']['8 week relax']['best'][234:354])
+    infections3 = sum(scens['Manaus'].results['new_infections']['lockdown reduced by 20% after 8 weeks']['best'][234:354])
     print(infections3)
     
     
