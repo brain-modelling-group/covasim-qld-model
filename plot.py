@@ -9,7 +9,7 @@ from matplotlib.ticker import StrMethodFormatter
 from policy_updates import PolicySchedule
 
 
-def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=None, fig_args=None, plot_args=None,
+def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=False, do_save=False, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
     do_show=True, sep_figs=False, verbose=1, y_lim=None):
@@ -18,10 +18,8 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=No
     Plot the results -- can supply arguments for both the figure and the plots.
 
     Args:
-        scen        (covasim Scenario): Scenario with results to be plotted
-        scen_name   (str):  Name of the scenario with intervention start dates to plot
-        plot_ints   (Bool): Whether or not to plot intervention start dates
-        to_plot     (dict): Dict of results to plot; see default_scen_plots for structure
+        plot_ints (Bool): Whether or not to plot intervention start dates
+        outcomes_toplot (dict): Dict of results to plot; see default_scen_plots for structure
         do_save     (bool): Whether or not to save the figure
         fig_path    (str):  Path to save the figure
         fig_args    (dict): Dictionary of kwargs to be passed to pl.figure()
@@ -46,9 +44,9 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=No
 
     sc.printv('Plotting...', 1, verbose)
 
-    if to_plot is None:
-        to_plot = cvd.get_scen_plots()
-    to_plot = sc.dcp(to_plot)  # In case it's supplied as a dict
+    if outcomes_toplot is None:
+        outcomes_toplot = cvd.get_scen_plots()
+    outcomes_toplot = sc.dcp(outcomes_toplot)  # In case it's supplied as a dict
 
     plot_args = sc.mergedicts({'lw': 1, 'alpha': 0.7}, plot_args)
     fill_args = sc.mergedicts({'alpha': 0.2}, fill_args)
@@ -56,7 +54,7 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=No
 
     # one location per column
     ncols = len(scens.keys())
-    nrows = len(to_plot)
+    nrows = len(outcomes_toplot)
 
     fig, axes = pl.subplots(nrows=nrows, ncols=ncols, sharex='col')
 
@@ -70,8 +68,14 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=No
         else:
             axes[0, i].set_title(loc)  # column title
 
-        # plot each outcome in to_plot as a row
-        for j, subplot_title in enumerate(to_plot):
+        # get the scenarios to plot for this location
+        s_toplot = None
+        if scens_toplot is not None:
+            if scens_toplot.get(loc) is not None:
+                s_toplot = scens_toplot[loc]
+
+        # plot each outcome in outcomes_toplot as a row
+        for j, subplot_title in enumerate(outcomes_toplot):
             baseline_days = []
             otherscen_days = []
 
@@ -82,16 +86,19 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=No
                 axes[j,0].set_ylabel(subplot_title)
                 this_subplot = axes[j, i]
 
-            reskey = to_plot[subplot_title]
+            reskey = outcomes_toplot[subplot_title]
             if isinstance(reskey, list):  # if it came from an odict
                 reskey = reskey[0]
 
+            # check which scenarios to plot
             resdata = scen.results[reskey]
-            colors = sc.gridcolors(len(resdata.items()))
+            if s_toplot is None:
+                s_toplot = resdata.keys()
+            colors = sc.gridcolors(len(s_toplot))
 
             # plot the outcomes for each scenario
-            for k, scenname in enumerate(resdata):
-                scendata = resdata[scenname]
+            for k, scen_name in enumerate(s_toplot):
+                scendata = resdata[scen_name]
                 this_subplot.fill_between(scen.tvec, scendata.low, scendata.high, **fill_args)
                 this_subplot.plot(scen.tvec, scendata.best, label=scendata.name, c=colors[k], **plot_args)
 
@@ -116,9 +123,10 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=No
 
             if plot_ints:
                 scennum = 0
-                for s, scenname in enumerate(scen.sims):
-                    if scenname.lower() != 'baseline':
-                        for intervention in scen.sims[scenname][0]['interventions']:
+                # for s, scen_name in enumerate(scen.sims):
+                for scen_name in s_toplot:
+                    if scen_name.lower() != 'baseline':
+                        for intervention in scen.sims[scen_name][0]['interventions']:
                             if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule):
                                 otherscen_days = [day for day in intervention.days if
                                                   day not in baseline_days and day not in otherscen_days]
@@ -126,13 +134,13 @@ def policy_plot(scens, plot_ints=False, to_plot=None, do_save=False, fig_path=No
                                 if intervention.start_day not in baseline_days and intervention.start_day not in otherscen_days and intervention.start_day != 0:
                                     otherscen_days.append(intervention.start_day)
                                 if intervention.end_day not in baseline_days and intervention.end_day not in otherscen_days and isinstance(
-                                        intervention.end_day, int) and intervention.end_day < scen.sims[scenname][0][
+                                        intervention.end_day, int) and intervention.end_day < scen.sims[scen_name][0][
                                     'n_days']:
                                     otherscen_days.append(intervention.end_day)
                             for day in otherscen_days:
                                 this_subplot.axvline(x=day, color=colors[scennum], linestyle='--')
                     else:
-                        for intervention in scen.sims[scenname][0]['interventions']:
+                        for intervention in scen.sims[scen_name][0]['interventions']:
                             if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule):
                                 baseline_days = [day for day in intervention.days if day not in baseline_days]
                             elif hasattr(intervention, 'start_day'):
@@ -163,9 +171,9 @@ def plot_scens(scens, fig_path=None, do_save=True, do_show=True, figsize=(5, 10)
 
     fig_args = {'figsize': figsize}
     if for_powerpoint:
-        to_plot = scens.results['new_infections']
+        outcomes_toplot = scens.results['new_infections']
     else:
-        to_plot = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
+        outcomes_toplot = ['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths']
 
     policy_plot(scens,
                 plot_ints=True,
@@ -175,7 +183,7 @@ def plot_scens(scens, fig_path=None, do_save=True, do_show=True, figsize=(5, 10)
                 interval=14,
                 fig_args=fig_args,
                 font_size=8,
-                to_plot=to_plot)
+                outcomes_toplot=outcomes_toplot)
 
     return
 
