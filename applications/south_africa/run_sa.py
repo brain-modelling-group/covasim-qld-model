@@ -3,30 +3,30 @@ import pickle
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['FS']
+    locations = ['KZN']
     # the name of the databook
     db_name = 'input_data_sa'
 
     # country-specific parameters
     user_pars = {'WC': {'pop_size': int(10e4),
                         'beta': 0.015,
-                        'n_days': 339,
+                        'n_days': 80,
                         'pop_infected': 5000},
                  'GP': {'pop_size': int(10e4),
                         'beta': 0.032,
-                        'n_days': 339,
+                        'n_days': 80,
                         'pop_infected': 1000},
                  'NW': {'pop_size': int(10e4),
                         'beta': 0.032,
-                        'n_days': 339,
+                        'n_days': 80,
                         'pop_infected': 20},
                  'FS': {'pop_size': int(10e4),
                         'beta': 0.032,
-                        'n_days': 339,
+                        'n_days': 80,
                         'pop_infected': 250},
                  'KZN': {'pop_size': int(10e4),
                         'beta': 0.032,
-                        'n_days': 80,
+                        'n_days': 351,
                         'pop_infected': 1000},
                  }
 
