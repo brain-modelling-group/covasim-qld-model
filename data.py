@@ -123,7 +123,7 @@ def _get_layerchars(locations, databook):
     return all_layerchars
 
 
-def read_policies(locations, databook, policy_vals):
+def read_policies(locations, databook):
     """
     Read in the policies sheet
     :param databook:
@@ -134,14 +134,6 @@ def read_policies(locations, databook, policy_vals):
 
     start_days = databook.parse('other_par', index_col=0, header=0).to_dict(orient='index')
     pol_sheet = databook.parse('policies', index_col=[0,1], header=0)  # index by first 2 cols to avoid NAs in first col
-
-    # update dataframe with any user values
-    for location in locations:
-        if policy_vals.get(location) is not None:
-            update = policy_vals[location]
-            for pol_name, vals in update.items():
-                for name, val in vals.items():
-                    pol_sheet.loc[(location, pol_name), name] = val  # pandas requires this very specific syntax for setting with multi-index
 
     all_policies = {}
     for location in locations:
@@ -391,7 +383,7 @@ def read_params(locations, db):
     return pars, extrapars, layerchars
 
 
-def read_data(locations, db_name, epi_name, policy_vals):
+def read_data(locations, db_name, epi_name):
     """Reads in all data in the appropriate format"""
     db_path, epi_path = utils.get_file_paths(db_name=db_name,
                                              epi_name=epi_name)
@@ -399,7 +391,7 @@ def read_data(locations, db_name, epi_name, policy_vals):
     db = load_databook(db_path)
 
     pars, extrapars, layerchars = read_params(locations, db)
-    policies = read_policies(locations, db, policy_vals)
+    policies = read_policies(locations, db)
     contact_matrix = read_contact_matrix(locations, db)
     epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars, extrapars)
     age_dist, household_dist = read_popdata(locations, db)

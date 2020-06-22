@@ -5,16 +5,15 @@ import scenarios
 def setup_scens(locations,
                 db_name,
                 epi_name='url',
-                policy_change=None,
+                scen_opts=None,
                 user_pars=None,
-                metapars=None,
-                policy_vals=None):
+                metapars=None):
     """
 
     :param locations:
     :param db_name:
     :param epi_name:
-    :param policy_change: Dict with the following structure
+    :param scen_opts: Dict with the following structure
                             {'name_of_scen': {
                                             'replace': ([to_replace1, to_replace2,...], [[replacements1], [replacements2]], [[start_date1, end_date1], [start_date2, end_date2]]),
                                             'turn_off': ([pol1, pol2,...], [date1, date2,...])
@@ -30,11 +29,9 @@ def setup_scens(locations,
     scens = scenarios.setup_scens(locations=locations,
                                   db_name=db_name,
                                   epi_name=epi_name,
-                                  policy_change=policy_change,
+                                  scen_opts=scen_opts,
                                   user_pars=user_pars,
-                                  metapars=metapars,
-                                  policy_vals=policy_vals)
-
+                                  metapars=metapars)
     return scens
 
 

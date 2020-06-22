@@ -17,7 +17,7 @@ def set_baseline(params, popdict):
     pars = params.pars
     n_days = pars['n_days']
     extra_pars = params.extrapars
-    trace_probs = extra_pars['trace_probs']
+    trace_probs = extra_pars['trace_probs']  # TODO: check this only leaves the baseline values
     trace_time = extra_pars['trace_time']
     restart_imports_length = extra_pars['restart_imports_length']
     relax_day = extra_pars['relax_day']
@@ -110,8 +110,8 @@ def create_scens(scen_opts,
                  contacts,
                  i_cases,
                  daily_tests,
-                 trace_time,
-                 trace_probs,
+                 altered_time,
+                 altered_probs,
                  future_tests,
                  n_days,
                  relax_day,
@@ -126,6 +126,8 @@ def create_scens(scen_opts,
 
     for name, scen in scen_opts.items():
         pols = altered_pols[name]
+        trace_time = altered_time[name]
+        trace_probs = altered_probs[name]
         beta_schedule = sc.dcp(baseline_policies)
         adapt_clip_pols = sc.dcp(pols['clip_policies'])
         adapt_beta_pols = sc.dcp(pols['beta_policies'])
@@ -196,10 +198,10 @@ def create_scens(scen_opts,
     return scenarios
 
 
-def define_scenarios(policy_change, params, popdict):
+def define_scenarios(loc_opts, params, popdict):
     """
 
-    :param policy_change: Dict with the following structure
+    :param scen_opts: Dict with the following structure
                             {'name_of_scen': {
                                             'replace': ([to_replace1, to_replace2,...], [[replacements1], [replacements2]], [[start_date1, end_date1], [start_date2, end_date2]]),
                                             'turn_off': ([pol1, pol2,...], [date1, date2,...]),
@@ -215,7 +217,7 @@ def define_scenarios(policy_change, params, popdict):
     # create baseline
     base_scenarios, base_policies = set_baseline(params, popdict)
 
-    if policy_change is None:
+    if loc_opts is None:
         return base_scenarios
 
     # unpack
@@ -232,15 +234,21 @@ def define_scenarios(policy_change, params, popdict):
     restart_imports_length = extra_pars['restart_imports_length']
     relax_day = extra_pars['relax_day']
     future_tests = extra_pars['future_daily_tests']
+    all_lkeys = params.all_lkeys
     dynamic_lkeys = params.dynamic_lkeys
 
     # create scenarios from replacing, turning off/on policies
     scen_opts = {}
-    # scenarios = {}
     altered_pols = {}
     altered_pars = {}
-    for name, scen in policy_change.items():
+    altered_time = {}
+    altered_probs = {}
+    for name, scen in loc_opts.items():
         scen_opts[name] = {}
+
+        loc_pols = sc.dcp(policies)
+        loc_time = sc.dcp(trace_time)
+        loc_probs = sc.dcp(trace_probs)
 
         # replace policies
         kind = 'replace'
@@ -285,35 +293,71 @@ def define_scenarios(policy_change, params, popdict):
         # validate & correct
         scen_opts[name] = policy_updates.check_policy_changes(scen_opts[name])
 
-        # handle change in app coverage
-        kind = 'app_cov'
+        # check if layer_rr needs to be updated
+        kind = 'beta_change'
         if scen.get(kind) is not None:
-            pols = sc.dcp(policies)  # avoid changing for other scenarios
-            new_cov = scen[kind]
-            pols['trace_policies']['tracing_app']['coverage'] = [new_cov]
-        else:
-            pols = policies
-        altered_pols[name] = pols
+            new_vals = scen[kind]
+            for pol_name, newval in new_vals.items():
 
-        # school transmission risk, relative to household
-        kind = 'school_risk'
-        if scen.get(kind) is not None:
-            parsc = sc.dcp(pars)
-            new_risk = scen[kind]
-            parsc['beta_layer']['S'] = parsc['beta_layer']['H'] * new_risk
-        else:
-            parsc = pars
-        altered_pars[name] = parsc
+                # beta_rr must be specified
+                if newval.get('beta_rr') is not None:
+                    beta_rr = newval['beta_rr']
+                else:
+                    Exception(f'Please provide a beta_rr value for scenario "{name}"')
 
-        # school transmission risk, relative to household
-        kind = 'pub_risk'
+                # update all the requested layers by key
+                for lkey in all_lkeys:
+                    if newval.get(lkey) is not None:
+                        l_rr = newval[lkey]
+                        loc_pols['beta_policies'][pol_name][lkey] = beta_rr * l_rr
+
+        # check if layer values need to be updated
+        kind = 'layer_change'
         if scen.get(kind) is not None:
-            pols = sc.dcp(policies)  # avoid changing for other scenarios
-            new_risk = scen[kind]
-            pols['beta_policies']['pub_bar_4sqm']['pub_bar'] = new_risk
-        else:
-            pols = policies
-        altered_pols[name] = pols
+            new_vals = scen[kind]
+            for val_type, newval in new_vals.items():
+                for key, val in newval.items():
+                    if val_type == 'trace_time':
+                        loc_time[key] = val
+                    elif val_type == 'trace_probs':
+                        loc_probs[key] = val
+                    else:
+                        print(f'Layer change of type {val_type} is not valid')
+
+        altered_pols[name] = loc_pols
+        altered_time[name] = loc_time
+        altered_probs[name] = loc_probs
+
+
+        # # handle change in app coverage
+        # kind = 'app_cov'
+        # if scen.get(kind) is not None:
+        #     pols = sc.dcp(policies)  # avoid changing for other scenarios
+        #     new_cov = scen[kind]
+        #     pols['trace_policies']['tracing_app']['coverage'] = [new_cov]
+        # else:
+        #     pols = policies
+        # altered_pols[name] = pols
+        #
+        # # school transmission risk, relative to household
+        # kind = 'school_risk'
+        # if scen.get(kind) is not None:
+        #     parsc = sc.dcp(pars)
+        #     new_risk = scen[kind]
+        #     parsc['beta_layer']['S'] = parsc['beta_layer']['H'] * new_risk
+        # else:
+        #     parsc = pars
+        # altered_pars[name] = parsc
+        #
+        # # school transmission risk, relative to household
+        # kind = 'pub_risk'
+        # if scen.get(kind) is not None:
+        #     pols = sc.dcp(policies)  # avoid changing for other scenarios
+        #     new_risk = scen[kind]
+        #     pols['beta_policies']['pub_bar_4sqm']['pub_bar'] = new_risk
+        # else:
+        #     pols = policies
+        # altered_pols[name] = pols
 
     # create the scenarios
     scenarios = create_scens(scen_opts=scen_opts,
@@ -324,8 +368,8 @@ def define_scenarios(policy_change, params, popdict):
                              contacts=contacts,
                              i_cases=i_cases,
                              daily_tests=daily_tests,
-                             trace_time=trace_time,
-                             trace_probs=trace_probs,
+                             altered_time=altered_time,
+                             altered_probs=altered_probs,
                              future_tests=future_tests,
                              n_days=n_days,
                              relax_day=relax_day,
@@ -339,10 +383,9 @@ def define_scenarios(policy_change, params, popdict):
 def setup_scens(locations,
                 db_name,
                 epi_name,
-                policy_change,
+                scen_opts,
                 user_pars,
-                metapars,
-                policy_vals):
+                metapars):
 
     # for reproducible results
     utils.set_rand_seed(metapars)
@@ -350,8 +393,7 @@ def setup_scens(locations,
     # return data relevant to each specified location in "locations"
     all_data = data.read_data(locations=locations,
                               db_name=db_name,
-                              epi_name=epi_name,
-                              policy_vals=policy_vals)
+                              epi_name=epi_name)
 
     all_scens = {}
     for location in locations:
@@ -362,7 +404,7 @@ def setup_scens(locations,
         loc_epidata = all_data[location]['epidata']
         keys = all_data[location]
         loc_pars = user_pars[location]
-        loc_pol = policy_change[location]
+        loc_opts = scen_opts[location]
 
         # setup parameters object for this simulation
         params = parameters.setup_params(location=location,
@@ -384,7 +426,7 @@ def setup_scens(locations,
         sim.initialize()
 
         # setup scenarios for this location
-        scens = define_scenarios(policy_change=loc_pol,
+        scens = define_scenarios(loc_opts=loc_opts,
                                  params=params,
                                  popdict=popdict)
         scens = cv.Scenarios(sim=sim,
