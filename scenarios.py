@@ -6,6 +6,7 @@ import parameters
 import policy_updates
 import sciris as sc
 import utils
+import warnings
 
 
 def set_baseline(params, popdict, trace_policies):
@@ -324,10 +325,14 @@ def define_scenarios(loc_opts, params, popdict):
         # tracing policies
         kind = 'tracing_policies'
         if scen.get(kind) is not None:
+            keys = ['coverage', 'days']
             new_vals = scen[kind]
             for pol_name, newval in new_vals.items():
                 for key, val in newval.items():
-                    loc_pols['tracing_policies'][pol_name][key] = val
+                    if key not in keys:
+                        warnings.warn(f'"{key}" is not a valid key. Must be one of {keys}')
+                    else:
+                        loc_pols['tracing_policies'][pol_name][key] = val
 
         altered_pols[name] = loc_pols
 
