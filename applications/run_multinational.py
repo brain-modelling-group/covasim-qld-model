@@ -24,8 +24,8 @@ if __name__ == "__main__":
 
     scen_opts = {'Australia': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
                                                   'policies': {'lockdown': {'beta_rr': 0.6, 'H': 0.5}},
-                                                  'tracing_policies': {'tracing_app': {'coverage': [0.2, 0.4], 'days': [14, 20], 'banana':1},
-                                                                       'id_checks': {'coverage': [0.2, 0.4], 'days': [14, 20]}}}}}
+                                                  'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
+                                                                       'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}}}
 
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,

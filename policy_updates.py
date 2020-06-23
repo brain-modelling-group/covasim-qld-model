@@ -207,7 +207,7 @@ class PolicySchedule(cv.Intervention):
 
 
 class AppBasedTracing(cv.Intervention):
-    def __init__(self, days, coverage, layers, start_day=0, end_day=None, trace_time=0):
+    def __init__(self, name, days, coverage, layers, start_day=0, end_day=None, trace_time=0):
         """
         App based contact tracing parametrized by coverage
         Args:
@@ -220,6 +220,7 @@ class AppBasedTracing(cv.Intervention):
         """
         super().__init__()
         assert len(days) == len(coverage), 'Must specify same number of days as coverage values'
+        self.name = name
         self.days = sc.promotetoarray(days)
         self.coverage = sc.promotetoarray(coverage)
         self.layers = layers
@@ -680,7 +681,8 @@ def replace_policies(scen, baseline_schedule, beta_policies, import_policies, cl
 def make_tracing(trace_policies):
     if trace_policies.get('tracing_app') is not None:
         t_details = trace_policies['tracing_app']
-        tracing_app = AppBasedTracing(days=t_details['days'],
+        tracing_app = AppBasedTracing(name='tracing_app',
+                                      days=t_details['days'],
                                       coverage=t_details['coverage'],
                                       layers=t_details['layers'],
                                       start_day=t_details['start_day'],
@@ -690,7 +692,8 @@ def make_tracing(trace_policies):
         tracing_app = None
     if trace_policies.get('id_checks') is not None:
         id_details = trace_policies['id_checks']
-        id_checks = AppBasedTracing(days=id_details['days'],
+        id_checks = AppBasedTracing(name='id_checks',
+                                    days=id_details['days'],
                                     coverage=id_details['coverage'],
                                     layers=id_details['layers'],
                                     start_day=id_details['start_day'],
