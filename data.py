@@ -7,22 +7,15 @@ import warnings
 
 
 def _get_layers(locations, databook):
-    # household
-    hlayer = databook.parse('layer-household', header=0, index_col=0)
-    hlayer = hlayer.loc[locations].to_dict(orient='index')
+    all_layers = {}
 
-    # school
-    slayer = databook.parse('layer-school', header=0, index_col=0)
-    slayer = slayer.loc[locations].to_dict(orient='index')
+    # read in all the layer sheets
+    for key in utils.all_lkeys():
+        default_layer = databook.parse(f'layer-{key}', header=0, index_col=0)
+        default_layer = default_layer.loc[locations].to_dict(orient='index')
+        all_layers[key] = default_layer
 
-    # work
-    wlayer = databook.parse('layer-work', header=0, index_col=0)
-    wlayer = wlayer.loc[locations].to_dict(orient='index')
-
-    # community
-    clayer = databook.parse('layer-community', header=0, index_col=0)
-    clayer = clayer.loc[locations].to_dict(orient='index')
-    return hlayer, slayer, wlayer, clayer
+    return all_layers
 
 
 def _get_pars(locations, databook):
@@ -31,35 +24,29 @@ def _get_pars(locations, databook):
     :return a dictionary of form (location, pars)
     """
 
-    hlayer, slayer, wlayer, clayer = _get_layers(locations, databook)
+    all_layers = _get_layers(locations, databook)
 
     # the parameters that are in a different sheet
     other_pars = databook.parse('other_par', index_col=0)
     other_pars = other_pars.loc[locations].to_dict(orient='index')
 
-    # structure the parameters for each country according to Covasim pars dictionary
     all_pars = {}
     for location in locations:
         pars = {}
-        h = hlayer[location]
-        s = slayer[location]
-        w = wlayer[location]
-        c = clayer[location]
         o = other_pars[location]
-        for key in utils.par_keys():
-            if key == 'n_days':
+        for pkey in utils.par_keys():
+            if pkey == 'n_days':
                 ndays = utils.get_ndays(o['start_day'], o['end_day'])
-                temp = {key: ndays}
-            elif h.get(key) is not None:  # assume if in this, will be in S, W & C
-                temp = {key: {'H': h[key],
-                              'S': s[key],
-                              'W': w[key],
-                              'C': c[key]}
-                        }
-            elif o.get(key) is not None:
-                temp = {key: o[key]}
+                temp = {pkey: ndays}
+            elif o.get(pkey) is not None:
+                temp = {pkey: o[pkey]}
             else:
-                warnings.warn(f'Parameter key "{key}" not found in spreadsheet data')
+                # must be layer-dependent parameter
+                temp = {}
+                temp[pkey] = {}
+                for lkey in utils.all_lkeys():
+                    l_pars = all_layers[lkey]
+                    temp[pkey].update({lkey: l_pars[location][pkey]})
             pars.update(temp)
         all_pars[location] = pars
 
@@ -68,7 +55,7 @@ def _get_pars(locations, databook):
 
 def _get_extrapars(locations, databook):
 
-    hlayer, slayer, wlayer, clayer = _get_layers(locations, databook)
+    hlayer, slayer, wlayer, clayer, player = _get_layers(locations, databook)
 
     # those in other_par sheet
     other_pars = databook.parse('other_par', index_col=0)
@@ -81,13 +68,15 @@ def _get_extrapars(locations, databook):
         s = slayer[location]
         w = wlayer[location]
         c = clayer[location]
+        p = player[location]
         o = other_pars[location]
         for key in utils.extrapar_keys():
             if h.get(key) is not None:  # assume is in this, will be in S, W & C
                 temp = {key: {'H': h[key],
                               'S': s[key],
                               'W': w[key],
-                              'C': c[key]}
+                              'C': c[key],
+                              'pub_bar': p[key]}
                 }
             elif o.get(key) is not None:
                 temp = {key: o[key]}

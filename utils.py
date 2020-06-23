@@ -98,7 +98,7 @@ def layerchar_keys():
 def dynamic_lkeys():
     """These are the layers that are re-generated at each time step since the contact networks are dynamic.
     Layers not in this list are treated as static contact networks"""
-    layers = ['C']
+    layers = ['C', 'pub_bar']
     return layers
 
 
@@ -112,7 +112,7 @@ def default_lkeys():
 
 
 def all_lkeys():
-    layers = ['H', 'S', 'W', 'C']
+    layers = list(set(default_lkeys())|set(dynamic_lkeys()))
     return layers
 
 
