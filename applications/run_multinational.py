@@ -27,7 +27,7 @@ if __name__ == "__main__":
                                                   'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
                                                                        'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}},
                  'New Zealand': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
-                                                  'policies': {'lockdown': {'beta': 0.6, 'H': 0.5}},
+                                                  'policies': {'lockdown': {'beta': 0.1111, 'H': 0.5555}},
                                                   'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
                                                                        'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}}}
 

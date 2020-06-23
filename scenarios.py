@@ -312,7 +312,7 @@ def define_scenarios(loc_opts, params, popdict):
                 if newval.get('beta') is not None:
                     beta = newval['beta']
                 else:
-                    Exception(f'Please provide a beta value for scenario "{name}"')
+                    raise Exception(f'Please provide a beta value for scenario "{name}"')
 
                 # update all the requested layers by key
                 for lkey in all_lkeys:
