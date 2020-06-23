@@ -258,8 +258,6 @@ def define_scenarios(loc_opts, params, popdict):
         scen_opts[name] = {}
 
         loc_pols = sc.dcp(policies)
-        # loc_time = sc.dcp(trace_time)
-        # loc_probs = sc.dcp(trace_probs)
 
         # replace policies
         kind = 'replace'
