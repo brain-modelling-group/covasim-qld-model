@@ -163,11 +163,11 @@ def read_policies(locations, databook):
                 policies['policy_dates'][pol_name] = n_days
 
             # check if there is a change in beta values on this layer (i.e. change in transmission risk)
-            beta_vals = row['beta_rr':'C']
+            beta_vals = row['beta':'C']
             beta_change = beta_vals.prod()  # multiply series together
             if not math.isclose(beta_change, 1, abs_tol=1e-9):
                 policies['beta_policies'][pol_name] = {}
-                beta = row['beta_rr']
+                beta = row['beta']
                 for layer_key in layer_keys:
                     beta_layer = row[layer_key]
                     policies['beta_policies'][pol_name][layer_key] = beta * beta_layer

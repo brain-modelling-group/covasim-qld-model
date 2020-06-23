@@ -3,7 +3,7 @@ import user_interface as ui
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Australia']
+    locations = ['Australia', 'New Zealand']
     # the name of the databook
     db_name = 'input_data_countryX'
     epi_name = 'epi_data_countryX'
@@ -23,7 +23,11 @@ if __name__ == "__main__":
                 'rand_seed': 1}
 
     scen_opts = {'Australia': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
-                                                  'policies': {'lockdown': {'beta_rr': 0.6, 'H': 0.5}},
+                                                  'policies': {'lockdown': {'beta': 0.6, 'H': 0.5}},
+                                                  'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
+                                                                       'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}},
+                 'New Zealand': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
+                                                  'policies': {'lockdown': {'beta': 0.6, 'H': 0.5}},
                                                   'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
                                                                        'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}}}
 
@@ -37,10 +41,4 @@ if __name__ == "__main__":
     # run the scenarios
     scens = ui.run_scens(scens)
 
-    # plot
-    # scens_toplot = {'Australia': ['baseline', 'relax lockdown', 'turn off lockdown'],
-    #                 'New Zealand': ['baseline', 'relax lockdown']}
-    # outcomes_toplot = {'Cumulative infections': 'cum_infections',
-    #                    'New infections': 'new_infections',
-    #                    'Cumulative deaths': 'cum_deaths'}
-    # ui.policy_plot(scens, scens_toplot=scens_toplot, outcomes_toplot=outcomes_toplot)
+    ui.policy_plot(scens)

@@ -308,17 +308,17 @@ def define_scenarios(loc_opts, params, popdict):
             new_vals = scen[kind]
             for pol_name, newval in new_vals.items():
 
-                # beta_rr must be specified
-                if newval.get('beta_rr') is not None:
-                    beta_rr = newval['beta_rr']
+                # beta must be specified
+                if newval.get('beta') is not None:
+                    beta = newval['beta']
                 else:
-                    Exception(f'Please provide a beta_rr value for scenario "{name}"')
+                    Exception(f'Please provide a beta value for scenario "{name}"')
 
                 # update all the requested layers by key
                 for lkey in all_lkeys:
                     if newval.get(lkey) is not None:
                         l_rr = newval[lkey]
-                        loc_pols['beta_policies'][pol_name][lkey] = beta_rr * l_rr
+                        loc_pols['beta_policies'][pol_name][lkey] = beta * l_rr
 
         # tracing policies
         kind = 'tracing_policies'
