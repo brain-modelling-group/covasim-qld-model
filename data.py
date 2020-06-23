@@ -55,33 +55,27 @@ def _get_pars(locations, databook):
 
 def _get_extrapars(locations, databook):
 
-    hlayer, slayer, wlayer, clayer, player = _get_layers(locations, databook)
+    all_layers = _get_layers(locations, databook)
 
     # those in other_par sheet
     other_pars = databook.parse('other_par', index_col=0)
     other_pars = other_pars.loc[locations].to_dict(orient='index')
 
+
     all_extrapars = {}
     for location in locations:
         extrapars = {}
-        h = hlayer[location]
-        s = slayer[location]
-        w = wlayer[location]
-        c = clayer[location]
-        p = player[location]
         o = other_pars[location]
-        for key in utils.extrapar_keys():
-            if h.get(key) is not None:  # assume is in this, will be in S, W & C
-                temp = {key: {'H': h[key],
-                              'S': s[key],
-                              'W': w[key],
-                              'C': c[key],
-                              'pub_bar': p[key]}
-                }
-            elif o.get(key) is not None:
-                temp = {key: o[key]}
+        for ekey in utils.extrapar_keys():
+            if o.get(ekey) is not None:
+                temp = {ekey: o[ekey]}
             else:
-                warnings.warn(f'Parameter key "{key}" not found in spreadsheet data')
+                # must be layer-dependent parameter
+                temp = {}
+                temp[ekey] = {}
+                for lkey in utils.all_lkeys():
+                    l_pars = all_layers[lkey]
+                    temp[ekey].update({lkey: l_pars[location][ekey]})
             extrapars.update(temp)
         all_extrapars[location] = extrapars
     return all_extrapars
@@ -89,24 +83,17 @@ def _get_extrapars(locations, databook):
 
 def _get_layerchars(locations, databook):
 
-    hlayer, slayer, wlayer, clayer = _get_layers(locations, databook)
+    all_layers = _get_layers(locations, databook)
 
     all_layerchars = {}
     for location in locations:
         layerchars = {}
-        h = hlayer[location]
-        s = slayer[location]
-        w = wlayer[location]
-        c = clayer[location]
-        for key in utils.layerchar_keys():
-            if h.get(key) is not None:
-                temp = {key: {'H': h[key],
-                              'S': s[key],
-                              'W': w[key],
-                              'C': c[key]}
-                }
-            else:
-                warnings.warn(f'Layer characteristics key "{key}" not found in spreadsheet data')
+        for ckey in utils.layerchar_keys():
+            temp = {}
+            temp[ckey] = {}
+            for lkey in utils.all_lkeys():
+                l_chars = all_layers[lkey]
+                temp[ckey].update({lkey: l_chars[location][ckey]})
             layerchars.update(temp)
         all_layerchars[location] = layerchars
     return all_layerchars
