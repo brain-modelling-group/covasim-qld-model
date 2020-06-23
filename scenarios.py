@@ -8,7 +8,7 @@ import sciris as sc
 import utils
 
 
-def set_baseline(params, popdict):
+def set_baseline(params, popdict, trace_policies):
 
     # unpack
     policies = params.policies
@@ -17,7 +17,7 @@ def set_baseline(params, popdict):
     pars = params.pars
     n_days = pars['n_days']
     extra_pars = params.extrapars
-    trace_probs = extra_pars['trace_probs']  # TODO: check this only leaves the baseline values
+    trace_probs = extra_pars['trace_probs']
     trace_time = extra_pars['trace_time']
     restart_imports_length = extra_pars['restart_imports_length']
     relax_day = extra_pars['relax_day']
@@ -41,19 +41,27 @@ def set_baseline(params, popdict):
                 policies['clip_policies'][dates]['dates'] = [policies['policy_dates'][dates][0], n_days]
 
     base_scenarios = {}  # create baseline scenario according to policies from databook
-    base_scenarios['baseline'] = {
-        'name': 'Baseline',
-        'pars': {'interventions': [baseline_policies,
-                cv.dynamic_pars({  # jump start with imported infections
-                    'n_imports': dict(days=np.append(range(len(i_cases)),  np.arange(relax_day, restart_imports_length)),
-                                      vals=np.append(i_cases, [0] * (restart_imports_length - relax_day)))
-                }),
-                cv.test_num(daily_tests=(daily_tests), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
-                policy_updates.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'], popdict=popdict)
-            ]
-        }
-    }
+
+    interventions = [baseline_policies,
+                     cv.dynamic_pars({'n_imports': dict(days=np.append(range(len(i_cases)), np.arange(relax_day, restart_imports_length)),
+                                                        vals=np.append(i_cases, [0] * (restart_imports_length - relax_day)))}),
+                     cv.test_num(daily_tests=(daily_tests), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3,
+                                 loss_prob=0),
+                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
+                     policy_updates.UpdateNetworks(layers=dynam_layers, contact_numbers=pars['contacts'],
+                                                   popdict=popdict)
+                     ]
+
+    base_scenarios['baseline'] = {'name': 'Baseline',
+                                  'pars': {'interventions': interventions}
+                                  }
+
+    # add in tracing policies
+    tracing_app, id_checks = policy_updates.make_tracing(trace_policies=trace_policies)
+    if tracing_app is not None:
+        interventions.append(tracing_app)
+    if id_checks is not None:
+        interventions.append(id_checks)
 
     # add edge clipping policies to baseline scenario
     for policy in policies['clip_policies']:
@@ -80,25 +88,31 @@ def create_scen(scenarios,
                 future_tests,
                 dynamic_lkeys):
 
-    scenarios[name] = {'name': name,
-                      'pars': {
-                      'interventions': [
-                        beta_policies,
-                        cv.dynamic_pars({  # what we actually did but re-introduce imported infections to test robustness
-                            'n_imports': imports_dict
-                        }),
-                        cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))), symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
-                        cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
-                        policy_updates.UpdateNetworks(layers=dynamic_lkeys, contact_numbers=contacts, popdict=popdict)
-                            ]
-                        }
-                     }
+    interventions = [beta_policies,
+                     cv.dynamic_pars({'n_imports': imports_dict}),
+                     cv.test_num(daily_tests=np.append(daily_tests, [future_tests] * (n_days - len(daily_tests))),
+                                 symp_test=5.0, quar_test=1.0, sensitivity=0.7, test_delay=3, loss_prob=0),
+                     cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0),
+                     policy_updates.UpdateNetworks(layers=dynamic_lkeys, contact_numbers=contacts, popdict=popdict)
+                     ]
+
+    # add in tracing policies
+    tracing_app, id_checks = policy_updates.make_tracing(trace_policies=trace_policies)
+    if tracing_app is not None:
+        interventions.append(tracing_app)
+    if id_checks is not None:
+        interventions.append(id_checks)
 
     # add edge clipping policies to relax scenario
     for policy in clip_policies:
         if len(clip_policies[policy]) >= 3:
             details = clip_policies[policy]
-            scenarios[name]['pars']['interventions'].append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer: details['change'] for layer in details['layers']}))
+            interventions.append(cv.clip_edges(start_day=details['dates'][0], end_day=details['dates'][1], change={layer: details['change'] for layer in details['layers']}))
+
+    scenarios[name] = {'name': name,
+                       'pars': {'interventions': interventions}
+                       }
+
     return scenarios
 
 
@@ -110,8 +124,8 @@ def create_scens(scen_opts,
                  contacts,
                  i_cases,
                  daily_tests,
-                 altered_time,
-                 altered_probs,
+                 trace_time,
+                 trace_probs,
                  future_tests,
                  n_days,
                  relax_day,
@@ -126,18 +140,17 @@ def create_scens(scen_opts,
 
     for name, scen in scen_opts.items():
         pols = altered_pols[name]
-        trace_time = altered_time[name]
-        trace_probs = altered_probs[name]
         beta_schedule = sc.dcp(baseline_policies)
         adapt_clip_pols = sc.dcp(pols['clip_policies'])
         adapt_beta_pols = sc.dcp(pols['beta_policies'])
         policy_dates = sc.dcp(pols['policy_dates'])
         import_pols = sc.dcp(pols['import_policies'])
-        # temp solution for not having trace policies currently
-        if pols.get('trace_policies') is not None:
-            adapt_trace_pols = sc.dcp(pols['trace_policies'])
-        else:
-            adapt_trace_pols = []
+        adapt_trace_pols = sc.dcp(pols['tracing_policies'])
+        # # temp solution for not having trace policies currently
+        # if pols.get('trace_policies') is not None:
+        #     adapt_trace_pols = sc.dcp(pols['trace_policies'])
+        # else:
+        #     adapt_trace_pols = []
 
         for change in scen.keys():
             if change == 'turn_off':
@@ -214,12 +227,6 @@ def define_scenarios(loc_opts, params, popdict):
     :return:
     """
 
-    # create baseline
-    base_scenarios, base_policies = set_baseline(params, popdict)
-
-    if loc_opts is None:
-        return base_scenarios
-
     # unpack
     pars = params.pars
     contacts = pars['contacts']
@@ -237,18 +244,21 @@ def define_scenarios(loc_opts, params, popdict):
     all_lkeys = params.all_lkeys
     dynamic_lkeys = params.dynamic_lkeys
 
+    # create baseline
+    base_scenarios, base_policies = set_baseline(params, popdict, policies['tracing_policies'])
+
+    if loc_opts is None:
+        return base_scenarios
+
     # create scenarios from replacing, turning off/on policies
     scen_opts = {}
     altered_pols = {}
-    altered_pars = {}
-    altered_time = {}
-    altered_probs = {}
     for name, scen in loc_opts.items():
         scen_opts[name] = {}
 
         loc_pols = sc.dcp(policies)
-        loc_time = sc.dcp(trace_time)
-        loc_probs = sc.dcp(trace_probs)
+        # loc_time = sc.dcp(trace_time)
+        # loc_probs = sc.dcp(trace_probs)
 
         # replace policies
         kind = 'replace'
@@ -294,7 +304,7 @@ def define_scenarios(loc_opts, params, popdict):
         scen_opts[name] = policy_updates.check_policy_changes(scen_opts[name])
 
         # check if layer_rr needs to be updated
-        kind = 'beta_change'
+        kind = 'policies'
         if scen.get(kind) is not None:
             new_vals = scen[kind]
             for pol_name, newval in new_vals.items():
@@ -311,53 +321,15 @@ def define_scenarios(loc_opts, params, popdict):
                         l_rr = newval[lkey]
                         loc_pols['beta_policies'][pol_name][lkey] = beta_rr * l_rr
 
-        # check if layer values need to be updated
-        kind = 'layer_change'
+        # tracing policies
+        kind = 'tracing_policies'
         if scen.get(kind) is not None:
             new_vals = scen[kind]
-            for val_type, newval in new_vals.items():
+            for pol_name, newval in new_vals.items():
                 for key, val in newval.items():
-                    if val_type == 'trace_time':
-                        loc_time[key] = val
-                    elif val_type == 'trace_probs':
-                        loc_probs[key] = val
-                    else:
-                        print(f'Layer change of type {val_type} is not valid')
+                    loc_pols['tracing_policies'][pol_name][key] = val
 
         altered_pols[name] = loc_pols
-        altered_time[name] = loc_time
-        altered_probs[name] = loc_probs
-
-
-        # # handle change in app coverage
-        # kind = 'app_cov'
-        # if scen.get(kind) is not None:
-        #     pols = sc.dcp(policies)  # avoid changing for other scenarios
-        #     new_cov = scen[kind]
-        #     pols['trace_policies']['tracing_app']['coverage'] = [new_cov]
-        # else:
-        #     pols = policies
-        # altered_pols[name] = pols
-        #
-        # # school transmission risk, relative to household
-        # kind = 'school_risk'
-        # if scen.get(kind) is not None:
-        #     parsc = sc.dcp(pars)
-        #     new_risk = scen[kind]
-        #     parsc['beta_layer']['S'] = parsc['beta_layer']['H'] * new_risk
-        # else:
-        #     parsc = pars
-        # altered_pars[name] = parsc
-        #
-        # # school transmission risk, relative to household
-        # kind = 'pub_risk'
-        # if scen.get(kind) is not None:
-        #     pols = sc.dcp(policies)  # avoid changing for other scenarios
-        #     new_risk = scen[kind]
-        #     pols['beta_policies']['pub_bar_4sqm']['pub_bar'] = new_risk
-        # else:
-        #     pols = policies
-        # altered_pols[name] = pols
 
     # create the scenarios
     scenarios = create_scens(scen_opts=scen_opts,
@@ -368,8 +340,8 @@ def define_scenarios(loc_opts, params, popdict):
                              contacts=contacts,
                              i_cases=i_cases,
                              daily_tests=daily_tests,
-                             altered_time=altered_time,
-                             altered_probs=altered_probs,
+                             trace_time=trace_time,
+                             trace_probs=trace_probs,
                              future_tests=future_tests,
                              n_days=n_days,
                              relax_day=relax_day,

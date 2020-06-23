@@ -23,9 +23,9 @@ if __name__ == "__main__":
                 'rand_seed': 1}
 
     scen_opts = {'Australia': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
-                                                  'beta_change': {'lockdown': {'beta_rr': 0.6, 'H': 0.5}},  # change vals in "policies" sheet
-                                                  'app_tracing': {'cov': [0.8]}, # TODO: this is a weird one, may need to set in a different sheet separate from policies
-                                                  'layer_change': {'trace_time': {'H': 100, 'S': -1}, 'trace_probs': {'H': 3.3}}}}} # change vals in "layers" sheet
+                                                  'policies': {'lockdown': {'beta_rr': 0.6, 'H': 0.5}},
+                                                  'tracing_policies': {'tracing_app': {'coverage': [0.2, 0.4], 'days': [14, 20], 'banana':1},
+                                                                       'id_checks': {'coverage': [0.2, 0.4], 'days': [14, 20]}}}}}
 
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,

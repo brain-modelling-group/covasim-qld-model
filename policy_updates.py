@@ -675,3 +675,28 @@ def replace_policies(scen, baseline_schedule, beta_policies, import_policies, cl
         else:
             print('Policy %s could not be replaced because it is not running.' % old_pol)
     return baseline_schedule, imports_dict, adapt_clip_policies, adapt_trace_policies, policy_dates
+
+
+def make_tracing(trace_policies):
+    if trace_policies.get('tracing_app') is not None:
+        t_details = trace_policies['tracing_app']
+        tracing_app = AppBasedTracing(days=t_details['days'],
+                                      coverage=t_details['coverage'],
+                                      layers=t_details['layers'],
+                                      start_day=t_details['start_day'],
+                                      end_day=t_details['end_day'],
+                                      trace_time=t_details['trace_time'])
+    else:
+        tracing_app = None
+    if trace_policies.get('id_checks') is not None:
+        id_details = trace_policies['id_checks']
+        id_checks = AppBasedTracing(days=id_details['days'],
+                                    coverage=id_details['coverage'],
+                                    layers=id_details['layers'],
+                                    start_day=id_details['start_day'],
+                                    end_day=id_details['end_day'],
+                                    trace_time=id_details['trace_time'])
+    else:
+        id_checks = None
+
+    return tracing_app, id_checks

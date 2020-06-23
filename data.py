@@ -147,7 +147,7 @@ def read_policies(locations, databook):
         policies['import_policies'] = {}
         policies['clip_policies'] = {}
         policies['policy_dates'] = {}
-        policies['trace_policies'] = {}
+        policies['tracing_policies'] = {}
 
         for pol_name, row in pols.iterrows():
 
@@ -212,14 +212,12 @@ def read_policies(locations, databook):
                 days = [int(x) for x in days.split(',')]
                 trace_time = int(row['trace_time'])
 
-                policies['trace_policies'][pol_name] = {'layers': layers,
-                                                        'coverage': cov,
-                                                        'days': days,
-                                                        'trace_time': trace_time,
-                                                        'start_day': start_pol,
-                                                        'end_day': end_pol if not pd.isna(end_pol) else None}
-
-
+                policies['tracing_policies'][pol_name] = {'layers': layers,
+                                                          'coverage': cov,
+                                                          'days': days,
+                                                          'trace_time': trace_time,
+                                                          'start_day': days_to_start,
+                                                          'end_day': end_pol if not pd.isna(end_pol) else None}
 
         all_policies[location] = policies
     return all_policies
