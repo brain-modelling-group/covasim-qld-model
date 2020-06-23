@@ -134,17 +134,20 @@ def read_policies(locations, databook):
 
     start_days = databook.parse('other_par', index_col=0, header=0).to_dict(orient='index')
     pol_sheet = databook.parse('policies', index_col=[0,1], header=0)  # index by first 2 cols to avoid NAs in first col
+    trace_sheet = databook.parse('tracing_policies', index_col=[0,1], header=0)
 
     all_policies = {}
     for location in locations:
         start_sim = start_days[location]['start_day']
         pols = pol_sheet.loc[location]
+        trace = trace_sheet.loc[location]
 
         policies = {}
         policies['beta_policies'] = {}
         policies['import_policies'] = {}
         policies['clip_policies'] = {}
         policies['policy_dates'] = {}
+        policies['trace_policies'] = {}
 
         for pol_name, row in pols.iterrows():
 
@@ -160,11 +163,11 @@ def read_policies(locations, databook):
                 policies['policy_dates'][pol_name] = n_days
 
             # check if there is a change in beta values on this layer (i.e. change in transmission risk)
-            beta_vals = row['beta':'C']
+            beta_vals = row['beta_rr':'C']
             beta_change = beta_vals.prod()  # multiply series together
             if not math.isclose(beta_change, 1, abs_tol=1e-9):
                 policies['beta_policies'][pol_name] = {}
-                beta = row['beta']
+                beta = row['beta_rr']
                 for layer_key in layer_keys:
                     beta_layer = row[layer_key]
                     policies['beta_policies'][pol_name][layer_key] = beta * beta_layer
@@ -185,6 +188,38 @@ def read_policies(locations, databook):
                     policies['clip_policies'][pol_name]['layers'] = [lk for lk in layer_keys if lk in layers_to_clip]
                 else:
                     policies['clip_policies'][pol_name]['layers'] = layer_keys
+
+        # tracing policies
+        for pol_name, row in trace.iterrows():
+
+            # dates
+            start_pol = row['date_implemented']
+            end_pol = row['date_ended']
+            if not pd.isna(start_pol):
+                days_to_start = utils.get_ndays(start_sim, start_pol)
+                n_days = [days_to_start]
+                if not pd.isna(end_pol):
+                    days_to_end = utils.get_ndays(start_sim, end_pol)
+                    n_days.append(days_to_end)
+                policies['policy_dates'][pol_name] = n_days
+
+                # only add this if has a start date
+                layers = row['layers']
+                layers = layers.replace(' ', '').split(',')  # list of layer strings
+                cov = row['coverage'].replace(' ', '')
+                cov = [float(x) for x in cov.split(',')]
+                days = row['days_changed'].replace(' ', '')
+                days = [int(x) for x in days.split(',')]
+                trace_time = int(row['trace_time'])
+
+                policies['trace_policies'][pol_name] = {'layers': layers,
+                                                        'coverage': cov,
+                                                        'days': days,
+                                                        'trace_time': trace_time,
+                                                        'start_day': start_pol,
+                                                        'end_day': end_pol if not pd.isna(end_pol) else None}
+
+
 
         all_policies[location] = policies
     return all_policies
