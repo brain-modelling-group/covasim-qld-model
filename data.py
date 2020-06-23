@@ -198,6 +198,7 @@ def read_policies(locations, databook):
             if not pd.isna(start_pol):
                 days_to_start = utils.get_ndays(start_sim, start_pol)
                 n_days = [days_to_start]
+                days_to_end = None
                 if not pd.isna(end_pol):
                     days_to_end = utils.get_ndays(start_sim, end_pol)
                     n_days.append(days_to_end)
@@ -217,7 +218,7 @@ def read_policies(locations, databook):
                                                           'days': days,
                                                           'trace_time': trace_time,
                                                           'start_day': days_to_start,
-                                                          'end_day': end_pol if not pd.isna(end_pol) else None}
+                                                          'end_day': days_to_end}
 
         all_policies[location] = policies
     return all_policies
