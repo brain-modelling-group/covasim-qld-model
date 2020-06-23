@@ -95,39 +95,62 @@ def layerchar_keys():
     return keys
 
 
-def dynamic_lkeys():
+def get_dynamic_lkeys(all_lkeys=None):
     """These are the layers that are re-generated at each time step since the contact networks are dynamic.
     Layers not in this list are treated as static contact networks"""
-    layers = ['C', 'pub_bar']
+    defaults = get_default_lkeys(all_lkeys)
+    if 'C' in defaults:
+        layers = ['C']
+    else:
+        layers = []
+
     return layers
 
 
-def default_lkeys():
+def get_default_lkeys(all_lkeys=None):
     """
     These are the standard layer keys: household (H), school (S), workplace (W) and community (C)
     :return:
     """
-    layers = ['H', 'S', 'W', 'C']
+    defaults = ['H', 'S', 'W', 'C']
+    if all_lkeys is None:
+        layers = defaults
+    else:
+        layers = list(set(all_lkeys).intersection(set(defaults)))  # only what is in common
     return layers
 
 
-def all_lkeys():
-    layers = list(set(default_lkeys())|set(dynamic_lkeys()))
+def get_all_lkeys():
+    layers = list(set(get_default_lkeys())|set(get_dynamic_lkeys()))
     return layers
 
 
-def custom_lkeys():
+def get_custom_lkeys(all_lkeys=None):
     """Layer keys that are part of the simulation but not by default"""
-    custom_lkeys = list(set(all_lkeys()) - set(default_lkeys()))
+    if all_lkeys is None:
+        all_lkeys = get_all_lkeys()
+
+    custom_lkeys = list(set(all_lkeys) - set(get_default_lkeys(all_lkeys)))
+
     return custom_lkeys
 
 
-def get_lkeys():
-    keys = {'all_lkeys': all_lkeys(),
-            'default_lkeys': default_lkeys(),
-            'dynamic_lkeys': dynamic_lkeys(),
-            'custom_lkeys': custom_lkeys()}
-    return keys
+def get_lkeys(all_lkeys, dynamic_lkeys):
+    # check if they are user-specified, otherwise just use hard-coded keys
+    if all_lkeys is None:
+        all_lkeys = get_all_lkeys()
+    if dynamic_lkeys is None:
+        dynamic_lkeys = get_dynamic_lkeys(all_lkeys)
+
+    default_lkeys = get_default_lkeys(all_lkeys)
+    custom_lkeys = get_custom_lkeys(all_lkeys)
+
+    # keys = {'all_lkeys': all_lkeys,
+    #         'default_lkeys': default_lkeys,
+    #         'dynamic_lkeys': dynamic_lkeys,
+    #         'custom_lkeys': custom_lkeys}
+
+    return all_lkeys, default_lkeys, dynamic_lkeys, custom_lkeys
 
 
 def policy_plot2(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,

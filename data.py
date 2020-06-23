@@ -6,11 +6,12 @@ import utils
 import warnings
 
 
-def _get_layers(locations, databook):
+def _get_layers(locations, databook, all_lkeys):
+
     all_layers = {}
 
     # read in all the layer sheets
-    for key in utils.all_lkeys():
+    for key in all_lkeys:
         default_layer = databook.parse(f'layer-{key}', header=0, index_col=0)
         default_layer = default_layer.loc[locations].to_dict(orient='index')
         all_layers[key] = default_layer
@@ -18,13 +19,13 @@ def _get_layers(locations, databook):
     return all_layers
 
 
-def _get_pars(locations, databook):
+def _get_pars(locations, databook, all_lkeys):
     """
     Read in & format the parameters for each location.
     :return a dictionary of form (location, pars)
     """
 
-    all_layers = _get_layers(locations, databook)
+    all_layers = _get_layers(locations, databook, all_lkeys)
 
     # the parameters that are in a different sheet
     other_pars = databook.parse('other_par', index_col=0)
@@ -44,7 +45,7 @@ def _get_pars(locations, databook):
                 # must be layer-dependent parameter
                 temp = {}
                 temp[pkey] = {}
-                for lkey in utils.all_lkeys():
+                for lkey in all_lkeys:
                     l_pars = all_layers[lkey]
                     temp[pkey].update({lkey: l_pars[location][pkey]})
             pars.update(temp)
@@ -53,14 +54,13 @@ def _get_pars(locations, databook):
     return all_pars
 
 
-def _get_extrapars(locations, databook):
+def _get_extrapars(locations, databook, all_lkeys):
 
-    all_layers = _get_layers(locations, databook)
+    all_layers = _get_layers(locations, databook, all_lkeys)
 
     # those in other_par sheet
     other_pars = databook.parse('other_par', index_col=0)
     other_pars = other_pars.loc[locations].to_dict(orient='index')
-
 
     all_extrapars = {}
     for location in locations:
@@ -73,7 +73,7 @@ def _get_extrapars(locations, databook):
                 # must be layer-dependent parameter
                 temp = {}
                 temp[ekey] = {}
-                for lkey in utils.all_lkeys():
+                for lkey in all_lkeys:
                     l_pars = all_layers[lkey]
                     temp[ekey].update({lkey: l_pars[location][ekey]})
             extrapars.update(temp)
@@ -81,9 +81,9 @@ def _get_extrapars(locations, databook):
     return all_extrapars
 
 
-def _get_layerchars(locations, databook):
+def _get_layerchars(locations, databook, all_lkeys):
 
-    all_layers = _get_layers(locations, databook)
+    all_layers = _get_layers(locations, databook, all_lkeys)
 
     all_layerchars = {}
     for location in locations:
@@ -91,7 +91,7 @@ def _get_layerchars(locations, databook):
         for ckey in utils.layerchar_keys():
             temp = {}
             temp[ckey] = {}
-            for lkey in utils.all_lkeys():
+            for lkey in all_lkeys:
                 l_chars = all_layers[lkey]
                 temp[ckey].update({lkey: l_chars[location][ckey]})
             layerchars.update(temp)
@@ -99,14 +99,12 @@ def _get_layerchars(locations, databook):
     return all_layerchars
 
 
-def read_policies(locations, databook):
+def read_policies(locations, databook, all_lkeys):
     """
     Read in the policies sheet
     :param databook:
     :return:
     """
-
-    layer_keys = utils.default_lkeys()
 
     start_days = databook.parse('other_par', index_col=0, header=0).to_dict(orient='index')
     pol_sheet = databook.parse('policies', index_col=[0,1], header=0)  # index by first 2 cols to avoid NAs in first col
@@ -144,7 +142,7 @@ def read_policies(locations, databook):
             if not math.isclose(beta_change, 1, abs_tol=1e-9):
                 policies['beta_policies'][pol_name] = {}
                 beta = row['beta']
-                for layer_key in layer_keys:
+                for layer_key in all_lkeys:
                     beta_layer = row[layer_key]
                     policies['beta_policies'][pol_name][layer_key] = beta * beta_layer
 
@@ -161,9 +159,9 @@ def read_policies(locations, databook):
                 policies['clip_policies'][pol_name]['change'] = percent_to_clip
                 layers_to_clip = to_clip[0]
                 if not pd.isna(layers_to_clip):
-                    policies['clip_policies'][pol_name]['layers'] = [lk for lk in layer_keys if lk in layers_to_clip]
+                    policies['clip_policies'][pol_name]['layers'] = [lk for lk in all_lkeys if lk in layers_to_clip]
                 else:
-                    policies['clip_policies'][pol_name]['layers'] = layer_keys
+                    policies['clip_policies'][pol_name]['layers'] = all_lkeys
 
         # tracing policies
         for pol_name, row in trace.iterrows():
@@ -382,32 +380,34 @@ def load_databook(db_path):
     return databook
 
 
-def read_params(locations, db):
+def read_params(locations, db, all_lkeys):
     """
     Read all the necessary parameters from the databook
     """
+    if all_lkeys is None:
+        all_lkeys = utils.get_all_lkeys()
 
-    pars = _get_pars(locations, db)
-    extrapars = _get_extrapars(locations, db)
-    layerchars = _get_layerchars(locations, db)
+    pars = _get_pars(locations, db, all_lkeys)
+    extrapars = _get_extrapars(locations, db, all_lkeys)
+    layerchars = _get_layerchars(locations, db, all_lkeys)
     return pars, extrapars, layerchars
 
 
-def read_data(locations, db_name, epi_name):
+def read_data(locations, db_name, epi_name, all_lkeys, dynamic_lkeys):
     """Reads in all data in the appropriate format"""
     db_path, epi_path = utils.get_file_paths(db_name=db_name,
                                              epi_name=epi_name)
 
     db = load_databook(db_path)
 
-    pars, extrapars, layerchars = read_params(locations, db)
-    policies = read_policies(locations, db)
+    # handle layer names
+    all_lkeys, default_lkeys, dynamic_lkeys, custom_lkeys = utils.get_lkeys(all_lkeys, dynamic_lkeys)
+
+    pars, extrapars, layerchars = read_params(locations, db, all_lkeys)
+    policies = read_policies(locations, db, all_lkeys)
     contact_matrix = read_contact_matrix(locations, db)
     epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars, extrapars)
     age_dist, household_dist = read_popdata(locations, db)
-
-    # handle layer names
-    keys = utils.get_lkeys()
 
     # convert so that outer key is the location
     all_data = {}
@@ -422,6 +422,9 @@ def read_data(locations, db_name, epi_name):
                               'household_dist': household_dist[location],
                               'imported_cases': imported_cases[location],
                               'daily_tests': daily_tests[location],
-                              **keys}
+                              'all_lkeys': all_lkeys,
+                              'default_lkeys': default_lkeys,
+                              'dynamic_lkeys':dynamic_lkeys,
+                              'custom_lkeys': custom_lkeys}
 
     return all_data

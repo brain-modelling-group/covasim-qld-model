@@ -85,7 +85,7 @@ class Parameters:
             print(f'- {key}: {value}')
 
 
-def setup_params(location, loc_data, metapars, user_pars, keys):
+def setup_params(location, loc_data, metapars, user_pars):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
 
@@ -99,10 +99,10 @@ def setup_params(location, loc_data, metapars, user_pars, keys):
     imported_cases = loc_data['imported_cases']
     daily_tests = loc_data['daily_tests']
 
-    all_lkeys = keys['all_lkeys']
-    default_lkeys = keys['default_lkeys']
-    custom_lkeys = keys['custom_lkeys']
-    dynamic_lkeys = keys['dynamic_lkeys']
+    all_lkeys = loc_data['all_lkeys']
+    default_lkeys = loc_data['default_lkeys']
+    custom_lkeys = loc_data['custom_lkeys']
+    dynamic_lkeys = loc_data['dynamic_lkeys']
 
     params = Parameters(location=location,
                         pars=pars,

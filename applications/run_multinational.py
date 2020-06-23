@@ -8,6 +8,10 @@ if __name__ == "__main__":
     db_name = 'input_data_countryX'
     epi_name = 'epi_data_countryX'
 
+    # specify layer keys to use
+    all_lkeys = ['H', 'S', 'W', 'C', 'pub_bar']
+    dynamic_lkeys = ['C', 'pub_bar']  # layers which update dynamically (subset of all_lkeys)
+
     # country-specific parameters
     user_pars = {'Australia': {'pop_size': int(2e4),
                                'beta': 0.2,
@@ -27,8 +31,8 @@ if __name__ == "__main__":
                                                   'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
                                                                        'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}},
                  'New Zealand': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
-                                                  'policies': {'lockdown': {'beta': 0.1111, 'H': 0.5555}},
-                                                  'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
+                                                    'policies': {'lockdown': {'beta': 0.1111, 'H': 0.5555}},
+                                                    'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
                                                                        'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}}}
 
     # set up the scenarios
@@ -37,7 +41,9 @@ if __name__ == "__main__":
                            epi_name=epi_name,
                            scen_opts=scen_opts,
                            user_pars=user_pars,
-                           metapars=metapars)
+                           metapars=metapars,
+                           all_lkeys=all_lkeys,
+                           dynamic_lkeys=dynamic_lkeys)
     # run the scenarios
     scens = ui.run_scens(scens)
 

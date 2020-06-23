@@ -7,7 +7,9 @@ def setup_scens(locations,
                 epi_name='url',
                 scen_opts=None,
                 user_pars=None,
-                metapars=None):
+                metapars=None,
+                all_lkeys=None,
+                dynamic_lkeys=None):
     """
 
     :param locations:
@@ -31,7 +33,9 @@ def setup_scens(locations,
                                   epi_name=epi_name,
                                   scen_opts=scen_opts,
                                   user_pars=user_pars,
-                                  metapars=metapars)
+                                  metapars=metapars,
+                                  all_lkeys=all_lkeys,
+                                  dynamic_lkeys=dynamic_lkeys)
     return scens
 
 

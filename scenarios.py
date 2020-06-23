@@ -360,7 +360,9 @@ def setup_scens(locations,
                 epi_name,
                 scen_opts,
                 user_pars,
-                metapars):
+                metapars,
+                all_lkeys,
+                dynamic_lkeys):
 
     # for reproducible results
     utils.set_rand_seed(metapars)
@@ -368,7 +370,9 @@ def setup_scens(locations,
     # return data relevant to each specified location in "locations"
     all_data = data.read_data(locations=locations,
                               db_name=db_name,
-                              epi_name=epi_name)
+                              epi_name=epi_name,
+                              all_lkeys=all_lkeys,
+                              dynamic_lkeys=dynamic_lkeys)
 
     all_scens = {}
     for location in locations:
@@ -377,7 +381,6 @@ def setup_scens(locations,
 
         loc_data = all_data[location]
         loc_epidata = all_data[location]['epidata']
-        keys = all_data[location]
         loc_pars = user_pars[location]
         loc_opts = scen_opts[location]
 
@@ -385,8 +388,7 @@ def setup_scens(locations,
         params = parameters.setup_params(location=location,
                                          loc_data=loc_data,
                                          metapars=metapars,
-                                         user_pars=loc_pars,
-                                         keys=keys)
+                                         user_pars=loc_pars)
 
         people, popdict = co.make_people(params)
 
