@@ -1,5 +1,6 @@
 import user_interface as ui
 from utils import policy_plot2
+import os
 
 
 if __name__ == "__main__":
@@ -17,8 +18,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Victoria': {'pop_size': int(2e4),
-                               'beta': 0.2,
-                               'n_days': 200}}
+                               'beta': 0.06,
+                               'n_days': 60}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 2,
@@ -27,6 +28,8 @@ if __name__ == "__main__":
                 'rand_seed': 1}
 
 #Pub app scenarios
+    scen_base = {'Victoria': {'Base': {'replace': (['lockdown'], [['lockdown_relax']], [[60]])}}}
+
     scen_pub_app = {'Victoria': {'Open pubs with no app': {'replace':  (['lockdown'], [['lockdown_relax']], [[60]]),
                                                         'turn_off': (['pub_bar0'],[60])},
                              'Open pubs with 40% app': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
@@ -60,7 +63,7 @@ if __name__ == "__main__":
     scens = ui.setup_scens(locations=locations,
                            db_name=db_name,
                            epi_name=epi_name,
-                           scen_opts=scen_pub_app,
+                           scen_opts=scen_base,
                            user_pars=user_pars,
                            metapars=metapars,
                            all_lkeys=all_lkeys,
@@ -68,7 +71,7 @@ if __name__ == "__main__":
     # run the scenarios
     scens = ui.run_scens(scens)
 
-    ui.policy_plot(scens)
+    #ui.policy_plot(scens)
 
     dirname = os.path.dirname(__file__)
     scens['verbose'] = True
@@ -77,7 +80,7 @@ if __name__ == "__main__":
                        interval=30,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
-                       y_lim={'new_diagnoses': 500},
+                       y_lim={'new_diagnoses': 200},
                        legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
                        axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.2},
                        fill_args={'alpha': 0.0},
