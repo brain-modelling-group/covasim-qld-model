@@ -31,13 +31,14 @@ if __name__ == "__main__":
     scen_base = {'Victoria': {'Base': {'replace': (['lockdown'], [['lockdown_relax']], [[60]])}}}
 
     scen_pub_app = {'Victoria': {'Open pubs with no app': {'replace':  (['lockdown'], [['lockdown_relax']], [[60]]),
-                                                        'turn_off': (['pub_bar0'],[60])},
-                             'Open pubs with 40% app': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
-                                                        'turn_off': (['pub_bar0'], [60]),
-                                                  'tracing_policies': {'tracing_app': {'coverage': [0,0.4], 'days': [0,60]}}},
-                             'Open pubs with 70% app': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
-                                                        'turn_off': (['pub_bar0'], [60]),
-                                                    'tracing_policies': {'tracing_app': {'coverage': [0,0.7], 'days': [0,60]}}}}}
+                                                           'turn_on': (['import_cases'],[60]),
+                                                        'turn_off': (['pub_bar0'],[60])}}}#,
+                             # 'Open pubs with 40% app': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
+                             #                            'turn_off': (['pub_bar0'], [60]),
+                             #                      'tracing_policies': {'tracing_app': {'coverage': [0,0.4], 'days': [0,60]}}},
+                             # 'Open pubs with 70% app': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
+                             #                            'turn_off': (['pub_bar0'], [60]),
+                             #                        'tracing_policies': {'tracing_app': {'coverage': [0,0.7], 'days': [0,60]}}}}}
 
     scen_pub_distancing = {'Victoria': {'Open pubs with no distancing': {'replace':  (['lockdown'], [['lockdown_relax']], [[60]]),
                                                         'turn_off': (['pub_bar0'],[60])}},
