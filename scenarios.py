@@ -221,6 +221,8 @@ def define_scenarios(loc_opts, params, popdict):
     scen_opts = {}
     altered_pols = {}
     for name, scen in loc_opts.items():
+        print(f'\n Creating scenario "{name}"...')
+
         scen_opts[name] = {}
 
         loc_pols = sc.dcp(policies)
