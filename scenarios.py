@@ -127,6 +127,8 @@ def create_scens(scen_opts,
                     'vals': np.append(imported_cases, [extrapars['restart_imports']] * (extrapars['restart_imports_length'] - extrapars['relax_day']))}
 
     for name, scen in scen_opts.items():
+        print(f'\n Creating scenario "{name}"...')
+
         pols = altered_pols[name]
         beta_schedule = sc.dcp(baseline_policies)
         adapt_clip_pols = sc.dcp(pols['clip_policies'])
@@ -221,7 +223,6 @@ def define_scenarios(loc_opts, params, popdict):
     scen_opts = {}
     altered_pols = {}
     for name, scen in loc_opts.items():
-        print(f'\n Creating scenario "{name}"...')
 
         scen_opts[name] = {}
 
