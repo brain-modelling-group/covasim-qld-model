@@ -49,11 +49,11 @@ if __name__ == "__main__":
     scen_pub_IDs = {'Victoria': {'Open pubs': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
                                                            'turn_off': (['pub_bar0'], [60])},
                                  'Open pubs with 40% ID checks': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
-                                                            'turn_off': (['pub_bar0'], [60])},
-                                                            'id_checks': {'coverage': [0.4], 'days': [60]},
+                                                            'turn_off': (['pub_bar0'], [60]),
+                                                            'id_checks': {'coverage': [0.4], 'days': [60]}},
                                  'Open pubs with 80% ID checks': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
-                                                            'turn_off': (['pub_bar0'], [60])},
-                                                            'id_checks': {'coverage': [0.8], 'days': [60]}}}
+                                                            'turn_off': (['pub_bar0'], [60]),
+                                                            'id_checks': {'coverage': [0.8], 'days': [60]}}}}
 
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
