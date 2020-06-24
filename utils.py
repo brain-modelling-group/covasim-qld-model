@@ -86,7 +86,8 @@ def metapar_keys():
 def extrapar_keys():
     keys = ['trace_probs', 'trace_time', 'restart_imports',
             'restart_imports_length', 'relax_day', 'future_daily_tests',
-            'undiag', 'av_daily_tests']
+            'undiag', 'av_daily_tests', 'symp_test', 'quar_test',
+            'sensitivity', 'test_delay', 'loss_prob']
     return keys
 
 
@@ -144,11 +145,6 @@ def get_lkeys(all_lkeys, dynamic_lkeys):
 
     default_lkeys = get_default_lkeys(all_lkeys)
     custom_lkeys = get_custom_lkeys(all_lkeys)
-
-    # keys = {'all_lkeys': all_lkeys,
-    #         'default_lkeys': default_lkeys,
-    #         'dynamic_lkeys': dynamic_lkeys,
-    #         'custom_lkeys': custom_lkeys}
 
     return all_lkeys, default_lkeys, dynamic_lkeys, custom_lkeys
 

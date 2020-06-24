@@ -284,7 +284,12 @@ def format_daily_tests(location, tests, default_val):
     return tests_copy
 
 
-def read_daily_tests(locations, epidata, pars, default_val=0):
+def extrapolate_tests(tests, future_tests, n_days):
+    tests = np.append(tests, [future_tests] * (n_days - len(tests)))
+    return tests
+
+
+def read_daily_tests(locations, epidata, pars, extrapars, default_val=0):
     """Read in the number of tests performed daily.
     If not in the epidata, create one from the default_val"""
     daily_tests = {}
@@ -292,17 +297,22 @@ def read_daily_tests(locations, epidata, pars, default_val=0):
         for location in locations:
             tests = epidata.loc[location]['new_tests'].to_numpy()
             tests = format_daily_tests(location, tests, default_val)
+            # update epidata so it is formatted correctly
             epidata.at[location, 'new_tests'] = tests  # pandas is weird
+            # extrapolate after last entry (not included in epidata df)
+            tests = extrapolate_tests(tests, extrapars[location]['future_daily_tests'], pars[location]['n_days'])
             daily_tests[location] = tests
     else:
         print(f'Unable to locate new_tests in epi data, replacing with {default_val}')
-        epidata['new_tests'] = [None] * len(epidata.index)
+        n_rows = len(epidata.index)
+        epidata['new_tests'] = [None] * n_rows
         for location in locations:
-            n_days = pars[location]['n_days']
-            tests = np.full(shape=n_days, fill_value=default_val)
+            tests = np.full(shape=n_rows, fill_value=default_val)
             epidata.at[location, 'new_tests'] = tests
+            tests = extrapolate_tests(tests, default_val, pars[location]['n_days'])
             daily_tests[location] = tests
-    return daily_tests
+
+    return daily_tests, epidata
 
 
 def read_epi_data(where, index_col='location', **kwargs):
@@ -339,7 +349,7 @@ def format_epidata(locations, epidata, extrapars):
 def get_epi_data(locations, where, pars, extrapars, **kwargs):
     epidata = read_epi_data(where, **kwargs)
     imported_cases = read_imported_cases(locations, epidata, pars)
-    daily_tests = read_daily_tests(locations, epidata, pars)
+    daily_tests, epidata = read_daily_tests(locations, epidata, pars, extrapars)
     epidata = format_epidata(locations, epidata, extrapars)
     return epidata, imported_cases, daily_tests
 
