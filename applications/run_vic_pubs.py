@@ -1,4 +1,5 @@
 import user_interface as ui
+from utils import policy_plot2
 
 
 if __name__ == "__main__":
@@ -68,3 +69,16 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
 
     ui.policy_plot(scens)
+
+    dirname = os.path.dirname(__file__)
+    scens['verbose'] = True
+    policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+                       fig_path=dirname + '/vic_test' + '.png',
+                       interval=30,
+                       fig_args=dict(figsize=(10, 5), dpi=100),
+                       font_size=11,
+                       y_lim={'new_diagnoses': 500},
+                       legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
+                       axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.2},
+                       fill_args={'alpha': 0.0},
+                       to_plot=['new_infections','new_diagnoses','cum_deaths'])
