@@ -29,11 +29,11 @@ if __name__ == "__main__":
     scen_pub_app = {'Victoria': {'Open pubs with no app': {'replace':  (['lockdown'], [['lockdown_relax']], [[60]]),
                                                         'turn_off': (['pub_bar0'],[60])},
                              'Open pubs with 40% app': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
-                                                        'turn_off': (['pub_bar0'], [60])},
-                                                  'tracing_policies': {'tracing_app': {'coverage': [0.4], 'days': [60]}},
+                                                        'turn_off': (['pub_bar0'], [60]),
+                                                  'tracing_policies': {'tracing_app': {'coverage': [0.4], 'days': [60]}}},
                              'Open pubs with 70% app': {'replace': (['lockdown'], [['lockdown_relax']], [[60]]),
-                                                        'turn_off': (['pub_bar0'], [60])},
-                                                    'tracing_policies': {'tracing_app': {'coverage': [0.7], 'days': [60]}}}}
+                                                        'turn_off': (['pub_bar0'], [60]),
+                                                    'tracing_policies': {'tracing_app': {'coverage': [0.7], 'days': [60]}}}}}
 
     scen_pub_distancing = {'Victoria': {'Open pubs with no distancing': {'replace':  (['lockdown'], [['lockdown_relax']], [[60]]),
                                                         'turn_off': (['pub_bar0'],[60])}},
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     scens = ui.setup_scens(locations=locations,
                            db_name=db_name,
                            epi_name=epi_name,
-                           scen_opts=scen_pub_distancing,
+                           scen_opts=scen_pub_app,
                            user_pars=user_pars,
                            metapars=metapars,
                            all_lkeys=all_lkeys,
