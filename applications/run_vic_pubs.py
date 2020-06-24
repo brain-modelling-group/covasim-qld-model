@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'Victoria': {'pop_size': int(2e4),
                                'beta': 0.06,
-                               'n_days': 60}}
+                               'n_days': 150}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 2,
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     scens = ui.setup_scens(locations=locations,
                            db_name=db_name,
                            epi_name=epi_name,
-                           scen_opts=scen_base,
+                           scen_opts=scen_pub_app,
                            user_pars=user_pars,
                            metapars=metapars,
                            all_lkeys=all_lkeys,
