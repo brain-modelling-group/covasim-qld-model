@@ -95,9 +95,9 @@ def create_scen(scenarios,
     for policy in clip_policies:
         if len(clip_policies[policy]) >= 3:
             details = clip_policies[policy]
-            interventions.append(cv.clip_edges(days=details['dates'],
+            interventions.append(cv.clip_edges(days=[details['dates'][0],details['dates'][1]],
                                                layers=details['layers'],
-                                               changes=details['change']))
+                                               changes=[details['change'],1]))
 
     scenarios[name] = {'name': name,
                        'pars': {'interventions': interventions}
