@@ -224,7 +224,7 @@ class AppBasedTracing(cv.Intervention):
         self.days = sc.promotetoarray(days)
         self.coverage = sc.promotetoarray(coverage)
         self.layers = layers
-        assert self.days[0] <= start_day
+        assert self.days[0] <= start_day, f'Initial "{name}" coverage change must be before or on start day. \n First change day: {self.days[0]}. \n Start day: {start_day}'
         self.trace_time = dict.fromkeys(self.layers, trace_time)
         self.start_day = start_day
         self.end_day = end_day
