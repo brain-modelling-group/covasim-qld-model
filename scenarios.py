@@ -39,8 +39,7 @@ def set_baseline(params, popdict, trace_policies):
 
     base_scenario = {}  # create baseline scenario according to policies from databook
 
-    imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(extrapars['relax_day'], extrapars['restart_imports_length'])),
-                        vals=np.append(i_cases, [0] * (extrapars['restart_imports_length'] - extrapars['relax_day'])))
+    imports_dict = dict(days=np.arange(len(i_cases)), vals=i_cases)
 
     base_scenario = create_scen(scenarios=base_scenario,
                                 name='baseline',
@@ -123,8 +122,7 @@ def create_scens(scen_opts,
     dynamic_lkeys = params.dynamic_lkeys
 
     # create necessary params for covasim interventions
-    imports_dict = {'days': np.append(range(len(imported_cases)), np.arange(extrapars['relax_day'], extrapars['restart_imports_length'])),
-                    'vals': np.append(imported_cases, [extrapars['restart_imports']] * (extrapars['restart_imports_length'] - extrapars['relax_day']))}
+    imports_dict = {'days': np.arange(len(imported_cases)), 'vals': imported_cases}
 
     for name, scen in scen_opts.items():
         print(f'\n Creating scenario "{name}"...')
