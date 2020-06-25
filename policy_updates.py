@@ -450,7 +450,24 @@ def turn_on_policies(scen, baseline_schedule, beta_policies, import_policies, cl
                     policy_dates[policy] = [new_pol_dates[0], n_days]
                     date_trigger = True
             if policy in import_policies:
-                if len(new_pol_dates) > 1:
+                if policy not in policy_dates:  # had not previously been turned on (i.e no start date in spreadsheet)
+                    all_imports = np.zeros(n_days)
+                    all_imports[:len(i_cases)] = i_cases  # fill with provided data
+                    if len(new_pol_dates) == 1:  # only start date
+                        day_turnon = new_pol_dates[0]
+                        day_turnoff = n_days
+                    elif len(new_pol_dates) == 2:  # start and end date
+                        day_turnon = new_pol_dates[0]
+                        day_turnoff = new_pol_dates[1]
+                    else:
+                        raise Exception(f'Dates for turning on policy "{policy}" are in the wrong format.\n Current format: {new_pol_dates}')
+                    days_after_turnon = np.arange(day_turnon, day_turnoff)
+                    new_imports = [import_policies[policy]['n_imports']] * len(days_after_turnon)
+                    all_imports[days_after_turnon] += new_imports  # add the number of imports
+                    imports_dict = dict(days=np.arange(n_days), vals=all_imports)
+
+                # these conditions below are a bit sketchy
+                elif len(new_pol_dates) > 1:
                     imports_dict = dict(days=np.append(range(len(i_cases)), np.arange(policy_dates[policy][0], policy_dates[policy][1]) + np.arange(new_pol_dates[0], new_pol_dates[1])),
                                         vals=np.append(i_cases, [import_policies[policy]['n_imports']] * (policy_dates[policy][1] - policy_dates[policy][0]) + [import_policies[policy]['n_imports']] * (new_pol_dates[1]-new_pol_dates[0])))
                     if not date_trigger:
