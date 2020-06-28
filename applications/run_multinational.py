@@ -42,4 +42,4 @@ if __name__ == "__main__":
     # run the scenarios
     scens = ui.run_scens(scens)
 
-    utils.policy_plot2(scens)
+    utils.policy_plot2(scens, to_plot=['cum_deaths'])

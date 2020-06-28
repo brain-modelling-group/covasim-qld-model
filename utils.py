@@ -169,7 +169,7 @@ def subset_epidata(epidata, calibration_end):
     return epidata_subset
 
 
-def policy_plot2(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
+def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
     do_show=True, sep_figs=False, verbose=1, y_lim=None):
@@ -217,6 +217,9 @@ def policy_plot2(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
     if to_plot is None:
         to_plot = cvd.get_scen_plots()
     to_plot = sc.dcp(to_plot)  # In case it's supplied as a dict
+
+    scen = scens['scenarios']
+    epidata = scens['complete_epidata']
 
     # Handle input arguments -- merge user input with defaults
     fig_args = sc.mergedicts({'figsize': (16, 14)}, fig_args)

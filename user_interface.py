@@ -39,9 +39,10 @@ def setup_scens(locations,
     return scens
 
 
-def run_scens(scens):
-    scens = scenarios.run_scens(scens)
-    return scens
+def run_scens(scens_dict):
+    scens = scens_dict['scenarios']
+    scenarios.run_scens(scens)
+    return scens_dict
 
 
 def policy_plot(scens, scens_toplot=None, outcomes_toplot=None, plot_ints=True, do_show=True, do_save=False, fig_path=None, commaticks=True, verbose=1, name=''):
