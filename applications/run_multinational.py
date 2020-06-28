@@ -1,9 +1,10 @@
 import user_interface as ui
+import utils
 
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Australia', 'New Zealand']
+    locations = ['Australia']
     # the name of the databook
     db_name = 'input_data_countryX'
     epi_name = 'epi_data_countryX'
@@ -15,10 +16,8 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'Australia': {'pop_size': int(2e4),
                                'beta': 0.2,
-                               'n_days': 60},
-                 'New Zealand': {'pop_size': int(2e4),
-                               'beta': 0.2,
-                               'n_days': 60}}
+                               'n_days': 60,
+                               'calibration_end': '2020-03-20'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 2,
@@ -29,10 +28,6 @@ if __name__ == "__main__":
     scen_opts = {'Australia': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
                                                   'policies': {'lockdown': {'beta': 0.6, 'H': 0.5}},
                                                   'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
-                                                                       'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}},
-                 'New Zealand': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
-                                                    'policies': {'lockdown': {'beta': 0.1111, 'H': 0.5555}},
-                                                    'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
                                                                        'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}}}
 
     # set up the scenarios
@@ -45,6 +40,6 @@ if __name__ == "__main__":
                            all_lkeys=all_lkeys,
                            dynamic_lkeys=dynamic_lkeys)
     # run the scenarios
-    scens = ui.run_scens(scens)
+    scens = ui.run_scxens(scens)
 
-    ui.policy_plot(scens)
+    utils.policy_plot2(scens)

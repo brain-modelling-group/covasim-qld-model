@@ -337,8 +337,13 @@ def setup_scens(locations,
         print(f'\nCreating scenarios for "{location}"...')
 
         loc_data = all_data[location]
-        loc_epidata = all_data[location]['epidata']
+
+        # clean up the parameters so that they are compatible with Covasim pars dictionary
         loc_pars = user_pars[location]
+        loc_pars, calibration_end = utils.clean_pars(loc_pars)
+        epidata = loc_data['epidata']
+        calibration_epidata = utils.subset_epidata(epidata, calibration_end)
+
         loc_opts = scen_opts[location]
 
         # setup parameters object for this simulation
@@ -349,10 +354,9 @@ def setup_scens(locations,
 
         people, popdict = co.make_people(params)
 
-
         # setup simulation for this location
         sim = cv.Sim(pars=params.pars,
-                     datafile=loc_epidata,
+                     datafile=calibration_epidata,
                      popfile=people,
                      pop_size=params.pars['pop_size'],
                      load_pop=True,

@@ -319,9 +319,9 @@ def read_epi_data(where, index_col='location', **kwargs):
     """By default, will return daily global data from URL below"""
     if where == 'url':
         url = utils.epi_data_url()
-        epidata = pd.read_csv(url, index_col=index_col, **kwargs)
+        epidata = pd.read_csv(url, index_col=index_col, parse_dates=['date'], **kwargs)
     else:
-        epidata = pd.read_csv(where, index_col=index_col, **kwargs)
+        epidata = pd.read_csv(where, index_col=index_col, parse_dates=['date'], **kwargs)
     return epidata
 
 
@@ -434,7 +434,7 @@ def read_data(locations, db_name, epi_name, all_lkeys, dynamic_lkeys):
                               'daily_tests': daily_tests[location],
                               'all_lkeys': all_lkeys,
                               'default_lkeys': default_lkeys,
-                              'dynamic_lkeys':dynamic_lkeys,
+                              'dynamic_lkeys': dynamic_lkeys,
                               'custom_lkeys': custom_lkeys}
 
     return all_data

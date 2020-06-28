@@ -1,3 +1,4 @@
+import covasim as cv
 import numpy as np
 import os
 import sciris as sc
@@ -149,10 +150,29 @@ def get_lkeys(all_lkeys, dynamic_lkeys):
     return all_lkeys, default_lkeys, dynamic_lkeys, custom_lkeys
 
 
+def clean_pars(user_pars):
+    par_keys = cv.make_pars().keys()
+
+    loc_pars = {key: val for key,val in user_pars.items() if key in par_keys}
+    if user_pars.get('calibration_end') is not None:
+        calibration_end = user_pars['calibration_end']
+    else:
+        calibration_end = None
+    return loc_pars, calibration_end
+
+
+def subset_epidata(epidata, calibration_end):
+    if calibration_end is None:
+        epidata_subset = epidata.copy()
+    else:
+        epidata_subset = epidata.loc[epidata['date'] <= calibration_end].copy()
+    return epidata_subset
+
+
 def policy_plot2(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
     axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None,
     interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
-    do_show=True, sep_figs=False, verbose=None, y_lim=None):
+    do_show=True, sep_figs=False, verbose=1, y_lim=None):
     from matplotlib.ticker import StrMethodFormatter
     import sciris as sc
     import numpy as np
@@ -192,8 +212,6 @@ def policy_plot2(scen, plot_ints=False, to_plot=None, do_save=None, fig_path=Non
         fig: Figure handle
     '''
 
-    if verbose is None:
-        verbose = scen['verbose']
     sc.printv('Plotting...', 1, verbose)
 
     if to_plot is None:
