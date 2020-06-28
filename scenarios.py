@@ -332,6 +332,9 @@ def setup_scens(locations,
                               dynamic_lkeys=dynamic_lkeys)
 
     all_scens = {}
+    all_scens['scenarios'] = {}
+    all_scens['complete_epidata'] = {}
+    all_scens['calibration_end'] = {}
     for location in locations:
 
         print(f'\nCreating scenarios for "{location}"...')
@@ -370,7 +373,10 @@ def setup_scens(locations,
         scens = cv.Scenarios(sim=sim,
                              metapars=metapars,
                              scenarios=scens)
-        all_scens[location] = scens
+
+        all_scens['scenarios'][location] = scens
+        all_scens['complete_epidata'][location] = epidata
+        all_scens['calibration_end'][location] = calibration_end
 
     return all_scens
 
@@ -380,5 +386,4 @@ def run_scens(scens):
 
     for location, scen in scens.items():
         scen.run()
-
     return scens
