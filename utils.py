@@ -220,6 +220,7 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
 
     scen = scens['scenarios']
     epidata = scens['complete_epidata']
+    calibration_end = scens['calibration_end']
 
     # Handle input arguments -- merge user input with defaults
     fig_args = sc.mergedicts({'figsize': (16, 14)}, fig_args)
