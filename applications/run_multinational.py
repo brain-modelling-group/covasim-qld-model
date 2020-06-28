@@ -40,6 +40,6 @@ if __name__ == "__main__":
                            all_lkeys=all_lkeys,
                            dynamic_lkeys=dynamic_lkeys)
     # run the scenarios
-    scens = ui.run_scxens(scens)
+    scens = ui.run_scens(scens)
 
     utils.policy_plot2(scens)
