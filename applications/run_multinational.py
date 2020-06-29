@@ -17,7 +17,7 @@ if __name__ == "__main__":
     user_pars = {'Australia': {'pop_size': int(2e4),
                                'beta': 0.04,
                                'n_days': 200,
-                               'calibration_end': '2020-06-09'}}
+                               'calibration_end': '2020-03-09'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 4,
