@@ -22,15 +22,14 @@ if __name__ == "__main__":
                                'calibration_end': '2020-03-09'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 4,
+    metapars = {'n_runs': 1,
                 'noise': 0,
                 'verbose': 1,
                 'rand_seed': 1}
 
     scen_opts = {'Australia': {'relax lockdown': {'replace':  (['lockdown'], [['lockdown_relax']], [[20]]),
                                                   'policies': {'lockdown': {'beta': 0.6, 'H': 0.5}},
-                                                  'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]},
-                                                                       'id_checks': {'coverage': [0.15, 0.25], 'days': [6, 34]}}}}}
+                                                  'tracing_policies': {'tracing_app': {'coverage': [0.1, 0.2], 'days': [5, 25]}}}}}
 
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
@@ -45,6 +44,7 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
 
    # utils.policy_plot2(scens)
+    import os
     dirname = os.path.dirname(__file__)
     scens['verbose'] = True
     utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True, fig_path=dirname + '/Lima_v1' + '.png',

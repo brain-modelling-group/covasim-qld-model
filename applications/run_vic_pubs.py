@@ -70,13 +70,12 @@ if __name__ == "__main__":
                            metapars=metapars,
                            all_lkeys=all_lkeys,
                            dynamic_lkeys=dynamic_lkeys)
+
     # run the scenarios
     scens = ui.run_scens(scens)
 
     #ui.policy_plot(scens)
-
-    dirname = os.path.dirname(__file__)
-    scens['verbose'] = True
+    import os
     dirname = os.path.dirname(__file__)
     scens['verbose'] = True
 

@@ -285,8 +285,9 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
 
             epidata[next(iter(scen))]['validate'] = 0 # which data is for validation vs calibration
             for j in range(len(epidata[next(iter(scen))])):
-                if (epidata[next(iter(scen))]['date'][j]) >= sc.readdate(calibration_end[next(iter(scen))]):
+                if (epidata[next(iter(scen))]['date'][j]) >= sc.readdate(calibration_end[next(iter(scen))][next(iter(scen))]):
                     epidata[next(iter(scen))]['validate'][j] = 1
+                    #epidata[next(iter(scen))].iloc[j, epidata[next(iter(scen))].get_loc('validate')] = 1
 
             if scen[next(iter(scen))].base_sim.data is not None and reskey in scen[next(iter(scen))].base_sim.data:
                 data_t = np.array((scen[next(iter(scen))].base_sim.data.index - scen[next(iter(scen))].base_sim['start_day']) / np.timedelta64(1, 'D'))
