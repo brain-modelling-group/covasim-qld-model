@@ -324,12 +324,15 @@ def setup_scens(locations,
     # for reproducible results
     utils.set_rand_seed(metapars)
 
+    user_pars, calibration_end = utils.clean_pars(user_pars, locations)
+
     # return data relevant to each specified location in "locations"
     all_data = data.read_data(locations=locations,
                               db_name=db_name,
                               epi_name=epi_name,
                               all_lkeys=all_lkeys,
-                              dynamic_lkeys=dynamic_lkeys)
+                              dynamic_lkeys=dynamic_lkeys,
+                              calibration_end=calibration_end)
 
     all_scens = {}
     all_scens['scenarios'] = {}
@@ -343,9 +346,9 @@ def setup_scens(locations,
 
         # clean up the parameters so that they are compatible with Covasim pars dictionary
         loc_pars = user_pars[location]
-        loc_pars, calibration_end = utils.clean_pars(loc_pars)
-        epidata = loc_data['epidata']
-        calibration_epidata = utils.subset_epidata(epidata, calibration_end)
+        # loc_pars, calibration_end = utils.clean_pars(loc_pars)
+        complete_epidata = loc_data['complete_epidata']
+        calibration_epidata = loc_data['calibration_epidata']
 
         loc_opts = scen_opts[location]
 
@@ -375,7 +378,7 @@ def setup_scens(locations,
                              scenarios=scens)
 
         all_scens['scenarios'][location] = scens
-        all_scens['complete_epidata'][location] = epidata
+        all_scens['complete_epidata'][location] = complete_epidata
         all_scens['calibration_end'][location] = calibration_end
 
     return all_scens
