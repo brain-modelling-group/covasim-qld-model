@@ -19,7 +19,8 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'Victoria': {'pop_size': int(2e4),
                                'beta': 0.06,
-                               'n_days': 150}}
+                               'n_days': 150,
+                               'calibration_end': '2020-03-15'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 2,
@@ -76,6 +77,9 @@ if __name__ == "__main__":
 
     dirname = os.path.dirname(__file__)
     scens['verbose'] = True
+    dirname = os.path.dirname(__file__)
+    scens['verbose'] = True
+
     policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
                        fig_path=dirname + '/vic_test' + '.png',
                        interval=30,
@@ -84,5 +88,5 @@ if __name__ == "__main__":
                        y_lim={'new_diagnoses': 200},
                        legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
                        axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.2},
-                       fill_args={'alpha': 0.0},
+                       fill_args={'alpha': 0.3},
                        to_plot=['new_infections','new_diagnoses','cum_deaths'])

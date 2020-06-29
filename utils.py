@@ -285,7 +285,6 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
                 #pl.plot(epidata[next(iter(scen))].index, epidata[next(iter(scen))][reskey],
                 #        sc.mergedicts({'c': epidata[next(iter(scen))]['validate'],'cmap': cmap, 'norm':norm}, plot_args))
 
-
             # Optionally reset tick marks (useful for e.g. plotting weeks/months)
             if interval:
                 xmin, xmax = ax.get_xlim()

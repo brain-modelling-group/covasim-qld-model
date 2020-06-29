@@ -2,6 +2,7 @@ import user_interface as ui
 import utils
 
 
+
 if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Australia']
@@ -10,13 +11,14 @@ if __name__ == "__main__":
     epi_name = 'epi_data_countryX'
 
     # specify layer keys to use
-    all_lkeys = ['H', 'S', 'W', 'C', 'pub_bar']
-    dynamic_lkeys = ['C', 'pub_bar']  # layers which update dynamically (subset of all_lkeys)
+    all_lkeys = ['H', 'S', 'W', 'C']
+    dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
     user_pars = {'Australia': {'pop_size': int(2e4),
                                'beta': 0.04,
                                'n_days': 200,
+                               'symp_test': 20,
                                'calibration_end': '2020-03-09'}}
 
     # the metapars for all countries and scenarios
@@ -43,7 +45,6 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
 
    # utils.policy_plot2(scens)
-    import os
     dirname = os.path.dirname(__file__)
     scens['verbose'] = True
     utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True, fig_path=dirname + '/Lima_v1' + '.png',

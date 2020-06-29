@@ -1,5 +1,6 @@
 import plot
 import scenarios
+import os
 
 
 def setup_scens(locations,
