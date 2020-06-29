@@ -329,7 +329,7 @@ def format_epidata(locations, epidata, extrapars):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
     # rename the columns
     epidata = epidata.rename(columns=utils.colnames())
-    to_keep = ['date', 'cum_infections', 'new_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']
+    to_keep = ['date', 'new_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']
     epidata_dict = {}
     for l in locations:
         this_country = epidata.loc[l]
@@ -337,7 +337,7 @@ def format_epidata(locations, epidata, extrapars):
         this_country = this_country[to_keep]  # drop unwanted columns
         # scale the cumulative infections by undiagnosed
         undiagnosed = extrapars[l]['undiag']
-        this_country['cum_infections'] = this_country['cum_infections'] * (1 + undiagnosed)
+        #this_country['cum_infections'] = this_country['cum_infections'] * (1 + undiagnosed)
 
         # cumulative tests
         this_country['cum_tests'] = this_country['new_tests'].cumsum()

@@ -26,8 +26,7 @@ def colnames():
              'new_deaths': 'new_deaths',
              'new_tests': 'new_tests',
              'total_tests': 'cum_tests',
-             'total_deaths': 'cum_deaths',
-             'total_cases': 'cum_infections'}
+             'total_deaths': 'cum_deaths'}
     return names
 
 
@@ -179,6 +178,7 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
     import matplotlib.ticker as ticker
     import datetime as dt
     import pylab as pl
+    import matplotlib as mpl
     from covasim import defaults as cvd
 
     '''
@@ -270,9 +270,21 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
             if commaticks:
                 sc.commaticks()
 
+
+            epidata[next(iter(scen))]['validate'] = 0 # which data is for validation vs calibration
+            for j in range(len(epidata[next(iter(scen))])):
+                if (epidata[next(iter(scen))]['date'][j]) >= sc.readdate(calibration_end[next(iter(scen))]):
+                    epidata[next(iter(scen))]['validate'][j] = 1
+
             if scen[next(iter(scen))].base_sim.data is not None and reskey in scen[next(iter(scen))].base_sim.data:
                 data_t = np.array((scen[next(iter(scen))].base_sim.data.index - scen[next(iter(scen))].base_sim['start_day']) / np.timedelta64(1, 'D'))
-                pl.plot(data_t, scen[next(iter(scen))].base_sim.data[reskey], 'sk', **plot_args)
+                #pl.plot(data_t, epidata.base_sim.data[reskey], 'sk', **plot_args)
+                cmap, norm = mpl.colors.from_levels_and_colors(levels=[0,1], colors=['black', 'blue'], extend='max')
+                pl.scatter(x=epidata[next(iter(scen))].index, y=epidata[next(iter(scen))][reskey],c=epidata[next(iter(scen))]['validate'],
+                            edgecolor='none', marker='s', cmap=cmap, norm=norm, **plot_args)
+                #pl.plot(epidata[next(iter(scen))].index, epidata[next(iter(scen))][reskey],
+                #        sc.mergedicts({'c': epidata[next(iter(scen))]['validate'],'cmap': cmap, 'norm':norm}, plot_args))
+
 
             # Optionally reset tick marks (useful for e.g. plotting weeks/months)
             if interval:
