@@ -284,15 +284,24 @@ def format_daily_tests(location, tests, default_val):
     return tests_copy
 
 
-def extrapolate_tests(tests, future_tests, n_days):
-    tests = np.append(tests, [future_tests] * (n_days - len(tests)))
+def extrapolate_tests(tests, future_tests, start_day, n_days, calibration_date):
+    if calibration_date is None:
+        last_day_data = tests['date'][-1]
+        test_data = tests['new_tests'].copy().to_numpy()
+        days_with_data = utils.get_ndays(start_day, last_day_data)
+        days_without_data = n_days - days_with_data
+        tests = np.append(test_data, [future_tests] * days_without_data)
+    else:
+        days_after_calibration = utils.get_ndays(start_day, calibration_date)
+        test_data = tests.loc[tests['date'] <= calibration_date].copy()  # subset tests
+        test_data = test_data['new_tests'].to_numpy()
+        tests = np.append(test_data, [future_tests] * days_after_calibration)
     return tests
 
 
-def read_daily_tests(locations, epidata, pars, extrapars, default_val=0):
+def read_daily_tests(locations, epidata, default_val=0):
     """Read in the number of tests performed daily.
     If not in the epidata, create one from the default_val"""
-    daily_tests = {}
     if 'new_tests' in epidata.columns:
         for location in locations:
             tests = epidata.loc[location]['new_tests'].to_numpy()
@@ -300,8 +309,9 @@ def read_daily_tests(locations, epidata, pars, extrapars, default_val=0):
             # update epidata so it is formatted correctly
             epidata.at[location, 'new_tests'] = tests  # pandas is weird
             # extrapolate after last entry (not included in epidata df)
-            tests = extrapolate_tests(tests, extrapars[location]['future_daily_tests'], pars[location]['n_days'])
-            daily_tests[location] = tests
+            # tests = extrapolate_tests(tests, extrapars[location]['future_daily_tests'], pars[location]['n_days'],
+            #                           pars[location]['start_day'], calibration_end)
+            # daily_tests[location] = tests
     else:
         print(f'Unable to locate new_tests in epi data, replacing with {default_val}')
         n_rows = len(epidata.index)
@@ -309,10 +319,10 @@ def read_daily_tests(locations, epidata, pars, extrapars, default_val=0):
         for location in locations:
             tests = np.full(shape=n_rows, fill_value=default_val)
             epidata.at[location, 'new_tests'] = tests
-            tests = extrapolate_tests(tests, default_val, pars[location]['n_days'])
-            daily_tests[location] = tests
+            # tests = extrapolate_tests(tests, default_val, pars[location]['n_days'])
+            # daily_tests[location] = tests
 
-    return daily_tests, epidata
+    return epidata
 
 
 def read_epi_data(where, index_col='location', **kwargs):
@@ -346,12 +356,47 @@ def format_epidata(locations, epidata, extrapars):
     return epidata_dict
 
 
-def get_epi_data(locations, where, pars, extrapars, **kwargs):
+def subset_epidata(locations, epidata, calibration_end):
+    calbration_epidata = {}
+    for location in locations:
+        epidata_thisloc = epidata[location]
+        calibartion_thisloc = calibration_end[location]
+        if calibartion_thisloc is None:
+            epidata_subset = epidata_thisloc.copy()
+        else:
+            epidata_subset = epidata_thisloc.loc[epidata_thisloc['date'] <= calibartion_thisloc].copy()
+
+        calbration_epidata[location] = epidata_subset
+
+    return calbration_epidata
+
+
+def get_daily_tests(locations, epidata, pars, extrapars, calibration_end):
+    daily_tests = {}
+    for location in locations:
+        calibration_date = calibration_end[location]
+        tests = epidata.loc[location, ['date', 'new_tests']].copy()
+        tests = extrapolate_tests(tests,
+                                  extrapars[location]['future_daily_tests'],
+                                  pars[location]['start_day'],
+                                  pars[location]['n_days'],
+                                  calibration_date)
+        daily_tests[location] = tests
+
+    return daily_tests
+
+
+def get_epi_data(locations, where, pars, extrapars, calibration_end, **kwargs):
     epidata = read_epi_data(where, **kwargs)
     imported_cases = read_imported_cases(locations, epidata, pars)
-    daily_tests, epidata = read_daily_tests(locations, epidata, pars, extrapars)
-    epidata = format_epidata(locations, epidata, extrapars)
-    return epidata, imported_cases, daily_tests
+    epidata = read_daily_tests(locations, epidata)
+    daily_tests = get_daily_tests(locations, epidata, pars, extrapars, calibration_end)
+
+    # subset epidata
+    complete_epidata = format_epidata(locations, epidata, extrapars)
+    calibration_epidata = subset_epidata(locations, complete_epidata, calibration_end)
+
+    return complete_epidata, calibration_epidata, imported_cases, daily_tests
 
 
 def read_contact_matrix(locations, databook):
@@ -403,10 +448,11 @@ def read_params(locations, db, all_lkeys):
     return pars, extrapars, layerchars
 
 
-def read_data(locations, db_name, epi_name, all_lkeys, dynamic_lkeys):
+def read_data(locations, db_name, epi_name, all_lkeys, dynamic_lkeys, calibration_end):
     """Reads in all data in the appropriate format"""
-    db_path, epi_path = utils.get_file_paths(db_name=db_name,
-                                             epi_name=epi_name)
+    db_path, epi_path = utils.get_file_paths(db_name=db_name, epi_name=epi_name)
+
+    calibration_end = utils.clean_calibration_end(locations, calibration_end)
 
     db = load_databook(db_path)
 
@@ -416,7 +462,7 @@ def read_data(locations, db_name, epi_name, all_lkeys, dynamic_lkeys):
     pars, extrapars, layerchars = read_params(locations, db, all_lkeys)
     policies = read_policies(locations, db, all_lkeys)
     contact_matrix = read_contact_matrix(locations, db)
-    epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars, extrapars)
+    complete_epidata, calibration_epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars, extrapars, calibration_end)
     age_dist, household_dist = read_popdata(locations, db)
 
     # convert so that outer key is the location
@@ -427,7 +473,8 @@ def read_data(locations, db_name, epi_name, all_lkeys, dynamic_lkeys):
                               'layerchars': layerchars[location],
                               'policies': policies[location],
                               'contact_matrix': contact_matrix[location],
-                              'epidata': epidata[location],
+                              'complete_epidata': complete_epidata[location],
+                              'calibration_epidata': calibration_epidata[location],
                               'age_dist': age_dist[location],
                               'household_dist': household_dist[location],
                               'imported_cases': imported_cases[location],

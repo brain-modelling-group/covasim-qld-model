@@ -149,23 +149,35 @@ def get_lkeys(all_lkeys, dynamic_lkeys):
     return all_lkeys, default_lkeys, dynamic_lkeys, custom_lkeys
 
 
-def clean_pars(user_pars):
+def clean_pars(user_pars, locations):
     par_keys = cv.make_pars().keys()
+    calibration_end = {}
+    new_user_pars = {}
 
-    loc_pars = {key: val for key,val in user_pars.items() if key in par_keys}
-    if user_pars.get('calibration_end') is not None:
-        calibration_end = user_pars['calibration_end']
+    for location in locations:
+        user_pars_oneloc = user_pars[location]
+        if user_pars_oneloc.get('calibration_end') is not None:
+            calibration_end[location] = user_pars_oneloc['calibration_end']
+        else:
+            calibration_end[location] = None
+
+        new_user_pars[location] = {key: val for key,val in user_pars_oneloc.items() if key in par_keys}
+
+    return new_user_pars, calibration_end
+
+
+def clean_calibration_end(locations, calibration_end):
+    if calibration_end is None:  # not specified for any country
+        calibration_end_all_locs = {loc: None for loc in locations}
     else:
-        calibration_end = None
-    return loc_pars, calibration_end
+        calibration_end_all_locs = {}
+        for location in locations:
+            if calibration_end.get(location) is None:  # doesn't exist or set to None
+                calibration_end_all_locs[location] = None
+            else:
+                calibration_end_all_locs[location] = calibration_end[location]
 
-
-def subset_epidata(epidata, calibration_end):
-    if calibration_end is None:
-        epidata_subset = epidata.copy()
-    else:
-        epidata_subset = epidata.loc[epidata['date'] <= calibration_end].copy()
-    return epidata_subset
+    return calibration_end_all_locs
 
 
 def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
