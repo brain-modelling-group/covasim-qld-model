@@ -1,0 +1,83 @@
+import user_interface as ui
+import utils
+
+if __name__ == "__main__":
+    # the list of locations for this analysis
+    locations = ['Birmingham']
+    # the name of the databook
+    db_name = 'input_data_US_Boston'
+    epi_name = 'epi_data_US_cities_Boston_Birmingham'
+
+    # specify layer keys to use
+    all_lkeys = ['H', 'S', 'W', 'C']
+    dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
+
+    # country-specific parameters
+    user_pars = {'Birmingham': {'pop_size': int(10e4),
+                             'beta': 0.08,
+                             'pop_infected': 5,
+                             'n_days': 380,
+                                'calibration_end': '2020-06-27'}}
+
+    # the metapars for all countries and scenarios
+    metapars = {'n_runs': 3,
+                'noise': 0,
+                'verbose': 1,
+                'rand_seed': 1}
+
+    # if required, change the each policy beta, date_implemented & date_ended
+    # policy_vals = {'Birmingham': {'lockdown1': {'beta': 0.9},
+    #                            'lockdown2': {'beta': 0.6},
+    #                            'lockdown3': {'beta': 0.215},
+    #                            'lockdown4': {'beta': 0.3},
+    #                            'relax1': {'beta': 0.25},
+    #                            'relax2': {'beta': 0.3},
+    #                            'relax3': {'beta': 0.7},
+    #                            'relax4': {'beta': 0.8}}}
+
+    scen_opts = {'Birmingham': {'Small easing of restrictions on August 15': {'replace': (['relax2'], [['relax3']], [[173]])},
+                                 'Moderate easing of restrictions on August 15': {'replace': (['relax2'], [['relax4']], [[173]])},
+                                 'Small easing of restrictions on July 15': {'replace': (['relax2'], [['relax3']], [[142]])},
+                                 'Moderate easing of restrictions on July 15': {'replace': (['relax2'], [['relax4']], [[142]])},
+                                 'No changes to current lockdown restrictions': {'replace': (['relax2'], [['relax2']], [[140]])}
+                                }}
+
+    # set up the scenarios
+    scens = ui.setup_scens(locations=locations,
+                           db_name=db_name,
+                           epi_name=epi_name,
+                           scen_opts=scen_opts,
+                           user_pars=user_pars,
+                           metapars=metapars,
+                           all_lkeys=all_lkeys,
+                           dynamic_lkeys=dynamic_lkeys)
+
+    # run the scenarios
+    scens = ui.run_scens(scens)
+    scens['verbose'] = True
+
+
+    October1_10release = sum(scens['scenarios']['Birmingham'].results['new_infections']['Small easing of restrictions on August 15']['best'][251:370])
+    print('Small easing of restrictions on August 15 =', October1_10release)
+    no_release = sum(scens['scenarios']['Birmingham'].results['new_infections']['No changes to current lockdown restrictions']['best'][251:370])
+    print('No changes to current lockdown restrictions =', no_release)
+    October1_40release = sum(scens['scenarios']['Birmingham'].results['new_infections']['Moderate easing of restrictions on August 15']['best'][251:370])
+    print('Moderate easing of restrictions on August 15 =', October1_40release)
+    September1_10release = sum(scens['scenarios']['Birmingham'].results['new_infections']['Small easing of restrictions on July 15']['best'][251:370])
+    print('Small easing of restrictions on July 15 =', September1_10release)
+    September1_40release = sum(scens['scenarios']['Birmingham'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][251:370])
+    print('Moderate easing of restrictions on July 15 =', September1_40release)
+
+    import os
+    dirname = os.path.dirname(__file__)
+
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+                       fig_path=dirname + '/Birmingham-new_diag' + '.png',
+                       interval=30, n_cols=1,
+                       fig_args=dict(figsize=(5, 5), dpi=100),
+                       font_size=11,
+                       # y_lim={'new_infections': 500},
+                       legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
+                       axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
+                       fill_args={'alpha': 0.3},
+                       to_plot=['new_diagnoses', 'cum_deaths'])
