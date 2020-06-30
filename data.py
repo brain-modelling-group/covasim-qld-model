@@ -292,7 +292,8 @@ def extrapolate_tests(tests, future_tests, start_day, n_days, calibration_date):
         days_without_data = n_days - days_with_data
         tests = np.append(test_data, [future_tests] * days_without_data)
     else:
-        days_after_calibration = utils.get_ndays(start_day, calibration_date)
+        days_for_calibration = utils.get_ndays(start_day, calibration_date)
+        days_after_calibration = n_days - days_for_calibration 
         test_data = tests.loc[tests['date'] <= calibration_date].copy()  # subset tests
         test_data = test_data['new_tests'].to_numpy()
         tests = np.append(test_data, [future_tests] * days_after_calibration)
