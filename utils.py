@@ -2,6 +2,7 @@ import covasim as cv
 import numpy as np
 import os
 import sciris as sc
+import utils
 
 
 def get_ndays(start_day, end_day):
@@ -311,7 +312,37 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
                 if not interval:
                     ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
-
+        # Plot interventions
+        day_projection_starts = utils.get_ndays(scen[next(iter(scen))].base_sim['start_day'] ,
+                                                sc.readdate(calibration_end[next(iter(scen))][next(iter(scen))]))
+        pl.axvline(x=day_projection_starts, color='grey', linestyle='--')
+        scennum = 0
+        if plot_ints:
+            for scenkey, scendata in resdata.items():
+                if scenkey.lower() != 'baseline':
+                    for intervention in scen[next(iter(scen))].scenarios[scenkey]['pars']['interventions']:
+                        if hasattr(intervention, 'days'): #and isinstance(intervention, PolicySchedule):
+                            otherscen_days = [day for day in intervention.days]
+                        elif hasattr(intervention, 'start_day'):
+                            if intervention.start_day != 0:
+                                otherscen_days.append(intervention.start_day)
+                        for day in otherscen_days:
+                            # pl.axvline(x=day, color=colors[scennum], linestyle='--')
+                            pl.axvline(x=day, color='grey', linestyle='--')
+                        # intervention.plot(scen.sims[scen_name][0], ax)
+                # else:
+                #     for intervention in scen.sims[scen_name][0]['interventions']:
+                #         if hasattr(intervention, 'days') and isinstance(intervention,
+                #                                                         PolicySchedule) and rk == 0:
+                #             baseline_days = [day for day in intervention.days if day not in baseline_days]
+                #         elif hasattr(intervention, 'start_day'):
+                #             if intervention.start_day not in baseline_days and intervention.start_day != 0:
+                #                 baseline_days.append(intervention.start_day)
+                #         for day in baseline_days:
+                #             # pl.axvline(x=day, color=colors[scennum], linestyle='--')
+                #             pl.axvline(x=day, color='grey', linestyle='--')
+                #         # intervention.plot(scen.sims[scen_name][0], ax)
+                scennum += 1
         if y_lim:
             if reskey in y_lim.keys():
                 ax.set_ylim((0, y_lim[reskey]))
