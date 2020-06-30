@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Baltimore': {'pop_size': int(10e4),
-                               'beta': 0.04,
-                               'n_days': 356,
+                               'beta': 0.047,
+                               'n_days': 365,
                                'calibration_end': '2020-06-28'}}
 
     # the metapars for all countries and scenarios
@@ -89,36 +89,24 @@ if __name__ == "__main__":
     
     # plot cumulative deaths for calibration
     # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #               fig_path=dirname + '/Baltimore-calibration' + '.png',
-    #               interval=30,
-    #               fig_args=dict(figsize=(10, 5), dpi=100),
-    #               font_size=11,
-    #               #y_lim={'new_infections': 500},
-    #               legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
-    #               axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.35},
-    #               fill_args={'alpha': 0.0},
-    #               to_plot=['cum_deaths'])
-    
-    # # plot cumulative deaths for calibration
-    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                  fig_path=dirname + '/Baltimore-new_diag' + '.png',
-                  interval=30,
-                  fig_args=dict(figsize=(10, 5), dpi=100),
-                  font_size=11,
-                  #y_lim={'new_infections': 500},
-                  legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
-                  axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.35},
-                  fill_args={'alpha': 0.0},
-                  to_plot=['new_diagnoses'])
+    #                 fig_path=dirname + '/Baltimore-calibrate' + '.png',
+    #                 interval=30, n_cols=1,
+    #                 fig_args=dict(figsize=(5, 5), dpi=100),
+    #                 font_size=11,
+    #                 # y_lim={'new_infections': 500},
+    #                 legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
+    #                 axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.15},
+    #                 fill_args={'alpha': 0.3},
+    #                 to_plot=['new_diagnoses', 'cum_deaths'])
     
     # plot cumulative infections to see if all the population gets infected    
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                        fig_path=dirname + '/Baltimore-new-cum_inf' + '.png',
-                  interval=30,
-                  fig_args=dict(figsize=(18, 13), dpi=100),
-                  font_size=15,
+                        fig_path=dirname + '/Baltimore-projections' + '.png',
+                  interval=30, n_cols=1,
+                  fig_args=dict(figsize=(10, 5), dpi=100),
+                  font_size=11,
                   #y_lim={'new_infections': 500},
-                  legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.4)},
-                  axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.2},
-                  fill_args={'alpha': 0.0},
+                  legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
+                  axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.3},
+                  fill_args={'alpha': 0.3},
                   to_plot=['new_infections','cum_infections'])   
