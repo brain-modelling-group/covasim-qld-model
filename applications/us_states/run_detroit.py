@@ -1,116 +1,112 @@
 import user_interface as ui
 import utils
 import os
+dirname = os.path.dirname(__file__)
 
 if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Detroit']
     # the name of the databook
-    db_name = 'input_data_US'
-    epi_name = 'epi_data_US'
+    db_name = 'input_data_US_group2'
+    epi_name = 'epi_data_US_group2'
+
+    # specify layer keys to use
+    all_lkeys = ['H', 'S', 'W', 'C']
+    dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
     user_pars = {'Detroit': {'pop_size': int(10e4),
-                               'beta': 0.1,
-                               'n_days': 150}}
+                               'beta': 0.095,
+                               'n_days': 370,
+                               'calibration_end': '2020-06-24'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
+    metapars = {'n_runs': 3,
                 'noise': 0,
                 'verbose': 1,
                 'rand_seed': 1}
     
-    # if required, change the each policy beta, date_implemented & date_ended
-    policy_vals = {'Detroit': {'lockdown1': {'beta': 0.6},
-                              'lockdown2': {'beta': 0.3}, 
-                              'lockdown3': {'beta': 0.097},
-                              'relax1': {'beta': 0.1}, 
-                              'relax2': {'beta': 0.15},
-                              'relax3': {'beta': 0.45}}}
-    
     # the policies to change during scenario runs
-    policy_change = {'Detroit': {'lockdown restrictions relaxed by 30% on July 30': {'replace': (['relax2'], [['relax3']], 
-                                                        [[157]])}}}
-    # policy_change = {'Detroit': {'lockdown restrictions relaxed by 30% on July 30': {'replace': (['relax2'], [['relax3']], 
-    #                                                     [[157]])},
-    #                              'lockdown restrictions relaxed by 15% on July 1': {'replace': (['relax2'], [['lockdown2']], 
-    #                                                     [[128]])}}}
+    # scen_opts = {'Detroit': {'No changes to current lockdown restrictions': {'replace': (['relax3'], ['relax3'], 
+    #                                                     [[140]])}}}
+    scen_opts = {'Detroit': {'Small easing of restrictions on August 15': 
+                              {'replace': (['relax3'], [['relax4']], [[173]]),
+                              'policies': {'relax4': {'beta': 0.6}}},
+                 
+                            'Moderate easing of restrictions on August 15': 
+                              {'replace': (['relax3'], [['relax5']], [[173]]),
+                              'policies': {'relax5': {'beta': 0.8}}},
+                 
+                            'Small easing of restrictions on July 15': 
+                              {'replace': (['relax3'], [['relax4']], [[142]]),
+                              'policies': {'relax4': {'beta': 0.6}}},
+                 
+                            'Moderate easing of restrictions on July 15': 
+                              {'replace': (['relax3'], [['relax5']], [[142]]),
+                              'policies': {'relax5': {'beta': 0.8}}},
+                 
+                            'No changes to current lockdown restrictions': 
+                              {'replace': (['relax3'], [['relax3']], [[140]]),
+                              'policies': {'relax3': {'beta': 0.5}}}}}
                      
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
                            db_name=db_name,
                            epi_name=epi_name,
-                           policy_change=policy_change,
+                           scen_opts=scen_opts,
                            user_pars=user_pars,
                            metapars=metapars,
-                           policy_vals=policy_vals)
+                           all_lkeys=all_lkeys,
+                           dynamic_lkeys=dynamic_lkeys)
+    
     # run the scenarios
     scens = ui.run_scens(scens)   
     scens['verbose'] = True
-    dirname = os.path.dirname(__file__)
+    
+
+    no_release = sum(scens['scenarios']['Detroit'].results['new_infections']['No changes to current lockdown restrictions']['best'][251:370])
+    print('Sum of new infections: No changes to current lockdown restrictions =', no_release)
+    august_smallrelease = sum(scens['scenarios']['Detroit'].results['new_infections']['Small easing of restrictions on August 15']['best'][251:370])
+    print('Sum of new infections: Small easing of restrictions on August 15 =', august_smallrelease)
+    august_moderaterelease = sum(scens['scenarios']['Detroit'].results['new_infections']['Moderate easing of restrictions on August 15']['best'][251:370])
+    print('Sum of new infections: Moderate easing of restrictions on August 15 =', august_moderaterelease)
+    july_smallrelease = sum(scens['scenarios']['Detroit'].results['new_infections']['Small easing of restrictions on July 15']['best'][251:370])
+    print('Sum of new infections: Small easing of restrictions on July 15 =', july_smallrelease)
+    july_moderaterelease = sum(scens['scenarios']['Detroit'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][251:370])
+    print('Sum of new infections: Moderate easing of restrictions on on July 15 =', july_moderaterelease)
+    
+
+    no_release = scens['scenarios']['Detroit'].results['cum_infections']['No changes to current lockdown restrictions']['best'][370]
+    print('Cumulative infections: No changes to current lockdown restrictions =', no_release)
+    august_smallrelease = scens['scenarios']['Detroit'].results['cum_infections']['Small easing of restrictions on August 15']['best'][370]
+    print('Cumulative infections: Small easing of restrictions on August 15 =', august_smallrelease)
+    august_moderatelrelease = scens['scenarios']['Detroit'].results['cum_infections']['Moderate easing of restrictions on August 15']['best'][370]
+    print('Cumulative infections: Moderate easing of restrictions on August 15 =', august_moderatelrelease)
+    july_smallrelease = scens['scenarios']['Detroit'].results['cum_infections']['Small easing of restrictions on July 15']['best'][370]
+    print('Cumulative infections: Small easing of restrictions on July 15 =', july_smallrelease)
+    july_moderatelrelease = scens['scenarios']['Detroit'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][370]
+    print('Cumulative infections: Moderate easing of restrictions on on July 15 =', july_moderatelrelease)
     
     # plot cumulative deaths for calibration
     # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #               fig_path='C:/Users/farah.houdroge/Documents/Covid/covasim-australia-feature-international/figures/US' + '/Detroit-calibration' + '.png',
-    #               interval=30,
-    #               fig_args=dict(figsize=(10, 5), dpi=100),
-    #               font_size=11,
-    #               #y_lim={'new_infections': 500},
-    #               legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
-    #               axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.25},
-    #               fill_args={'alpha': 0.0},
-    #               to_plot=['cum_deaths'])
+    #                 fig_path=dirname + '/figs/Detroit-calibrate' + '.png',
+    #                 interval=30, n_cols=1,
+    #                 fig_args=dict(figsize=(5, 5), dpi=100),
+    #                 font_size=11,
+    #                 # y_lim={'new_infections': 500},
+    #                 legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
+    #                 axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.15},
+    #                 fill_args={'alpha': 0.3},
+    #                 to_plot=['new_diagnoses', 'cum_deaths'])
     
-    # plot cumulative deaths for calibration
+    # plot cumulative infections to see if all the population gets infected    
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                  fig_path='C:/Users/farah.houdroge/Documents/Covid/covasim-australia-feature-international/figures/US' + '/Detroit-new_diag' + '.png',
-                  interval=30,
+                        fig_path=dirname + '/figs/Detroit-projections' + '.png',
+                  interval=30, n_cols=1,
                   fig_args=dict(figsize=(10, 5), dpi=100),
                   font_size=11,
                   #y_lim={'new_infections': 500},
-                  legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
-                  axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.25},
-                  fill_args={'alpha': 0.0},
-                  to_plot=['new_diagnoses'])
-    
-    # # plot new infections, data of interest
-    # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #                     fig_path='C:/Users/farah.houdroge/Documents/Covid/covasim-australia-feature-international/figures/US' + '/Detroit-new_inf' + '.png',
-    #               interval=30,
-    #               fig_args=dict(figsize=(10, 5), dpi=100),
-    #               font_size=11,
-    #               #y_lim={'new_infections': 500},
-    #               legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
-    #               axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.25},
-    #               fill_args={'alpha': 0.0},
-    #               to_plot=['new_infections'])
-    
-    # # plot cumulative infections to see if all the population gets infected    
-    # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #               fig_path='C:/Users/farah.houdroge/Documents/Covid/covasim-australia-feature-international/figures/US' + '/Detroit-cum_inf' + '.png',
-    #               interval=30,
-    #               fig_args=dict(figsize=(10, 5), dpi=100),
-    #               font_size=11,
-    #               #y_lim={'new_infections': 500},
-    #               legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
-    #               axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.25},
-    #               fill_args={'alpha': 0.0},
-    #               to_plot=['cum_infections'])
-    
-    # # plot new infections, data of interest
-    # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #                     fig_path='C:/Users/farah.houdroge/Documents/Covid/covasim-australia-feature-international/figures/US' + '/Detroit-new_inf' + '.png',
-    #               interval=30,
-    #               fig_args=dict(figsize=(10, 5), dpi=100),
-    #               font_size=11,
-    #               #y_lim={'new_infections': 500},
-    #               legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -0.1)},
-    #               axis_args={'left': 0.1, 'right': 0.9, 'bottom': 0.25},
-    #               fill_args={'alpha': 0.0},
-    #               to_plot=['new_infections'])
-    
-
-    # July30_release = sum(scens['Detroit'].results['new_infections']['lockdown restrictions relaxed by 30% on July 30']['best'][251:370])
-    # print('Restrictions relaxed on July 30 =', July30_release)
-    # July1_release = sum(scens['Detroit'].results['new_infections']['lockdown restrictions relaxed by 15% on July 1']['best'][251:370])
-    # print('Restrictions relaxed on July 1 =', July1_release)
+                  legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
+                  axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.3},
+                  fill_args={'alpha': 0.3},
+                  to_plot=['new_infections','cum_infections'])   

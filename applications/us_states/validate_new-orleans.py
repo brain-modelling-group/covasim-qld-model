@@ -5,7 +5,7 @@ dirname = os.path.dirname(__file__)
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Baltimore']
+    locations = ['New Orleans']
     # the name of the databook
     db_name = 'input_data_US_group2'
     epi_name = 'epi_data_US_group2'
@@ -15,9 +15,9 @@ if __name__ == "__main__":
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
-    user_pars = {'Baltimore': {'pop_size': int(10e4),
-                               'beta': 0.047,
-                               'n_days': 110,
+    user_pars = {'New Orleans': {'pop_size': int(10e4),
+                               'beta': 0.05,
+                               'n_days': 120,
                                'calibration_end': '2020-05-15'}}
 
     # the metapars for all countries and scenarios
@@ -27,9 +27,9 @@ if __name__ == "__main__":
                 'rand_seed': 1}
     
     # the policies to change during scenario runs
-    scen_opts = {'Baltimore': {'No changes to current lockdown restrictions': 
-                               {'replace': (['relax1'], ['relax2'], [[97]]),
-                                'policies': {'relax2': {'beta': 0.6}}}}}
+    scen_opts = {'New Orleans': {'No changes to current lockdown restrictions': 
+                             {'replace': (['relax1'], ['relax2'], [[200]]),
+                              'policies': {'relax2': {'beta': 0.6}}}}}
                      
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
     
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-              fig_path=dirname + '/figs/Baltimore-validate' + '.png',
+              fig_path=dirname + '/figs/New-Orleans-validate' + '.png',
               interval=30, n_cols = 2,
               fig_args=dict(figsize=(10, 5), dpi=100),
               font_size=11,

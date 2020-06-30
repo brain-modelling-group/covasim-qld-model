@@ -90,7 +90,7 @@ if __name__ == "__main__":
     
     # plot cumulative deaths for calibration
     # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #                fig_path=dirname + '/Atlanta-calibrate' + '.png',
+    #                fig_path=dirname + '/figs/Atlanta-calibrate' + '.png',
     #                interval=30, n_cols=1,
     #                fig_args=dict(figsize=(5, 5), dpi=100),
     #                font_size=11,
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     
     # plot cumulative infections to see if all the population gets infected    
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                        fig_path=dirname + '/Atlanta-projections' + '.png',
+                        fig_path=dirname + '/figs/Atlanta-projections' + '.png',
                   interval=30, n_cols=1,
                   fig_args=dict(figsize=(10, 5), dpi=100),
                   font_size=11,

@@ -47,7 +47,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
     
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-              fig_path=dirname + '/Atlanta-validate' + '.png',
+              fig_path=dirname + '/figs/Atlanta-validate' + '.png',
               interval=30, n_cols = 2,
               fig_args=dict(figsize=(10, 5), dpi=100),
               font_size=11,
