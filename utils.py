@@ -27,7 +27,8 @@ def colnames():
              'new_deaths': 'new_deaths',
              'new_tests': 'new_tests',
              'total_tests': 'cum_tests',
-             'total_deaths': 'cum_deaths'}
+             'total_deaths': 'cum_deaths',
+             'cum_infections': 'cum_diagnoses'}
     return names
 
 
@@ -315,7 +316,7 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
         # Plot interventions
         day_projection_starts = utils.get_ndays(scen[next(iter(scen))].base_sim['start_day'] ,
                                                 sc.readdate(calibration_end[next(iter(scen))][next(iter(scen))]))
-        pl.axvline(x=day_projection_starts, color='grey', linestyle='--')
+        pl.axvline(x=day_projection_starts, color='black', linestyle='--')
         scennum = 0
         if plot_ints:
             for scenkey, scendata in resdata.items():

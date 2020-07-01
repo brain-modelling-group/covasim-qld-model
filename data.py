@@ -340,7 +340,7 @@ def format_epidata(locations, epidata, extrapars):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
     # rename the columns
     epidata = epidata.rename(columns=utils.colnames())
-    to_keep = ['date', 'new_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']
+    to_keep = ['date', 'new_diagnoses', 'cum_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']
     epidata_dict = {}
     for l in locations:
         this_country = epidata.loc[l]
