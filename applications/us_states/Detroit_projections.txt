@@ -1,0 +1,10 @@
+Sum of new infections: No changes to current lockdown restrictions = 19824.000000000004
+Sum of new infections: Small easing of restrictions on August 15 = 17479.000000000004
+Sum of new infections: Moderate easing of restrictions on August 15 = 9793.000000000002
+Sum of new infections: Small easing of restrictions on July 15 = 8323.000000000002
+Sum of new infections: Moderate easing of restrictions on on July 15 = 3367.0000000000005
+Cumulative infections: No changes to current lockdown restrictions = 438335.13082316803
+Cumulative infections: Small easing of restrictions on August 15 = 494844.52359188476
+Cumulative infections: Moderate easing of restrictions on August 15 = 536963.5235918848
+Cumulative infections: Small easing of restrictions on July 15 = 501669.52359188476
+Cumulative infections: Moderate easing of restrictions on on July 15 = 546238.5235918848

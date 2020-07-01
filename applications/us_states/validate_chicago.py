@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Chicago': {'pop_size': int(10e4),
-                               'beta': 0.057,
-                               'n_days': 120,
+                               'beta': 0.139,
+                               'n_days': 130,
                                'symp_test': 100.0,
                                'calibration_end': '2020-05-15'}}
 

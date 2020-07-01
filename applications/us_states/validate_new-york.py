@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'New York': {'pop_size': int(10e4),
-                               'beta': 0.145,
-                               'n_days': 120,
+                               'beta': 0.167,
+                               'n_days': 130,
                                'symp_test': 100.0,
                                'calibration_end': '2020-05-15'}}
 
@@ -53,6 +53,6 @@ if __name__ == "__main__":
               font_size=11,
               #y_lim={'new_infections': 500},
               legend_args={'loc': 'upper center', 'bbox_to_anchor': (1.0, -1.6)},
-              axis_args={'left': 0.05, 'wspace': 0.2,'right': 0.99, 'hspace': 0.4,'bottom': 0.15},
+              axis_args={'left': 0.1, 'wspace': 0.2,'right': 0.99, 'hspace': 0.4,'bottom': 0.15},
               fill_args={'alpha': 0.3},
               to_plot=['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths'])
