@@ -28,7 +28,8 @@ def colnames():
              'new_tests': 'new_tests',
              'total_tests': 'cum_tests',
              'total_deaths': 'cum_deaths',
-             'cum_infections': 'cum_diagnoses'}
+             'cum_infections': 'cum_diagnoses',
+             'total_cases': 'cum_diagnoses'} # either total cases or cum_infections in epi book
     return names
 
 
