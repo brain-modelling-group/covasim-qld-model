@@ -3,7 +3,7 @@ import utils
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Birmingham']
+    locations = ['Columbus']
     # the name of the databook
     db_name = 'input_data_US_Boston'
     epi_name = 'epi_data_US_cities_Boston_Birmingham'
@@ -13,8 +13,8 @@ if __name__ == "__main__":
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
-    user_pars = {'Birmingham': {'pop_size': int(10e4),
-                             'beta': 0.09,
+    user_pars = {'Columbus': {'pop_size': int(10e4),
+                             'beta': 0.147,
                              'pop_infected': 5,
                              'n_days': 380,
                                 'calibration_end': '2020-06-27'}}
@@ -25,17 +25,7 @@ if __name__ == "__main__":
                 'verbose': 1,
                 'rand_seed': 1}
 
-    # if required, change the each policy beta, date_implemented & date_ended
-    # policy_vals = {'Birmingham': {'lockdown1': {'beta': 0.9},
-    #                            'lockdown2': {'beta': 0.6},
-    #                            'lockdown3': {'beta': 0.215},
-    #                            'lockdown4': {'beta': 0.3},
-    #                            'relax1': {'beta': 0.25},
-    #                            'relax2': {'beta': 0.3},
-    #                            'relax3': {'beta': 0.7},
-    #                            'relax4': {'beta': 0.8}}}
-
-    scen_opts = {'Birmingham': {'Small easing of restrictions on August 1': {'replace': (['relax2'], [['relax3']], [[158]])},
+    scen_opts = {'Columbus': {'Small easing of restrictions on August 1': {'replace': (['relax2'], [['relax3']], [[158]])},
                                  'Moderate easing of restrictions on August 1': {'replace': (['relax2'], [['relax4']], [[158]])},
                                  'Small easing of restrictions on July 15': {'replace': (['relax2'], [['relax3']], [[142]])},
                                  'Moderate easing of restrictions on July 15': {'replace': (['relax2'], [['relax4']], [[142]])},
@@ -56,31 +46,30 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
     scens['verbose'] = True
 
-
     # Print number of new infections
     print('New Infections Nov-Feb')
-    October1_10release = sum(scens['scenarios']['Birmingham'].results['new_infections']['Small easing of restrictions on August 1']['best'][251:370])
+    October1_10release = sum(scens['scenarios']['Columbus'].results['new_infections']['Small easing of restrictions on August 1']['best'][251:370])
     print('Small easing of restrictions on August 1 =', October1_10release)
-    no_release = sum(scens['scenarios']['Birmingham'].results['new_infections']['No changes to current lockdown restrictions']['best'][251:370])
+    no_release = sum(scens['scenarios']['Columbus'].results['new_infections']['No changes to current lockdown restrictions']['best'][251:370])
     print('No changes to current lockdown restrictions =', no_release)
-    October1_40release = sum(scens['scenarios']['Birmingham'].results['new_infections']['Moderate easing of restrictions on August 1']['best'][251:370])
+    October1_40release = sum(scens['scenarios']['Columbus'].results['new_infections']['Moderate easing of restrictions on August 1']['best'][251:370])
     print('Moderate easing of restrictions on August 1 =', October1_40release)
-    September1_10release = sum(scens['scenarios']['Birmingham'].results['new_infections']['Small easing of restrictions on July 15']['best'][251:370])
+    September1_10release = sum(scens['scenarios']['Columbus'].results['new_infections']['Small easing of restrictions on July 15']['best'][251:370])
     print('Small easing of restrictions on July 15 =', September1_10release)
-    September1_40release = sum(scens['scenarios']['Birmingham'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][251:370])
+    September1_40release = sum(scens['scenarios']['Columbus'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][251:370])
     print('Moderate easing of restrictions on July 15 =', September1_40release)
 
     # Print estimated seroprevalence
     print('Seroprevalence end of Feb 2021')
-    October1_10release = scens['scenarios']['Birmingham'].results['cum_infections']['Small easing of restrictions on August 1']['best'][370]/892533
+    October1_10release = scens['scenarios']['Columbus'].results['cum_infections']['Small easing of restrictions on August 1']['best'][370]/892533
     print('Small easing of restrictions on August 1 =', October1_10release)
-    no_release = scens['scenarios']['Birmingham'].results['cum_infections']['No changes to current lockdown restrictions']['best'][370]/892533
+    no_release = scens['scenarios']['Columbus'].results['cum_infections']['No changes to current lockdown restrictions']['best'][370]/892533
     print('No changes to current lockdown restrictions =', no_release)
-    October1_40release = scens['scenarios']['Birmingham'].results['cum_infections']['Moderate easing of restrictions on August 1']['best'][370]/892533
+    October1_40release = scens['scenarios']['Columbus'].results['cum_infections']['Moderate easing of restrictions on August 1']['best'][370]/892533
     print('Moderate easing of restrictions on August 1 =', October1_40release)
-    September1_10release = scens['scenarios']['Birmingham'].results['cum_infections']['Small easing of restrictions on July 15']['best'][370]/892533
+    September1_10release = scens['scenarios']['Columbus'].results['cum_infections']['Small easing of restrictions on July 15']['best'][370]/892533
     print('Small easing of restrictions on July 15 =', September1_10release)
-    September1_40release = scens['scenarios']['Birmingham'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][370]/892533
+    September1_40release = scens['scenarios']['Columbus'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][370]/892533
     print('Moderate easing of restrictions on July 15 =', September1_40release)
 
     import os
@@ -88,7 +77,7 @@ if __name__ == "__main__":
 
     # Validation Plots
     # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #                    fig_path= dirname + '/figs_birmingham/validation' + '.png',
+    #                    fig_path= dirname + '/figs_columbus/validation' + '.png',
     #                    interval=30, n_cols=2,
     #                    fig_args=dict(figsize=(10, 5), dpi=100),
     #                    font_size=11,
@@ -98,9 +87,9 @@ if __name__ == "__main__":
     #                    fill_args={'alpha': 0.3},
     #                    to_plot=['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths'])
 
-    # # Calibration Plots
+    # Calibration Plots
     # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #                    fig_path= dirname + '/figs_birmingham/calibration' + '.png',
+    #                    fig_path= dirname + '/figs_columbus/calibration' + '.png',
     #                    interval=30, n_cols=1,
     #                    fig_args=dict(figsize=(5, 5), dpi=100),
     #                    font_size=11,
@@ -112,7 +101,7 @@ if __name__ == "__main__":
 
     # Projection Plots
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                        fig_path= dirname + '/figs_birmingham/projection' + '.png',
+                        fig_path= dirname + '/figs_columbus/projection' + '.png',
                   interval=30, n_cols=1,
                   fig_args=dict(figsize=(10, 5), dpi=100),
                   font_size=11,
