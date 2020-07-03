@@ -5,7 +5,7 @@ dirname = os.path.dirname(__file__)
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['New Brunswick']
+    locations = ['Newark']
     # the name of the databook
     db_name = 'input_data_US_group1'
     epi_name = 'epi_data_US_group1'
@@ -15,11 +15,11 @@ if __name__ == "__main__":
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
-    user_pars = {'New Brunswick': {'pop_size': int(2e4),
-                               'beta': 0.071,
-                               'n_days': 100,
-                                'pop_infected': 200,
-                                'calibration_end': '2020-05-15'}}
+    user_pars = {'Newark': {'pop_size': int(10e4),
+                               'beta': 0.05,
+                               'n_days': 365,
+                                'pop_infected': 2000,
+                                'calibration_end': '2020-06-19'}}
 
 
     # the metapars for all countries and scenarios
@@ -31,18 +31,18 @@ if __name__ == "__main__":
 
     # the policies to change during scenario runs
 
-    scen_opts = {'New Brunswick': {
-                                # 'Small easing of restrictions on July 15':
-                                #     {'replace': (['policy_1'], [['policy_2']], [[132]])},
-                                #
-                                # 'Moderate easing of restrictions on July 15':
-                                # {'replace': (['policy_1'], [['policy_3']], [[132]])},
-                                #
-                                # 'Small easing of restrictions on August 15':
-                                # {'replace': (['policy_1'], [['policy_2']], [[163]])},
-                                #
-                                # 'Moderate easing of restrictions on August 15':
-                                # {'replace': (['policy_1'], [['policy_3']], [[163]])},
+    scen_opts = {'Newark': {
+                                'Small easing of restrictions on July 15':
+                                    {'replace': (['policy_1'], [['policy_2']], [[132]])},
+
+                                'Moderate easing of restrictions on July 15':
+                                {'replace': (['policy_1'], [['policy_3']], [[132]])},
+
+                                'Small easing of restrictions on August 15':
+                                {'replace': (['policy_1'], [['policy_2']], [[163]])},
+
+                                'Moderate easing of restrictions on August 15':
+                                {'replace': (['policy_1'], [['policy_3']], [[163]])},
 
                                 'No changes to current lockdown restrictions':
                                 {'replace': (['policy_1'], [['policy_3']], [[370]])}
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     # plot cumulative deaths for calibration
     utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                    fig_path=dirname + '/New Brunswick-calibrate' + '.png',
+                    fig_path=dirname + '/Newark-calibrate' + '.png',
                     interval=30, n_cols=1,
                     fig_args=dict(figsize=(5, 5), dpi=100),
                     font_size=11,
@@ -77,8 +77,8 @@ if __name__ == "__main__":
                     to_plot=['cum_diagnoses', 'cum_deaths'])
 
     # plot cumulative infections to see if all the population gets infected
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                    fig_path = dirname + '/New Brunswick-projections_larger' + '.png',
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+                    fig_path = dirname + '/Newark-projections_larger' + '.png',
                     interval = 30, n_cols = 1,
                     fig_args = dict(figsize=(10, 5), dpi=100),
                     font_size = 11,
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     # Plot validation
     utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                       fig_path=dirname + '/New Brunswick-validation' + '.png',
+                       fig_path=dirname + '/Newark-validation' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -100,27 +100,27 @@ if __name__ == "__main__":
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
-    remain = sum(scens['scenarios']['New Brunswick'].results['new_infections']['No changes to current lockdown restrictions']['best'][239:359])
+    remain = sum(scens['scenarios']['Newark'].results['new_infections']['No changes to current lockdown restrictions']['best'][239:359])
     print('Lockdown remains in place =', remain)
-    relax_2 = sum( scens['scenarios']['New Brunswick'].results['new_infections']['Small easing of restrictions on August 15']['best'][239:359])
+    relax_2 = sum( scens['scenarios']['Newark'].results['new_infections']['Small easing of restrictions on August 15']['best'][239:359])
     print('Small easing of restrictions on August 15  =', relax_2)
-    relax_3 = sum(scens['scenarios']['New Brunswick'].results['new_infections']['Moderate easing of restrictions on August 15'][ 'best'][239:359])
+    relax_3 = sum(scens['scenarios']['Newark'].results['new_infections']['Moderate easing of restrictions on August 15'][ 'best'][239:359])
     print('Moderate easing of restrictions on August 15 =', relax_3)
-    relax_4 = sum(scens['scenarios']['New Brunswick'].results['new_infections']['Small easing of restrictions on July 15']['best'][239:359])
+    relax_4 = sum(scens['scenarios']['Newark'].results['new_infections']['Small easing of restrictions on July 15']['best'][239:359])
     print('Small easing of restrictions on July 15 =', relax_4)
-    relax_5 = sum(scens['scenarios']['New Brunswick'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][239:359])
+    relax_5 = sum(scens['scenarios']['Newark'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][239:359])
     print('Moderate easing of restrictions on July 15 =', relax_5)
 
 
-    remain = scens['scenarios']['New Brunswick'].results['cum_infections']['No changes to current lockdown restrictions']['best'][359]
+    remain = scens['scenarios']['Newark'].results['cum_infections']['No changes to current lockdown restrictions']['best'][359]
     print('Lockdown remains in place =', remain)
-    relax_2 = scens['scenarios']['New Brunswick'].results['cum_infections']['Small easing of restrictions on August 15']['best'][359]
+    relax_2 = scens['scenarios']['Newark'].results['cum_infections']['Small easing of restrictions on August 15']['best'][359]
     print('Small easing of restrictions on August 15  =', relax_2)
-    relax_3 = scens['scenarios']['New Brunswick'].results['cum_infections']['Moderate easing of restrictions on August 15']['best'][359]
+    relax_3 = scens['scenarios']['Newark'].results['cum_infections']['Moderate easing of restrictions on August 15']['best'][359]
     print('Moderate easing of restrictions on August 15 =', relax_3)
-    relax_4 = scens['scenarios']['New Brunswick'].results['cum_infections']['Small easing of restrictions on July 15']['best'][359]
+    relax_4 = scens['scenarios']['Newark'].results['cum_infections']['Small easing of restrictions on July 15']['best'][359]
     print('Small easing of restrictions on July 15  =', relax_4)
-    relax_5 = scens['scenarios']['New Brunswick'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][359]
+    relax_5 = scens['scenarios']['Newark'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][359]
     print('Moderate easing of restrictions on July 15 =', relax_5)
 
 

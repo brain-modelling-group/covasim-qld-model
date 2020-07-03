@@ -28,8 +28,6 @@ if __name__ == "__main__":
     
     # the policies to change during scenario runs
     # scen_opts = {'Salvador': {'No changes to current lockdown restrictions': 
-                             # {'replace': (['lockdown3'], [['relax1']], [[171]]),
-                             #  'policies': {'relax1': {'beta': 0.3}}}}}
     scen_opts = {'Salvador': {'Small easing of restrictions on September 15': 
                               {'replace': (['lockdown3'], [['relax1']], [[202]]),
                               'policies': {'relax1': {'beta': 0.3}}},
