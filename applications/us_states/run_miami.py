@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'Miami': {'pop_size': int(10e4),
                                'beta': 0.07,
-                               'n_days': 365,
+                               'n_days': 120,
                                 'pop_infected': 1800,
                                 'calibration_end': '2020-06-30'}}
 
@@ -32,17 +32,17 @@ if __name__ == "__main__":
     # the policies to change during scenario runs
 
     scen_opts = {'Miami': {
-                                'Small easing of restrictions on July 15':
-                                    {'replace': (['policy_1'], [['policy_2']], [[132]])},
-
-                                'Moderate easing of restrictions on July 15':
-                                {'replace': (['policy_1'], [['policy_3']], [[132]])},
-
-                                'Small easing of restrictions on August 15':
-                                {'replace': (['policy_1'], [['policy_2']], [[163]])},
-
-                                'Moderate easing of restrictions on August 15':
-                                {'replace': (['policy_1'], [['policy_3']], [[163]])},
+                                # 'Small easing of restrictions on July 15':
+                                #     {'replace': (['policy_1'], [['policy_2']], [[132]])},
+                                #
+                                # 'Moderate easing of restrictions on July 15':
+                                # {'replace': (['policy_1'], [['policy_3']], [[132]])},
+                                #
+                                # 'Small easing of restrictions on August 15':
+                                # {'replace': (['policy_1'], [['policy_2']], [[163]])},
+                                #
+                                # 'Moderate easing of restrictions on August 15':
+                                # {'replace': (['policy_1'], [['policy_3']], [[163]])},
 
                                 'No changes to current lockdown restrictions':
                                 {'replace': (['policy_1'], [['policy_3']], [[370]])}
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
 
     # plot cumulative deaths for calibration
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
                     fig_path=dirname + '/Miami-calibrate' + '.png',
                     interval=30, n_cols=1,
                     fig_args=dict(figsize=(5, 5), dpi=100),
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                     to_plot=['cum_diagnoses', 'cum_deaths'])
 
     # plot cumulative infections to see if all the population gets infected
-    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
                     fig_path = dirname + '/Miami-projections_larger' + '.png',
                     interval = 30, n_cols = 1,
                     fig_args = dict(figsize=(10, 5), dpi=100),

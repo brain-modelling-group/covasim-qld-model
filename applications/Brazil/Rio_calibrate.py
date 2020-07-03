@@ -5,18 +5,18 @@ dirname = os.path.dirname(__file__)
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['SP']
+    locations = ['Rio']
     # the name of the databook
     db_name = 'input_data_Brazil'
     epi_name = 'epi_data_Brazil'
 
-    # specify layer keys to use
+    # Rioecify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
-    # country-specific parameters
-    user_pars = {'SP': {'pop_size': int(10e4),
-                               'beta': 0.095,
+    # country-Rioecific parameters
+    user_pars = {'Rio': {'pop_size': int(10e4),
+                               'beta': 0.094,
                                'n_days': 130,
                                'calibration_end': '2020-06-30'}}
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
                 'rand_seed': 1}
     
     # the policies to change during scenario runs
-    scen_opts = {'SP': {'No changes to current lockdown restrictions': 
+    scen_opts = {'Rio': {'No changes to current lockdown restrictions': 
                              {'replace': (['relax2'], ['relax2'], [[107]]),
                               'policies': {'relax2': {'beta': 0.6}}}}}
                          
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
     
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-              fig_path=dirname + '/figs/SP-calibrate' + '.png',
+              fig_path=dirname + '/figs/Rio-calibrate' + '.png',
               interval=30, n_cols = 2,
               fig_args=dict(figsize=(10, 5), dpi=100),
               font_size=11,

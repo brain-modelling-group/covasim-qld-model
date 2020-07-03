@@ -1,0 +1,11 @@
+Sum of new infections Nov-Feb: No changes to current lockdown restrictions = 504543.5
+Sum of new infections Nov-Feb: Small easing of restrictions on September 15 = 732946.5
+Sum of new infections Nov-Feb: Moderate easing of restrictions on September 15 = 959239.0
+Sum of new infections Nov-Feb: Small easing of restrictions on August 15 = 610001.5
+Sum of new infections Nov-Feb: Moderate easing of restrictions on on August 15 = 606450.5
+Cumulative infections end of Feb: No changes to current lockdown restrictions = 3548169.77513145
+Cumulative infections end of Feb: Small easing of restrictions on September 15 = 3945759.428609796
+Cumulative infections end of Feb: Moderate easing of restrictions on September 15 = 4406014.445383942
+Cumulative infections end of Feb: Small easing of restrictions on August 15 = 4088936.945383941
+Cumulative infections end of Feb: Moderate easing of restrictions on on August 15 = 4581343.27513145
+Cumulative infections May 18 (baseline) = 693964.1511358885

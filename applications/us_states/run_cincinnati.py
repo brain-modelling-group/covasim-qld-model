@@ -17,25 +17,25 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'Cincinnati': {'pop_size': int(10e4),
                                'beta': 0.05,
-                               'n_days': 365,
-                                'pop_infected': 75,
+                               'n_days': 120,
+                                'pop_infected': 70,
                                 'symp_test': 90.0,
-                                'future_daily_tests':550,
-                                'calibration_end': '2020-05-20'}}
+                                'future_daily_tests':250,
+                                'calibration_end': '2020-06-26'}}
 
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 3,
-                'noise': 0,
+    metapars = {'n_runs': 8,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
 
 
     # the policies to change during scenario runs
 
-    scen_opts = {'Cincinnati': {'Small easing of restrictions on July 15':
-                                    {'replace': (['policy_1'], [['policy_2']], [[130]])},
-
+    scen_opts = {'Cincinnati': {#'Small easing of restrictions on July 15':
+                                #    {'replace': (['policy_1'], [['policy_2']], [[130]])},
+                                #
                                 # 'Moderate easing of restrictions on July 15':
                                 # {'replace': (['policy_1'], [['policy_3']], [[130]])},
                                 #
@@ -44,9 +44,9 @@ if __name__ == "__main__":
                                 #
                                 # 'Moderate easing of restrictions on August 15':
                                 # {'replace': (['policy_1'], [['policy_3']], [[161]])},
-                                #
-                                # 'No changes to current lockdown restrictions':
-                                # {'replace': (['policy_1'], [['policy_3']], [[370]])}
+
+                                'No changes to current lockdown restrictions':
+                                {'replace': (['policy_1'], [['policy_3']], [[370]])}
                                 }}
 
     # set up the scenarios
@@ -74,10 +74,10 @@ if __name__ == "__main__":
                        legend_args={'loc': 'upper center', 'bbox_to_anchor': (1.0, -1.6)},
                        axis_args={'left': 0.05, 'wspace': 0.2, 'right': 0.99, 'hspace': 0.4, 'bottom': 0.15},
                        fill_args={'alpha': 0.3},
-                       to_plot=['new_infections', 'cum_infections', 'new_diagnoses', 'cum_deaths'])
+                       to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
     # plot cumulative deaths for calibration
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
                     fig_path=dirname + '/cincinnati-calibrate' + '.png',
                     interval=30, n_cols=1,
                     fig_args=dict(figsize=(5, 5), dpi=100),
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                     legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
                     axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.15},
                     fill_args={'alpha': 0.3},
-                    to_plot=['new_diagnoses', 'cum_deaths'])
+                    to_plot=['cum_diagnoses', 'cum_deaths'])
 
     # plot cumulative infections to see if all the population gets infected
     utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
