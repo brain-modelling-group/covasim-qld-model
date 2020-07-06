@@ -28,8 +28,6 @@ if __name__ == "__main__":
     
     # the policies to change during scenario runs
     # scen_opts = {'SP': {'No changes to current lockdown restrictions': 
-                             # {'replace': (['lockdown2'], [['relax1']], [[171]]),
-                             #  'policies': {'relax1': {'beta': 0.3}}}}}
     scen_opts = {'SP': {'Small easing of restrictions on September 15': 
                               {'replace': (['lockdown2'], [['relax1']], [[202]]),
                               'policies': {'relax1': {'beta': 0.3}}},
@@ -100,4 +98,4 @@ if __name__ == "__main__":
                   legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
                   axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.3},
                   fill_args={'alpha': 0.3},
-                  to_plot=['new_infections','cum_infections'])   
+                  to_plot=['new_infections','cum_infections'])
