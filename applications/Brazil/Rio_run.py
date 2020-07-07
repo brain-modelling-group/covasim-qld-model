@@ -76,16 +76,6 @@ if __name__ == "__main__":
     # Results
     population = 6718903
     
-    # Calibration data
-    cum_diag_calib_end = scens['scenarios']['Rio'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][124]    
-    cum_diag_calib_1week = scens['scenarios']['Rio'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][131]    
-    cum_diag_calib_2week = scens['scenarios']['Rio'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][138]    
-    cum_diag_calib_4week = scens['scenarios']['Rio'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][162]    
-    cum_death_calib_end = scens['scenarios']['Rio'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][124]    
-    cum_death_calib_1week = scens['scenarios']['Rio'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][131]    
-    cum_death_calib_2week = scens['scenarios']['Rio'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][138]    
-    cum_death_calib_4week = scens['scenarios']['Rio'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][162]    
-    
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(scens['scenarios']['Rio'].results['new_infections']['No changes to current lockdown restrictions']['best'][201:246])    
     new_diag_LB_sep_oct = sum(scens['scenarios']['Rio'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][201:246])    

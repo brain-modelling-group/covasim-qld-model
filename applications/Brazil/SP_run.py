@@ -77,16 +77,6 @@ if __name__ == "__main__":
     # Results
     population = 12252023
     
-    # Calibration data
-    cum_diag_calib_end = scens['scenarios']['SP'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][124]    
-    cum_diag_calib_1week = scens['scenarios']['SP'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][131]    
-    cum_diag_calib_2week = scens['scenarios']['SP'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][138]    
-    cum_diag_calib_4week = scens['scenarios']['SP'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][162]    
-    cum_death_calib_end = scens['scenarios']['SP'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][124]    
-    cum_death_calib_1week = scens['scenarios']['SP'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][131]    
-    cum_death_calib_2week = scens['scenarios']['SP'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][138]    
-    cum_death_calib_4week = scens['scenarios']['SP'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][162]    
-    
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(scens['scenarios']['SP'].results['new_infections']['No changes to current lockdown restrictions']['best'][201:246])    
     new_diag_LB_sep_oct = sum(scens['scenarios']['SP'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][201:246])    
@@ -133,10 +123,9 @@ if __name__ == "__main__":
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec/population
     
     projections = [
-        ['Mid Sep – end Oct', '', '', '', '', '', '', '', '', '', '', '',
-         'Nov – mid Dec', '', '', '', '', '', '', '', '', '', '', ''],
+        ['Mid Sep – end Oct', '', '', '', '', '', '', '', '', '', '', '', 'Nov – mid Dec'],
         ['Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence', '', '',
-         'Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence', '', ''],
+         'Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence'],
         ['MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB'],
         [int(new_inf_MB_sep_oct), int(new_inf_LB_sep_oct), int(new_inf_UB_sep_oct),
          incidence_MB_sep_oct, incidence_LB_sep_oct, incidence_UB_sep_oct,
