@@ -233,6 +233,7 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
         to_plot = ['cum_deaths', 'new_infections', 'cum_infections']
     to_plot = sc.dcp(to_plot)  # In case it's supplied as a dict
 
+    scens['verbose'] = True
     scen = scens['scenarios']
     epidata = scens['complete_epidata']
     calibration_end = scens['calibration_end']

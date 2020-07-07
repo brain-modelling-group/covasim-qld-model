@@ -2,12 +2,11 @@ import user_interface as ui
 from utils import policy_plot2
 import os
 
-
 if __name__ == "__main__":
-    # the list of locations for this analysis
-    locations = ['Victoria']
-    # the name of the databook
-    db_name = 'input_data_Australia'
+
+    dirname = os.path.dirname(__file__)
+    locations = ['Victoria'] # the list of locations for this analysis
+    db_name = 'input_data_Australia' # the name of the databook
     epi_name = 'epi_data_Australia'
 
     # specify layer keys to use
@@ -17,14 +16,14 @@ if __name__ == "__main__":
                  'transport','national_parks','public_parks','large_events']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
-    user_pars = {'Victoria': {'pop_size': int(4e4),
+    user_pars = {'Victoria': {'pop_size': int(5e4),
                                'beta': 0.05,
                                'n_days': 200,
                                'calibration_end': '2020-07-06'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 8,
-                'noise': 0.03,
+    metapars = {'n_runs': 1,
+                'noise': 0.0,
                 'verbose': 1,
                 'rand_seed': 1}
 
@@ -33,13 +32,28 @@ if __name__ == "__main__":
                                                        [['lockdown_relax'],['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
                                                         ['outdoor10'],['church_4sqm']],
                                                        [[93],[93],[93],[93],[114]]),
-                                           'turn_off': (['schools', 'social',
-                                                         'retail','nat_parks0','beach0','NE_health'], [87,74, 74,74,74,58]),
+                                           'turn_off': (['schools', 'social', 'retail','nat_parks0','beach0','NE_health'],
+                                                        [87,74, 74,74,74,58]),
                                            'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
-                                                                'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
-                                           'policies': {'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.8},
-                                                        'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.8}}
-                                           }}}
+                                                                'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}}},
+                                '2 week lockdown': {'replace': (['lockdown', 'pub_bar0', 'cafe_restaurant0', 'outdoor2', 'church'],
+                                                              [['lockdown_relax', 'lockdown_2', 'lockdown_2_exit'], ['pub_bar_4sqm'],
+                                                               ['cafe_restaurant_4sqm'], ['outdoor10'], ['church_4sqm']],
+                                                              [[93, 130, 144], [93], [93], [93], [114]]),
+                                          'turn_off': (['schools', 'social', 'retail', 'nat_parks0', 'beach0', 'NE_health'],
+                                                       [87, 74, 74, 74, 74, 58]),
+                                          'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
+                                                               'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}}}}}
+                                           # 'policies': {'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.8},
+                                           #              'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.8}}
+                              # {'2 week lockdown': {'replace': (['lockdown', 'pub_bar0', 'cafe_restaurant0', 'outdoor2', 'church'],
+                              #                 [['lockdown_relax'], ['pub_bar_4sqm'], ['cafe_restaurant_4sqm'],
+                              #                  ['outdoor10'], ['church_4sqm']],
+                              #                 [[93], [93], [93], [93], [114]]),
+                              #     'turn_off': (['schools', 'social',
+                              #                   'retail', 'nat_parks0', 'beach0', 'NE_health'],
+                              #                  [87, 74, 74, 74, 74, 58]),
+                              #     }}}}
     # https: // www.dhhs.vic.gov.au / coronavirus / updates
     # 15 March: internaitonal borders closed
     # 19 March: 4 sqm rule, entertainment, large events
@@ -70,9 +84,6 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
 
     #ui.policy_plot(scens)
-    import os
-    dirname = os.path.dirname(__file__)
-    scens['verbose'] = True
 
     policy_plot2(scens, plot_ints=True, plot_base=True, do_save=True, do_show=True,
               fig_path=dirname + '/vic_test' + '.png',
