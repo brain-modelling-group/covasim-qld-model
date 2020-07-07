@@ -2,6 +2,7 @@ import user_interface as ui
 import utils
 import os
 dirname = os.path.dirname(__file__)
+import xlsxwriter
 
 if __name__ == "__main__":
     # the list of locations for this analysis
@@ -18,7 +19,7 @@ if __name__ == "__main__":
     user_pars = {'Fortaleza': {'pop_size': int(10e4),
                                'beta': 0.063,
                                'n_days': 368,
-                               'calibration_end': '2020-06-30'}}
+                               'calibration_end': '2020-07-05'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
@@ -27,26 +28,25 @@ if __name__ == "__main__":
                 'rand_seed': 1}
     
     # the policies to change during scenario runs
-    # scen_opts = {'Fortaleza': {'No changes to current lockdown restrictions':
-    scen_opts = {'Fortaleza': {'Small easing of restrictions on September 15': 
-                              {'replace': (['lockdown3'], [['relax1']], [[202]]),
+    scen_opts = {'Fortaleza': {'Small easing of restrictions in mid-August': 
+                              {'replace': (['lockdown2'], [['relax1']], [[170]]),
                               'policies': {'relax1': {'beta': 0.3}}},
                  
-                            'Moderate easing of restrictions on September 15': 
-                              {'replace': (['lockdown3'], [['relax2']], [[202]]),
+                            'Moderate easing of restrictions in mid-August': 
+                              {'replace': (['lockdown2'], [['relax2']], [[170]]),
                               'policies': {'relax2': {'beta': 0.4}}},
                  
-                            'Small easing of restrictions on August 15': 
-                              {'replace': (['lockdown3'], [['relax1']], [[171]]),
+                            'Small easing of restrictions in mid-July': 
+                              {'replace': (['lockdown2'], [['relax1']], [[139]]),
                               'policies': {'relax1': {'beta': 0.3}}},
                  
-                            'Moderate easing of restrictions on August 15': 
-                              {'replace': (['lockdown3'], [['relax2']], [[171]]),
+                            'Moderate easing of restrictions in mid-July': 
+                              {'replace': (['lockdown2'], [['relax2']], [[139]]),
                               'policies': {'relax2': {'beta': 0.4}}},
                  
                             'No changes to current lockdown restrictions': 
-                              {'replace': (['lockdown3'], [['lockdown3']], [[120]]),
-                              'policies': {'lockdown3': {'beta': 0.2}}}}}
+                              {'replace': (['lockdown2'], [['lockdown2']], [[120]]),
+                              'policies': {'lockdown2': {'beta': 0.2}}}}}
                      
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
@@ -61,32 +61,6 @@ if __name__ == "__main__":
     # run the scenarios
     scens = ui.run_scens(scens)   
     scens['verbose'] = True
-
-    new_no_release = sum(scens['scenarios']['Fortaleza'].results['new_infections']['No changes to current lockdown restrictions']['best'][249:368])    
-    new_september_smallrelease = sum(scens['scenarios']['Fortaleza'].results['new_infections']['Small easing of restrictions on September 15']['best'][249:368])    
-    new_september_moderaterelease = sum(scens['scenarios']['Fortaleza'].results['new_infections']['Moderate easing of restrictions on September 15']['best'][249:368])    
-    new_august_smallrelease = sum(scens['scenarios']['Fortaleza'].results['new_infections']['Small easing of restrictions on August 15']['best'][249:368])
-    new_august_moderaterelease = sum(scens['scenarios']['Fortaleza'].results['new_infections']['Moderate easing of restrictions on August 15']['best'][249:368])
-    cum_no_release = scens['scenarios']['Fortaleza'].results['cum_infections']['No changes to current lockdown restrictions']['best'][368]
-    cum_september_smallrelease = scens['scenarios']['Fortaleza'].results['cum_infections']['Small easing of restrictions on September 15']['best'][368]
-    cum_september_moderatelrelease = scens['scenarios']['Fortaleza'].results['cum_infections']['Moderate easing of restrictions on September 15']['best'][368]
-    cum_august_smallrelease = scens['scenarios']['Fortaleza'].results['cum_infections']['Small easing of restrictions on August 15']['best'][368]
-    cum_august_moderatelrelease = scens['scenarios']['Fortaleza'].results['cum_infections']['Moderate easing of restrictions on August 15']['best'][368]
-    cum_may18 = scens['scenarios']['Fortaleza'].results['cum_infections']['No changes to current lockdown restrictions']['best'][81]  
-    
-    with open('Fortaleza_projections.txt', 'w') as f:
-        print('Sum of new infections Nov-Feb: No changes to current lockdown restrictions =', int(new_no_release), file=f)
-        print('Sum of new infections Nov-Feb: Small easing of restrictions on September 15 =', int(new_september_smallrelease), file=f)
-        print('Sum of new infections Nov-Feb: Moderate easing of restrictions on September 15 =', int(new_september_moderaterelease), file=f)
-        print('Sum of new infections Nov-Feb: Small easing of restrictions on August 15 =', int(new_august_smallrelease), file=f)
-        print('Sum of new infections Nov-Feb: Moderate easing of restrictions on on August 15 =', int(new_august_moderaterelease), file=f)
-        print('Cumulative infections end of Feb: No changes to current lockdown restrictions =', int(cum_no_release), file=f)
-        print('Cumulative infections end of Feb: Small easing of restrictions on September 15 =', int(cum_september_smallrelease), file=f)
-        print('Cumulative infections end of Feb: Moderate easing of restrictions on September 15 =', int(cum_september_moderatelrelease), file=f)
-        print('Cumulative infections end of Feb: Small easing of restrictions on August 15 =', int(cum_august_smallrelease), file=f)
-        print('Cumulative infections end of Feb: Moderate easing of restrictions on on August 15 =', int(cum_august_moderatelrelease), file=f)
-        print('Cumulative infections May 18 (baseline) =', int(cum_may18), file=f)
-        f.close()
     
     # plot cumulative infections to see if all the population gets infected    
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
@@ -99,3 +73,83 @@ if __name__ == "__main__":
                   axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.3},
                   fill_args={'alpha': 0.3},
                   to_plot=['new_infections','cum_infections'])   
+    
+    # Export results to Excel
+    workbook = xlsxwriter.Workbook('Rio_projections.xlsx')     
+    worksheet = workbook.add_worksheet('Projections')
+    population = 2182763
+    
+    # Calibration data
+    cum_diag_calib_end = scens['scenarios']['Fortaleza'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][124]    
+    cum_diag_calib_1week = scens['scenarios']['Fortaleza'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][131]    
+    cum_diag_calib_2week = scens['scenarios']['Fortaleza'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][138]    
+    cum_diag_calib_4week = scens['scenarios']['Fortaleza'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][162]    
+    cum_death_calib_end = scens['scenarios']['Fortaleza'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][124]    
+    cum_death_calib_1week = scens['scenarios']['Fortaleza'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][131]    
+    cum_death_calib_2week = scens['scenarios']['Fortaleza'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][138]    
+    cum_death_calib_4week = scens['scenarios']['Fortaleza'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][162]    
+    
+    # Lower Bound: no change in restrictions
+    new_inf_LB_sep_oct = sum(scens['scenarios']['Fortaleza'].results['new_infections']['No changes to current lockdown restrictions']['best'][201:246])    
+    new_diag_LB_sep_oct = sum(scens['scenarios']['Fortaleza'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][201:246])    
+    cum_inf_LB_sep_oct = scens['scenarios']['Fortaleza'].results['cum_infections']['No changes to current lockdown restrictions']['best'][246]    
+    incidence_LB_sep_oct = 100*new_inf_LB_sep_oct*30/(246-201)/population
+    detected_LB_sep_oct = 100*new_diag_LB_sep_oct*30/(246-201)
+    seroprev_LB_sep_oct = cum_inf_LB_sep_oct/population
+
+    new_inf_LB_nov_dec = sum(scens['scenarios']['Fortaleza'].results['new_infections']['No changes to current lockdown restrictions']['best'][248:291])    
+    new_diag_LB_nov_dec = sum(scens['scenarios']['Fortaleza'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][248:291])    
+    cum_inf_LB_nov_dec = scens['scenarios']['Fortaleza'].results['cum_infections']['No changes to current lockdown restrictions']['best'][291]    
+    incidence_LB_nov_dec = 100*new_inf_LB_nov_dec*30/(291-248)/population
+    detected_LB_nov_dec = 100*new_diag_LB_nov_dec*30/(291-248)
+    seroprev_LB_nov_dec = cum_inf_LB_nov_dec/population
+    
+    # Mid Bound: small change mid- July    
+    new_inf_MB_sep_oct = sum(scens['scenarios']['Fortaleza'].results['new_infections']['Small easing of restrictions in mid-July']['best'][201:246])    
+    new_diag_MB_sep_oct = sum(scens['scenarios']['Fortaleza'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][201:246])    
+    cum_inf_MB_sep_oct = scens['scenarios']['Fortaleza'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][246]    
+    incidence_MB_sep_oct = 100*new_inf_MB_sep_oct*30/(246-201)/population
+    detected_MB_sep_oct = 100*new_diag_MB_sep_oct*30/(246-201)
+    seroprev_MB_sep_oct = cum_inf_MB_sep_oct/population
+
+    new_inf_MB_nov_dec = sum(scens['scenarios']['Fortaleza'].results['new_infections']['Small easing of restrictions in mid-July']['best'][248:291])    
+    new_diag_MB_nov_dec = sum(scens['scenarios']['Fortaleza'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][248:291])    
+    cum_inf_MB_nov_dec = scens['scenarios']['Fortaleza'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][291]    
+    incidence_MB_nov_dec = 100*new_inf_MB_nov_dec*30/(291-248)/population
+    detected_MB_nov_dec = 100*new_diag_MB_nov_dec*30/(291-248)
+    seroprev_MB_nov_dec = cum_inf_MB_nov_dec/population
+    
+    # Upper Bound: moderate change mid-August    
+    new_inf_UB_sep_oct = sum(scens['scenarios']['Fortaleza'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][201:246])    
+    new_diag_UB_sep_oct = sum(scens['scenarios']['Fortaleza'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][201:246])    
+    cum_inf_UB_sep_oct = scens['scenarios']['Fortaleza'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][246]    
+    incidence_UB_sep_oct = 100*new_inf_UB_sep_oct*30/(246-201)/population
+    detected_UB_sep_oct = 100*new_diag_UB_sep_oct*30/(246-201)
+    seroprev_UB_sep_oct = cum_inf_UB_sep_oct/population
+
+    new_inf_UB_nov_dec = sum(scens['scenarios']['Fortaleza'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][248:291])    
+    new_diag_UB_nov_dec = sum(scens['scenarios']['Fortaleza'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][248:291])    
+    cum_inf_UB_nov_dec = scens['scenarios']['Fortaleza'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][291]    
+    incidence_UB_nov_dec = 100*new_inf_UB_nov_dec*30/(291-248)/population
+    detected_UB_nov_dec = 100*new_diag_UB_nov_dec*30/(291-248)
+    seroprev_UB_nov_dec = cum_inf_UB_nov_dec/population
+    
+    projections = [
+        ['Mid Sep – end Oct', '', '', '', '', '', '', '', '',
+         'Nov – mid Dec', '', '', '', '', '', '', '', ''],
+        ['Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence', '', '',
+         'Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence', '', '']
+        ['MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB',
+         'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB'],
+        [int(new_inf_MB_sep_oct), int(new_inf_LB_sep_oct), int(new_inf_UB_sep_oct),
+         incidence_MB_sep_oct, incidence_LB_sep_oct, incidence_UB_sep_oct,
+         int(detected_MB_sep_oct), int(detected_LB_sep_oct), int(detected_UB_sep_oct),
+         seroprev_MB_sep_oct, seroprev_LB_sep_oct, seroprev_UB_sep_oct,
+         int(new_inf_MB_nov_dec), int(new_inf_LB_nov_dec), int(new_inf_UB_nov_dec),
+         incidence_MB_nov_dec, incidence_LB_nov_dec, incidence_UB_nov_dec,
+         int(detected_MB_nov_dec), int(detected_LB_nov_dec), int(detected_UB_nov_dec),
+         seroprev_MB_nov_dec, seroprev_LB_nov_dec, seroprev_UB_nov_dec]
+        ]
+    
+    worksheet.add_table('A1:X4', {'data': projections})
+    workbook.close()
