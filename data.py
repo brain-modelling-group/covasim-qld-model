@@ -124,7 +124,6 @@ def read_policies(locations, databook, all_lkeys):
         policies['tracing_policies'] = {}
 
         for pol_name, row in pols.iterrows():
-
             # get the number of days til policy starts and ends (relative to simulation start)
             start_pol = row['date_implemented']
             end_pol = row['date_ended']
@@ -137,7 +136,8 @@ def read_policies(locations, databook, all_lkeys):
                 policies['policy_dates'][pol_name] = n_days
 
             # check if there is a change in beta values on this layer (i.e. change in transmission risk)
-            beta_vals = row['beta':'C']
+            layers_in_use = all_lkeys + ['beta']
+            beta_vals = row[layers_in_use]
             beta_change = beta_vals.prod()  # multiply series together
             if not math.isclose(beta_change, 1, abs_tol=1e-9):
                 policies['beta_policies'][pol_name] = {}
