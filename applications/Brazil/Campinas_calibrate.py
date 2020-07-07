@@ -18,12 +18,13 @@ if __name__ == "__main__":
 
     # country-Manausecific parameters
     user_pars = {'Campinas': {'pop_size': int(10e4),
-                            'beta': 0.06,
-                            'n_days': 100,
+                            'beta': 0.071,
+                            'n_days': 150,
+                            'pop_infected': 27,
                             'calibration_end': '2020-05-15'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
+    metapars = {'n_runs': 8,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
