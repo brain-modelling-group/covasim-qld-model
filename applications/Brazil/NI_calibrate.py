@@ -21,7 +21,7 @@ if __name__ == "__main__":
                             'beta': 0.08,
                             'n_days': 140,
                             'pop_infected': 25,
-                            'calibration_end': '2020-07-07'}}
+                            'calibration_end': '2020-05-20'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
 
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs/NI-calibrate' + '.png',
+                       fig_path=dirname + '/figs/NI-validate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -58,3 +58,39 @@ if __name__ == "__main__":
                        axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.99, 'hspace': 0.4, 'bottom': 0.15},
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
+
+    cum_diag_calib_end1 = \
+    scens['scenarios']['NI'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][77]
+    cum_diag_calib_1week = \
+    scens['scenarios']['NI'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][84]
+    cum_diag_calib_2week = \
+    scens['scenarios']['NI'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][91]
+    cum_diag_calib_end2 = \
+    scens['scenarios']['NI'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][124]
+    cum_death_calib_end1 = \
+    scens['scenarios']['NI'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][77]
+    cum_death_calib_1week = \
+    scens['scenarios']['NI'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][84]
+    cum_death_calib_2week = \
+    scens['scenarios']['NI'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][91]
+    cum_death_calib_end2 = \
+    scens['scenarios']['NI'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][124]
+
+    workbook = xlsxwriter.Workbook('NI_validation.xlsx')
+    worksheet = workbook.add_worksheet('Validation')
+
+    validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
+                   'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],
+                  ['At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection'],
+                  [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week),
+                   int(cum_diag_calib_end2),
+                   '', '', '', '',
+                   int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week),
+                   int(cum_death_calib_end2)]
+                  ]
+
+    worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
+    workbook.close()
