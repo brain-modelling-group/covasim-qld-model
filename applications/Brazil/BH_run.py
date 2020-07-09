@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     # country-BHecific parameters
     user_pars = {'BH': {'pop_size': int(10e4),
-                               'beta': 0.1,
+                               'beta': 0.0105,
                                'n_days': 289,
                                'calibration_end': '2020-07-05'}}
 
@@ -30,24 +30,24 @@ if __name__ == "__main__":
     # the policies to change during scenario runs
     # scen_opts = {'BH': {'No changes to current lockdown restrictions': 
     scen_opts = {'BH': {'Small easing of restrictions in mid-August': 
-                              {'replace': (['lockdown3'], [['relax1']], [[150]]),
-                              'policies': {'relax1': {'beta': 0.3}}},
+                              {'replace': (['relax2'], [['relax3']], [[150]]),
+                              'policies': {'relax3': {'beta': 0.6}}},
                  
                             'Moderate easing of restrictions in mid-August': 
-                              {'replace': (['lockdown3'], [['relax2']], [[150]]),
-                              'policies': {'relax2': {'beta': 0.4}}},
+                              {'replace': (['relax2'], [['relax4']], [[150]]),
+                              'policies': {'relax4': {'beta': 0.7}}},
                  
                             'Small easing of restrictions in mid-July': 
-                              {'replace': (['lockdown3'], [['relax1']], [[119]]),
-                              'policies': {'relax1': {'beta': 0.3}}},
+                              {'replace': (['relax2'], [['relax3']], [[119]]),
+                              'policies': {'relax3': {'beta': 0.6}}},
                  
                             'Moderate easing of restrictions in mid-July': 
-                              {'replace': (['lockdown3'], [['relax2']], [[119]]),
-                              'policies': {'relax2': {'beta': 0.4}}},
+                              {'replace': (['relax2'], [['relax4']], [[119]]),
+                              'policies': {'relax4': {'beta': 0.7}}},
                  
                             'No changes to current lockdown restrictions': 
-                              {'replace': (['lockdown3'], [['lockdown3']], [[110]]),
-                              'policies': {'lockdown3': {'beta': 0.2}}}}}
+                              {'replace': (['relax2'], [['relax2']], [[110]]),
+                              'policies': {'relax2': {'beta': 0.5}}}}}
                      
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
@@ -76,36 +76,36 @@ if __name__ == "__main__":
               to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
     
     # Results
-    population = 2872347
+    population = 2512070
     
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(scens['scenarios']['BH'].results['new_infections']['No changes to current lockdown restrictions']['best'][181:226])    
     new_diag_LB_sep_oct = sum(scens['scenarios']['BH'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][181:226])    
     cum_inf_LB_sep_oct = scens['scenarios']['BH'].results['cum_infections']['No changes to current lockdown restrictions']['best'][226]    
     incidence_LB_sep_oct = 100*new_inf_LB_sep_oct*30/(226-181)/population
-    detected_LB_sep_oct = 100*new_diag_LB_sep_oct*30/(226-181)
+    detected_LB_sep_oct = 100*new_diag_LB_sep_oct*30/(226-181)/population
     seroprev_LB_sep_oct = cum_inf_LB_sep_oct/population
 
     new_inf_LB_nov_dec = sum(scens['scenarios']['BH'].results['new_infections']['No changes to current lockdown restrictions']['best'][228:271])    
     new_diag_LB_nov_dec = sum(scens['scenarios']['BH'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][228:271])    
     cum_inf_LB_nov_dec = scens['scenarios']['BH'].results['cum_infections']['No changes to current lockdown restrictions']['best'][271]    
     incidence_LB_nov_dec = 100*new_inf_LB_nov_dec*30/(271-228)/population
-    detected_LB_nov_dec = 100*new_diag_LB_nov_dec*30/(271-228)
+    detected_LB_nov_dec = 100*new_diag_LB_nov_dec*30/(271-228)/population
     seroprev_LB_nov_dec = cum_inf_LB_nov_dec/population
     
-    # Mid Bound: small change mid- July    
+    # Mid Bound: small change mid-July    
     new_inf_MB_sep_oct = sum(scens['scenarios']['BH'].results['new_infections']['Small easing of restrictions in mid-July']['best'][181:226])    
     new_diag_MB_sep_oct = sum(scens['scenarios']['BH'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][181:226])    
     cum_inf_MB_sep_oct = scens['scenarios']['BH'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][226]    
     incidence_MB_sep_oct = 100*new_inf_MB_sep_oct*30/(226-181)/population
-    detected_MB_sep_oct = 100*new_diag_MB_sep_oct*30/(226-181)
+    detected_MB_sep_oct = 100*new_diag_MB_sep_oct*30/(226-181)/population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct/population
 
     new_inf_MB_nov_dec = sum(scens['scenarios']['BH'].results['new_infections']['Small easing of restrictions in mid-July']['best'][228:271])    
     new_diag_MB_nov_dec = sum(scens['scenarios']['BH'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][228:271])    
     cum_inf_MB_nov_dec = scens['scenarios']['BH'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][271]    
     incidence_MB_nov_dec = 100*new_inf_MB_nov_dec*30/(271-228)/population
-    detected_MB_nov_dec = 100*new_diag_MB_nov_dec*30/(271-228)
+    detected_MB_nov_dec = 100*new_diag_MB_nov_dec*30/(271-228)/population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec/population
     
     # Upper Bound: moderate change mid-August    
@@ -113,29 +113,28 @@ if __name__ == "__main__":
     new_diag_UB_sep_oct = sum(scens['scenarios']['BH'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][181:226])    
     cum_inf_UB_sep_oct = scens['scenarios']['BH'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][226]    
     incidence_UB_sep_oct = 100*new_inf_UB_sep_oct*30/(226-181)/population
-    detected_UB_sep_oct = 100*new_diag_UB_sep_oct*30/(226-181)
+    detected_UB_sep_oct = 100*new_diag_UB_sep_oct*30/(226-181)/population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct/population
 
     new_inf_UB_nov_dec = sum(scens['scenarios']['BH'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][228:271])    
     new_diag_UB_nov_dec = sum(scens['scenarios']['BH'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][228:271])    
     cum_inf_UB_nov_dec = scens['scenarios']['BH'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][271]    
     incidence_UB_nov_dec = 100*new_inf_UB_nov_dec*30/(271-228)/population
-    detected_UB_nov_dec = 100*new_diag_UB_nov_dec*30/(271-228)
+    detected_UB_nov_dec = 100*new_diag_UB_nov_dec*30/(271-228)/population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec/population
     
     projections = [
-        ['Mid Sep – end Oct', '', '', '', '', '', '', '', '', '', '', '',
-         'Nov – mid Dec', '', '', '', '', '', '', '', '', '', '', ''],
+        ['Mid Sep – end Oct', '', '', '', '', '', '', '', '', '', '', '', 'Nov – mid Dec'],
         ['Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence', '', '',
-         'Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence', '', ''],
+         'Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence'],
         ['MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB'],
         [int(new_inf_MB_sep_oct), int(new_inf_LB_sep_oct), int(new_inf_UB_sep_oct),
          incidence_MB_sep_oct, incidence_LB_sep_oct, incidence_UB_sep_oct,
-         int(detected_MB_sep_oct), int(detected_LB_sep_oct), int(detected_UB_sep_oct),
+         detected_MB_sep_oct, detected_LB_sep_oct, detected_UB_sep_oct,
          seroprev_MB_sep_oct, seroprev_LB_sep_oct, seroprev_UB_sep_oct,
          int(new_inf_MB_nov_dec), int(new_inf_LB_nov_dec), int(new_inf_UB_nov_dec),
          incidence_MB_nov_dec, incidence_LB_nov_dec, incidence_UB_nov_dec,
-         int(detected_MB_nov_dec), int(detected_LB_nov_dec), int(detected_UB_nov_dec),
+         detected_MB_nov_dec, detected_LB_nov_dec, detected_UB_nov_dec,
          seroprev_MB_nov_dec, seroprev_LB_nov_dec, seroprev_UB_nov_dec]
         ]
     
