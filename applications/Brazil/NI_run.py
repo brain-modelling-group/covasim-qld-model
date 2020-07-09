@@ -9,8 +9,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['NI']
     # the name of the databook
-    db_name = 'input_data_Brazil'
-    epi_name = 'epi_data_Brazil'
+    db_name = 'input_data_Brazil_group2'
+    epi_name = 'epi_data_Brazil_group2'
 
     # BHecify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
