@@ -8,8 +8,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Natal']
     # the name of the databook
-    db_name = 'input_data_Brazil'
-    epi_name = 'epi_data_Brazil'
+    db_name = 'input_data_Brazil_FH'
+    epi_name = 'epi_data_Brazil_FH'
 
     # Natalecify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
