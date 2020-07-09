@@ -8,8 +8,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Manaus']
     # the name of the databook
-    db_name = 'input_data_Brazil'
-    epi_name = 'epi_data_Brazil'
+    db_name = 'input_data_Brazil_FH'
+    epi_name = 'epi_data_Brazil_FH'
 
     # Manausecify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
