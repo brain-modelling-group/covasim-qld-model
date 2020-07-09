@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'Brevard': {'pop_size': int(10e4),
                                'beta': 0.068,
-                               'n_days': 365,
+                               'n_days': 306,
                                 'pop_infected': 100,
                                 'calibration_end': '2020-06-30'}}
 

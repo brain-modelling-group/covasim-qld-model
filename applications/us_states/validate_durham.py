@@ -20,9 +20,10 @@ if __name__ == "__main__":
                                'beta': 0.05,
                                'n_days': 120,
                                 'pop_infected': 54,
-                                'future_daily_tests':500,
-                                'symp_test': 100.0,
+                                'symp_test': 35.0,
                                 'calibration_end': '2020-05-15'}}
+
+    #future_daily = 500, av_daily = 500
 
 
     # the metapars for all countries and scenarios
@@ -55,7 +56,7 @@ if __name__ == "__main__":
 
     #Plot validation
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_Durham/Durham-validation' + '.png',
+                       fig_path=dirname + '/figs_Durham/Durham-validate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -76,8 +77,8 @@ if __name__ == "__main__":
     cum_death_calib_2week = scens['scenarios']['Durham'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
     cum_death_calib_end2 = scens['scenarios']['Durham'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][104]
 
-    workbook = xlsxwriter.Workbook('Durham_validation.xlsx')
-    worksheet = workbook.add_worksheet('Validation')
+    workbook = xlsxwriter.Workbook('Durham_validate.xlsx')
+    worksheet = workbook.add_worksheet('validate')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
                    'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],

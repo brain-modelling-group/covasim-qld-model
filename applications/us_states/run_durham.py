@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'Durham': {'pop_size': int(10e4),
                                'beta': 0.05,
-                               'n_days': 365,
+                               'n_days': 306,
                                 'pop_infected': 45,
                                 # 'future_daily_tests':1500,
                                 # 'symp_test': 100.0,
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
 
 #Plot calibration
-    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
                        fig_path=dirname + '/figs_Durham/durham-calibrate' + '.png',
                        interval=30, n_cols=1,
                        fig_args=dict(figsize=(10, 8), dpi=100),

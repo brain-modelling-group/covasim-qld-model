@@ -20,9 +20,9 @@ if __name__ == "__main__":
                                'beta': 0.071,
                                'n_days': 120,
                                 'pop_infected': 275,
-                                'calibration_end': '2020-05-15'}}
+                                'calibration_end': '2020-06-30'}}
 
-    #validation - av_daily: 120, future_daily_tests: 120
+    #validation - av_daily: 100, future_daily_tests: 100 for validation
 
 
     # the metapars for all countries and scenarios
@@ -54,8 +54,8 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
     scens['verbose'] = True
 
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                       fig_path=dirname + '/New-Brunswick-validation' + '.png',
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+                       fig_path=dirname + '/figs_New-Brunswick/New-Brunswick-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -79,8 +79,8 @@ if __name__ == "__main__":
     cum_death_calib_2week = scens['scenarios']['New Brunswick'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][85]
     cum_death_calib_end2 = scens['scenarios']['New Brunswick'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][107]
 
-    workbook = xlsxwriter.Workbook('New-Brunswick_validation.xlsx')
-    worksheet = workbook.add_worksheet('Validation')
+    workbook = xlsxwriter.Workbook('New-Brunswick_calibrate.xlsx')
+    worksheet = workbook.add_worksheet('calibrate')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
                    'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],

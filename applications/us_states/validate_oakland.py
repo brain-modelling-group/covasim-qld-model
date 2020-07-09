@@ -22,7 +22,7 @@ if __name__ == "__main__":
                                 'pop_infected': 250,
                              'future_daily_tests':600,
                              'av_daily_tests': 600,
-                                'calibration_end': '2020-05-15'}}
+                                'calibration_end': '2020-06-30'}}
 
 
     # the metapars for all countries and scenarios
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     # Plot validation
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_oakland/Oakland-validation' + '.png',
+                       fig_path=dirname + '/figs_oakland/Oakland-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -91,8 +91,8 @@ if __name__ == "__main__":
     cum_death_calib_2week = scens['scenarios']['Oakland'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
     cum_death_calib_end2 = scens['scenarios']['Oakland'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][118]
 
-    workbook = xlsxwriter.Workbook('Oakland_validation.xlsx')
-    worksheet = workbook.add_worksheet('Validation')
+    workbook = xlsxwriter.Workbook('Oakland_calibrate.xlsx')
+    worksheet = workbook.add_worksheet('calibrate')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
                    'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],

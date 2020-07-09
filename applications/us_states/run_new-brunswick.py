@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'New Brunswick': {'pop_size': int(2e4),
                                'beta': 0.071,
-                               'n_days': 365,
+                               'n_days': 306,
                                 'pop_infected': 275,
                                 'calibration_end': '2020-06-20'}}
 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
                     to_plot=['cum_diagnoses', 'cum_deaths'])
 
     # plot cumulative infections to see if all the population gets infected
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
                     fig_path = dirname + '/figs/New-Brunswick-projections_larger' + '.png',
                        interval=30, n_cols=1,
                        fig_args=dict(figsize=(10, 8), dpi=100),

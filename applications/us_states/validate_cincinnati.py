@@ -21,7 +21,8 @@ if __name__ == "__main__":
                                'n_days': 120,
                                 'pop_infected': 52,
                                 'symp_test': 90.0,
-                                'calibration_end': '2020-05-20'}}
+                                'calibration_end': '2020-06-30'}}
+    #future daily = 200
 
 
     # the metapars for all countries and scenarios
@@ -55,7 +56,7 @@ if __name__ == "__main__":
 
     #Plot validation
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_cincinnati/cincinnati-validate' + '.png',
+                       fig_path=dirname + '/figs_cincinnati/cincinnati-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -77,8 +78,8 @@ if __name__ == "__main__":
     cum_death_calib_2week = scens['scenarios']['Cincinnati'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
     cum_death_calib_end2 = scens['scenarios']['Cincinnati'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][112]
 
-    workbook = xlsxwriter.Workbook('Cincinnati_validation.xlsx')
-    worksheet = workbook.add_worksheet('Validation')
+    workbook = xlsxwriter.Workbook('Cincinnati_calibrate.xlsx')
+    worksheet = workbook.add_worksheet('calibrate')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
                    'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],

@@ -20,10 +20,9 @@ if __name__ == "__main__":
                                'beta': 0.07,
                                'n_days': 120,
                                 'pop_infected': 1500,
-                           'future_daily_tests': 2500,
-                           'av_daily_tests':2500,
-                                'calibration_end': '2020-05-15'}}
+                                'calibration_end': '2020-06-30'}}
 
+#future_daily =5500, av_daily = 4500
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
@@ -50,13 +49,14 @@ if __name__ == "__main__":
                            dynamic_lkeys=dynamic_lkeys)
 
 
+
     # run the scenarios
     scens = ui.run_scens(scens)
     scens['verbose'] = True
 
     # Plot validation
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_miami/Miami-validation' + '.png',
+                       fig_path=dirname + '/figs_miami/Miami-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -76,8 +76,8 @@ if __name__ == "__main__":
     cum_death_calib_2week = scens['scenarios']['Miami'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
     cum_death_calib_end2 = scens['scenarios']['Miami'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][116]
 
-    workbook = xlsxwriter.Workbook('Miami_validation.xlsx')
-    worksheet = workbook.add_worksheet('Validation')
+    workbook = xlsxwriter.Workbook('Miami_calibrate.xlsx')
+    worksheet = workbook.add_worksheet('calibrate')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
                    'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],

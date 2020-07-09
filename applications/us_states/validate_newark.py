@@ -20,7 +20,9 @@ if __name__ == "__main__":
                                'beta': 0.05,
                                'n_days': 120,
                                 'pop_infected': 2000,
-                                'calibration_end': '2020-05-15'}}
+                                'calibration_end': '2020-06-30'}}
+
+#future daily = 600
 
 
     # the metapars for all countries and scenarios
@@ -54,8 +56,8 @@ if __name__ == "__main__":
 
 
     # Plot validation
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                       fig_path=dirname + '/figs_newark/Newark-validation' + '.png',
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+                       fig_path=dirname + '/figs_newark/Newark-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -77,8 +79,8 @@ if __name__ == "__main__":
     cum_death_calib_2week = scens['scenarios']['Newark'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][85]
     cum_death_calib_end2 = scens['scenarios']['Newark'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][107]
 
-    workbook = xlsxwriter.Workbook('Newark_validation.xlsx')
-    worksheet = workbook.add_worksheet('Validation')
+    workbook = xlsxwriter.Workbook('Newark_calibrate.xlsx')
+    worksheet = workbook.add_worksheet('calibrate')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
                    'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],

@@ -18,14 +18,14 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'Cincinnati': {'pop_size': int(10e4),
                                'beta': 0.05,
-                               'n_days': 365,
+                               'n_days': 306,
                                 'pop_infected': 52,
                                 # 'symp_test': 90.0,
                                 'calibration_end': '2020-06-26'}}
 
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
+    metapars = {'n_runs': 8,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
@@ -78,7 +78,7 @@ if __name__ == "__main__":
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
     # plot cumulative infections to see if all the population gets infected
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
                        fig_path=dirname + '/figs/cincinnati-projections' + '.png',
                        interval=30, n_cols=1,
                        fig_args=dict(figsize=(10, 8), dpi=100),
