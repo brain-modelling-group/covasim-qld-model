@@ -8,14 +8,14 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['BH']
     # the name of the databook
-    db_name = 'input_data_Brazil_FH'
-    epi_name = 'epi_data_Brazil_FH'
+    db_name = 'input_data_Brazil'
+    epi_name = 'epi_data_Brazil'
 
-    # BHecify layer keys to use
+    # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
-    # country-BHecific parameters
+    # country-specific parameters
     user_pars = {'BH': {'pop_size': int(10e4),
                                'beta': 0.0105,
                                'n_days': 289,
@@ -28,7 +28,6 @@ if __name__ == "__main__":
                 'rand_seed': 1}
     
     # the policies to change during scenario runs
-    # scen_opts = {'BH': {'No changes to current lockdown restrictions': 
     scen_opts = {'BH': {'Small easing of restrictions in mid-August': 
                               {'replace': (['relax2'], [['relax3']], [[150]]),
                               'policies': {'relax3': {'beta': 0.6}}},

@@ -8,8 +8,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['SJRP']
     # the name of the databook
-    db_name = 'input_data_Brazil_FH'
-    epi_name = 'epi_data_Brazil_FH'
+    db_name = 'input_data_Brazil'
+    epi_name = 'epi_data_Brazil'
 
     # SJRPecify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     # country-SJRPecific parameters
     user_pars = {'SJRP': {'pop_size': int(10e4),
-                               'beta': 0.0178,
+                               'beta': 0.043,
                                'n_days': 103,
                                'calibration_end': '2020-05-20'}}
 
