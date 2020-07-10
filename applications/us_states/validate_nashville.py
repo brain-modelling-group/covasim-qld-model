@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Nashville': {'pop_size': int(10e4),
-                               'beta': 0.1066,
+                               'beta': 0.08,
                                'n_days': 150,
                                'pop_infected': 20,
                                'symp_test': 50,
@@ -99,3 +99,4 @@ if __name__ == "__main__":
 
     worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
     workbook.close()
+

@@ -39,12 +39,12 @@ if __name__ == "__main__":
                             {'replace': (['lockdown4'], [['relax2']], [[141]]),
                              'policies': {'relax2': {'beta': 0.45}}},
 
-                        'Small easing of restrictions in mid-July':
-                            {'replace': (['lockdown4'], [['relax1']], [[110]]),
+                        'Small easing of restrictions in mid-September':
+                            {'replace': (['lockdown4'], [['relax1']], [[172]]),
                              'policies': {'relax1': {'beta': 0.35}}},
 
-                        'Moderate easing of restrictions in mid-July':
-                            {'replace': (['lockdown4'], [['relax2']], [[110]]),
+                        'Moderate easing of restrictions in mid-September':
+                            {'replace': (['lockdown4'], [['relax2']], [[172]]),
                              'policies': {'relax2': {'beta': 0.45}}},
 
                         'No changes to current lockdown restrictions':
@@ -107,46 +107,46 @@ if __name__ == "__main__":
 
     # Mid Bound: small change mid- July
     new_inf_MB_sep_oct = sum(
-        scens['scenarios']['Barretos'].results['new_infections']['Small easing of restrictions in mid-July']['best'][172:227])
+        scens['scenarios']['Barretos'].results['new_infections']['Small easing of restrictions in mid-August']['best'][172:227])
     new_diag_MB_sep_oct = sum(
-        scens['scenarios']['Barretos'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][172:227])
+        scens['scenarios']['Barretos'].results['new_diagnoses']['Small easing of restrictions in mid-August']['best'][172:227])
     cum_inf_MB_sep_oct = \
-    scens['scenarios']['Barretos'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][227]
+    scens['scenarios']['Barretos'].results['cum_infections']['Small easing of restrictions in mid-August']['best'][227]
     incidence_MB_sep_oct = 100 * new_inf_MB_sep_oct * 30 / (227 - 172) / population
     detected_MB_sep_oct = 100 * new_diag_MB_sep_oct * 30 / (227 - 172) / population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct / population
 
     new_inf_MB_nov_dec = sum(
-        scens['scenarios']['Barretos'].results['new_infections']['Small easing of restrictions in mid-July']['best'][219:262])
+        scens['scenarios']['Barretos'].results['new_infections']['Small easing of restrictions in mid-August']['best'][219:262])
     new_diag_MB_nov_dec = sum(
-        scens['scenarios']['Barretos'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][219:262])
+        scens['scenarios']['Barretos'].results['new_diagnoses']['Small easing of restrictions in mid-August']['best'][219:262])
     cum_inf_MB_nov_dec = \
-    scens['scenarios']['Barretos'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][262]
+    scens['scenarios']['Barretos'].results['cum_infections']['Small easing of restrictions in mid-August']['best'][262]
     incidence_MB_nov_dec = 100 * new_inf_MB_nov_dec * 30 / (262 - 219) / population
     detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (262 - 219) / population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec / population
 
     # Upper Bound: moderate change mid-August
     new_inf_UB_sep_oct = sum(
-        scens['scenarios']['Barretos'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][
+        scens['scenarios']['Barretos'].results['new_infections']['Moderate easing of restrictions in mid-September']['best'][
         172:227])
     new_diag_UB_sep_oct = sum(
-        scens['scenarios']['Barretos'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][
+        scens['scenarios']['Barretos'].results['new_diagnoses']['Moderate easing of restrictions in mid-September']['best'][
         172:227])
     cum_inf_UB_sep_oct = \
-    scens['scenarios']['Barretos'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][227]
+    scens['scenarios']['Barretos'].results['cum_infections']['Moderate easing of restrictions in mid-September']['best'][227]
     incidence_UB_sep_oct = 100 * new_inf_UB_sep_oct * 30 / (227 - 172) / population
     detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (227 - 172) / population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct / population
 
     new_inf_UB_nov_dec = sum(
-        scens['scenarios']['Barretos'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][
+        scens['scenarios']['Barretos'].results['new_infections']['Moderate easing of restrictions in mid-September']['best'][
         219:262])
     new_diag_UB_nov_dec = sum(
-        scens['scenarios']['Barretos'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][
+        scens['scenarios']['Barretos'].results['new_diagnoses']['Moderate easing of restrictions in mid-September']['best'][
         219:262])
     cum_inf_UB_nov_dec = \
-    scens['scenarios']['Barretos'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][262]
+    scens['scenarios']['Barretos'].results['cum_infections']['Moderate easing of restrictions in mid-September']['best'][262]
     incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (262 - 219) / population
     detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (262 - 219) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population

@@ -32,19 +32,19 @@ if __name__ == "__main__":
     # the policies to change during scenario runs
     scen_opts = {'Campinas': {'Small easing of restrictions in mid-August':
                                 {'replace': (['relax1'], [['relax2']], [[165]]),
-                                 'policies': {'relax2': {'beta': 0.5}}},
+                                 'policies': {'relax2': {'beta': 0.55}}},
 
                             'Moderate easing of restrictions in mid-August':
                                 {'replace': (['relax1'], [['relax2']], [[165]]),
-                                 'policies': {'relax2': {'beta': 0.6}}},
+                                 'policies': {'relax2': {'beta': 0.65}}},
 
-                            'Small easing of restrictions in mid-July':
-                                {'replace': (['relax1'], [['relax2']], [[134]]),
-                                 'policies': {'relax2': {'beta': 0.5}}},
+                            'Small easing of restrictions in mid-September':
+                                {'replace': (['relax1'], [['relax2']], [[196]]),
+                                 'policies': {'relax2': {'beta': 0.55}}},
 
-                            'Moderate easing of restrictions in mid-July':
-                                {'replace': (['relax1'], [['relax2']], [[134]]),
-                                 'policies': {'relax2': {'beta': 0.6}}},
+                            'Moderate easing of restrictions in mid-September':
+                                {'replace': (['relax1'], [['relax2']], [[196]]),
+                                 'policies': {'relax2': {'beta': 0.65}}},
 
                             'No changes to current lockdown restrictions':
                                 {'replace': (['relax1'], [['relax1']], [[500]]),
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     cum_inf_LB_sep_oct = \
     scens['scenarios']['Campinas'].results['cum_infections']['No changes to current lockdown restrictions']['best'][246]
     incidence_LB_sep_oct = 100 * new_inf_LB_sep_oct * 30 / (241 - 196) / population
-    detected_LB_sep_oct = 100 * new_diag_LB_sep_oct * 30 / (241 - 196)
+    detected_LB_sep_oct = 100 * new_diag_LB_sep_oct * 30 / (241 - 196) / population
     seroprev_LB_sep_oct = cum_inf_LB_sep_oct / population
 
     new_inf_LB_nov_dec = sum(
@@ -121,57 +121,57 @@ if __name__ == "__main__":
     cum_inf_LB_nov_dec = \
     scens['scenarios']['Campinas'].results['cum_infections']['No changes to current lockdown restrictions']['best'][291]
     incidence_LB_nov_dec = 100 * new_inf_LB_nov_dec * 30 / (286 - 243) / population
-    detected_LB_nov_dec = 100 * new_diag_LB_nov_dec * 30 / (286 - 243)
+    detected_LB_nov_dec = 100 * new_diag_LB_nov_dec * 30 / (286 - 243) / population
     seroprev_LB_nov_dec = cum_inf_LB_nov_dec / population
 
     # Mid Bound: small change mid- July
     new_inf_MB_sep_oct = sum(
-        scens['scenarios']['Campinas'].results['new_infections']['Small easing of restrictions in mid-July']['best'][
+        scens['scenarios']['Campinas'].results['new_infections']['Small easing of restrictions in mid-August']['best'][
         196:241])
     new_diag_MB_sep_oct = sum(
-        scens['scenarios']['Campinas'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][
+        scens['scenarios']['Campinas'].results['new_diagnoses']['Small easing of restrictions in mid-August']['best'][
         196:241])
     cum_inf_MB_sep_oct = \
-    scens['scenarios']['Campinas'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][246]
+    scens['scenarios']['Campinas'].results['cum_infections']['Small easing of restrictions in mid-August']['best'][246]
     incidence_MB_sep_oct = 100 * new_inf_MB_sep_oct * 30 / (241 - 196) / population
-    detected_MB_sep_oct = 100 * new_diag_MB_sep_oct * 30 / (241 - 196)
+    detected_MB_sep_oct = 100 * new_diag_MB_sep_oct * 30 / (241 - 196) / population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct / population
 
     new_inf_MB_nov_dec = sum(
-        scens['scenarios']['Campinas'].results['new_infections']['Small easing of restrictions in mid-July']['best'][
+        scens['scenarios']['Campinas'].results['new_infections']['Small easing of restrictions in mid-August']['best'][
         243:286])
     new_diag_MB_nov_dec = sum(
-        scens['scenarios']['Campinas'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][
+        scens['scenarios']['Campinas'].results['new_diagnoses']['Small easing of restrictions in mid-August']['best'][
         243:286])
     cum_inf_MB_nov_dec = \
-    scens['scenarios']['Campinas'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][291]
+    scens['scenarios']['Campinas'].results['cum_infections']['Small easing of restrictions in mid-August']['best'][291]
     incidence_MB_nov_dec = 100 * new_inf_MB_nov_dec * 30 / (286 - 243) / population
-    detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (286 - 243)
+    detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (286 - 243) / population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec / population
 
     # Upper Bound: moderate change mid-August
     new_inf_UB_sep_oct = sum(
-        scens['scenarios']['Campinas'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][
+        scens['scenarios']['Campinas'].results['new_infections']['Moderate easing of restrictions in mid-September']['best'][
         196:241])
     new_diag_UB_sep_oct = sum(
-        scens['scenarios']['Campinas'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][
+        scens['scenarios']['Campinas'].results['new_diagnoses']['Moderate easing of restrictions in mid-September']['best'][
         196:241])
     cum_inf_UB_sep_oct = \
-    scens['scenarios']['Campinas'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][246]
+    scens['scenarios']['Campinas'].results['cum_infections']['Moderate easing of restrictions in mid-September']['best'][246]
     incidence_UB_sep_oct = 100 * new_inf_UB_sep_oct * 30 / (241 - 196) / population
-    detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (241 - 196)
+    detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (241 - 196) / population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct / population
 
     new_inf_UB_nov_dec = sum(
-        scens['scenarios']['Campinas'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][
+        scens['scenarios']['Campinas'].results['new_infections']['Moderate easing of restrictions in mid-September']['best'][
         243:286])
     new_diag_UB_nov_dec = sum(
-        scens['scenarios']['Campinas'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][
+        scens['scenarios']['Campinas'].results['new_diagnoses']['Moderate easing of restrictions in mid-September']['best'][
         243:286])
     cum_inf_UB_nov_dec = \
-    scens['scenarios']['Campinas'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][291]
+    scens['scenarios']['Campinas'].results['cum_infections']['Moderate easing of restrictions in mid-September']['best'][291]
     incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (286 - 243) / population
-    detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (286 - 243)
+    detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (286 - 243) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population
 
     projections = [
