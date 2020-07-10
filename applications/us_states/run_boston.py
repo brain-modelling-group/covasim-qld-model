@@ -2,6 +2,8 @@ import user_interface as ui
 import utils
 import pickle
 
+# Set symp_test = 15
+
 if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Boston']
