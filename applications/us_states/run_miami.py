@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     # plot cumulative infections to see if all the population gets infected
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                    fig_path = dirname + '/figs_miami/Miami-projections_larger' + '.png',
+                    fig_path = dirname + '/figs_miami/Miami-projections_smaller' + '.png',
                     interval=30, n_cols=1,
                     fig_args=dict(figsize=(10, 8), dpi=100),
                     font_size=11,
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     ]
 
     # Export results to Excel
-    workbook = xlsxwriter.Workbook('Miami_projections.xlsx')
+    workbook = xlsxwriter.Workbook('Miami_projections_smaller.xlsx')
     worksheet = workbook.add_worksheet('Projections')
     worksheet.add_table('A1:X4', {'data': projections, 'header_row': False})
     workbook.close()

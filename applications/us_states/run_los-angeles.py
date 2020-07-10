@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     # plot cumulative infections to see if all the population gets infected
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                    fig_path = dirname + '/figs_los_angeles/Los Angeles-projections_larger' + '.png',
+                    fig_path = dirname + '/figs_los_angeles/Los Angeles-15_20' + '.png',
                     interval=30, n_cols=1,
                     fig_args=dict(figsize=(10, 8), dpi=100),
                     font_size=11,
@@ -96,14 +96,14 @@ if __name__ == "__main__":
     new_diag_LB_sep_oct = sum(scens['scenarios']['Los Angeles'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][192:238])
     cum_inf_LB_sep_oct = scens['scenarios']['Los Angeles'].results['cum_infections']['No changes to current lockdown restrictions']['best'][228]
     incidence_LB_sep_oct = 100 * new_inf_LB_sep_oct * 30 / (238 - 192) / population
-    detected_LB_sep_oct = 100 * new_diag_LB_sep_oct * 30 / (238 - 192)
+    detected_LB_sep_oct = 100 * new_diag_LB_sep_oct * 30 / (238 - 192) / population
     seroprev_LB_sep_oct = cum_inf_LB_sep_oct / population
 
     new_inf_LB_nov_dec = sum(scens['scenarios']['Los Angeles'].results['new_infections']['No changes to current lockdown restrictions']['best'][239:283])
     new_diag_LB_nov_dec = sum(scens['scenarios']['Los Angeles'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][239:283])
     cum_inf_LB_nov_dec = scens['scenarios']['Los Angeles'].results['cum_infections']['No changes to current lockdown restrictions']['best'][283]
     incidence_LB_nov_dec = 100 * new_inf_LB_nov_dec * 30 / (283 - 239) / population
-    detected_LB_nov_dec = 100 * new_diag_LB_nov_dec * 30 / (283 - 239)
+    detected_LB_nov_dec = 100 * new_diag_LB_nov_dec * 30 / (283 - 239) / population
     seroprev_LB_nov_dec = cum_inf_LB_nov_dec / population
 
     # Mid Bound: small change mid- July
@@ -111,29 +111,29 @@ if __name__ == "__main__":
     new_diag_MB_sep_oct = sum(scens['scenarios']['Los Angeles'].results['new_diagnoses']['Small easing of restrictions on July 15']['best'][192:238])
     cum_inf_MB_sep_oct = scens['scenarios']['Los Angeles'].results['cum_infections']['Small easing of restrictions on July 15']['best'][238]
     incidence_MB_sep_oct = 100 * new_inf_MB_sep_oct * 30 / (238 - 192) / population
-    detected_MB_sep_oct = 100 * new_diag_MB_sep_oct * 30 / (238 - 192)
+    detected_MB_sep_oct = 100 * new_diag_MB_sep_oct * 30 / (238 - 192) / population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct / population
 
     new_inf_MB_nov_dec = sum(scens['scenarios']['Los Angeles'].results['new_infections']['Small easing of restrictions on July 15']['best'][239:283])
     new_diag_MB_nov_dec = sum(scens['scenarios']['Los Angeles'].results['new_diagnoses']['Small easing of restrictions on July 15']['best'][239:283])
     cum_inf_MB_nov_dec = scens['scenarios']['Los Angeles'].results['cum_infections']['Small easing of restrictions on July 15']['best'][283]
     incidence_MB_nov_dec = 100 * new_inf_MB_nov_dec * 30 / (283 - 239) / population
-    detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (283 - 239)
+    detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (283 - 239) / population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec / population
 
     # Upper Bound: moderate change mid-August
-    new_inf_UB_sep_oct = sum(scens['scenarios']['Los Angeles'].results['new_infections']['Moderate easing of restrictions on August 15']['best'][192:238])
-    new_diag_UB_sep_oct = sum(scens['scenarios']['Los Angeles'].results['new_diagnoses']['Moderate easing of restrictions on August 15']['best'][192:238])
-    cum_inf_UB_sep_oct = scens['scenarios']['Los Angeles'].results['cum_infections']['Moderate easing of restrictions on August 15']['best'][238]
+    new_inf_UB_sep_oct = sum(scens['scenarios']['Los Angeles'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][192:238])
+    new_diag_UB_sep_oct = sum(scens['scenarios']['Los Angeles'].results['new_diagnoses']['Moderate easing of restrictions on July 15']['best'][192:238])
+    cum_inf_UB_sep_oct = scens['scenarios']['Los Angeles'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][238]
     incidence_UB_sep_oct = 100 * new_inf_UB_sep_oct * 30 / (238 - 192) / population
-    detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (238 - 192)
+    detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (238 - 192) / population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct / population
 
-    new_inf_UB_nov_dec = sum(scens['scenarios']['Los Angeles'].results['new_infections']['Moderate easing of restrictions on August 15']['best'][239:283])
-    new_diag_UB_nov_dec = sum(scens['scenarios']['Los Angeles'].results['new_diagnoses']['Moderate easing of restrictions on August 15']['best'][239:283])
-    cum_inf_UB_nov_dec = scens['scenarios']['Los Angeles'].results['cum_infections']['Moderate easing of restrictions on August 15']['best'][283]
+    new_inf_UB_nov_dec = sum(scens['scenarios']['Los Angeles'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][239:283])
+    new_diag_UB_nov_dec = sum(scens['scenarios']['Los Angeles'].results['new_diagnoses']['Moderate easing of restrictions on July 15']['best'][239:283])
+    cum_inf_UB_nov_dec = scens['scenarios']['Los Angeles'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][283]
     incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (283 - 239) / population
-    detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (283 - 239)
+    detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (283 - 239) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population
 
     projections = [
@@ -144,16 +144,16 @@ if __name__ == "__main__":
          'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB'],
         [int(new_inf_MB_sep_oct), int(new_inf_LB_sep_oct), int(new_inf_UB_sep_oct),
          incidence_MB_sep_oct, incidence_LB_sep_oct, incidence_UB_sep_oct,
-         int(detected_MB_sep_oct), int(detected_LB_sep_oct), int(detected_UB_sep_oct),
+         detected_MB_sep_oct, detected_LB_sep_oct, detected_UB_sep_oct,
          seroprev_MB_sep_oct, seroprev_LB_sep_oct, seroprev_UB_sep_oct,
          int(new_inf_MB_nov_dec), int(new_inf_LB_nov_dec), int(new_inf_UB_nov_dec),
          incidence_MB_nov_dec, incidence_LB_nov_dec, incidence_UB_nov_dec,
-         int(detected_MB_nov_dec), int(detected_LB_nov_dec), int(detected_UB_nov_dec),
+         detected_MB_nov_dec, detected_LB_nov_dec, detected_UB_nov_dec,
          seroprev_MB_nov_dec, seroprev_LB_nov_dec, seroprev_UB_nov_dec]
     ]
 
     # Export results to Excel
-    workbook = xlsxwriter.Workbook('Los-Angeles_projections.xlsx')
+    workbook = xlsxwriter.Workbook('Los-Angeles_projections_15_20.xlsx')
     worksheet = workbook.add_worksheet('Projections')
     worksheet.add_table('A1:X4', {'data': projections, 'header_row': False})
     workbook.close()

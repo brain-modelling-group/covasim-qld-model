@@ -118,22 +118,22 @@ if __name__ == "__main__":
     new_diag_MB_nov_dec = sum(scens['scenarios']['Oakland'].results['new_diagnoses']['Small easing of restrictions on July 15']['best'][239:283])
     cum_inf_MB_nov_dec = scens['scenarios']['Oakland'].results['cum_infections']['Small easing of restrictions on July 15']['best'][283]
     incidence_MB_nov_dec = 100 * new_inf_MB_nov_dec * 30 / (283 - 239) / population
-    detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (283 - 239)
+    detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (283 - 239) / population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec / population
 
     # Upper Bound: moderate change mid-August
-    new_inf_UB_sep_oct = sum(scens['scenarios']['Oakland'].results['new_infections']['Moderate easing of restrictions on August 15']['best'][192:238])
-    new_diag_UB_sep_oct = sum(scens['scenarios']['Oakland'].results['new_diagnoses']['Moderate easing of restrictions on August 15']['best'][192:238])
-    cum_inf_UB_sep_oct = scens['scenarios']['Oakland'].results['cum_infections']['Moderate easing of restrictions on August 15']['best'][238]
+    new_inf_UB_sep_oct = sum(scens['scenarios']['Oakland'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][192:238])
+    new_diag_UB_sep_oct = sum(scens['scenarios']['Oakland'].results['new_diagnoses']['Moderate easing of restrictions on July 15']['best'][192:238])
+    cum_inf_UB_sep_oct = scens['scenarios']['Oakland'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][238]
     incidence_UB_sep_oct = 100 * new_inf_UB_sep_oct * 30 / (238 - 192) / population
-    detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (238 - 192)
+    detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (238 - 192) / population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct / population
 
-    new_inf_UB_nov_dec = sum(scens['scenarios']['Oakland'].results['new_infections']['Moderate easing of restrictions on August 15']['best'][239:283])
-    new_diag_UB_nov_dec = sum(scens['scenarios']['Oakland'].results['new_diagnoses']['Moderate easing of restrictions on August 15']['best'][239:283])
-    cum_inf_UB_nov_dec = scens['scenarios']['Oakland'].results['cum_infections']['Moderate easing of restrictions on August 15']['best'][283]
+    new_inf_UB_nov_dec = sum(scens['scenarios']['Oakland'].results['new_infections']['Moderate easing of restrictions on July 15']['best'][239:283])
+    new_diag_UB_nov_dec = sum(scens['scenarios']['Oakland'].results['new_diagnoses']['Moderate easing of restrictions on July 15']['best'][239:283])
+    cum_inf_UB_nov_dec = scens['scenarios']['Oakland'].results['cum_infections']['Moderate easing of restrictions on July 15']['best'][283]
     incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (283 - 239) / population
-    detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (283 - 239)
+    detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (283 - 239) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population
 
     projections = [

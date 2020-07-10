@@ -19,7 +19,7 @@ if __name__ == "__main__":
     user_pars = {'Newark': {'pop_size': int(10e4),
                                'beta': 0.05,
                                'n_days': 306,
-                                'pop_infected': 2000,
+                                'pop_infected': 2500,
                                 'calibration_end': '2020-06-19'}}
 
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     # plot cumulative infections to see if all the population gets infected
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                    fig_path = dirname + '/figs_newark/Newark-projections_larger' + '.png',
+                    fig_path = dirname + '/figs_newark/Newark-projections_smaller_release' + '.png',
                        interval=30, n_cols=1,
                        fig_args=dict(figsize=(10, 8), dpi=100),
                        font_size=11,
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     ]
 
     # Export results to Excel
-    workbook = xlsxwriter.Workbook('Newark_projections.xlsx')
+    workbook = xlsxwriter.Workbook('Newark_projections_smaller_release.xlsx')
     worksheet = workbook.add_worksheet('Projections')
     worksheet.add_table('A1:X4', {'data': projections, 'header_row': False})
     workbook.close()

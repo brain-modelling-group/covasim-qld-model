@@ -19,7 +19,7 @@ if __name__ == "__main__":
     user_pars = {'New Brunswick': {'pop_size': int(2e4),
                                'beta': 0.071,
                                'n_days': 306,
-                                'pop_infected': 275,
+                                'pop_infected': 400,
                                 'calibration_end': '2020-06-20'}}
 
     #validation - av_daily: 120, future_daily_tests: 120
