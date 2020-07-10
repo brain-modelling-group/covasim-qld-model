@@ -8,45 +8,45 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['SJRP']
     # the name of the databook
-    db_name = 'input_data_Brazil_FH'
-    epi_name = 'epi_data_Brazil_FH'
+    db_name = 'input_data_Brazil'
+    epi_name = 'epi_data_Brazil'
 
-    # SJRPecify layer keys to use
+    # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
-    # country-SJRPecific parameters
+    # country-specific parameters
     user_pars = {'SJRP': {'pop_size': int(10e4),
-                               'beta': 0.0178,
+                               'beta': 0.043,
                                'n_days': 339,
                                'calibration_end': '2020-07-07'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
-                'noise': 0.02,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
     
     # the policies to change during scenario runs
     scen_opts = {'SJRP': {'Small easing of restrictions in mid-September': 
                               {'replace': (['lockdown2'], [['relax1']], [[173]]),
-                              'policies': {'relax1': {'beta': 0.3}}},
+                              'policies': {'relax1': {'beta': 0.7}}},
                  
                             'Moderate easing of restrictions in mid-September': 
                               {'replace': (['lockdown2'], [['relax2']], [[173]]),
-                              'policies': {'relax2': {'beta': 0.4}}},
+                              'policies': {'relax2': {'beta': 0.8}}},
                  
                             'Small easing of restrictions in mid-August': 
                               {'replace': (['lockdown2'], [['relax1']], [[142]]),
-                              'policies': {'relax1': {'beta': 0.3}}},
+                              'policies': {'relax1': {'beta': 0.7}}},
                  
                             'Moderate easing of restrictions in mid-August': 
                               {'replace': (['lockdown2'], [['relax2']], [[142]]),
-                              'policies': {'relax2': {'beta': 0.4}}},
+                              'policies': {'relax2': {'beta': 0.8}}},
                  
                             'No changes to current lockdown restrictions': 
                               {'replace': (['lockdown2'], [['lockdown2']], [[120]]),
-                              'policies': {'lockdown2': {'beta': 0.2}}}}}
+                              'policies': {'lockdown2': {'beta': 0.6}}}}}
                      
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
