@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 6,
-                'noise': 0.03,
+                'noise': 0.02,
                 'verbose': 1,
                 'rand_seed': 1}
 
