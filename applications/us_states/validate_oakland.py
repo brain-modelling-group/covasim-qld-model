@@ -1,5 +1,6 @@
 import user_interface as ui
 import utils
+import xlsxwriter
 import os
 dirname = os.path.dirname(__file__)
 
@@ -25,7 +26,7 @@ if __name__ == "__main__":
 
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 4,
+    metapars = {'n_runs': 8,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
@@ -58,8 +59,8 @@ if __name__ == "__main__":
 
 
     # Plot validation
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                       fig_path=dirname + '/Oakland-validation' + '.png',
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+                       fig_path=dirname + '/figs_oakland/Oakland-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -70,7 +71,7 @@ if __name__ == "__main__":
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
     # plot cumulative deaths for calibration
-    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
                        fig_path=dirname + '/Oakland-calibrate' + '.png',
                        interval=30, n_cols=1,
                        fig_args=dict(figsize=(5, 5), dpi=100),
@@ -80,3 +81,32 @@ if __name__ == "__main__":
                        axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.15},
                        fill_args={'alpha': 0.3},
                        to_plot=['cum_diagnoses', 'cum_deaths'])
+# Results
+    cum_diag_calib_end1 = scens['scenarios']['Oakland'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][69]
+    cum_diag_calib_1week = scens['scenarios']['Oakland'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][76]
+    cum_diag_calib_2week = scens['scenarios']['Oakland'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][83]
+    cum_diag_calib_end2 = scens['scenarios']['Oakland'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][118]
+    cum_death_calib_end1 = scens['scenarios']['Oakland'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][69]
+    cum_death_calib_1week = scens['scenarios']['Oakland'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][76]
+    cum_death_calib_2week = scens['scenarios']['Oakland'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
+    cum_death_calib_end2 = scens['scenarios']['Oakland'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][118]
+
+    workbook = xlsxwriter.Workbook('Oakland_calibrate.xlsx')
+    worksheet = workbook.add_worksheet('calibrate')
+
+    validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
+                   'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],
+                  ['At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection'],
+                  [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week), int(cum_diag_calib_end2),
+                   '', '', '', '',
+                   int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week), int(cum_death_calib_end2)]
+                  ]
+
+    worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
+    workbook.close()
+
+
+

@@ -9,8 +9,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Campinas']
     # the name of the databook
-    db_name = 'input_data_Brazil'
-    epi_name = 'epi_data_Brazil'
+    db_name = 'input_data_Brazil_group2'
+    epi_name = 'epi_data_Brazil_group2'
 
     # Manausecify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
@@ -59,28 +59,38 @@ if __name__ == "__main__":
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
-    # cum_diag_calib_end1 = scens['scenarios']['Manaus'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][83]
-    # cum_diag_calib_1week = scens['scenarios']['Manaus'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][90]
-    # cum_diag_calib_2week = scens['scenarios']['Manaus'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][97]
-    # cum_diag_calib_end2 = scens['scenarios']['Manaus'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][128]
-    # cum_death_calib_end1 = scens['scenarios']['Manaus'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
-    # cum_death_calib_1week = scens['scenarios']['Manaus'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][90]
-    # cum_death_calib_2week = scens['scenarios']['Manaus'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][97]
-    # cum_death_calib_end2 = scens['scenarios']['Manaus'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][128]
+    cum_diag_calib_end1 = \
+        scens['scenarios']['Campinas'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][73]
+    cum_diag_calib_1week = \
+        scens['scenarios']['Campinas'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][80]
+    cum_diag_calib_2week = \
+        scens['scenarios']['Campinas'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][87]
+    cum_diag_calib_end2 = \
+        scens['scenarios']['Campinas'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][125]
+    cum_death_calib_end1 = \
+        scens['scenarios']['Campinas'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][73]
+    cum_death_calib_1week = \
+        scens['scenarios']['Campinas'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][80]
+    cum_death_calib_2week = \
+        scens['scenarios']['Campinas'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][87]
+    cum_death_calib_end2 = \
+        scens['scenarios']['Campinas'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][125]
 
-    # workbook = xlsxwriter.Workbook('Rio_validation.xlsx')
-    # worksheet = workbook.add_worksheet('Validation')
+    workbook = xlsxwriter.Workbook('Campinas_validation.xlsx')
+    worksheet = workbook.add_worksheet('Validation')
 
-    # validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
-    #               'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],
-    #               ['At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-    #                'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-    #                'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-    #                'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection'],
-    #               [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week), int(cum_diag_calib_end2),
-    #               '', '', '', '',
-    #               int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week), int(cum_death_calib_end2)]
-    #               ]
+    validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
+                   'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],
+                  ['At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection'],
+                  [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week),
+                   int(cum_diag_calib_end2),
+                   '', '', '', '',
+                   int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week),
+                   int(cum_death_calib_end2)]
+                  ]
 
-    # worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
-    # workbook.close()
+    worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
+    workbook.close()

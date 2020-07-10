@@ -29,20 +29,20 @@ if __name__ == "__main__":
     
     # the policies to change during scenario runs
     # scen_opts = {'Salvador': {'No changes to current lockdown restrictions': 
-    scen_opts = {'Salvador': {'Small easing of restrictions in mid-August': 
+    scen_opts = {'Salvador': {'Small easing of restrictions in mid-September': 
+                              {'replace': (['lockdown3'], [['relax1']], [[181]]),
+                              'policies': {'relax1': {'beta': 0.3}}},
+                 
+                            'Moderate easing of restrictions in mid-September': 
+                              {'replace': (['lockdown3'], [['relax2']], [[181]]),
+                              'policies': {'relax2': {'beta': 0.4}}},
+                 
+                            'Small easing of restrictions in mid-August': 
                               {'replace': (['lockdown3'], [['relax1']], [[150]]),
                               'policies': {'relax1': {'beta': 0.3}}},
                  
                             'Moderate easing of restrictions in mid-August': 
                               {'replace': (['lockdown3'], [['relax2']], [[150]]),
-                              'policies': {'relax2': {'beta': 0.4}}},
-                 
-                            'Small easing of restrictions in mid-July': 
-                              {'replace': (['lockdown3'], [['relax1']], [[119]]),
-                              'policies': {'relax1': {'beta': 0.3}}},
-                 
-                            'Moderate easing of restrictions in mid-July': 
-                              {'replace': (['lockdown3'], [['relax2']], [[119]]),
                               'policies': {'relax2': {'beta': 0.4}}},
                  
                             'No changes to current lockdown restrictions': 
@@ -78,74 +78,63 @@ if __name__ == "__main__":
     # Results
     population = 2872347
     
-    # Calibration data
-    cum_diag_calib_end = scens['scenarios']['Salvador'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][104]    
-    cum_diag_calib_1week = scens['scenarios']['Salvador'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][111]    
-    cum_diag_calib_2week = scens['scenarios']['Salvador'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][118]    
-    cum_diag_calib_4week = scens['scenarios']['Salvador'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][132]    
-    cum_death_calib_end = scens['scenarios']['Salvador'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][104]    
-    cum_death_calib_1week = scens['scenarios']['Salvador'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][111]    
-    cum_death_calib_2week = scens['scenarios']['Salvador'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][118]    
-    cum_death_calib_4week = scens['scenarios']['Salvador'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][132]    
-    
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_infections']['No changes to current lockdown restrictions']['best'][181:226])    
     new_diag_LB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][181:226])    
     cum_inf_LB_sep_oct = scens['scenarios']['Salvador'].results['cum_infections']['No changes to current lockdown restrictions']['best'][226]    
     incidence_LB_sep_oct = 100*new_inf_LB_sep_oct*30/(226-181)/population
-    detected_LB_sep_oct = 100*new_diag_LB_sep_oct*30/(226-181)
+    detected_LB_sep_oct = 100*new_diag_LB_sep_oct*30/(226-181)/population
     seroprev_LB_sep_oct = cum_inf_LB_sep_oct/population
 
     new_inf_LB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_infections']['No changes to current lockdown restrictions']['best'][228:271])    
     new_diag_LB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['No changes to current lockdown restrictions']['best'][228:271])    
     cum_inf_LB_nov_dec = scens['scenarios']['Salvador'].results['cum_infections']['No changes to current lockdown restrictions']['best'][271]    
     incidence_LB_nov_dec = 100*new_inf_LB_nov_dec*30/(271-228)/population
-    detected_LB_nov_dec = 100*new_diag_LB_nov_dec*30/(271-228)
+    detected_LB_nov_dec = 100*new_diag_LB_nov_dec*30/(271-228)/population
     seroprev_LB_nov_dec = cum_inf_LB_nov_dec/population
     
     # Mid Bound: small change mid- July    
-    new_inf_MB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_infections']['Small easing of restrictions in mid-July']['best'][181:226])    
-    new_diag_MB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][181:226])    
-    cum_inf_MB_sep_oct = scens['scenarios']['Salvador'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][226]    
+    new_inf_MB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_infections']['Small easing of restrictions in mid-August']['best'][181:226])    
+    new_diag_MB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['Small easing of restrictions in mid-August']['best'][181:226])    
+    cum_inf_MB_sep_oct = scens['scenarios']['Salvador'].results['cum_infections']['Small easing of restrictions in mid-August']['best'][226]    
     incidence_MB_sep_oct = 100*new_inf_MB_sep_oct*30/(226-181)/population
-    detected_MB_sep_oct = 100*new_diag_MB_sep_oct*30/(226-181)
+    detected_MB_sep_oct = 100*new_diag_MB_sep_oct*30/(226-181)/population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct/population
 
-    new_inf_MB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_infections']['Small easing of restrictions in mid-July']['best'][228:271])    
-    new_diag_MB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['Small easing of restrictions in mid-July']['best'][228:271])    
-    cum_inf_MB_nov_dec = scens['scenarios']['Salvador'].results['cum_infections']['Small easing of restrictions in mid-July']['best'][271]    
+    new_inf_MB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_infections']['Small easing of restrictions in mid-August']['best'][228:271])    
+    new_diag_MB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['Small easing of restrictions in mid-August']['best'][228:271])    
+    cum_inf_MB_nov_dec = scens['scenarios']['Salvador'].results['cum_infections']['Small easing of restrictions in mid-August']['best'][271]    
     incidence_MB_nov_dec = 100*new_inf_MB_nov_dec*30/(271-228)/population
-    detected_MB_nov_dec = 100*new_diag_MB_nov_dec*30/(271-228)
+    detected_MB_nov_dec = 100*new_diag_MB_nov_dec*30/(271-228)/population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec/population
     
-    # Upper Bound: moderate change mid-August    
-    new_inf_UB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][181:226])    
-    new_diag_UB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][181:226])    
-    cum_inf_UB_sep_oct = scens['scenarios']['Salvador'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][226]    
+    # Upper Bound: moderate change mid-September    
+    new_inf_UB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_infections']['Moderate easing of restrictions in mid-September']['best'][181:226])    
+    new_diag_UB_sep_oct = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['Moderate easing of restrictions in mid-September']['best'][181:226])    
+    cum_inf_UB_sep_oct = scens['scenarios']['Salvador'].results['cum_infections']['Moderate easing of restrictions in mid-September']['best'][226]    
     incidence_UB_sep_oct = 100*new_inf_UB_sep_oct*30/(226-181)/population
-    detected_UB_sep_oct = 100*new_diag_UB_sep_oct*30/(226-181)
+    detected_UB_sep_oct = 100*new_diag_UB_sep_oct*30/(226-181)/population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct/population
 
-    new_inf_UB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][228:271])    
-    new_diag_UB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][228:271])    
-    cum_inf_UB_nov_dec = scens['scenarios']['Salvador'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][271]    
+    new_inf_UB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_infections']['Moderate easing of restrictions in mid-September']['best'][228:271])    
+    new_diag_UB_nov_dec = sum(scens['scenarios']['Salvador'].results['new_diagnoses']['Moderate easing of restrictions in mid-September']['best'][228:271])    
+    cum_inf_UB_nov_dec = scens['scenarios']['Salvador'].results['cum_infections']['Moderate easing of restrictions in mid-September']['best'][271]    
     incidence_UB_nov_dec = 100*new_inf_UB_nov_dec*30/(271-228)/population
-    detected_UB_nov_dec = 100*new_diag_UB_nov_dec*30/(271-228)
+    detected_UB_nov_dec = 100*new_diag_UB_nov_dec*30/(271-228)/population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec/population
     
     projections = [
-        ['Mid Sep – end Oct', '', '', '', '', '', '', '', '', '', '', '',
-         'Nov – mid Dec', '', '', '', '', '', '', '', '', '', '', ''],
+        ['Mid Sep – end Oct', '', '', '', '', '', '', '', '', '', '', '', 'Nov – mid Dec'],
         ['Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence', '', '',
-         'Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence', '', ''],
+         'Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '', 'seroprevalence'],
         ['MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB'],
         [int(new_inf_MB_sep_oct), int(new_inf_LB_sep_oct), int(new_inf_UB_sep_oct),
          incidence_MB_sep_oct, incidence_LB_sep_oct, incidence_UB_sep_oct,
-         int(detected_MB_sep_oct), int(detected_LB_sep_oct), int(detected_UB_sep_oct),
+         detected_MB_sep_oct, detected_LB_sep_oct, detected_UB_sep_oct,
          seroprev_MB_sep_oct, seroprev_LB_sep_oct, seroprev_UB_sep_oct,
          int(new_inf_MB_nov_dec), int(new_inf_LB_nov_dec), int(new_inf_UB_nov_dec),
          incidence_MB_nov_dec, incidence_LB_nov_dec, incidence_UB_nov_dec,
-         int(detected_MB_nov_dec), int(detected_LB_nov_dec), int(detected_UB_nov_dec),
+         detected_MB_nov_dec, detected_LB_nov_dec, detected_UB_nov_dec,
          seroprev_MB_nov_dec, seroprev_LB_nov_dec, seroprev_UB_nov_dec]
         ]
     
