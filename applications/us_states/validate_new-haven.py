@@ -18,12 +18,12 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'New Haven': {'pop_size': int(10e4),
                                'beta': 0.032,
-                               'n_days': 108,
+                               'n_days': 120,
                                'calibration_end': '2020-05-15'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0,
+    metapars = {'n_runs': 8,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
     
@@ -57,7 +57,7 @@ if __name__ == "__main__":
               fill_args={'alpha': 0.3},
               to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
     
-    
+
     cum_diag_calib_end1 = scens['scenarios']['New Haven'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][62]    
     cum_diag_calib_1week = scens['scenarios']['New Haven'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][69]    
     cum_diag_calib_2week = scens['scenarios']['New Haven'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][76]    

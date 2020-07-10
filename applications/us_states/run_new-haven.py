@@ -17,14 +17,13 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'New Haven': {'pop_size': int(6.5e4),
-                               'beta': 0.075,
+                               'beta': 0.032,
                                'n_days': 351,
-                               'symp_test': 100.0,
                                'calibration_end': '2020-06-30'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 3,
-                'noise': 0,
+    metapars = {'n_runs': 8,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
     
@@ -40,11 +39,11 @@ if __name__ == "__main__":
                               'policies': {'relax4': {'beta': 0.6}}},
                  
                             'Small easing of restrictions on July 15': 
-                              {'replace': (['relax2'], [['relax3']], [[123]]),
+                              {'replace': (['relax2'], [['relax3']], [[122]]),
                               'policies': {'relax3': {'beta': 0.5}}},
                  
                             'Moderate easing of restrictions on July 15': 
-                              {'replace': (['relax2'], [['relax4']], [[123]]),
+                              {'replace': (['relax2'], [['relax4']], [[122]]),
                               'policies': {'relax4': {'beta': 0.6}}},
                  
                             'No changes to current lockdown restrictions': 
@@ -67,7 +66,7 @@ if __name__ == "__main__":
 
     # Results
     population = 129585
-    extra_days = 0
+    extra_days = -13
 
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(scens['scenarios']['New Haven'].results['new_infections']['No changes to current lockdown restrictions']['best'][(197 + extra_days):(243 + extra_days)])
@@ -122,11 +121,11 @@ if __name__ == "__main__":
          'MB', 'LB', 'UB', 'MB', 'LB', 'UB', 'MB', 'LB', 'UB'],
         [int(new_inf_MB_sep_oct), int(new_inf_LB_sep_oct), int(new_inf_UB_sep_oct),
          incidence_MB_sep_oct, incidence_LB_sep_oct, incidence_UB_sep_oct,
-         int(detected_MB_sep_oct), int(detected_LB_sep_oct), int(detected_UB_sep_oct),
+         detected_MB_sep_oct, detected_LB_sep_oct, detected_UB_sep_oct,
          seroprev_MB_sep_oct, seroprev_LB_sep_oct, seroprev_UB_sep_oct,
          int(new_inf_MB_nov_dec), int(new_inf_LB_nov_dec), int(new_inf_UB_nov_dec),
          incidence_MB_nov_dec, incidence_LB_nov_dec, incidence_UB_nov_dec,
-         int(detected_MB_nov_dec), int(detected_LB_nov_dec), int(detected_UB_nov_dec),
+         detected_MB_nov_dec, detected_LB_nov_dec, detected_UB_nov_dec,
          seroprev_MB_nov_dec, seroprev_LB_nov_dec, seroprev_UB_nov_dec]
     ]
 
