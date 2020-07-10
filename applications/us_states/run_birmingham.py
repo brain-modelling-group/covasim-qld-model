@@ -20,7 +20,7 @@ if __name__ == "__main__":
     user_pars = {'Birmingham': {'pop_size': int(10e4),
                              'beta': 0.0485,
                              'pop_infected': 5,
-                             'n_days': 380,
+                             'n_days': 130,
                                 'calibration_end': '2020-06-27'}}
 
     # the metapars for all countries and scenarios
@@ -40,10 +40,10 @@ if __name__ == "__main__":
     #                            'relax4': {'beta': 0.8}}}
 
     scen_opts = {'Birmingham': {'No changes to current lockdown restrictions': {'replace': (['relax2'], [['relax2']], [[140]])},
-                            'Small easing of restrictions on August 1': {'replace': (['relax2'], [['relax3']], [[158]])},
-                            'Moderate easing of restrictions on August 1': {'replace': (['relax2'], [['relax4']], [[158]])},
-                            'Small easing of restrictions on July 15': {'replace': (['relax2'], [['relax3']], [[142]])},
-                            'Moderate easing of restrictions on July 15': {'replace': (['relax2'], [['relax4']], [[142]])},
+                            # 'Small easing of restrictions on August 1': {'replace': (['relax2'], [['relax3']], [[158]])},
+                            # 'Moderate easing of restrictions on August 1': {'replace': (['relax2'], [['relax4']], [[158]])},
+                            # 'Small easing of restrictions on July 15': {'replace': (['relax2'], [['relax3']], [[142]])},
+                            # 'Moderate easing of restrictions on July 15': {'replace': (['relax2'], [['relax4']], [[142]])},
                             }}
 
 
@@ -104,29 +104,29 @@ if __name__ == "__main__":
     #                    fill_args={'alpha': 0.3},
     #                    to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
-    # # Calibration Plots
-    # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-    #                    fig_path= dirname + '/figs_' + locations[0] + '/calibration' + '.png',
-    #                    interval=30, n_cols=1,
-    #                    fig_args=dict(figsize=(5, 5), dpi=100),
-    #                    font_size=11,
-    #                    # y_lim={'new_infections': 500},
-    #                    legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
-    #                    axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
-    #                    fill_args={'alpha': 0.3},
-    #                    to_plot=['cum_diagnoses', 'cum_deaths'])
-
-    # Projection Plots
+    # Calibration Plots
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_' + locations[0] + '/projection' + '.png',
-                       interval=30, n_cols=1,
-                       fig_args=dict(figsize=(10, 8), dpi=100),
+                       fig_path= dirname + '/figs_' + locations[0] + '/calibration' + '.png',
+                       interval=30, n_cols=2,
+                       fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
                        # y_lim={'new_infections': 500},
-                       legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
-                       axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
+                       legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
+                       axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
                        fill_args={'alpha': 0.3},
-                       to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
+                       to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
+
+    # # Projection Plots
+    # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+    #                    fig_path=dirname + '/figs_' + locations[0] + '/projection' + '.png',
+    #                    interval=30, n_cols=1,
+    #                    fig_args=dict(figsize=(10, 8), dpi=100),
+    #                    font_size=11,
+    #                    # y_lim={'new_infections': 500},
+    #                    legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
+    #                    axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
+    #                    fill_args={'alpha': 0.3},
+    #                    to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
     filehandler = open('runs/' + locations[0] + '.obj', 'wb')
     pickle.dump(scens, filehandler)

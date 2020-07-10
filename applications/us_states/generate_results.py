@@ -3,8 +3,8 @@ import pickle
 import os
 
 dirname = os.path.dirname(__file__)
-locations = ['Boston']
-population = 690000
+locations = ['Columbus']
+population = 890000
 filehandler = open('runs/' + locations[0] + '.obj', 'rb')
 scens = pickle.load(filehandler)
 

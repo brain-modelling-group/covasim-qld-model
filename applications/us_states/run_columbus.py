@@ -2,6 +2,8 @@ import user_interface as ui
 import utils
 import pickle
 
+# Sympt_test = 8
+
 if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Columbus']
@@ -91,14 +93,14 @@ if __name__ == "__main__":
     # # Calibration Plots
     # utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
     #                    fig_path=dirname + '/figs_' + locations[0] + '/calibration' + '.png',
-    #                    interval=30, n_cols=1,
-    #                    fig_args=dict(figsize=(5, 5), dpi=100),
+    #                    interval=30, n_cols=2,
+    #                    fig_args=dict(figsize=(10, 5), dpi=100),
     #                    font_size=11,
     #                    # y_lim={'new_infections': 500},
     #                    legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
     #                    axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
     #                    fill_args={'alpha': 0.3},
-    #                    to_plot=['cum_diagnoses', 'cum_deaths'])
+    #                    to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
     # Projection Plots
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,

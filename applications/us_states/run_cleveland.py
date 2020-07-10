@@ -2,9 +2,7 @@ import user_interface as ui
 import utils
 import pickle
 
-# For validation
-    # Symp_test is 30 and beta is 0.105
-
+    # Symp_test is 20
 
 if __name__ == "__main__":
     # the list of locations for this analysis
