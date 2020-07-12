@@ -57,24 +57,7 @@ if __name__ == "__main__":
                                                             'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.99},
                                                             'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.99}}
                                                             }}}
-                                                     #                                                         {'replace': (['lockdown', 'pub_bar0', 'cafe_restaurant0', 'outdoor2', 'church'],
-                                #                               [['lockdown_relax', 'lockdown_2', 'lockdown_2_exit'], ['pub_bar_4sqm'],
-                                #                                ['cafe_restaurant_4sqm'], ['outdoor10'], ['church_4sqm']],
-                                #                               [[93, 130, 144], [93], [93], [93], [114]]),
-                                #           'turn_off': (['schools', 'social', 'retail', 'nat_parks0', 'beach0', 'NE_health'],
-                                #                        [87, 74, 74, 74, 74, 58]),
-                                #           'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
-                                #                                'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}}}}}
-                                #            # 'policies': {'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.8},
-                                           #              'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.8}}
-                              # {'2 week lockdown': {'replace': (['lockdown', 'pub_bar0', 'cafe_restaurant0', 'outdoor2', 'church'],
-                              #                 [['lockdown_relax'], ['pub_bar_4sqm'], ['cafe_restaurant_4sqm'],
-                              #                  ['outdoor10'], ['church_4sqm']],
-                              #                 [[93], [93], [93], [93], [114]]),
-                              #     'turn_off': (['schools', 'social',
-                              #                   'retail', 'nat_parks0', 'beach0', 'NE_health'],
-                              #                  [87, 74, 74, 74, 74, 58]),
-                              #     }}}}
+
     # https: // www.dhhs.vic.gov.au / coronavirus / updates
     # 15 March: internaitonal borders closed
     # 19 March: 4 sqm rule, entertainment, large events
