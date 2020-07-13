@@ -142,5 +142,18 @@ if __name__ == '__main__':
             sim_fcn = functools.partial(run_australia_outbreak, params=params, scen_policies=policies)
             sims = sc.parallelize(sim_fcn, np.arange(n_runs),ncpus=args.ncpus)
 
-            sc.saveobj(rootdir/f'{name}.sims', sims)
+            # sc.saveobj(rootdir/f'{name}.sims', sims)
             # cova_scen.save()
+
+            keep = [
+                'cum_infections',
+                'cum_diagnoses',
+                'cum_deaths',
+                'cum_quarantined',
+            ]
+
+            sim_stats = {}
+            for quantity in keep:
+                sim_stats[quantity] = [sim.results[quantity][-1] for sim in sims]
+
+            sc.saveobj(rootdir/f'{name}.stats', sim_stats)
