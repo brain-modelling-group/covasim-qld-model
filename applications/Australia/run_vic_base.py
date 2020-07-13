@@ -17,9 +17,9 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Victoria': {'pop_size': int(5e4),
-                               'beta': 0.05,
+                               'beta': 0.065,
                                'n_days': 200,
-                               'calibration_end': '2020-07-13'}}
+                               'calibration_end': '2020-07-06'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 1,
@@ -38,25 +38,25 @@ if __name__ == "__main__":
                                                         [87,87,74, 74,74,74,58,93,114,130]),
                                            'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
                                                                 'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
-                                           'policies': {'lockdown_relax': {'beta': 0.1},
+                                           'policies': {'lockdown_relax': {'beta': 0.8},
                                                         'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.99},
                                                         'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.99}}
-                                                        }}}
-                                 # '2 week lockdown': {'replace': (['lockdown', 'pub_bar0','cafe_restaurant0','outdoor2','church0'],
-                                 #                           [['lockdown_relax', 'lockdown_2', 'lockdown_2_exit'],
-                                 #                            ['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
-                                 #                            ['outdoor10'],['church_4sqm']],
-                                 #                           [[93, 130, 144],[93],[93],[93],[114]]),
-                                 #               'turn_on': (['import_cases'], [125]),
-                                 #               'turn_off': (['schools', 'child_care','social', 'retail','nat_parks0','beach0','NE_health',
-                                 #                             'pSports','cSports','import_cases'],
-                                 #                            [87,87,74, 74,74,74,58,93,114,130]),
-                                 #               'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
-                                 #                                    'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
-                                 #               'policies': {'lockdown_relax': {'beta': 0.8},
-                                 #                            'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.99},
-                                 #                            'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.99}}
-                                 #                            }}}
+                                                        },
+                                 '2 week lockdown': {'replace': (['lockdown', 'pub_bar0','cafe_restaurant0','outdoor2','church0'],
+                                                           [['lockdown_relax', 'lockdown_2', 'lockdown_2_exit'],
+                                                            ['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
+                                                            ['outdoor10'],['church_4sqm']],
+                                                           [[93, 130, 144],[93],[93],[93],[114]]),
+                                               'turn_on': (['import_cases'], [125]),
+                                               'turn_off': (['schools', 'child_care','social', 'retail','nat_parks0','beach0','NE_health',
+                                                             'pSports','cSports','import_cases'],
+                                                            [87,87,74, 74,74,74,58,93,114,130]),
+                                               'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
+                                                                    'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
+                                               'policies': {'lockdown_relax': {'beta': 0.8},
+                                                            'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.99},
+                                                            'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.99}}
+                                                            }}}
 
     # https: // www.dhhs.vic.gov.au / coronavirus / updates
     # 15 March: internaitonal borders closed
