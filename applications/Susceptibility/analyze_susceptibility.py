@@ -3,24 +3,30 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
 import textwrap
+from pathlib import Path
+import sciris as sc
+import pandas as pd
 
+# packages = pd.read_excel(rootdir / 'policy_packages.xlsx', index_col=0)
+# packages = packages.T
+# packages = packages.to_dict(orient='index')
+# packages = {name: [policy for policy, active in package.items() if not pd.isnull(active)] for name, package in packages.items()}
 
-def positive_kde(vals, npts=100):
-    value_range = (vals.min(), vals.max())
-    kernel = stats.gaussian_kde(np.concatenate([vals.ravel(), -vals.ravel()]))
-    x = np.linspace(*value_range, npts)
-    y = 2 * kernel(x)
-    return x, y
+rootdir = Path(__file__).parent
 
+scenarios = {}
+for simfile in filter(lambda x: x.suffix=='.sims',rootdir.iterdir()):
+    print(f'Loading "{simfile.stem}"')
+    scenarios[simfile.stem] = sc.loadobj(simfile)
 
-del scenarios['Full relaxation']
+# Plot mean number of infections
 
 p_less_than_50 = []
 p_less_than_100 = []
 labels = []
 
-for scen_name in scenarios.keys():
-    vals = np.array([x.results['cum_infections'][-1] for x in sims[scen_name]])
+for scen_name, sims in scenarios.items():
+    vals = np.array([x.results['cum_infections'][-1] for x in sims])
     p_less_than_50.append(sum(vals < 50) / len(vals))
     p_less_than_100.append(sum(vals < 100) / len(vals))
 
@@ -40,12 +46,12 @@ plt.xticks(ind, wrapped_labels[idx], rotation=0)
 plt.legend()
 plt.show()
 fig.set_size_inches(16, 7)
-fig.savefig('probability_bars.png', bbox_inches='tight', dpi=300, transparent=False)
+fig.savefig(rootdir/'probability_bars.png', bbox_inches='tight', dpi=300, transparent=False)
 
 # Boxplot of infection size
 records = []
-for scen_name in scenarios.keys():
-    for sim in sims[scen_name]:
+for scen_name, sims in scenarios.items():
+    for sim in sims:
         infections = sim.results['cum_infections'][-1]
         doubling_time = sim.results['doubling_time'][-21:-7].mean()
         records.append((scen_name, infections, doubling_time))
@@ -61,4 +67,4 @@ wrapped_labels = np.array(['\n'.join(textwrap.wrap(x.capitalize(), 20)) for x in
 plt.xticks(1 + np.arange(len(scenarios)), wrapped_labels)
 plt.title('Infection size after 30 days')
 fig.set_size_inches(16, 7)
-fig.savefig('infection_size.png', bbox_inches='tight', dpi=300, transparent=False)
+fig.savefig(rootdir/'infection_size.png', bbox_inches='tight', dpi=300, transparent=False)
