@@ -67,6 +67,48 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
         contacts = {p:contacts[p] if p in contacts else list() for p in include_inds}
         return contacts
 
+def random_long_tail_contacts(include, mean_contacts_per_person, array_output: bool = False):
+    """
+    Sample random contacts
+
+    The `include` argument allows a subset of the population to be selected
+
+    Note that a person can contact themselves, and can contact the same person multiple times
+
+    Args:
+        include: Boolean array with length equal to population size, containing True if the person is eligible for contacts
+        mean_contacts_per_person: Mean number of contacts (Poisson distribution)
+        array_output: Return contacts as arrays or as dicts
+    Returns:
+        If array_output=False, return a contacts dictionary {1:[2,3,4],2:[1,5,6]} with keys for source person,
+        and a values being a list of target contacts.
+
+        If array_output=True, return arrays with `source` and `target` indexes. These could be interleaved to produce an edge list
+        representation of the edges
+
+    """
+
+    include_inds = np.nonzero(include)[0].astype(cvd.default_int) # These are the indexes (person IDs) of people in the layer
+    n_people = len(include_inds)
+
+    # estimate number of contacts for each person. REPLACE WITH NEG BINOM DIST?
+    c = np.round(np.random.normal(mean_contacts_per_person, 2, n_people))
+    c[c < 0] = 0
+    c = c.astype(np.int)
+    source = np.empty((0))
+    target = np.empty((0))
+    for i in range(n_people):
+        source = np.append(source, include_inds[i]*c[i]) # where edges start from (each person include_inds[i], has c[i] edges)
+    target = np.random.shuffle(source) # the edges all go to another person, but the number of edges for each person must be the same
+
+    if array_output:
+        return source, target
+    else:
+        contacts = collections.defaultdict(list)
+        for s, t in zip(source, target):
+            contacts[s].append(t)
+        contacts = {p:contacts[p] if p in contacts else list() for p in include_inds}
+        return contacts
 
 def make_hcontacts(n_households, pop_size, household_heads, uids, contact_matrix):
     """
@@ -114,6 +156,8 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
             contacts[layer_key] = clusters_to_contacts([inds])
         elif cl_type == 'random':
             contacts[layer_key] = random_contacts(in_layer, num_contacts)
+        elif cl_type == 'random_long_tail':
+            contacts[layer_key] = random_long_tail_contacts(in_layer, num_contacts)
         elif cl_type == 'cluster':
             miniclusters = []
             miniclusters.extend(cl.create_clustering(inds, num_contacts))
