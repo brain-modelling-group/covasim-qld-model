@@ -3,7 +3,7 @@ import numpy as np
 import os
 import sciris as sc
 import utils, policy_updates
-
+import covasim.utils as cvu
 
 def get_ndays(start_day, end_day):
     """Calculates the number of days for simulation"""
@@ -401,3 +401,35 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
         #                     pl.axvline(x=day, color='grey', linestyle='--')
         #                 #intervention.plot(scen.sims[scen_name][0], ax)
         #         scennum += 1
+
+class SeedInfection(cv.Intervention):
+    """
+    Seed a fixed number of infections
+
+    This class facilities seeding a fixed number of infections on a per-day
+    basis.
+
+    Infections will only be seeded on specified days
+
+    """
+
+    def __init__(self, infections: dict):
+        """
+
+        Args:
+            infections: Dictionary with {day_index:n_infections}
+
+        """
+        super().__init__()
+        self.infections = infections  #: Dictionary mapping {day: n_infections}
+
+    def apply(self, sim):
+        if sim.t in self.infections:
+            susceptible_inds = cvu.true(sim.people.susceptible)
+
+            if len(susceptible_inds) < self.infections[sim.t]:
+                raise Exception('Insufficient people available to infect')
+
+            targets = cvu.choose(len(susceptible_inds), self.infections[sim.t])
+            target_inds = susceptible_inds[targets]
+            sim.people.infect(inds=target_inds)
