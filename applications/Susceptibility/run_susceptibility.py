@@ -1,156 +1,212 @@
+from pathlib import Path
 
-import matplotlib
-import sciris as sc
 import covasim as cv
-import utils, load_parameters, load_pop, policy_changes, os, plot_scenarios
-dirname = os.path.dirname(os.path.abspath(__file__))
-import load_parameters_int, load_pop_int
-import tqdm
 import pandas as pd
 
-if __name__ == '__main__': # need this to run in parallel on windows
-    # What to do
-    todo = ['loaddata',
-            'gen_pop',
-            # 'gen_results', # Re-run the simulations, otherwise load pre-existing results
-            ]
-
-    for_powerpoint = False
-    verbose    = 1
-    seed       = 1
-
-    # load parameters
-    pars, metapars, extra_pars, population_subsets = load_parameters.load_pars()
-
-    # Process and read in data
-    if 'loaddata' in todo:
-        sd, extra_pars['i_cases'], extra_pars['daily_tests'] = load_parameters.load_data(databook_path=extra_pars['databook_path'],
-                                                                                         start_day=pars['start_day'],
-                                                                                         end_day=extra_pars['end_day'],
-                                                                                         data_path=extra_pars['data_path'],
-                                                                                         setting=extra_pars['setting'])
-
-    pars['pop_infected'] = 0
-    pars['n_days'] = 90
-    extra_pars['i_cases'][:] = 0
-    extra_pars['restart_imports'] = 0,
-    extra_pars['restart_imports_length'] = 0
-    pars['rescale'] = 0
-    pars['pop_scale'] = 1
-    metapars['n_runs'] = 1000
-    ncpus = 32
-
-    #### diagnose population structure
-    if 'gen_pop' in todo:
-        popdict = load_pop.get_australian_popdict(extra_pars['databook_path'], pop_size=pars['pop_size'],
-                                                  contact_numbers=pars['contacts'],
-                                                  population_subsets = population_subsets,
-                                                  setting=extra_pars['setting'])
-        sc.saveobj(extra_pars['popfile'], popdict)
-    else:
-        popdict = sc.loadobj(extra_pars['popfile'])
-
-    sim = cv.Sim(pars, popfile=extra_pars['popfile'], datafile=extra_pars['data_path'], pop_size=pars['pop_size'])
-    sim.initialize(save_pop=False, load_pop=True, popfile=extra_pars['popfile'])
-
-    # Read a variety of policies from databook sheet 'policies', and set up the baseline according to their start and end dates
-    policies = policy_changes.load_pols(databook_path=extra_pars['databook_path'], layers=pars['contacts'].keys(),
-                                        start_day=pars['start_day'])
-    # ToDO: Tracing app policies need to be added to policies sheet and to policy read in function, also add start day (and end day?) to policies['policy_dates']
-    policies['trace_policies'] = {'tracing_app': {'layers': ['H', 'S', 'C', 'Church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant',
-                                                             'pub_bar', 'transport', 'national_parks', 'public_parks', 'large_events',
-                                                             'social'], # Layers which the app can target, excluding beach, child_care and aged_care
-                                                  'coverage': [0.05, 0.05], # app coverage at time in days
-                                                  'dates': [60, 90], # days when app coverage changes
-                                                  'trace_time': 0,
-                                                  'start_day': 60,
-                                                  'end_day': None}}
-    policies['policy_dates']['tracing_app'] = [policies['trace_policies']['tracing_app']['start_day']]
-
-    base_scenarios, baseline_policies = policy_changes.set_baseline(policies, pars, extra_pars, popdict)
-    torun = plot_scenarios.plot_scenarios('1',extra_pars)
-    scenarios, scenario_policies = policy_changes.create_scens(torun, policies, baseline_policies, base_scenarios, pars, extra_pars, popdict)
-
-    # scenarios = {k:v for k,v in scenarios.items() if k == 'Full relaxation'}
-
-    for scenario in scenarios.values():
-        scenario['pars']['interventions'].append(utils.SeedInfection({61:1}))
+import contacts as co
+import data
+import parameters
+import policy_updates
+import sciris as sc
+import utils
 
 
-    if 'gen_results' in todo:
-        for i, (scen_name, scen) in enumerate(scenarios.items()):
-            scens = cv.Scenarios(sim=sim, basepars=pars, metapars=metapars, scenarios={scen_name:scen})
-            scens.run(verbose=verbose, debug=False, par_args={'ncpus':ncpus})
-            scens.save(f'susceptibility_{i}.scen')
-        raise Exception('Results complete')
-    else:
-        sims = {}
-        for i, (scen_name, scen) in enumerate(tqdm.tqdm(scenarios.items())):
-            scens = cv.Scenarios.load(f'susceptibility_{i}.scen')
-            sims[scen_name] = scens.sims[scen_name]
+def get_sim(location: str, db_name: str, epi_name: str, all_lkeys: list, dynamic_lkeys: list, user_pars: dict, metapars: dict):
+    """
+    Produce a cv.Sim for a given location
 
-    # Susceptibility distribution plots
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import scipy.stats as stats
-    import textwrap
+    This loads the calibration and parameters from the db file and creates a `cv.Sim` instance. No policy interventions are
+    loaded or otherwise created. However, the dynamic contact layer intervention is created by this routine as it is
+    an intrinsic attribute of the dynamic contact layers specified in `dynamic_lkeys`.
 
-    def positive_kde(vals,npts=100):
-        value_range = (vals.min(), vals.max())
-        kernel = stats.gaussian_kde(np.concatenate([vals.ravel(),-vals.ravel()]))
-        x = np.linspace(*value_range, npts)
-        y = 2*kernel(x)
-        return x,y
+    Args:
+        location: Name of a supported location e.g. 'Victoria'
+        db_name: Name of databook. Must be contained in 'data' folder relative to `utils.py` i.e. `./utils.py` implies `./data/{db_name}.xlsx`. Example would be `db_name='input_data_Australia'`
+        epi_name: Name of epi data.  Must be contained in 'data' folder relative to `utils.py` i.e. `./utils.py` implies `./data/{epi_name}.csv`. Example would be `epi_name='epi_data_Australia'`
+        all_lkeys: List of all contact layers. Dynamic contact layers in `dynamic_lkeys` should also appear in this list
+        dynamic_lkeys: List of contact layer names that need to be dynamically updated via an Intervention (also created by this function)
+        user_pars: Some parameters that end up somewhere in cv.Sim.pars
+        metapars: Some parameters that end up somewhere in cv.Sim.pars
+
+    Returns: A cv.Sim object
+
+    """
+
+    assert set(dynamic_lkeys).issubset(all_lkeys), 'Some dynamic layers names do not appear in the list of all contact layers'
+
+    # return data relevant to each specified location in "locations"
+    user_pars, calibration_end = utils.clean_pars(user_pars, [location])
+
+    # return data relevant to each specified location in "locations"
+    all_data = data.read_data(locations=[location],
+                              db_name=db_name,
+                              epi_name=epi_name,
+                              all_lkeys=all_lkeys,
+                              dynamic_lkeys=dynamic_lkeys,
+                              calibration_end=calibration_end)
+
+    loc_data = all_data[location]
+    loc_pars = user_pars[location]
+
+    # setup parameters object for this simulation
+    params = parameters.setup_params(location=location,
+                                     loc_data=loc_data,
+                                     metapars=metapars,
+                                     user_pars=loc_pars)
+
+    #people, popdict = co.make_people(params)
+
+    # setup simulation for this location
+    sim = cv.Sim(pars=params.pars,
+                 datafile=None,
+                 pop_size=params.pars['pop_size'])
+
+    # The UpdateNetworks 'intervention' is actually the implementation of random networks without any perturbations to connectivity
+    # Therefore, we should create this intervention at this point at the same time as the layers are defined since it doesn't depend
+    # on or specify any scenarios
+    sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=dynamic_lkeys, contact_numbers=params.pars['contacts'], popdict=popdict))
+
+    sim.initialize()
+
+    return sim, params
 
 
+def get_victoria_sim(n_runs: int = 2, n_days: int = 20, pop_infected: int = 1, pop_size: int = 1e4):
+    """
+    Produce a cv.Sim for Victoria with no policies
 
-    del scenarios['Full relaxation']
+    This function loads Victoria parameters and returns a `cv.Sim` suitable for running outbreak scenarios
 
-    p_less_than_50 = []
-    p_less_than_100 = []
-    labels = []
+    Args:
+        n_runs: Number of simulations to perform (with different seeds)
+        n_days: Number of days of simulate
+        pop_infected: Number of seed infections (default=1)
+        pop_size: Number of people in simulation (default=1e4) - should be much larger than the number of infections in the outbreak
+                  (so for example it would need to be bigger if `n_days` is large)
+
+    Returns:
+        A cv.Sim for Victoria
+
+    """
+
+    # INPUT SPECIFICATION
+    location = 'Victoria'  # the list of locations for this analysis
+    db_name = 'input_data_Australia'  # the name of the databook
+    epi_name = 'epi_data_Australia'
+
+    all_lkeys = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'beach', 'entertainment', 'cafe_restaurant', 'pub_bar',
+                 'transport', 'national_parks', 'public_parks', 'large_events', 'child_care', 'social', 'aged_care']
+    dynamic_lkeys = ['C', 'beach', 'entertainment', 'cafe_restaurant', 'pub_bar',
+                     'transport', 'national_parks', 'public_parks', 'large_events']  # layers which update dynamically (subset of all_lkeys)
+
+    user_pars = {location: {'pop_size': int(pop_size),
+                            'pop_infected': pop_infected,
+                            'pop_scale': 1,
+                            'rescale': 0,
+                            'beta': 0.065,  # TODO - check where this value came from
+                            'n_days': n_days,
+                            'calibration_end': None}}
+
+    metapars = {'n_runs': n_runs,
+                'noise': 0.0,
+                'verbose': 1,
+                'rand_seed': 1}
+
+    utils.set_rand_seed(metapars)  # Set the seed in the main process before constructing the sim and scenario
+    sim, params = get_sim(location, db_name, epi_name, all_lkeys, dynamic_lkeys, user_pars, metapars)
+    return sim, params
 
 
-    for scen_name in scenarios.keys():
-        vals = np.array([x.results['cum_infections'][-1] for x in sims[scen_name]])
-        p_less_than_50.append(sum(vals<50)/len(vals))
-        p_less_than_100.append(sum(vals<100)/len(vals))
+def run_victoria_scen(scen_name: str, scen_policies: list, sim: cv.Sim, params: parameters.Parameters, ncpus: int = 2) -> cv.Scenarios:
+    """
+    Run Victoria outbreak scenario
 
-    idx = np.argsort(p_less_than_100)[::-1]
-    p_gt_50 = 1-np.array(p_less_than_50)
-    p_gt_100 = 1-np.array(p_less_than_100)
-    ind = np.arange(len(idx))  # the x locations for the groups
-    width = 0.5  # the width of the bars: can also be len(x) sequence
-    plt.style.use('default')
-    fig, ax = plt.subplots()
-    p1 = plt.bar(ind, p_gt_50[idx]-p_gt_100[idx],width, bottom=p_gt_100[idx], label='> 50', color='b')
-    p2 = plt.bar(ind, p_gt_100[idx], width, label='> 100', color='r')
-    plt.ylabel('Probability')
-    plt.title('Probability of outbreak size')
-    wrapped_labels = np.array(['\n'.join(textwrap.wrap(x.capitalize(),20)) for x in scenarios.keys()])
-    plt.xticks(ind, wrapped_labels[idx],rotation=0)
-    plt.legend()
-    plt.show()
-    fig.set_size_inches(16, 7)
-    fig.savefig('probability_bars.png', bbox_inches='tight', dpi=300, transparent=False)
+    This function
+    - Creates a Sim for Victoria with zero infections and no active policies
+    - Turns on the policies specified in the input to this function
+    - Seeds 1 infection on day 1
+    - Runs up to `n_days` with as many runs as specified in this function input
+    - Returns the `cv.Scenarios` object containing the results
 
-    # Boxplot of infection size
-    records = []
-    for scen_name in scenarios.keys():
-        for sim in sims[scen_name]:
-            infections = sim.results['cum_infections'][-1]
-            doubling_time = sim.results['doubling_time'][-21:-7].mean()
-            records.append((scen_name,infections, doubling_time))
-    df = pd.DataFrame.from_records(records, columns=['Scenario','Infections','Doubling time'],index='Scenario')
+    Args:
+        scen_name: The name to assign to this scenario
+        scen_policies: A list of active policies e.g. ['lockdown', 'beach0', 'beach2',...]
+        sim: A `cv.Sim` (would usually be produced by `get_sim()`
+        params: `covasim-australia` `Parameters` instance (would usually be produced by `get_sim()`
+        ncpus: How many CPUs to use during parallel execution
 
-    data = []
-    for scen in scenarios.keys():
-        data.append(df.loc[scen,'Infections'].values)
-    fig, ax = plt.subplots()
-    ax.boxplot(data, showfliers=False)
-    wrapped_labels = np.array(['\n'.join(textwrap.wrap(x.capitalize(),20)) for x in scenarios.keys()])
+    Returns: A `cv.Scenarios` instance with completed simulation results
 
-    plt.xticks(1+np.arange(len(scenarios)), wrapped_labels)
-    plt.title('Infection size after 30 days')
-    fig.set_size_inches(16, 7)
-    fig.savefig('infection_size.png', bbox_inches='tight', dpi=300, transparent=False)
+    """
+
+    # INITIALIZE INTERVENTIONS
+    interventions = []
+
+    # SET BETA POLICIES
+    beta_schedule = policy_updates.PolicySchedule(params.pars["beta_layer"], params.policies['beta_policies'])  # create policy schedule with beta layer adjustments
+    for policy in scen_policies:
+        if policy in beta_schedule.policies:
+            print(f'Adding beta policy {policy}')
+            beta_schedule.start(policy, 0)
+    interventions.append(beta_schedule)
+
+    # SET TESTING
+    interventions.append(cv.test_num(daily_tests=params.extrapars["future_daily_tests"],
+                                     symp_test=params.extrapars['symp_test'],
+                                     quar_test=params.extrapars['quar_test'],
+                                     sensitivity=params.extrapars['sensitivity'],
+                                     test_delay=params.extrapars['test_delay'],
+                                     loss_prob=params.extrapars['loss_prob']))
+
+    # SET TRACING
+    interventions.append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
+                                            trace_time=params.extrapars['trace_time'],
+                                            start_day=0))
+    tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
+    if tracing_app is not None:
+        interventions.append(tracing_app)
+    if id_checks is not None:
+        interventions.append(id_checks)
+
+    # SET CLIPPING POLICIES
+    for policy, clip_attributes in params.policies['clip_policies'].items():
+        if policy in scen_policies:
+            print(f'Adding clipping policy {policy}')
+            interventions.append(cv.clip_edges(days=0,
+                                               layers=clip_attributes['layers'],
+                                               changes=clip_attributes['change']))
+
+    # CREATE AND RUN cv.Scenarios OBJECT
+    scenarios = {}
+    scenarios[scen_name] = {'name': scen_name,
+                            'pars': {'interventions': interventions}
+                            }
+    cova_scen = cv.Scenarios(sim=sim,
+                             metapars=params.metapars,
+                             scenarios=scenarios)
+    cova_scen.run(keep_people=True, verbose=0, par_args={'ncpus': ncpus})
+
+    return cova_scen
+
+
+if __name__ == '__main__':
+
+    n_cpus = 2
+    n_runs = 10
+    n_days = 21
+
+    rootdir = Path(__file__).parent
+
+    # Read the packages file
+    packages = pd.read_excel(rootdir/'policy_packages.xlsx',index_col=0)
+    packages = packages.T
+    packages = packages.to_dict(orient='index')
+    packages = {name:[policy for policy, active in package.items() if not pd.isnull(active)] for name, package in packages.items()}
+
+    with sc.Timer(label='Create sim') as t:
+        sim, params = get_victoria_sim(n_runs=n_runs, n_days=n_days)
+
+    for name, policies in packages.items():
+        with sc.Timer(label=f'Scenario "{name}"') as t:
+            cova_scen = run_victoria_scen(name, policies, sim, params, n_cpus)
+            cova_scen.save(rootdir/f'{name}.scen')
