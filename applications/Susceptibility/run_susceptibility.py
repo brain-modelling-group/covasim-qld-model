@@ -11,6 +11,7 @@ import sciris as sc
 import utils
 import functools
 import numpy as np
+import sys
 
 from covasim import misc
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
@@ -74,8 +75,13 @@ def run_australia_outbreak(seed, params, scen_policies):
 
 if __name__ == '__main__':
 
-    n_cpus = 2
-    n_runs = 10
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ncpus',default=2,type=int)
+    args = parser.parse_args()
+    print(args)
+
+    n_runs = 200
     n_days = 31
     pop_size = 1e4
     pop_infected = 1 # Number of initial infections
@@ -134,7 +140,7 @@ if __name__ == '__main__':
         with sc.Timer(label=f'Scenario "{name}"') as t:
 
             sim_fcn = functools.partial(run_australia_outbreak, params=params, scen_policies=policies)
-            sims = sc.parallelize(sim_fcn, np.arange(n_runs))
+            sims = sc.parallelize(sim_fcn, np.arange(n_runs),ncpus=args.ncpus)
 
             sc.saveobj(rootdir/f'{name}.sims', sims)
             # cova_scen.save()
