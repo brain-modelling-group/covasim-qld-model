@@ -57,7 +57,8 @@ def load_australian_parameters(location:str='Victoria', pop_size:int=1e4, pop_in
                             'rescale': 0,
                             'beta': 0.065,  # TODO - check where this value came from
                             'n_days': n_days,
-                            'calibration_end': None}}
+                            'calibration_end': None,
+                            'verbose':0}}
 
     metapars = {'noise': 0.0,
                 'verbose': 0}
@@ -116,7 +117,8 @@ def run_australia_outbreak(seed:int, params:parameters.Parameters, scen_policies
     beta_schedule = policy_updates.PolicySchedule(params.pars["beta_layer"], params.policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for policy in scen_policies:
         if policy in beta_schedule.policies:
-            print(f'Adding beta policy {policy}')
+            if sim['verbose']:
+                print( f'Adding beta policy {policy}')
             beta_schedule.start(policy, 0)
     sim.pars['interventions'].append(beta_schedule)
 
@@ -141,7 +143,8 @@ def run_australia_outbreak(seed:int, params:parameters.Parameters, scen_policies
     # SET CLIPPING POLICIES
     for policy, clip_attributes in params.policies['clip_policies'].items():
         if policy in scen_policies:
-            print(f'Adding clipping policy {policy}')
+            if sim['verbose']:
+                print(f'Adding clipping policy {policy}')
             sim.pars['interventions'].append(cv.clip_edges(days=0,
                                                layers=clip_attributes['layers'],
                                                changes=clip_attributes['change']))

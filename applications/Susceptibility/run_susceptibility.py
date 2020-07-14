@@ -1,59 +1,63 @@
-from pathlib import Path
-
-import covasim as cv
-import pandas as pd
-
-import contacts as co
-import data
-import parameters
-import policy_updates
-import sciris as sc
-import utils
-import functools
-import numpy as np
 import sys
 
-from covasim import misc
-misc.git_info = lambda: None  # Disable this function to increase performance slightly
+sys.path.append('../../')
 
+from pathlib import Path
+import outbreak
+from outbreak.celery import run_australia_outbreak
+from celery import group
+import sciris as sc
+from tqdm import tqdm
+import time
 
-if __name__ == '__main__':
+# Add argument for number of runs
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--nruns', default=10, type=int)
+parser.add_argument('--celery', default=False, type=bool)
+args = parser.parse_args()
 
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--ncpus',default=2,type=int)
-    args = parser.parse_args()
-    print(args)
+# Set up results directory
+resultdir = Path(__file__).parent / 'results'
+resultdir.mkdir(parents=True, exist_ok=True)
 
-    n_runs = 2
-    n_days = 31
-    pop_size = 1e4
-    pop_infected = 1 # Number of initial infections
-    rootdir = Path(__file__).parent
+# Load inputs
+packages = outbreak.load_packages()
+params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, pop_infected=1, n_days=31)
 
+use_celery = True
 
+for name, policies in packages.items():
 
-    for name, policies in packages.items():
-        with sc.Timer(label=f'Scenario "{name}"') as t:
+    if args.celery:
+        # Run simulations using celery
+        job = group([run_australia_outbreak.s(i, params, policies) for i in range(args.nruns)])
+        result = job.apply_async()
 
-            sim_fcn = functools.partial(run_australia_outbreak, params=params, scen_policies=policies)
+        with tqdm(total=args.nruns, desc=name) as pbar:
+            while result.completed_count() < args.nruns:
+                time.sleep(1)
+                pbar.n = result.completed_count()
+                pbar.refresh()
+            pbar.n = result.completed_count()
+            pbar.refresh()
+        sims = result.join()
 
-            print('Running simulations...')
-            sims = sc.parallelize(sim_fcn, np.arange(n_runs),ncpus=args.ncpus)
-            print('Saving output...')
+    else:
+        sims = []
+        for i in tqdm(range(args.nruns), desc=name):
+            sims.append(run_australia_outbreak(i, params, policies))
 
-            # sc.saveobj(rootdir/f'{name}.sims', sims)
-            # cova_scen.save()
+    # Process and save outputs
+    keep = [
+        'cum_infections',
+        'cum_diagnoses',
+        'cum_deaths',
+        'cum_quarantined',
+    ]
 
-            keep = [
-                'cum_infections',
-                'cum_diagnoses',
-                'cum_deaths',
-                'cum_quarantined',
-            ]
+    sim_stats = {}
+    for quantity in keep:
+        sim_stats[quantity] = [sim.results[quantity][-1] for sim in sims]
 
-            sim_stats = {}
-            for quantity in keep:
-                sim_stats[quantity] = [sim.results[quantity][-1] for sim in sims]
-
-            sc.saveobj(rootdir/f'{name}.stats', sim_stats)
+    sc.saveobj(resultdir / f'{name}.stats', sim_stats)
