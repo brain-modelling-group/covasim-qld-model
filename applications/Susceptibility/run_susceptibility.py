@@ -41,23 +41,11 @@ for name, policies in packages.items():
                 pbar.refresh()
             pbar.n = result.completed_count()
             pbar.refresh()
-        sims = result.join()
+        sim_stats = result.join()
 
     else:
-        sims = []
+        sim_stats = []
         for i in tqdm(range(args.nruns), desc=name):
-            sims.append(run_australia_outbreak(i, params, policies))
-
-    # Process and save outputs
-    keep = [
-        'cum_infections',
-        'cum_diagnoses',
-        'cum_deaths',
-        'cum_quarantined',
-    ]
-
-    sim_stats = {}
-    for quantity in keep:
-        sim_stats[quantity] = [sim.results[quantity][-1] for sim in sims]
+            sim_stats.append(run_australia_outbreak(i, params, policies))
 
     sc.saveobj(resultdir / f'{name}.stats', sim_stats)
