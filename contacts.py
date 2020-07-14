@@ -257,7 +257,7 @@ def make_contacts(params):
     # random community contacts
     key = 'C'
     com_no = n_contacts[key]
-    c_contacts = random_contacts(ages, com_no)
+    c_contacts = random_contacts(ages, com_no)  # TODO: need to fix this so that people with age 0 are included in the contacts
     contacts[key] = c_contacts
 
     # Custom layers: those that are not households, work, school or community
