@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # country-specific parameters
     user_pars = {'WC': {'pop_size': int(10e4),
                         'beta': 0.085,
-                        'n_days': 110,
+                        'n_days': 150,
                         'calibration_end': '2020-05-20'}}
 
     # the metapars for all countries and scenarios
