@@ -91,12 +91,13 @@ def random_long_tail_contacts(include, mean_contacts_per_person, array_output: b
     include_inds = np.nonzero(include)[0].astype(cvd.default_int) # These are the indexes (person IDs) of people in the layer
     n_people = len(include_inds)
 
-    # estimate number of contacts for each person. REPLACE WITH NEG BINOM DIST?
-    c = np.round(np.random.normal(mean_contacts_per_person, 2, n_people))
+    # estimate number of contacts for each person.
+    variance = 1.1
+    c = np.round(np.random.negative_binomial(mean_contacts_per_person *mean_contacts_per_person / (variance - mean_contacts_per_person),
+        (variance - mean_contacts_per_person)/variance, n_people))
     c[c < 0] = 0
     c = c.astype(np.int)
     source = np.empty((0))
-    target = np.empty((0))
     for i in range(n_people):
         source = np.append(source, include_inds[i]*c[i]) # where edges start from (each person include_inds[i], has c[i] edges)
     target = np.random.shuffle(source) # the edges all go to another person, but the number of edges for each person must be the same

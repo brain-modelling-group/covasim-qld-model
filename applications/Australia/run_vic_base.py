@@ -39,8 +39,8 @@ if __name__ == "__main__":
                                            'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
                                                                 'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
                                            'policies': {'lockdown_relax': {'beta': 0.8},
-                                                        'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.99},
-                                                        'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.99}}
+                                                        'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.7},
+                                                        'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.7}}
                                                         },
                                  '2 week lockdown': {'replace': (['lockdown', 'pub_bar0','cafe_restaurant0','outdoor2','church0'],
                                                            [['lockdown_relax', 'lockdown_2', 'lockdown_2_exit'],
