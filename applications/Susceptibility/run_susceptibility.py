@@ -42,6 +42,7 @@ for name, policies in packages.items():
             pbar.n = result.completed_count()
             pbar.refresh()
         sim_stats = result.join()
+        result.forget()
 
     else:
         sim_stats = []
