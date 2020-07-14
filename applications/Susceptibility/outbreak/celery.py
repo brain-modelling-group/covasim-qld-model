@@ -4,10 +4,13 @@ import outbreak
 
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
 
+import os
+broker = os.getenv('COVID_REDIS_URL','redis://127.0.0.1:6379')
+
 # Create celery app
 celery = Celery('outbreak')
-celery.conf.broker_url = "redis://127.0.0.1:6379"
-celery.conf.result_backend = "redis://127.0.0.1:6379"
+celery.conf.broker_url = broker
+celery.conf.result_backend = broker
 celery.conf.task_default_queue = 'outbreak'
 celery.conf.accept_content = ['pickle']
 celery.conf.task_serializer = 'pickle'

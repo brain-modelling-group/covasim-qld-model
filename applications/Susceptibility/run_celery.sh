@@ -2,5 +2,5 @@
 
 COVADIR="$(dirname $(dirname $(dirname $(realpath $0))))"
 export PYTHONPATH="${PYTHONPATH}:${COVADIR}"
-
-celery -A outbreak.celery worker -l info -Q outbreak
+export COVID_REDIS_URL="redis://apollo:6379"
+celery -A outbreak.celery worker -l info -Q outbreak --concurrency=16
