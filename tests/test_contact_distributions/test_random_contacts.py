@@ -7,11 +7,8 @@ import sciris as sc
 from contacts import random_contacts
 
 
-def make_distribution(size=100000):
-
-    include = np.random.choice([0, 1], size=size, replace=True)
-    mean_number_contacts = 10
-
+def make_distribution(size=10000, mean_number_contacts=10):
+    include = [1]*size
     contacts = random_contacts(include, mean_number_contacts)
 
     return contacts
