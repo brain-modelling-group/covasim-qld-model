@@ -10,58 +10,93 @@ import sciris as sc
 
 resultsdir = Path(__file__).parent/'results'
 
-
-stats = {}
+# LOAD DATA INTO DATAFRAME
+records = []
 for statsfile in filter(lambda x: x.suffix=='.stats',resultsdir.iterdir()):
     print(f'Loading "{statsfile.stem}"')
-    stats[statsfile.stem] = sc.loadobj(statsfile)
+    # stats[statsfile.stem] = sc.loadobj(statsfile)
+    stats = sc.loadobj(statsfile)
+    for d in stats:
+        d['package'] = statsfile.stem
+    records += stats
+df = pd.DataFrame.from_records(records)
 
-stats = pd.DataFrame(stats).T
+packages = df.loc[~df['package'].str.startswith('p_'),:]
+policies = df.loc[df['package'].str.startswith('p_'),:]
 
-p_less_than_50 = []
-p_less_than_100 = []
-labels = []
-
-for scen_name in stats.index:
-    vals = np.array(stats.at[scen_name,'cum_infections'])
-    p_less_than_50.append(sum(vals < 50) / len(vals))
-    p_less_than_100.append(sum(vals < 100) / len(vals))
-
-
-idx = np.argsort(p_less_than_100)[::-1]
-p_gt_50 = 1 - np.array(p_less_than_50)
-p_gt_100 = 1 - np.array(p_less_than_100)
-ind = np.arange(len(idx))  # the x locations for the groups
-width = 0.5  # the width of the bars: can also be len(x) sequence
-plt.style.use('default')
+# CRITICAL INFECTION SIZE BAR PLOT
 fig, ax = plt.subplots()
-p1 = plt.bar(ind, p_gt_50[idx] - p_gt_100[idx], width, bottom=p_gt_100[idx], label='> 50', color='b')
-p2 = plt.bar(ind, p_gt_100[idx], width, label='> 100', color='r')
-plt.ylabel('Probability')
-plt.title('Probability of outbreak size')
-wrapped_labels = np.array(['\n'.join(textwrap.wrap(x.capitalize(), 20)) for x in stats.index])
-plt.xticks(ind, wrapped_labels[idx], rotation=0)
+order = None
+levels = {50:'#ffbfbf',100:'#ff8585',250:'#c90000'}
+for n, color in levels.items():
+    p = packages.groupby('package')['cum_infections'].agg(lambda x: sum(x > n)) / packages.groupby('package')['cum_infections'].count()
+    if order is None:
+        order = p.argsort()
+    p = p[order]
+    p.plot.barh(ax=ax,color=color,label=f'> {n}')
 plt.legend()
-plt.show()
+plt.ylabel(None)
+plt.xlabel('Probability')
+plt.xlim(0,1)
+ax.invert_yaxis()
+plt.title('Probability of outbreak size')
 fig.set_size_inches(16, 7)
 fig.savefig(resultsdir / 'probability_bars.png', bbox_inches='tight', dpi=300, transparent=False)
 
-# Boxplot of infection size
-records = []
-for scen_name in stats.index:
-    vals = stats.at[scen_name,'cum_infections']
-    for val in vals:
-        records.append((scen_name, val))
-df = pd.DataFrame.from_records(records, columns=['Scenario', 'Infections'], index='Scenario')
-
+# BOXPLOT OF INFECTION SIZE
 fig, ax = plt.subplots()
-grouped = df.reset_index().groupby(['Scenario'])
-df2 = pd.DataFrame({col:vals['Infections'] for col,vals in grouped})
+grouped = packages.reset_index().groupby(['package'])
+df2 = pd.DataFrame({col:vals['cum_infections'] for col,vals in grouped})
 means = df2.mean()
 means.sort_values(ascending=True, inplace=True)
 df2 = df2[means.index]
 df2.boxplot()
 fig.set_size_inches(16, 7)
+plt.ylabel('Total number of infections')
 fig.savefig(resultsdir / 'infection_size.png', bbox_inches='tight', dpi=300, transparent=False)
 
+# EFFECTIVENESS OF EACH POLICY
+fig, ax = plt.subplots()
+baseline = packages.groupby('package').mean().loc['No policies']
+mean_outcome = policies.groupby('package').mean()
+reduction = 100*(baseline-mean_outcome)/baseline
+reduction = reduction.sort_values(by='cum_infections')
+reduction['cum_infections'].plot.barh()
+plt.title('Relative impact of individual policies')
+fig.set_size_inches(14, 10)
+plt.xlabel('Reduction in average outbreak size (%)')
+plt.axvline(0,color='k')
+fig.savefig(resultsdir / 'individual_policies.png', bbox_inches='tight', dpi=300, transparent=False)
 
+# PROBABILITY OF CONTAINING INFECTION WITHIN 30 DAYS
+contained = 0.8*packages.set_index('package')['peak_infections']>packages.set_index('package')['active_infections']
+p = contained.groupby('package').sum()/contained.groupby('package').count()
+p = p.sort_values()
+fig, ax = plt.subplots()
+p.plot.barh()
+plt.ylabel(None)
+plt.xlabel('Probability')
+plt.xlim(0,1)
+ax.invert_yaxis()
+plt.title('Probability of containing outbreak without policy change')
+fig.set_size_inches(16, 7)
+fig.savefig(resultsdir / 'containment_probability.png', bbox_inches='tight', dpi=300, transparent=False)
+
+# ACTIVE INFECTION CONTACT TRACING LIMITS
+fig, ax = plt.subplots()
+order = None
+levels = {50:'#ffbfbf',100:'#ff8585',250:'#c90000'}
+for n, color in levels.items():
+    p = packages.groupby('package')['peak_infections'].agg(lambda x: sum(x > n)) / packages.groupby('package')['peak_infections'].count()
+    if order is None:
+        order = p.argsort()
+    p = p[order]
+    p.plot.barh(ax=ax,color=color,label=f'> {n}')
+plt.legend()
+plt.ylabel(None)
+plt.xlabel('Probability')
+plt.xlim(0,1)
+ax.invert_yaxis()
+plt.title('Probability of simultaneous active infections')
+fig.set_size_inches(16, 7)
+fig.savefig(resultsdir / 'tracing_capacity_probability.png', bbox_inches='tight', dpi=300, transparent=False)
