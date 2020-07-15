@@ -16,7 +16,8 @@ celery.conf.task_default_queue = 'outbreak'
 celery.conf.accept_content = ['pickle', 'json']
 celery.conf.task_serializer = 'pickle'
 celery.conf.result_serializer = 'json'
-
+celery.conf.worker_prefetch_multiplier = 1
+celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case they are faster
 
 @celery.task()
 def run_australia_outbreak(seed, params, scen_policies):
