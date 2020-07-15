@@ -9,8 +9,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['WC']
     # the name of the databook
-    db_name = 'input_data_sa'
-    epi_name = 'epi_data_sa'
+    db_name = 'input_data_sa_dd'
+    epi_name = 'epi_data_sa_dd'
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
@@ -18,13 +18,14 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'WC': {'pop_size': int(10e4),
-                        'beta': 0.085,
-                        'n_days': 150,
-                        'calibration_end': '2020-05-20'}}
+                        'beta': 0.095,
+                        'n_days': 130,
+                        'pop_infected': 25,
+                        'calibration_end': '2020-05-25'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0,
+    metapars = {'n_runs': 8,
+                'noise': 0.02,
                 'verbose': 1,
                 'rand_seed': 1}
 
@@ -58,14 +59,14 @@ if __name__ == "__main__":
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
-    cum_diag_calib_end1 = scens['scenarios']['WC'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][83]
-    cum_diag_calib_1week = scens['scenarios']['WC'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][90]
-    cum_diag_calib_2week = scens['scenarios']['WC'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][97]
-    cum_diag_calib_end2 = scens['scenarios']['WC'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][110]
-    cum_death_calib_end1 = scens['scenarios']['WC'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
-    cum_death_calib_1week = scens['scenarios']['WC'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][90]
-    cum_death_calib_2week = scens['scenarios']['WC'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][97]
-    cum_death_calib_end2 = scens['scenarios']['WC'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][110]
+    cum_diag_calib_end1 = scens['scenarios']['WC'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][81]
+    cum_diag_calib_1week = scens['scenarios']['WC'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][88]
+    cum_diag_calib_2week = scens['scenarios']['WC'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][95]
+    cum_diag_calib_end2 = scens['scenarios']['WC'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][130]
+    cum_death_calib_end1 = scens['scenarios']['WC'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][81]
+    cum_death_calib_1week = scens['scenarios']['WC'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][88]
+    cum_death_calib_2week = scens['scenarios']['WC'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][95]
+    cum_death_calib_end2 = scens['scenarios']['WC'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][130]
 
     workbook = xlsxwriter.Workbook('WC_validation.xlsx')
     worksheet = workbook.add_worksheet('Validation')
@@ -83,3 +84,4 @@ if __name__ == "__main__":
 
     worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
     workbook.close()
+
