@@ -25,8 +25,6 @@ resultdir.mkdir(parents=True, exist_ok=True)
 packages = outbreak.load_packages()
 params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, pop_infected=1, n_days=31)
 
-use_celery = True
-
 for name, policies in packages.items():
 
     if args.celery:
