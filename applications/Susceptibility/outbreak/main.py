@@ -1,5 +1,3 @@
-
-
 from pathlib import Path
 import covasim as cv
 import pandas as pd
@@ -12,6 +10,7 @@ import utils
 import functools
 import numpy as np
 import sys
+
 
 def load_packages() -> dict:
     """
@@ -28,8 +27,7 @@ def load_packages() -> dict:
     return packages
 
 
-def load_australian_parameters(location:str='Victoria', pop_size:int=1e4, pop_infected:int=1, n_days:int=31) -> parameters.Parameters:
-
+def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, pop_infected: int = 1, n_days: int = 31) -> parameters.Parameters:
     """
     Load Australian parameters
 
@@ -58,7 +56,7 @@ def load_australian_parameters(location:str='Victoria', pop_size:int=1e4, pop_in
                             'beta': 0.065,  # TODO - check where this value came from
                             'n_days': n_days,
                             'calibration_end': None,
-                            'verbose':0}}
+                            'verbose': 0}}
 
     metapars = {'noise': 0.0,
                 'verbose': 0}
@@ -85,20 +83,20 @@ def load_australian_parameters(location:str='Victoria', pop_size:int=1e4, pop_in
     return params
 
 
-def run_australia_outbreak(seed:int, params:parameters.Parameters, scen_policies:list) -> cv.Sim:
+def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_policies: list) -> cv.Sim:
     """
-    Run a single outbreak simulation
+    Produce outbreak simulation but don't run it
 
     Args:
         seed: Integer seed
         params: `Parameters` object (e.g. returned by `load_australian_parameters()`
         scen_policies: List of policies to use e.g. `['outdoor2','schools'] (should appear on the 'policies' sheet in the input data Excel file)
 
-    Returns: A `cv.Sim` instance, after execution
+    Returns: A `cv.Sim` instance, before execution
 
     """
 
-    utils.set_rand_seed({'seed':seed})  # Set the seed before constructing the people
+    utils.set_rand_seed({'seed': seed})  # Set the seed before constructing the people
 
     people, popdict = co.make_people(params)
 
@@ -118,22 +116,22 @@ def run_australia_outbreak(seed:int, params:parameters.Parameters, scen_policies
     for policy in scen_policies:
         if policy in beta_schedule.policies:
             if sim['verbose']:
-                print( f'Adding beta policy {policy}')
+                print(f'Adding beta policy {policy}')
             beta_schedule.start(policy, 0)
     sim.pars['interventions'].append(beta_schedule)
 
     # SET TESTING
     sim.pars['interventions'].append(cv.test_num(daily_tests=params.extrapars["future_daily_tests"],
-                                     symp_test=params.extrapars['symp_test'],
-                                     quar_test=params.extrapars['quar_test'],
-                                     sensitivity=params.extrapars['sensitivity'],
-                                     test_delay=params.extrapars['test_delay'],
-                                     loss_prob=params.extrapars['loss_prob']))
+                                                 symp_test=params.extrapars['symp_test'],
+                                                 quar_test=params.extrapars['quar_test'],
+                                                 sensitivity=params.extrapars['sensitivity'],
+                                                 test_delay=params.extrapars['test_delay'],
+                                                 loss_prob=params.extrapars['loss_prob']))
 
     # SET TRACING
     sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
-                                            trace_time=params.extrapars['trace_time'],
-                                            start_day=0))
+                                                        trace_time=params.extrapars['trace_time'],
+                                                        start_day=0))
     tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
     if tracing_app is not None:
         sim.pars['interventions'].append(tracing_app)
@@ -146,8 +144,62 @@ def run_australia_outbreak(seed:int, params:parameters.Parameters, scen_policies
             if sim['verbose']:
                 print(f'Adding clipping policy {policy}')
             sim.pars['interventions'].append(cv.clip_edges(days=0,
-                                               layers=clip_attributes['layers'],
-                                               changes=clip_attributes['change']))
+                                                           layers=clip_attributes['layers'],
+                                                           changes=clip_attributes['change']))
+
+    sim.run()
+    return sim
+
+
+def run_australia_outbreak(seed: int, params: parameters.Parameters, scen_policies: list) -> cv.Sim:
+    """
+    Run a single outbreak simulation
+
+    Args:
+        seed: Integer seed
+        params: `Parameters` object (e.g. returned by `load_australian_parameters()`
+        scen_policies: List of policies to use e.g. `['outdoor2','schools'] (should appear on the 'policies' sheet in the input data Excel file)
+
+    Returns: A `cv.Sim` instance, after execution
+
+    """
+
+    sim = get_australia_outbreak(seed, params, scen_policies)
+    sim.run()
+    return sim
+
+
+def run_australia_test_prob(seed: int, params: parameters.Parameters, scen_policies: list, symp_prob: float, asymp_quar_prob: float) -> cv.Sim:
+    """
+    Run sensitivity to testing probability
+
+    Args:
+        seed: Integer seed
+        params: `Parameters` object (e.g. returned by `load_australian_parameters()`
+        scen_policies: List of policies to use e.g. `['outdoor2','schools'] (should appear on the 'policies' sheet in the input data Excel file)
+        symp_prob: Probability of someone symptomatic in the community being tested. When prevalance is low, people may be complacent and assume
+                   their symptoms are not due to COVID. This probability would be manipulated by education and communication policies
+        asymp_quar_prob: Probability of someone asymptomatic in quarantine being tested. This is determined by quarantine policy and may be different
+                         for hotel quarantine vs self-isolation orders.
+    Returns: A `cv.Sim` instance, after execution
+
+    """
+
+    asymp_prob = 0.05  # Probability of someone asymptomatic in the community being tested
+    symp_quar_prob = 1.0  # Probability of someone symptomatic in quarantine being tested
+
+    sim = get_australia_outbreak(seed, params, scen_policies)
+
+    # Remove the testing intervention
+    sim.pars['interventions'] = [x for x in sim.pars['interventions'] if not isinstance(x, cv.test_num)]
+
+    # Add a test_prob intervention
+    sim.pars['interventions'].append(cv.test_prob(
+        symp_prob=symp_prob,
+        asymp_prob=asymp_prob,
+        symp_quar_prob=symp_quar_prob,
+        asymp_quar_prob=asymp_quar_prob,
+    ))
 
     sim.run()
     return sim
