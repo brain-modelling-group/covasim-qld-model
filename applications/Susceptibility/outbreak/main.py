@@ -97,6 +97,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     """
 
     utils.set_rand_seed({'seed': seed})  # Set the seed before constructing the people
+    params.pars['rand_seed'] = seed # Covasim resets the seed again internally during initialization...
 
     people, popdict = co.make_people(params)
 
@@ -147,7 +148,6 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
                                                            layers=clip_attributes['layers'],
                                                            changes=clip_attributes['change']))
 
-    sim.run()
     return sim
 
 
@@ -169,7 +169,7 @@ def run_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     return sim
 
 
-def run_australia_test_prob(seed: int, params: parameters.Parameters, scen_policies: list, symp_prob: float, asymp_quar_prob: float) -> cv.Sim:
+def run_australia_test_prob(seed: int, params: parameters.Parameters, scen_policies: list, symp_prob, asymp_prob, symp_quar_prob, asymp_quar_prob) -> cv.Sim:
     """
     Run sensitivity to testing probability
 
@@ -177,16 +177,10 @@ def run_australia_test_prob(seed: int, params: parameters.Parameters, scen_polic
         seed: Integer seed
         params: `Parameters` object (e.g. returned by `load_australian_parameters()`
         scen_policies: List of policies to use e.g. `['outdoor2','schools'] (should appear on the 'policies' sheet in the input data Excel file)
-        symp_prob: Probability of someone symptomatic in the community being tested. When prevalance is low, people may be complacent and assume
-                   their symptoms are not due to COVID. This probability would be manipulated by education and communication policies
-        asymp_quar_prob: Probability of someone asymptomatic in quarantine being tested. This is determined by quarantine policy and may be different
-                         for hotel quarantine vs self-isolation orders.
     Returns: A `cv.Sim` instance, after execution
 
     """
 
-    asymp_prob = 1.0  # Probability of someone asymptomatic in the community being tested
-    symp_quar_prob = 1.0  # Probability of someone symptomatic in quarantine being tested
 
     sim = get_australia_outbreak(seed, params, scen_policies)
 
