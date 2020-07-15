@@ -185,7 +185,7 @@ def run_australia_test_prob(seed: int, params: parameters.Parameters, scen_polic
 
     """
 
-    asymp_prob = 0.05  # Probability of someone asymptomatic in the community being tested
+    asymp_prob = 0.5  # Probability of someone asymptomatic in the community being tested
     symp_quar_prob = 1.0  # Probability of someone symptomatic in quarantine being tested
 
     sim = get_australia_outbreak(seed, params, scen_policies)
