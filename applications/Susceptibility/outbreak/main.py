@@ -44,10 +44,10 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
     db_name = 'input_data_Australia'  # the name of the databook
     epi_name = 'epi_data_Australia'
 
-    all_lkeys = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'beach', 'entertainment', 'cafe_restaurant', 'pub_bar',
-                 'transport', 'national_parks', 'public_parks', 'large_events', 'child_care', 'social', 'aged_care']
-    dynamic_lkeys = ['C', 'beach', 'entertainment', 'cafe_restaurant', 'pub_bar',
-                     'transport', 'national_parks', 'public_parks', 'large_events']  # layers which update dynamically (subset of all_lkeys)
+    all_lkeys = ['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
+                 'transport', 'public_parks', 'large_events', 'child_care', 'social']
+    dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
+                     'transport', 'public_parks', 'large_events']
 
     user_pars = {location: {'pop_size': int(pop_size),
                             'pop_infected': pop_infected,
