@@ -37,7 +37,7 @@ for i, symp_prob in enumerate(symp_probs):
 
         if args.celery:
             # Run simulations using celery
-            job = group([run_australia_test_prob.s(i, params, policies, symp_prob, asymp_quar_prob) for i in range(args.nruns)])
+            job = group([run_australia_test_prob.s(i, params, policies, symp_prob=symp_prob, asymp_prob=1, symp_quar_prob=1, asymp_quar_prob=asymp_quar_prob) for i in range(args.nruns)])
             result = job.apply_async()
 
             with tqdm(total=args.nruns, desc=f'{symp_prob}:{asymp_quar_prob}') as pbar:
