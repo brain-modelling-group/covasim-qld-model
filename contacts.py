@@ -97,18 +97,18 @@ def make_random_contacts(include, mean_number_of_contacts, dispersion=None, arra
         number_of_contacts = cvu.n_poisson(rate=mean_number_of_contacts, n=n_people)
     else:
         number_of_contacts = cvu.n_neg_binomial(rate=mean_number_of_contacts, dispersion=dispersion, n=n_people)
-    # number_of_contacts = np.array((number_of_contacts/2.0).round(), dtype=cvd.default_int)  # Does this need ot be halved?
 
-    total_number_of_contacts = sum(number_of_contacts)
-    target = include_inds[cvu.choose_r(max_n=n_people, n=total_number_of_contacts)]
+    total_number_of_half_edges = sum(number_of_contacts)
+    target = include_inds[cvu.choose_r(max_n=n_people, n=total_number_of_half_edges)]
 
     if array_output:
         count = 0
-        source = np.zeros(total_number_of_contacts).astype(dtype=cvd.default_int)
+        source = np.zeros(total_number_of_half_edges).astype(dtype=cvd.default_int)
         for i, person_id in enumerate(include_inds):
             n_contacts = number_of_contacts[i]
             source[count:count+n_contacts] = person_id
             count += n_contacts
+        target = np.random.shuffle(source)
 
         return source, target
 
