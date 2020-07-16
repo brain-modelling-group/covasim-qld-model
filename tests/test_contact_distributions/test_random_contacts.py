@@ -1,37 +1,37 @@
-# tests the distribution produced by the random_contacts() function
+# tests the distribution produced by the make_random_contacts() function
 
+from collections import Counter
+import contacts as co
 import matplotlib.pyplot as plt
 import numpy as np
 import sciris as sc
 
-from contacts import random_contacts
 
+def make_contacts(size=100000, mean_number_contacts=3, dispersion=None, array_output=False):
+    include = np.random.choice([0, 1], size=size)
 
-def make_distribution(size=10000, mean_number_contacts=10):
-    include = [1]*size
-    contacts = random_contacts(include, mean_number_contacts)
-
+    contacts = co.make_random_contacts(include, mean_number_contacts, dispersion, array_output)
     return contacts
 
 
-def get_number_of_contacts(contacts):
-    number_of_contacts = np.zeros(len(contacts.keys()))
-
-    for source, targets in contacts.items():
-        number_of_contacts[source] = len(targets)
-
-    return number_of_contacts
-
-
-def get_degree(contacts):
+def get_degree_from_dict(contacts):
     degree = [len(targets) for targets in contacts.values()]
     return degree
 
 
-def plot_degree_distribution(contacts, show=True, save=False, fig_path=None):
-    degree = get_degree(contacts)
+def get_degree_from_array(source):
+    degree_dict = Counter(source)  # degree is the number of times each occurs
+    degree = list(degree_dict.values())
+    return degree
 
-    plt.hist(degree)
+
+def plot_degree(contacts, array_output=True, bins=None, show=True, save=False, fig_path=None):
+    if array_output:
+        degree = get_degree_from_array(contacts)
+    else:
+        degree = get_degree_from_dict(contacts)
+
+    plt.hist(degree, bins=bins)
     plt.title("Degree distribution")
     plt.xlabel("Degree")
     plt.ylabel("Count")
@@ -44,8 +44,13 @@ def plot_degree_distribution(contacts, show=True, save=False, fig_path=None):
         plt.show()
     return
 
+### Examples of testing
 
-contacts = make_distribution()
+contacts = make_contacts()
+bins = np.linspace(0, 20, 20)
+plot_degree(contacts, bins=bins)
 
-plot_degree_distribution(contacts)
+source, target = make_contacts(array_output=True)
+bins = np.linspace(0, 20, 20)
+plot_degree(source, bins=bins, array_output=True)
 
