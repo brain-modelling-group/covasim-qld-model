@@ -1,6 +1,8 @@
 import user_interface as ui
 import utils
 import os
+from datetime import date, timedelta
+import pandas as pd
 
 dirname = os.path.dirname(__file__)
 import xlsxwriter
@@ -19,9 +21,17 @@ if __name__ == "__main__":
     # country-BHecific parameters
     user_pars = {'WC': {'pop_size': int(10e4),
                         'beta': 0.095,
-                        'n_days': 300,
+                        'n_days': 310,
                         'pop_infected': 25,
                         'calibration_end': '2020-07-14'}}
+
+    mid_july = 132 # make this the key date
+    mid_aug = mid_july + 31
+    mid_sep = mid_aug + 31
+    end_oct = mid_sep + 46
+    mid_nov = end_oct + 15
+    end_dec = mid_nov + 46
+
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
@@ -32,23 +42,23 @@ if __name__ == "__main__":
     # the policies to change during scenario runs
     # scen_opts = {'BH': {'No changes to current lockdown restrictions':
     scen_opts = {'WC': {'New restrictions enforced mid-July small effect, eased mid-August':
-                            {'replace': (['lockdown_s3_v2'], [['relax1']], [[163]]),
+                            {'replace': (['lockdown_s3_v2'], [['relax1']], [[mid_aug]]),
                              'policies': {'relax1': {'beta': 0.3}}},
 
                         'New restrictions enforced mid-July moderate effect, eased mid-August':
-                            {'replace': (['lockdown_s3_v2'], [['relax2']], [[163]]),
+                            {'replace': (['lockdown_s3_v2'], [['relax2']], [[mid_aug]]),
                              'policies': {'relax2': {'beta': 0.4}}},
 
                         'New restrictions enforced mid-July small effect, eased mid-September':
-                            {'replace': (['lockdown_s3_v2'], [['relax1']], [[194]]),
+                            {'replace': (['lockdown_s3_v2'], [['relax1']], [[mid_sep]]),
                              'policies': {'relax1': {'beta': 0.3}}},
 
                         'New restrictions enforced mid-July moderate effect, eased mid-September':
-                            {'replace': (['lockdown_s3_v2'], [['relax2']], [[194]]),
+                            {'replace': (['lockdown_s3_v2'], [['relax2']], [[mid_sep]]),
                              'policies': {'relax2': {'beta': 0.4}}},
 
                         'New restrictions moderate effect, never released':
-                            {'replace': (['lockdown4'], [['lockdown4']], [[300]]),
+                            {'replace': (['lockdown4'], [['lockdown4']], [[310]]),
                              'policies': {'lockdown4': {'beta': 0.2}}}}}
 
     # set up the scenarios
@@ -86,93 +96,93 @@ if __name__ == "__main__":
     new_inf_LB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections']['New restrictions moderate effect, never released'][
             'best'][
-        194:240])
+        mid_sep:end_oct])
     new_diag_LB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses']['New restrictions moderate effect, never released'][
             'best'][
-        194:240])
+        mid_sep:end_oct])
     cum_inf_LB_sep_oct = \
         scens['scenarios'][locations[0]].results['cum_infections']['New restrictions moderate effect, never released'][
-            'best'][240]
-    incidence_LB_sep_oct = 100 * new_inf_LB_sep_oct * 30 / (240 - 194) / population
-    detected_LB_sep_oct = 100 * new_diag_LB_sep_oct * 30 / (240 - 194) / population
+            'best'][end_oct]
+    incidence_LB_sep_oct = 100 * new_inf_LB_sep_oct * 30 / (end_oct - mid_sep) / population
+    detected_LB_sep_oct = 100 * new_diag_LB_sep_oct * 30 / (end_oct - mid_sep) / population
     seroprev_LB_sep_oct = cum_inf_LB_sep_oct / population
 
     new_inf_LB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_infections']['New restrictions moderate effect, never released'][
             'best'][
-        241:285])
+        mid_nov:end_dec])
     new_diag_LB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses']['New restrictions moderate effect, never released'][
             'best'][
-        241:285])
+        mid_nov:end_dec])
     cum_inf_LB_nov_dec = \
         scens['scenarios'][locations[0]].results['cum_infections']['New restrictions moderate effect, never released'][
-            'best'][285]
-    incidence_LB_nov_dec = 100 * new_inf_LB_nov_dec * 30 / (285 - 241) / population
-    detected_LB_nov_dec = 100 * new_diag_LB_nov_dec * 30 / (285 - 241) / population
+            'best'][end_dec]
+    incidence_LB_nov_dec = 100 * new_inf_LB_nov_dec * 30 / (end_dec - mid_nov) / population
+    detected_LB_nov_dec = 100 * new_diag_LB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_LB_nov_dec = cum_inf_LB_nov_dec / population
 
     # Mid Bound: small change mid- July
     new_inf_MB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
             'New restrictions enforced mid-July moderate effect, eased mid-August']['best'][
-        194:240])
+        mid_sep:end_oct])
     new_diag_MB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
             'New restrictions enforced mid-July moderate effect, eased mid-August']['best'][
-        194:240])
+        mid_sep:end_oct])
     cum_inf_MB_sep_oct = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'New restrictions enforced mid-July moderate effect, eased mid-August']['best'][240]
-    incidence_MB_sep_oct = 100 * new_inf_MB_sep_oct * 30 / (240 - 194) / population
-    detected_MB_sep_oct = 100 * new_diag_MB_sep_oct * 30 / (240 - 194) / population
+            'New restrictions enforced mid-July moderate effect, eased mid-August']['best'][end_oct]
+    incidence_MB_sep_oct = 100 * new_inf_MB_sep_oct * 30 / (end_oct - mid_sep) / population
+    detected_MB_sep_oct = 100 * new_diag_MB_sep_oct * 30 / (end_oct - mid_sep) / population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct / population
 
     new_inf_MB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
             'New restrictions enforced mid-July moderate effect, eased mid-August']['best'][
-        241:285])
+        mid_nov:end_dec])
     new_diag_MB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
             'New restrictions enforced mid-July moderate effect, eased mid-August']['best'][
-        241:285])
+        mid_nov:end_dec])
     cum_inf_MB_nov_dec = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'New restrictions enforced mid-July moderate effect, eased mid-August']['best'][285]
-    incidence_MB_nov_dec = 100 * new_inf_MB_nov_dec * 30 / (285 - 241) / population
-    detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (285 - 241) / population
+            'New restrictions enforced mid-July moderate effect, eased mid-August']['best'][end_dec]
+    incidence_MB_nov_dec = 100 * new_inf_MB_nov_dec * 30 / (end_dec - mid_nov) / population
+    detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec / population
 
     # Upper Bound: moderate change mid-August
     new_inf_UB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
             'New restrictions enforced mid-July small effect, eased mid-August']['best'][
-        194:240])
+        mid_sep:end_oct])
     new_diag_UB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
             'New restrictions enforced mid-July small effect, eased mid-August']['best'][
-        194:240])
+        mid_sep:end_oct])
     cum_inf_UB_sep_oct = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'New restrictions enforced mid-July small effect, eased mid-August']['best'][240]
-    incidence_UB_sep_oct = 100 * new_inf_UB_sep_oct * 30 / (240 - 194) / population
-    detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (240 - 194) / population
+            'New restrictions enforced mid-July small effect, eased mid-August']['best'][end_oct]
+    incidence_UB_sep_oct = 100 * new_inf_UB_sep_oct * 30 / (end_oct - mid_sep) / population
+    detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (end_oct - mid_sep) / population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct / population
 
     new_inf_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
             'New restrictions enforced mid-July small effect, eased mid-August']['best'][
-        241:285])
+        mid_nov:end_dec])
     new_diag_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
             'New restrictions enforced mid-July small effect, eased mid-August']['best'][
-        241:285])
+        mid_nov:end_dec])
     cum_inf_UB_nov_dec = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'New restrictions enforced mid-July small effect, eased mid-August']['best'][285]
-    incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (285 - 241) / population
-    detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (285 - 241) / population
+            'New restrictions enforced mid-July small effect, eased mid-August']['best'][end_dec]
+    incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (end_dec - mid_nov) / population
+    detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population
 
     projections = [
@@ -195,4 +205,76 @@ if __name__ == "__main__":
     ]
 
     worksheet.add_table('A1:X4', {'data': projections})
+    worksheet2 = workbook.add_worksheet('Daily projections')
+    sdate = date(2020, 7, 15)  # start date
+    edate = date(2020, 12, 31)  # end date
+
+    daily_inf_small_aug = scens['scenarios'][locations[0]].results['new_infections'][
+                              'New restrictions enforced mid-July small effect, eased mid-August'] \
+                              ['best'][mid_july:end_dec]
+    daily_death_small_aug = scens['scenarios'][locations[0]].results['new_deaths'][
+                                'New restrictions enforced mid-July small effect, eased mid-August'] \
+                                ['best'][mid_july:end_dec]
+    daily_diag_small_aug = scens['scenarios'][locations[0]].results['new_diagnoses'][
+                               'New restrictions enforced mid-July small effect, eased mid-August'] \
+                               ['best'][mid_july:end_dec]
+
+    daily_inf_mod_aug = scens['scenarios'][locations[0]].results['new_infections'][
+                            'New restrictions enforced mid-July moderate effect, eased mid-August'] \
+                            ['best'][mid_july:end_dec]
+    daily_death_mod_aug = scens['scenarios'][locations[0]].results['new_deaths'][
+                              'New restrictions enforced mid-July moderate effect, eased mid-August'] \
+                              ['best'][mid_july:end_dec]
+    daily_diag_mod_aug = scens['scenarios'][locations[0]].results['new_diagnoses'][
+                             'New restrictions enforced mid-July moderate effect, eased mid-August'] \
+                             ['best'][mid_july:end_dec]
+
+    daily_inf_small_sep = scens['scenarios'][locations[0]].results['new_infections'][
+                              'New restrictions enforced mid-July small effect, eased mid-September'] \
+                              ['best'][mid_july:end_dec]
+    daily_death_small_sep = scens['scenarios'][locations[0]].results['new_deaths'][
+                                'New restrictions enforced mid-July small effect, eased mid-September'] \
+                                ['best'][mid_july:end_dec]
+    daily_diag_small_sep = scens['scenarios'][locations[0]].results['new_diagnoses'][
+                               'New restrictions enforced mid-July small effect, eased mid-September'] \
+                               ['best'][mid_july:end_dec]
+
+    daily_inf_mod_sep = scens['scenarios'][locations[0]].results['new_infections'][
+                            'New restrictions enforced mid-July moderate effect, eased mid-September'] \
+                            ['best'][mid_july:end_dec]
+    daily_death_mod_sep = scens['scenarios'][locations[0]].results['new_deaths'][
+                              'New restrictions enforced mid-July moderate effect, eased mid-September'] \
+                              ['best'][mid_july:end_dec]
+    daily_diag_mod_sep = scens['scenarios'][locations[0]].results['new_diagnoses'][
+                             'New restrictions enforced mid-July moderate effect, eased mid-September'] \
+                             ['best'][mid_july:end_dec]
+
+    daily_inf_no_release = \
+    scens['scenarios'][locations[0]].results['new_infections']['New restrictions moderate effect, never released'] \
+        ['best'][mid_july:end_dec]
+    daily_death_no_release = \
+    scens['scenarios'][locations[0]].results['new_deaths']['New restrictions moderate effect, never released'] \
+        ['best'][mid_july:end_dec]
+    daily_diag_no_release = \
+    scens['scenarios'][locations[0]].results['new_diagnoses']['New restrictions moderate effect, never released'] \
+        ['best'][mid_july:end_dec]
+
+    daily_projections = [
+        ['Dates'] + [str(d) for d in pd.date_range(sdate, edate - timedelta(days=1), freq='d')],
+        ['New infections small release Aug'] + [int(val) for val in daily_inf_small_aug],
+        ['New infections moderate release Aug'] + [int(val) for val in daily_inf_mod_aug],
+        ['New infections small release Sep'] + [int(val) for val in daily_inf_small_sep],
+        ['New infections moderate release Sep'] + [int(val) for val in daily_inf_mod_sep],
+        ['New infections no release'] + [int(val) for val in daily_inf_no_release],
+        ['New deaths small release Aug'] + [int(val) for val in daily_death_small_aug],
+        ['New deaths moderate release Aug'] + [int(val) for val in daily_death_mod_aug],
+        ['New deaths small release Sep'] + [int(val) for val in daily_death_small_sep],
+        ['New deaths moderate release Sep'] + [int(val) for val in daily_death_mod_sep],
+        ['New deaths no release'] + [int(val) for val in daily_death_no_release],
+        ['New diagnoses small release Aug'] + [int(val) for val in daily_diag_small_aug],
+        ['New diagnoses moderate release Aug'] + [int(val) for val in daily_diag_mod_aug],
+        ['New diagnoses small release Sep'] + [int(val) for val in daily_diag_small_sep],
+        ['New diagnoses moderate release Sep'] + [int(val) for val in daily_diag_mod_sep],
+        ['New diagnoses no release'] + [int(val) for val in daily_diag_no_release]]
+    worksheet2.add_table('A1:FO17', {'data': daily_projections})
     workbook.close()
