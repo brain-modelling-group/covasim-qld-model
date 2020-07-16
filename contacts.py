@@ -148,7 +148,7 @@ def make_wcontacts(uids, ages, w_contacts):
     return work_co
 
 
-def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, pop_proportion, age_lb, age_ub):
+def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, dispersion, pop_proportion, age_lb, age_ub):
     contacts = {}
     for layer_key in custom_lkeys:
         cl_type = cluster_types[layer_key]
@@ -167,9 +167,8 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
         if cl_type == 'complete':   # number of contacts not used for complete clusters
             contacts[layer_key] = clusters_to_contacts([inds])
         elif cl_type == 'random':
-            contacts[layer_key] = random_contacts(in_layer, num_contacts)
-        elif cl_type == 'random_long_tail':
-            contacts[layer_key] = random_long_tail_contacts(in_layer, num_contacts)
+            contacts[layer_key] = make_random_contacts(include=in_layer, mean_number_of_contacts=num_contacts, dispersion=dispersion)
+            # contacts[layer_key] = random_contacts(in_layer, num_contacts)
         elif cl_type == 'cluster':
             miniclusters = []
             miniclusters.extend(cl.create_clustering(inds, num_contacts))
@@ -237,6 +236,7 @@ def make_contacts(params):
     # for custom layers
     custom_lkeys = params.custom_lkeys
     cluster_types = params.layerchars['cluster_type']
+    dispersion = params.layerchars['dispersion']
     pop_proportion = params.layerchars['proportion']
     age_lb = params.layerchars['age_lb'] # todo: potentially confusing with the age_up in the contact matrix
     age_ub = params.layerchars['age_ub']
@@ -268,7 +268,8 @@ def make_contacts(params):
     # random community contacts
     key = 'C'
     com_no = n_contacts[key]
-    c_contacts = random_contacts(ages, com_no)  # TODO: need to fix this so that people with age 0 are included in the contacts
+    include = np.ones(len(ages))
+    c_contacts = make_random_contacts(include=include, mean_number_of_contacts=com_no, dispersion=dispersion)
     contacts[key] = c_contacts
 
     # Custom layers: those that are not households, work, school or community
@@ -278,6 +279,7 @@ def make_contacts(params):
                                            ages,
                                            custom_lkeys,
                                            cluster_types,
+                                           dispersion,
                                            pop_proportion,
                                            age_lb,
                                            age_ub)
