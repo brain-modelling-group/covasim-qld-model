@@ -5,12 +5,14 @@ import os
 dirname = os.path.dirname(__file__)
 import xlsxwriter
 
+# symp_test = 8
+
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['FS']
+    locations = ['KZN']
     # the name of the databook
     db_name = 'input_data_sa'
-    epi_name = 'epi_data_sa_FS'
+    epi_name = 'epi_data_sa_KZN'
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
@@ -18,7 +20,7 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {locations[0]: {'pop_size': int(10e4),
-                        'beta': 0.08,
+                        'beta': 0.13,
                         'n_days': 150,
                         'calibration_end': '2020-05-20'}}
 
