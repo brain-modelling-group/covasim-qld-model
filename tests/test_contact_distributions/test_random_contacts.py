@@ -46,10 +46,12 @@ def plot_degree(contacts, array_output=True, bins=None, show=True, save=False, f
 
 ### Examples of testing
 
+# generate and plot the contacts dictionary
 contacts = make_contacts()
 bins = np.linspace(0, 20, 20)
 plot_degree(contacts, bins=bins)
 
+# generate and plot the source array (alternative output)
 source, target = make_contacts(array_output=True)
 bins = np.linspace(0, 20, 20)
 plot_degree(source, bins=bins, array_output=True)
