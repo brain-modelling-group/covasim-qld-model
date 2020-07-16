@@ -7,7 +7,7 @@ import numpy as np
 import sciris as sc
 
 
-def make_contacts(size=100000, mean_number_contacts=3, dispersion=None, array_output=False):
+def make_contacts(size=1000, mean_number_contacts=3, dispersion=None, array_output=False):
     include = np.random.choice([0, 1], size=size)
 
     contacts = co.make_random_contacts(include, mean_number_contacts, dispersion, array_output)
