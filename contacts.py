@@ -67,49 +67,60 @@ def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
         contacts = {p:contacts[p] if p in contacts else list() for p in include_inds}
         return contacts
 
-def random_long_tail_contacts(include, mean_contacts_per_person, array_output: bool = False):
+
+def make_random_contacts(include, mean_number_of_contacts, dispersion=None, array_output=False):
     """
-    Sample random contacts
+    Makes the random contacts either by sampling the number of contacts per person from a Poisson or Negative Binomial distribution
 
-    The `include` argument allows a subset of the population to be selected
 
-    Note that a person can contact themselves, and can contact the same person multiple times
+    Parameters
+    ----------
+    include (boolean array) length equal to the population size, containing True/1 if that person is eligible for contacts
+    mean_number_of_contacts (int) representing the mean number of contacts for each person
+    dispersion (float) if not None, use a negative binomial distribution with this dispersion parameter instead of Poisson to make the contacts
+    array_output (boolean) return contacts as arrays or as dicts
 
-    Args:
-        include: Boolean array with length equal to population size, containing True if the person is eligible for contacts
-        mean_contacts_per_person: Mean number of contacts (Poisson distribution)
-        array_output: Return contacts as arrays or as dicts
-    Returns:
-        If array_output=False, return a contacts dictionary {1:[2,3,4],2:[1,5,6]} with keys for source person,
+    Returns
+    -------
+    If array_output=False, return a contacts dictionary {1:[2,3,4],2:[1,5,6]} with keys for source person,
         and a values being a list of target contacts.
 
-        If array_output=True, return arrays with `source` and `target` indexes. These could be interleaved to produce an edge list
+    If array_output=True, return arrays with `source` and `target` indexes. These could be interleaved to produce an edge list
         representation of the edges
 
     """
-
-    include_inds = np.nonzero(include)[0].astype(cvd.default_int) # These are the indexes (person IDs) of people in the layer
+    include_inds = np.nonzero(include)[0].astype(cvd.default_int)
     n_people = len(include_inds)
 
-    # estimate number of contacts for each person.
-    variance = 1.1
-    c = np.round(np.random.negative_binomial(mean_contacts_per_person *mean_contacts_per_person / (variance - mean_contacts_per_person),
-        (variance - mean_contacts_per_person)/variance, n_people))
-    c[c < 0] = 0
-    c = c.astype(np.int)
-    source = np.empty((0))
-    for i in range(n_people):
-        source = np.append(source, include_inds[i]*c[i]) # where edges start from (each person include_inds[i], has c[i] edges)
-    target = np.random.shuffle(source) # the edges all go to another person, but the number of edges for each person must be the same
+    # sample the number of edges from a given distribution
+    if dispersion is None:
+        number_of_contacts = cvu.n_poisson(rate=mean_number_of_contacts, n=n_people)
+    else:
+        number_of_contacts = cvu.n_neg_binomial(rate=mean_number_of_contacts, dispersion=dispersion, n=n_people)
+    # number_of_contacts = np.array((number_of_contacts/2.0).round(), dtype=cvd.default_int)  # Does this need ot be halved?
+
+    total_number_of_contacts = sum(number_of_contacts)
+    target = include_inds[cvu.choose_r(max_n=n_people, n=total_number_of_contacts)]
 
     if array_output:
+        count = 0
+        source = np.zeros(total_number_of_contacts).astype(dtype=cvd.default_int)
+        for i, person_id in enumerate(include_inds):
+            n_contacts = number_of_contacts[i]
+            source[count:count+n_contacts] = person_id
+            count += n_contacts
+
         return source, target
-    else:
-        contacts = collections.defaultdict(list)
-        for s, t in zip(source, target):
-            contacts[s].append(t)
-        contacts = {p:contacts[p] if p in contacts else list() for p in include_inds}
-        return contacts
+
+    contacts = {}
+    count = 0
+    for i, person_id in enumerate(include_inds):
+        n_contacts = number_of_contacts[i]
+        contacts[person_id] = target[count:count+n_contacts]
+        count += n_contacts
+
+    return contacts
+
 
 def make_hcontacts(n_households, pop_size, household_heads, uids, contact_matrix):
     """
