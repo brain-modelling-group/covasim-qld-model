@@ -9,8 +9,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Nashville']
     # the name of the databook
-    db_name = 'input_data_US_nash'
-    epi_name = 'epi_data_US_nash'
+    db_name = 'input_data_US_nash_orlando'
+    epi_name = 'epi_data_US_nash_orlando'
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
