@@ -10,10 +10,10 @@ if __name__ == "__main__":
     epi_name = 'epi_data_Australia'
 
     # specify layer keys to use
-    all_lkeys = ['H', 'S', 'W', 'C', 'church','pSport','cSport','beach','entertainment','cafe_restaurant','pub_bar',
-                 'transport','national_parks','public_parks','large_events','child_care','social','aged_care']
-    dynamic_lkeys = ['C','beach','entertainment','cafe_restaurant','pub_bar',
-                 'transport','national_parks','public_parks','large_events']  # layers which update dynamically (subset of all_lkeys)
+    all_lkeys = ['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
+                 'transport', 'public_parks', 'large_events', 'child_care', 'social']
+    dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
+                     'transport', 'public_parks', 'large_events']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
     user_pars = {'Victoria': {'pop_size': int(5e4),
