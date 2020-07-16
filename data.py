@@ -449,11 +449,11 @@ def read_params(locations, db, all_lkeys):
     return pars, extrapars, layerchars
 
 
-def read_data(locations=None, db_name=None, epi_name=None, all_lkeys=None, dynamic_lkeys=None):
+def read_data(locations=None, db_name=None, epi_name=None, all_lkeys=None, dynamic_lkeys=None, calibration_end=None):
     """Reads in all data in the appropriate format"""
     db_path, epi_path = utils.get_file_paths(db_name=db_name, epi_name=epi_name)
 
-    #calibration_end = utils.clean_calibration_end(locations, calibration_end)
+    calibration_end = utils.clean_calibration_end(locations, calibration_end)
 
     db = load_databook(db_path)
 

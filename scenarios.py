@@ -327,7 +327,7 @@ def setup_scens(locations,
     user_pars, calibration_end = utils.clean_pars(user_pars, locations)
 
     # return data relevant to each specified location in "locations"
-    all_data = data.read_data(locations=locations,
+    loc_data = data.read_data(locations=locations,
                               db_name=db_name,
                               epi_name=epi_name,
                               all_lkeys=all_lkeys,
@@ -342,8 +342,6 @@ def setup_scens(locations,
 
         print(f'\nCreating scenarios for "{location}"...')
 
-        loc_data = all_data[location]
-
         # clean up the parameters so that they are compatible with Covasim pars dictionary
         loc_pars = user_pars[location]
         # loc_pars, calibration_end = utils.clean_pars(loc_pars)
@@ -356,7 +354,7 @@ def setup_scens(locations,
         params = parameters.setup_params(location=location,
                                          loc_data=loc_data,
                                          metapars=metapars,
-                                         user_pars=loc_pars)
+                                         sim_pars=loc_pars)
 
         people, popdict = co.make_people(params)
 
