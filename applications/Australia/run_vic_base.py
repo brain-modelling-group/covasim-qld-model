@@ -10,20 +10,20 @@ if __name__ == "__main__":
     epi_name = 'epi_data_Australia'
 
     # specify layer keys to use
-    all_lkeys = ['H', 'S', 'W', 'C', 'church','pSport','cSport','beach','entertainment','cafe_restaurant','pub_bar',
-                 'transport','national_parks','public_parks','large_events','child_care','social','aged_care']
-    dynamic_lkeys = ['C','beach','entertainment','cafe_restaurant','pub_bar',
-                 'transport','national_parks','public_parks','large_events']  # layers which update dynamically (subset of all_lkeys)
+    all_lkeys = ['H', 'S', 'W', 'C', 'church','cSport','entertainment','cafe_restaurant','pub_bar',
+                 'transport','public_parks','large_events','child_care','social']
+    dynamic_lkeys = ['C','entertainment','cafe_restaurant','pub_bar',
+                 'transport','public_parks','large_events']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
     user_pars = {'Victoria': {'pop_size': int(5e4),
-                               'beta': 0.065,
+                               'beta': 0.06,
                                'n_days': 200,
-                               'calibration_end': '2020-07-06'}}
+                               'calibration_end': '2020-07-11'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0.0,
+    metapars = {'n_runs': 4,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
 
@@ -32,31 +32,31 @@ if __name__ == "__main__":
                                                        [['lockdown_relax'],['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
                                                         ['outdoor10'],['church_4sqm']],
                                                        [[93],[93],[93],[93],[114]]),
-                                           'turn_on': (['import_cases'], [125]),
-                                           'turn_off': (['schools', 'child_care','social', 'retail','nat_parks0','beach0','NE_health',
-                                                         'pSports','cSports','import_cases'],
-                                                        [87,87,74, 74,74,74,58,93,114,130]),
+                                           'turn_on': (['import_cases'], [100]),
+                                           'turn_off': (['schools', 'child_care','social',
+                                                         'cSports','import_cases'],
+                                                        [87,87,74, 114,105]),
                                            'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
                                                                 'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
-                                           'policies': {'lockdown_relax': {'beta': 0.8},
-                                                        'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.7},
-                                                        'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.7}}
-                                                        },
-                                 '2 week lockdown': {'replace': (['lockdown', 'pub_bar0','cafe_restaurant0','outdoor2','church0'],
-                                                           [['lockdown_relax', 'lockdown_2', 'lockdown_2_exit'],
-                                                            ['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
-                                                            ['outdoor10'],['church_4sqm']],
-                                                           [[93, 130, 144],[93],[93],[93],[114]]),
-                                               'turn_on': (['import_cases'], [125]),
-                                               'turn_off': (['schools', 'child_care','social', 'retail','nat_parks0','beach0','NE_health',
-                                                             'pSports','cSports','import_cases'],
-                                                            [87,87,74, 74,74,74,58,93,114,130]),
-                                               'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
-                                                                    'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
-                                               'policies': {'lockdown_relax': {'beta': 0.8},
-                                                            'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.99},
-                                                            'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.99}}
-                                                            }}}
+                                           'policies': {'lockdown_relax': {'beta': 0.99},
+                                                        'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.99},
+                                                        'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.99}}
+                                                        }}}
+                                 # '2 week lockdown': {'replace': (['lockdown', 'pub_bar0','cafe_restaurant0','outdoor2','church0'],
+                                 #                           [['lockdown_relax', 'lockdown_2', 'lockdown_2_exit'],
+                                 #                            ['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
+                                 #                            ['outdoor10'],['church_4sqm']],
+                                 #                           [[93, 130, 144],[93],[93],[93],[114]]),
+                                 #               'turn_on': (['import_cases'], [125]),
+                                 #               'turn_off': (['schools', 'child_care','social', 'retail','nat_parks0','beach0','NE_health',
+                                 #                             'pSports','cSports','import_cases'],
+                                 #                            [87,87,74, 74,74,74,58,93,114,130]),
+                                 #               'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
+                                 #                                    'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
+                                 #               'policies': {'lockdown_relax': {'beta': 0.8},
+                                 #                            'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.99},
+                                 #                            'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.99}}
+                                 #                            }}}
 
     # https: // www.dhhs.vic.gov.au / coronavirus / updates
     # 15 March: internaitonal borders closed

@@ -1,39 +1,39 @@
 import user_interface as ui
 import utils
 import os
-import xlsxwriter
 
 dirname = os.path.dirname(__file__)
+import xlsxwriter
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Nashville']
+    locations = ['Hartford']
     # the name of the databook
-    db_name = 'input_data_US_nash_orlando'
-    epi_name = 'epi_data_US_nash_orlando'
+    db_name = 'input_data_US_group1'
+    epi_name = 'epi_data_US_group1'
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
-    user_pars = {'Nashville': {'pop_size': int(10e4),
-                               'beta': 0.08,
-                               'n_days': 150,
-                               'pop_infected': 20,
-                               'symp_test': 50,
-                               'calibration_end': '2020-05-15'}}
+    user_pars = {'Hartford': {'pop_size': int(10e4),
+                        'beta': 0.035,
+                        'n_days': 135,
+                        'pop_infected': 20,
+                        'calibration_end': '2020-07-15'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 8,
+    metapars = {'n_runs': 4,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
 
     # the policies to change during scenario runs
-    scen_opts = {'Nashville': {'No changes to current lockdown restrictions':
-                                   {'replace': (['relax1'], ['relax2'], [[200]]),
-                                    'policies': {'relax2': {'beta': 0.6}}}}}
+    scen_opts = {'Hartford': {'No changes to current lockdown restrictions':
+                            {'replace': (['lockdown_s3'], ['lockdown_s3'], [[130]]),
+                             'policies': {'lockdown_s3': {'beta': 1}}}
+                        }}
 
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
@@ -45,12 +45,12 @@ if __name__ == "__main__":
                            all_lkeys=all_lkeys,
                            dynamic_lkeys=dynamic_lkeys)
 
-    # run the scenarios
+    # run the scenario
     scens = ui.run_scens(scens)
     scens['verbose'] = True
 
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs/Nashville-validate' + '.png',
+                       fig_path=dirname + '/figs/Hartford-validate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -60,28 +60,16 @@ if __name__ == "__main__":
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
-    cum_diag_calib_end1 = \
-        scens['scenarios']['Nashville'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
-            80]
-    cum_diag_calib_1week = \
-        scens['scenarios']['Nashville'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
-            87]
-    cum_diag_calib_2week = \
-        scens['scenarios']['Nashville'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
-            94]
-    cum_diag_calib_end2 = \
-        scens['scenarios']['Nashville'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
-            127]
-    cum_death_calib_end1 = \
-        scens['scenarios']['Nashville'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][80]
-    cum_death_calib_1week = \
-        scens['scenarios']['Nashville'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][87]
-    cum_death_calib_2week = \
-        scens['scenarios']['Nashville'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][94]
-    cum_death_calib_end2 = \
-        scens['scenarios']['Nashville'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][127]
+    cum_diag_calib_end1 = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][83]
+    cum_diag_calib_1week = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][90]
+    cum_diag_calib_2week = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][97]
+    cum_diag_calib_end2 = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][110]
+    cum_death_calib_end1 = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
+    cum_death_calib_1week = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][90]
+    cum_death_calib_2week = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][97]
+    cum_death_calib_end2 = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][110]
 
-    workbook = xlsxwriter.Workbook('Nashville_validation.xlsx')
+    workbook = xlsxwriter.Workbook('Hartford_validation.xlsx')
     worksheet = workbook.add_worksheet('Validation')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
@@ -90,13 +78,10 @@ if __name__ == "__main__":
                    'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
                    'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
                    'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection'],
-                  [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week),
-                   int(cum_diag_calib_end2),
+                  [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week), int(cum_diag_calib_end2),
                    '', '', '', '',
-                   int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week),
-                   int(cum_death_calib_end2)]
+                  int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week), int(cum_death_calib_end2)]
                   ]
 
     worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
     workbook.close()
-
