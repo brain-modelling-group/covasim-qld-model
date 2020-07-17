@@ -46,6 +46,19 @@ sim.pars['interventions'].append(cv.test_prob(
 # sim.pars['iso_factor'] = 0
 # sim.pars['quar_factor'] = {k:0 if k=='H' else 0 for k in sim.pars['quar_factor'] }
 
+
+sim.initialize()
 sim.run()
 sim.results['cum_infections']
 
+# setup simulation for this location
+
+
+people, popdict = co.make_people(params)
+
+sim = cv.Sim(pars=params.pars,
+             datafile=None,
+             popfile=people,
+             pop_size=params.pars['pop_size'],
+             load_pop=True,
+             save_pop=False)
