@@ -17,23 +17,24 @@ if __name__ == "__main__":
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
-    user_pars = {'Hartford': {'pop_size': int(10e4),
-                        'beta': 0.035,
+    user_pars = {'Hartford': {'pop_size': int(5e4),
+                        'beta': 0.081,
                         'n_days': 135,
-                        'pop_infected': 20,
-                        'calibration_end': '2020-07-15'}}
+                        'pop_infected': 210,
+                        'calibration_end': '2020-05-20'}}
+
+    #Change future_daily to 300
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 4,
+    metapars = {'n_runs': 8,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
 
     # the policies to change during scenario runs
     scen_opts = {'Hartford': {'No changes to current lockdown restrictions':
-                            {'replace': (['lockdown_s3'], ['lockdown_s3'], [[130]]),
-                             'policies': {'lockdown_s3': {'beta': 1}}}
-                        }}
+                            {'replace': (['relax_2'], ['policy_1'], [[300]])
+                        }}}
 
     # set up the scenarios
     scens = ui.setup_scens(locations=locations,
@@ -60,17 +61,17 @@ if __name__ == "__main__":
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
-    cum_diag_calib_end1 = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][83]
-    cum_diag_calib_1week = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][90]
-    cum_diag_calib_2week = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][97]
-    cum_diag_calib_end2 = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][110]
-    cum_death_calib_end1 = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
-    cum_death_calib_1week = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][90]
-    cum_death_calib_2week = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][97]
-    cum_death_calib_end2 = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][110]
+    cum_diag_calib_end1 = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][74]
+    cum_diag_calib_1week = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][81]
+    cum_diag_calib_2week = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][88]
+    cum_diag_calib_end2 = scens['scenarios']['Hartford'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][130]
+    cum_death_calib_end1 = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][74]
+    cum_death_calib_1week = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][81]
+    cum_death_calib_2week = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][88]
+    cum_death_calib_end2 = scens['scenarios']['Hartford'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][130]
 
-    workbook = xlsxwriter.Workbook('Hartford_validation.xlsx')
-    worksheet = workbook.add_worksheet('Validation')
+    workbook = xlsxwriter.Workbook('Hartford_validate.xlsx')
+    worksheet = workbook.add_worksheet('validate')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
                    'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],
