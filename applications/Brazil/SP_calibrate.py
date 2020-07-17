@@ -17,13 +17,13 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'SP': {'pop_size': int(10e4),
-                               'beta': 0.095,
+                               'beta': 0.0945,
                                'n_days': 130,
                                'calibration_end': '2020-05-20'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0,
+    metapars = {'n_runs': 8,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
     
