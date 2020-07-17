@@ -39,10 +39,10 @@ def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
                 'pop_infected': pop_infected,
                 'pop_scale': 1,
                 'rescale': 0,
-                'beta': 0.065,
+                'beta': 0.0125,
                 'start_day': '2020-03-01',
                 'end_day': '2020-07-13',
-                'verbose': 0.1}
+                'verbose': 1}
 
     metapars = {'noise': 0.0,
                 'verbose': 0}
@@ -78,17 +78,14 @@ def make_people(seed=None, params=None, savepeople=True, popfile='nswppl.pop', s
     return people, popdict
 
 
-def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdict='nswpopdict.pop', policies=None):
+def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', policies=None, datafile='nsw_epi_data.csv'):
     # setup simulation for this location
     sim = cv.Sim(pars=params.pars,
-                 datafile=None,
+                 datafile=datafile,
                  popfile=popfile,
                  rand_seed=seed,
                  pop_size=params.pars['pop_size'],
                  load_pop=load_pop)
-
-    # Add interventions
-    sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys, contact_numbers=params.pars['contacts'], popdict=popdict))
 
     # Beta policies
     beta_schedule = policy_updates.PolicySchedule(params.pars["beta_layer"], params.policies['beta_policies'])  # create policy schedule with beta layer adjustments
@@ -97,7 +94,7 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdic
             if sim['verbose']:
                 print(f'Adding beta policy {policy}')
             beta_schedule.start(policy, 0)
-    sim.pars['interventions'].append(beta_schedule)
+    #sim.pars['interventions'].append(beta_schedule)
 
     # Testing
     sim.pars['interventions'].append(cv.test_num(daily_tests=params.extrapars["future_daily_tests"],
