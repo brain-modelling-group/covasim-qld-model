@@ -240,20 +240,20 @@ if __name__ == "__main__":
 
     daily_projections = [
         ['Dates'] + [str(d) for d in pd.date_range(sdate, edate - timedelta(days=1), freq='d')],
-        ['New infections small release July'] + [int(val) for val in daily_inf_small_jul],
-        ['New infections moderate release July'] + [int(val) for val in daily_inf_mod_jul],
-        ['New infections small release Aug'] + [int(val) for val in daily_inf_small_aug],
-        ['New infections moderate release Aug'] + [int(val) for val in daily_inf_mod_aug],
-        ['New infections no release'] + [int(val) for val in daily_inf_no_release],
-        ['New deaths small release July'] + [int(val) for val in daily_death_small_jul],
-        ['New deaths moderate release July'] + [int(val) for val in daily_death_mod_jul],
-        ['New deaths small release Aug'] + [int(val) for val in daily_death_small_aug],
-        ['New deaths moderate release Aug'] + [int(val) for val in daily_death_mod_aug],
-        ['New deaths no release'] + [int(val) for val in daily_death_no_release],
-        ['New diagnoses small release July'] + [int(val) for val in daily_diag_small_jul],
-        ['New diagnoses moderate release July'] + [int(val) for val in daily_diag_mod_jul],
-        ['New diagnoses small release Aug'] + [int(val) for val in daily_diag_small_aug],
-        ['New diagnoses moderate release Aug'] + [int(val) for val in daily_diag_mod_aug],
-        ['New diagnoses no release'] + [int(val) for val in daily_diag_no_release]]
+        ['Small easing of restrictions in mid-July'] + [int(val) for val in daily_inf_small_jul],
+        ['Moderate easing of restrictions in mid-July'] + [int(val) for val in daily_inf_mod_jul],
+        ['Small easing of restrictions in mid-August'] + [int(val) for val in daily_inf_small_aug],
+        ['Moderate easing of restrictions in mid-August'] + [int(val) for val in daily_inf_mod_aug],
+        ['No changes to current lockdown restrictions'] + [int(val) for val in daily_inf_no_release],
+        ['Small easing of restrictions in mid-July'] + [int(val) for val in daily_death_small_jul],
+        ['Moderate easing of restrictions in mid-July'] + [int(val) for val in daily_death_mod_jul],
+        ['Small easing of restrictions in mid-August'] + [int(val) for val in daily_death_small_aug],
+        ['Moderate easing of restrictions in mid-August'] + [int(val) for val in daily_death_mod_aug],
+        ['No changes to current lockdown restrictions'] + [int(val) for val in daily_death_no_release],
+        ['Small easing of restrictions in mid-July'] + [int(val) for val in daily_diag_small_jul],
+        ['Moderate easing of restrictions in mid-July'] + [int(val) for val in daily_diag_mod_jul],
+        ['Small easing of restrictions in mid-August'] + [int(val) for val in daily_diag_small_aug],
+        ['Moderate easing of restrictions in mid-August'] + [int(val) for val in daily_diag_mod_aug],
+        ['No changes to current lockdown restrictions'] + [int(val) for val in daily_diag_no_release]]
     worksheet2.add_table('A1:FO17', {'data': daily_projections})
     workbook.close()

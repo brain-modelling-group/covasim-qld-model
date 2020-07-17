@@ -19,10 +19,10 @@ if __name__ == "__main__":
     user_pars = {'New Haven': {'pop_size': int(10e4),
                                'beta': 0.032,
                                'n_days': 120,
-                               'calibration_end': '2020-05-15'}}
+                               'calibration_end': '2020-07-01'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 8,
+    metapars = {'n_runs': 4,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
