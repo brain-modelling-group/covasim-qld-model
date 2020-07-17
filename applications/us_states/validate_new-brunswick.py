@@ -19,10 +19,10 @@ if __name__ == "__main__":
     user_pars = {'New Brunswick': {'pop_size': int(2e4),
                                'beta': 0.071,
                                'n_days': 120,
-                                'pop_infected': 275,
-                                'calibration_end': '2020-06-30'}}
+                                'pop_infected': 400,
+                                'calibration_end': '2020-06-20'}}
 
-    #validation - av_daily: 100, future_daily_tests: 100 for validation
+    #future_daily_tests: 100 for validation
 
 
     # the metapars for all countries and scenarios
@@ -54,8 +54,8 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
     scens['verbose'] = True
 
-    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_New-Brunswick/New-Brunswick-calibrate' + '.png',
+    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+                       fig_path=dirname + '/figs_New-Brunswick/New-Brunswick-validate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,

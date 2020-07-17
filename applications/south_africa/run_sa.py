@@ -3,7 +3,7 @@ import pickle
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['KZN']
+    locations = ['NW']
     # the name of the databook
     db_name = 'input_data_sa'
 

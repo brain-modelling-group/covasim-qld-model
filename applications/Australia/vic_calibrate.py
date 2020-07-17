@@ -2,6 +2,9 @@ import user_interface as ui
 from utils import policy_plot2
 import os
 
+
+# GENERAL PLAN
+# - Consider day 0 as the day at which restrictions started to be imposed.
 if __name__ == "__main__":
     dirname = os.path.dirname(__file__)
     locations = ['Victoria']  # the list of locations for this analysis
@@ -38,14 +41,6 @@ if __name__ == "__main__":
                               }
                  }
     # https: // www.dhhs.vic.gov.au / coronavirus / updates
-    # 15 March: internaitonal borders closed
-    # 19 March: 4 sqm rule, entertainment, large events
-    # 22 March: take away only
-    # 29 March: stage 3 (only 4 reasons to leave home)
-    # 27 April [58]: elective surgery
-    # 13 May [74]: small social gatherings https://www.abc.net.au/news/2020-05-11/coronavirus-victoria-eases-restrictions-the-new-covid-19-rules/12233798
-    # 26 May [87]: students go to class
-    # 1 June [93]: restaurants, cafes, and other hospitality businesses to resume dine-in service <20 ppl
     # 22 June [114]: social events, ceremonies, community services, U18 sports start sport and exercise. libraries, community centres and halls will be able to open to 50 people
     # 1 July [123]: 10 postcodes lockdown
     # 4 July [123]: 2 more postcodes locked down

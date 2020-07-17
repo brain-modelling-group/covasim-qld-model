@@ -29,43 +29,58 @@ def clusters_to_contacts(clusters):
     return {x: np.array(list(y)) for x, y in contacts.items()}
 
 
-def random_contacts(include, mean_contacts_per_person, array_output:bool=False):
+def make_random_contacts(include, mean_number_of_contacts, dispersion=None, array_output=False):
     """
-    Sample random contacts
+    Makes the random contacts either by sampling the number of contacts per person from a Poisson or Negative Binomial distribution
 
-    Note that random contacts are directed and asymmetric (e.g. Person 1 can transmit to Person 2 but not vice-versa).
 
-    The `include` argument allows a subset of the population to be selected
+    Parameters
+    ----------
+    include (boolean array) length equal to the population size, containing True/1 if that person is eligible for contacts
+    mean_number_of_contacts (int) representing the mean number of contacts for each person
+    dispersion (float) if not None, use a negative binomial distribution with this dispersion parameter instead of Poisson to make the contacts
+    array_output (boolean) return contacts as arrays or as dicts
 
-    Note that a person can contact themselves, and can contact the same person multiple times
-
-    Args:
-        include: Boolean array with length equal to population size, containing True if the person is eligible for contacts
-        mean_contacts_per_person: Mean number of contacts (Poisson distribution)
-        array_output: Return contacts as arrays or as dicts
-    Returns:
-        If array_output=False, return a contacts dictionary {1:[2,3,4],2:[1,5,6]} with keys for source person,
+    Returns
+    -------
+    If array_output=False, return a contacts dictionary {1:[2,3,4],2:[1,5,6]} with keys for source person,
         and a values being a list of target contacts.
 
-        If array_output=True, return arrays with `source` and `target` indexes. These could be interleaved to produce an edge list
+    If array_output=True, return arrays with `source` and `target` indexes. These could be interleaved to produce an edge list
         representation of the edges
 
     """
-
-    include_inds = np.nonzero(include)[0].astype(cvd.default_int) # These are the indexes (person IDs) of people in the layer
+    include_inds = np.nonzero(include)[0].astype(cvd.default_int)
     n_people = len(include_inds)
-    n_contacts = n_people*mean_contacts_per_person
-    source = include_inds[np.array(cvu.choose_r(max_n=n_people, n=n_contacts))]  # Choose with replacement
-    target = include_inds[np.array(cvu.choose_r(max_n=n_people, n=n_contacts))]
+
+    # sample the number of edges from a given distribution
+    if dispersion is None:
+        number_of_contacts = cvu.n_poisson(rate=mean_number_of_contacts, n=n_people)
+    else:
+        number_of_contacts = cvu.n_neg_binomial(rate=mean_number_of_contacts, dispersion=dispersion, n=n_people)
+
+    total_number_of_half_edges = sum(number_of_contacts)
 
     if array_output:
+        count = 0
+        source = np.zeros(total_number_of_half_edges).astype(dtype=cvd.default_int)
+        for i, person_id in enumerate(include_inds):
+            n_contacts = number_of_contacts[i]
+            source[count:count+n_contacts] = person_id
+            count += n_contacts
+        target = np.random.permutation(source)
+
         return source, target
-    else:
-        contacts = collections.defaultdict(list)
-        for s, t in zip(source, target):
-            contacts[s].append(t)
-        contacts = {p:contacts[p] if p in contacts else list() for p in include_inds}
-        return contacts
+
+    contacts = {}
+    count = 0
+    target = include_inds[cvu.choose_r(max_n=n_people, n=total_number_of_half_edges)]
+    for i, person_id in enumerate(include_inds):
+        n_contacts = number_of_contacts[i]
+        contacts[person_id] = target[count:count+n_contacts]
+        count += n_contacts
+
+    return contacts
 
 
 def make_hcontacts(n_households, pop_size, household_heads, uids, contact_matrix):
@@ -94,7 +109,7 @@ def make_wcontacts(uids, ages, w_contacts):
     return work_co
 
 
-def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, pop_proportion, age_lb, age_ub):
+def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, dispersion, pop_proportion, age_lb, age_ub):
     contacts = {}
     for layer_key in custom_lkeys:
         cl_type = cluster_types[layer_key]
@@ -113,7 +128,8 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
         if cl_type == 'complete':   # number of contacts not used for complete clusters
             contacts[layer_key] = clusters_to_contacts([inds])
         elif cl_type == 'random':
-            contacts[layer_key] = random_contacts(in_layer, num_contacts)
+            contacts[layer_key] = make_random_contacts(include=in_layer, mean_number_of_contacts=num_contacts, dispersion=dispersion)
+            # contacts[layer_key] = random_contacts(in_layer, num_contacts)
         elif cl_type == 'cluster':
             miniclusters = []
             miniclusters.extend(cl.create_clustering(inds, num_contacts))
@@ -181,6 +197,7 @@ def make_contacts(params):
     # for custom layers
     custom_lkeys = params.custom_lkeys
     cluster_types = params.layerchars['cluster_type']
+    dispersion = params.layerchars['dispersion']
     pop_proportion = params.layerchars['proportion']
     age_lb = params.layerchars['age_lb'] # todo: potentially confusing with the age_up in the contact matrix
     age_ub = params.layerchars['age_ub']
@@ -212,7 +229,8 @@ def make_contacts(params):
     # random community contacts
     key = 'C'
     com_no = n_contacts[key]
-    c_contacts = random_contacts(ages, com_no)
+    include = np.ones(len(ages))
+    c_contacts = make_random_contacts(include=include, mean_number_of_contacts=com_no, dispersion=dispersion)
     contacts[key] = c_contacts
 
     # Custom layers: those that are not households, work, school or community
@@ -222,6 +240,7 @@ def make_contacts(params):
                                            ages,
                                            custom_lkeys,
                                            cluster_types,
+                                           dispersion,
                                            pop_proportion,
                                            age_lb,
                                            age_ub)

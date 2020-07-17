@@ -19,7 +19,7 @@ if __name__ == "__main__":
     user_pars = {'Durham': {'pop_size': int(10e4),
                                'beta': 0.05,
                                'n_days': 120,
-                                'pop_infected': 54,
+                                'pop_infected': 45,
                                 'symp_test': 35.0,
                                 'calibration_end': '2020-05-15'}}
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     cum_death_calib_2week = scens['scenarios']['Durham'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][83]
     cum_death_calib_end2 = scens['scenarios']['Durham'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][104]
 
-    workbook = xlsxwriter.Workbook('Durham_validate.xlsx')
+    workbook = xlsxwriter.Workbook('Durham_validate_delete.xlsx')
     worksheet = workbook.add_worksheet('validate')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
