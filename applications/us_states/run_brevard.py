@@ -74,31 +74,29 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
     scens['verbose'] = True
 
-
     # plot cumulative deaths for calibration
     utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                    fig_path=dirname + '/figs_brevard/Brevard-calibrate' + '.png',
-                    interval=30, n_cols=1,
-                    fig_args=dict(figsize=(5, 5), dpi=100),
-                    font_size=11,
-                    # y_lim={'new_infections': 500},
-                    legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -1.6)},
-                    axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.15},
-                    fill_args={'alpha': 0.3},
-                    to_plot=['cum_diagnoses', 'cum_deaths'])
-
+                       fig_path=dirname + '/figs/' + locations[0] + '-calibrate' + '.png',
+                       interval=30, n_cols=1,
+                       fig_args=dict(figsize=(10, 8), dpi=100),
+                       font_size=11,
+                       # y_lim={'new_infections': 500},
+                       legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
+                       axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
+                       fill_args={'alpha': 0.3},
+                       to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
     # plot cumulative infections to see if all the population gets infected
-    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                    fig_path = dirname + '/figs_brevard/Brevard-projections_smaller_release' + '.png',
-                    interval=30, n_cols=1,
-                    fig_args=dict(figsize=(10, 8), dpi=100),
-                    font_size=11,
-                    # y_lim={'new_infections': 500},
-                    legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
-                    axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
-                    fill_args={'alpha': 0.3},
-                    to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
+    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+                       fig_path=dirname + '/figs/' + locations[0] + '-projections' + '.png',
+                       interval=30, n_cols=1,
+                       fig_args=dict(figsize=(10, 8), dpi=100),
+                       font_size=11,
+                       # y_lim={'new_infections': 500},
+                       legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
+                       axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
+                       fill_args={'alpha': 0.3},
+                       to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
     # Results
     population = 601942
@@ -182,15 +180,15 @@ if __name__ == "__main__":
 
     new_inf_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
-            'Moderate easing of restrictions on July 15']['best'][
+            'Moderate easing of restrictions on August 15']['best'][
         mid_nov:end_dec])
     new_diag_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
-            'Moderate easing of restrictions on July 15']['best'][
+            'Moderate easing of restrictions on August']['best'][
         mid_nov:end_dec])
     cum_inf_UB_nov_dec = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'Moderate easing of restrictions on July 15']['best'][end_dec]
+            'Moderate easing of restrictions on August']['best'][end_dec]
     incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population

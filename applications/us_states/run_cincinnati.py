@@ -169,30 +169,30 @@ if __name__ == "__main__":
     # Upper Bound: moderate change mid-August
     new_inf_UB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
-            'Moderate easing of restrictions on July 15']['best'][
+            'Moderate easing of restrictions on August 15']['best'][
         mid_sep:end_oct])
     new_diag_UB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
-            'Moderate easing of restrictions on July 15']['best'][
+            'Moderate easing of restrictions on August 15']['best'][
         mid_sep:end_oct])
     cum_inf_UB_sep_oct = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'Moderate easing of restrictions on July 15']['best'][end_oct]
+            'Moderate easing of restrictions on August 15']['best'][end_oct]
     incidence_UB_sep_oct = 100 * new_inf_UB_sep_oct * 30 / (end_oct - mid_sep) / population
     detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (end_oct - mid_sep) / population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct / population
 
     new_inf_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
-            'Moderate easing of restrictions on July 15']['best'][
+            'Moderate easing of restrictions on August 15']['best'][
         mid_nov:end_dec])
     new_diag_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
-            'Moderate easing of restrictions on July 15']['best'][
+            'Moderate easing of restrictions on August 15']['best'][
         mid_nov:end_dec])
     cum_inf_UB_nov_dec = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'Moderate easing of restrictions on July 15']['best'][end_dec]
+            'Moderate easing of restrictions on August 15']['best'][end_dec]
     incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population
