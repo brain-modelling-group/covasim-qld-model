@@ -99,7 +99,10 @@ utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
                    fill_args={'alpha': 0.3},
                    to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
     # Results
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
     population = 274291
+
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections']['No changes to current lockdown restrictions'][

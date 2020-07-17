@@ -102,6 +102,8 @@ if __name__ == "__main__":
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
     # Results
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
     population = 3990000
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(

@@ -101,6 +101,8 @@ if __name__ == "__main__":
 
 
     # Results
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
     population = 470914
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(

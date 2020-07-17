@@ -22,8 +22,8 @@ if __name__ == "__main__":
                                'calibration_end': '2020-05-20'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0,
+    metapars = {'n_runs': 8,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
     

@@ -100,6 +100,8 @@ if __name__ == "__main__":
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
     # Results
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
     population = 776827
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(
@@ -194,7 +196,7 @@ if __name__ == "__main__":
     detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population
 
-projections = [
+    projections = [
         ['Mid Sep – end Oct', '', '', '', '', '', '', '', '',
          'Nov – mid Dec', '', '', '', '', '', '', '', ''],
         ['Projected cases', '', '', '30 day incidence (%)', '', '', '30 day detected cases (%)', '', '',
