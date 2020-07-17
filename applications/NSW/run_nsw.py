@@ -11,6 +11,17 @@ import numpy as np
 import sys
 
 
+def load_packages():
+    """
+    Load policy packages from Excel file
+    """
+    packages = pd.read_excel('policy_packages.xlsx', index_col=0)
+    packages = packages.T
+    packages = packages.to_dict(orient='index')
+    packages = {name: [policy for policy, active in package.items() if not pd.isnull(active)] for name, package in packages.items()}
+    return packages
+
+
 def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
     """
     Load Australian parameters from Excel files
@@ -67,7 +78,7 @@ def make_people(seed=None, params=None, savepeople=True, popfile='nswppl.pop', s
     return people, popdict
 
 
-def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop'):
+def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdict='nswpopdict.pop'):
     # setup simulation for this location
     sim = cv.Sim(pars=params.pars,
                  datafile=None,
@@ -77,6 +88,44 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop'):
                  load_pop=load_pop)
 
     # Add interventions
+    sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys, contact_numbers=params.pars['contacts'], popdict=popdict))
+
+    # SET BETA POLICIES
+    beta_schedule = policy_updates.PolicySchedule(params.pars["beta_layer"], params.policies['beta_policies'])  # create policy schedule with beta layer adjustments
+    for policy in scen_policies:
+        if policy in beta_schedule.policies:
+            if sim['verbose']:
+                print(f'Adding beta policy {policy}')
+            beta_schedule.start(policy, 0)
+    sim.pars['interventions'].append(beta_schedule)
+
+    # SET TESTING
+    sim.pars['interventions'].append(cv.test_num(daily_tests=params.extrapars["future_daily_tests"],
+                                                 symp_test=params.extrapars['symp_test'],
+                                                 quar_test=params.extrapars['quar_test'],
+                                                 sensitivity=params.extrapars['sensitivity'],
+                                                 test_delay=params.extrapars['test_delay'],
+                                                 loss_prob=params.extrapars['loss_prob']))
+
+    # SET TRACING
+    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
+                                                        trace_time=params.extrapars['trace_time'],
+                                                        start_day=0))
+    tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
+    if tracing_app is not None:
+        sim.pars['interventions'].append(tracing_app)
+    if id_checks is not None:
+        sim.pars['interventions'].append(id_checks)
+
+    # SET CLIPPING POLICIES
+    for policy, clip_attributes in params.policies['clip_policies'].items():
+        if policy in scen_policies:
+            if sim['verbose']:
+                print(f'Adding clipping policy {policy}')
+            sim.pars['interventions'].append(cv.clip_edges(days=0,
+                                                           layers=clip_attributes['layers'],
+                                                           changes=clip_attributes['change']))
+
 
 
     return sim
