@@ -30,8 +30,8 @@ def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
     db_name = 'input_data_Australia'
     epi_name = 'epi_data_Australia'
 
-    all_lkeys = ['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
-                 'transport', 'public_parks', 'large_events', 'child_care', 'social']
+    all_lkeys = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
+                 'transport', 'public_parks', 'large_events', 'social']
     dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
                      'transport', 'public_parks', 'large_events']
 
@@ -39,7 +39,7 @@ def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
                 'pop_infected': pop_infected,
                 'pop_scale': 1,
                 'rescale': 0,
-                'beta': 0.0125,
+                'beta': 0.032,
                 'start_day': '2020-03-01',
                 'end_day': '2020-07-13',
                 'verbose': 1}
@@ -78,7 +78,7 @@ def make_people(seed=None, params=None, savepeople=True, popfile='nswppl.pop', s
     return people, popdict
 
 
-def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', policies=None, datafile='nsw_epi_data.csv'):
+def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', datafile='nsw_epi_data.csv'):
     # setup simulation for this location
     sim = cv.Sim(pars=params.pars,
                  datafile=datafile,
@@ -87,79 +87,76 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', polici
                  pop_size=params.pars['pop_size'],
                  load_pop=load_pop)
 
-    # Beta policies
-    beta_schedule = policy_updates.PolicySchedule(params.pars["beta_layer"], params.policies['beta_policies'])  # create policy schedule with beta layer adjustments
-    for policy in policies:
-        if policy in beta_schedule.policies:
-            if sim['verbose']:
-                print(f'Adding beta policy {policy}')
-            beta_schedule.start(policy, 0)
-    #sim.pars['interventions'].append(beta_schedule)
+    # Create beta policies
+    # Important dates
+    lockdown = '2020-03-23'
+    reopen1  = '2020-05-01'
+    reopen2  = '2020-05-15'
+    reopen3  = '2020-06-01'
+    reopen4  = '2020-07-01'
+    school_dates = ['2020-05-11', '2020-05-18', '2020-05-25', '2020-06-01', '2020-06-08', '2020-06-15']
+
+    beta_ints = [cv.change_beta('2020-03-15', 0.8, do_plot=False), # Reduce overall beta to account for distancing, handwashing, etc
+                 cv.change_beta(days=[lockdown, reopen2, reopen4], changes=[1.2, 1.1, 1.05], layers=['H'], do_plot=True),
+                 cv.change_beta(days=[lockdown]+school_dates, changes=[0.1, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], layers=['S'], do_plot=False),
+                 cv.change_beta(days=[lockdown, school_dates[0], reopen3, reopen4], changes=[0.2, 0.3, 0.4, 0.5], layers=['W'], do_plot=False),
+                 cv.change_beta(days=[lockdown], changes=[0.7], layers=['C'], do_plot=False), # Plot lockdown
+                 cv.change_beta(days=[lockdown, reopen2], changes=[0, 0.7], layers=['church'], do_plot=False),
+                 cv.change_beta(days=[lockdown, reopen2, reopen4], changes=[0, 0.5, 0.8], layers=['pSport'], do_plot=False),
+                 cv.change_beta(days=[lockdown, '2020-06-22'], changes=[0, 0.5], layers=['cSport'], do_plot=False),
+                 cv.change_beta(days=[lockdown, reopen4], changes=[0, 0.5], layers=['entertainment'], do_plot=False),
+                 cv.change_beta(days=[lockdown, reopen2], changes=[0, 0.8], layers=['cafe_restaurant'], do_plot=False),
+                 cv.change_beta(days=[lockdown, reopen3, reopen4], changes=[0, 0.3, 0.5], layers=['pub_bar'], do_plot=False),
+                 cv.change_beta(days=[lockdown, reopen2, reopen4], changes=[0.2, 0.3, 0.5], layers=['transport'], do_plot=False),
+                 cv.change_beta(days=[lockdown, reopen2, reopen4], changes=[0.4, 0.5, 0.7], layers=['public_parks'], do_plot=False),
+                 cv.change_beta(days=[lockdown, reopen4], changes=[0.0, 0.5], layers=['large_events'], do_plot=False),
+                 cv.change_beta(days=[lockdown, reopen1, reopen2, reopen3, reopen4], changes=[0.0, 0.3, 0.4, 0.5, 0.6], layers=['social'], do_plot=False),
+                 ]
+
+    sim.pars['interventions'].extend(beta_ints)
 
     # Testing
-    sim.pars['interventions'].append(cv.test_num(daily_tests=params.extrapars["future_daily_tests"],
-                                                 symp_test=params.extrapars['symp_test'],
-                                                 quar_test=params.extrapars['quar_test'],
-                                                 sensitivity=params.extrapars['sensitivity'],
-                                                 test_delay=params.extrapars['test_delay'],
-                                                 loss_prob=params.extrapars['loss_prob']))
+    symp_prob_prelockdown = 0.025 # Limited testing pre lockdown - 15%
+    symp_prob_lockdown = 0.4 # Increased testing during lockdown - 40%
+    symp_prob_postlockdown = 0.5 # Much higher testing since lockdown
+    sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.001))
+    sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen1, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.001))
+    sim.pars['interventions'].append(cv.test_prob(start_day=reopen1, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.001))
 
     # Tracing
-    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
-                                                        trace_time=params.extrapars['trace_time'],
-                                                        start_day=0))
-    tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
-    if tracing_app is not None:
-        sim.pars['interventions'].append(tracing_app)
-    if id_checks is not None:
-        sim.pars['interventions'].append(id_checks)
-
-    # Clipping
-    for policy, clip_attributes in params.policies['clip_policies'].items():
-        if policy in policies:
-            if sim['verbose']:
-                print(f'Adding clipping policy {policy}')
-            sim.pars['interventions'].append(cv.clip_edges(days=0,
-                                                           layers=clip_attributes['layers'],
-                                                           changes=clip_attributes['change']))
-
-
+    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'], trace_time=params.extrapars['trace_time'], start_day=0))
 
     return sim
 
 
-def run_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdict='nswpopdict.pop', policies=None):
+def run_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop'):
     """
     Run a single outbreak simulation
     """
 
-    sim = make_sim(seed=seed, params=params, load_pop=load_pop, popfile=popfile, popdict=popdict, policies=policies)
+    sim = make_sim(seed=seed, params=params, load_pop=load_pop, popfile=popfile)
     sim.run()
     return sim
 
 
 T = sc.tic()
 params = make_pars(location='NSW', pop_size=100e3, pop_infected=150)
-policies = load_policies()
+#policies = load_policies()
 popdict = sc.loadobj('nswpopdict.pop')
-# people, popdict = make_people(seed=1, params=params, savepeople=True, popfile='nswppl.pop', savepopdict=True, popdictfile='nswpopdict.pop')
-sim = run_sim(seed=1, params=params, load_pop=True, popfile='nswppl.pop', popdict=popdict, policies=policies)
+#people, popdict = make_people(seed=1, params=params, savepeople=True, popfile='nswppl.pop', savepopdict=True, popdictfile='nswpopdict.pop')
+sim = run_sim(seed=1, params=params, load_pop=True, popfile='nswppl.pop')
 
 # Plotting
 to_plot = sc.objdict({
     'Diagnoses': ['cum_diagnoses'],
-    'Daily diagnoses': ['new_diagnoses'],
     'Deaths': ['cum_deaths'],
-    'Daily deaths': ['new_deaths'],
     'Total infections': ['cum_infections'],
-    'Cumulative tests': ['cum_tests'],
     'New infections per day': ['new_infections'],
-    'New tests': ['new_tests'],
     })
 
 
 sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
-         legend_args={'loc': 'upper left'}, axis_args={'hspace':0.4}, interval=21)
+         legend_args={'loc': 'upper left'}, axis_args={'hspace':0.4}, interval=14)
 
 #if do_save:
 #    sim.save(f'nigeria_{which}_{length}.sim')
