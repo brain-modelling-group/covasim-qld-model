@@ -11,7 +11,7 @@ import numpy as np
 import sys
 
 
-def load_packages():
+def load_policies():
     """
     Load policy packages from Excel file
     """
@@ -78,7 +78,7 @@ def make_people(seed=None, params=None, savepeople=True, popfile='nswppl.pop', s
     return people, popdict
 
 
-def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdict='nswpopdict.pop'):
+def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdict='nswpopdict.pop', policies=None):
     # setup simulation for this location
     sim = cv.Sim(pars=params.pars,
                  datafile=None,
@@ -90,16 +90,16 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdic
     # Add interventions
     sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys, contact_numbers=params.pars['contacts'], popdict=popdict))
 
-    # SET BETA POLICIES
+    # Beta policies
     beta_schedule = policy_updates.PolicySchedule(params.pars["beta_layer"], params.policies['beta_policies'])  # create policy schedule with beta layer adjustments
-    for policy in scen_policies:
+    for policy in policies:
         if policy in beta_schedule.policies:
             if sim['verbose']:
                 print(f'Adding beta policy {policy}')
             beta_schedule.start(policy, 0)
     sim.pars['interventions'].append(beta_schedule)
 
-    # SET TESTING
+    # Testing
     sim.pars['interventions'].append(cv.test_num(daily_tests=params.extrapars["future_daily_tests"],
                                                  symp_test=params.extrapars['symp_test'],
                                                  quar_test=params.extrapars['quar_test'],
@@ -107,7 +107,7 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdic
                                                  test_delay=params.extrapars['test_delay'],
                                                  loss_prob=params.extrapars['loss_prob']))
 
-    # SET TRACING
+    # Tracing
     sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
                                                         trace_time=params.extrapars['trace_time'],
                                                         start_day=0))
@@ -117,9 +117,9 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdic
     if id_checks is not None:
         sim.pars['interventions'].append(id_checks)
 
-    # SET CLIPPING POLICIES
+    # Clipping
     for policy, clip_attributes in params.policies['clip_policies'].items():
-        if policy in scen_policies:
+        if policy in policies:
             if sim['verbose']:
                 print(f'Adding clipping policy {policy}')
             sim.pars['interventions'].append(cv.clip_edges(days=0,
@@ -131,18 +131,41 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdic
     return sim
 
 
-def run_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop'):
+def run_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', popdict='nswpopdict.pop', policies=None):
     """
     Run a single outbreak simulation
     """
 
-    sim = make_sim(seed, params, load_pop=load_pop, popfile=popfile)
+    sim = make_sim(seed=seed, params=params, load_pop=load_pop, popfile=popfile, popdict=popdict, policies=policies)
     sim.run()
     return sim
 
 
 T = sc.tic()
 params = make_pars(location='NSW', pop_size=100e3, pop_infected=150)
+policies = load_policies()
+popdict = sc.loadobj('nswpopdict.pop')
 # people, popdict = make_people(seed=1, params=params, savepeople=True, popfile='nswppl.pop', savepopdict=True, popdictfile='nswpopdict.pop')
-sim = run_sim(seed=1, params=params, load_pop=True, popfile='nswppl.pop')
+sim = run_sim(seed=1, params=params, load_pop=True, popfile='nswppl.pop', popdict=popdict, policies=policies)
+
+# Plotting
+to_plot = sc.objdict({
+    'Diagnoses': ['cum_diagnoses'],
+    'Daily diagnoses': ['new_diagnoses'],
+    'Deaths': ['cum_deaths'],
+    'Daily deaths': ['new_deaths'],
+    'Total infections': ['cum_infections'],
+    'Cumulative tests': ['cum_tests'],
+    'New infections per day': ['new_infections'],
+    'New tests': ['new_tests'],
+    })
+
+
+sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
+         legend_args={'loc': 'upper left'}, axis_args={'hspace':0.4}, interval=21)
+
+#if do_save:
+#    sim.save(f'nigeria_{which}_{length}.sim')
+
+
 sc.toc(T)
