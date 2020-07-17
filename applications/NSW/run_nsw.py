@@ -141,9 +141,11 @@ def run_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop'):
 
 T = sc.tic()
 params = make_pars(location='NSW', pop_size=100e3, pop_infected=150)
-#policies = load_policies()
 popdict = sc.loadobj('nswpopdict.pop')
+
+#Uncommnt this if you need to make people ###
 #people, popdict = make_people(seed=1, params=params, savepeople=True, popfile='nswppl.pop', savepopdict=True, popdictfile='nswpopdict.pop')
+
 sim = run_sim(seed=1, params=params, load_pop=True, popfile='nswppl.pop')
 
 # Plotting
