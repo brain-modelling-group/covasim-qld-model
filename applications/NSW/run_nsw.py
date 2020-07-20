@@ -40,6 +40,7 @@ def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
                 'pop_scale': 1,
                 'rescale': 0,
                 'beta': 0.032,
+                'n_imports': 1, # Number of new cases to import per day -- varied over time as part of the interventions
                 'start_day': '2020-03-01',
                 'end_day': '2020-07-13',
                 'verbose': 1}
@@ -116,15 +117,18 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', datafi
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing
-    symp_prob_prelockdown = 0.025 # Limited testing pre lockdown - 15%
-    symp_prob_lockdown = 0.4 # Increased testing during lockdown - 40%
-    symp_prob_postlockdown = 0.5 # Much higher testing since lockdown
+    symp_prob_prelockdown = 0.025 # Limited testing pre lockdown - 22%
+    symp_prob_lockdown = 0.4 # Increased testing during lockdown - almost 100%!
+    symp_prob_postlockdown = 0.5 # Much higher testing since lockdown - almost 100%!
     sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.001))
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen1, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.001))
     sim.pars['interventions'].append(cv.test_prob(start_day=reopen1, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.001))
 
     # Tracing
     sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'], trace_time=params.extrapars['trace_time'], start_day=0))
+
+    # Close borders, then open them again in June to account for Victorian imports
+    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [14, 90], 'vals': [0, 1]}}))
 
     return sim
 
