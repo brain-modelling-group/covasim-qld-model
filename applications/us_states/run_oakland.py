@@ -215,6 +215,9 @@ if __name__ == "__main__":
          seroprev_MB_nov_dec, seroprev_LB_nov_dec, seroprev_UB_nov_dec]
     ]
 
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
+
     worksheet.add_table('A1:X4', {'data': projections})
     worksheet2 = workbook.add_worksheet('Daily projections')
     sdate = date(2020, 7, 15)  # start date
