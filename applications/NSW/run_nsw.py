@@ -40,10 +40,10 @@ def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
                 'pop_scale': 1,
                 'rescale': 0,
                 'beta': 0.032,
-                'n_imports': 1, # Number of new cases to import per day -- varied over time as part of the interventions
+                'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
                 'start_day': '2020-03-01',
                 'end_day': '2020-07-13',
-                'verbose': 1}
+                'verbose': .1}
 
     metapars = {'noise': 0.0,
                 'verbose': 0}
