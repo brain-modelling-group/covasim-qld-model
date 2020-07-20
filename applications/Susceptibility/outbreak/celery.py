@@ -1,6 +1,9 @@
 from celery import Celery
 from covasim import misc
 import outbreak
+import tqdm
+import dill
+import time
 
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
 
@@ -15,7 +18,7 @@ celery.conf.result_backend = broker
 celery.conf.task_default_queue = 'outbreak'
 celery.conf.accept_content = ['pickle', 'json']
 celery.conf.task_serializer = 'pickle'
-celery.conf.result_serializer = 'json'
+celery.conf.result_serializer = 'pickle'
 celery.conf.worker_prefetch_multiplier = 1
 celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case they are faster
 
@@ -62,3 +65,61 @@ def run_australia_test_prob(seed, params, scen_policies, symp_prob, asymp_prob, 
     sim_stats['cum_tests'] = sim.results['cum_tests'][-1]
 
     return sim_stats
+
+
+@celery.task()
+def run_sim(sim, seed, analyzer_string=None):
+    """
+    Run a generic Sim
+
+    It's possible to quickly run out of storage space if thousands of Sims are stored with all of
+    their people. Instead, can trivially run the simulation and have a pickleable analyzer function
+    for postprocessing
+    Args:
+        sim:
+        seed:
+        analyzer:
+
+    Returns:
+
+    """
+
+    # The sim should not be initialized
+    sim.pars['rand_seed'] = seed
+    sim.run()
+
+    analyzer = dill.loads(analyzer_string)
+
+    if analyzer is None:
+        return sim
+    else:
+        return analyzer(sim)
+
+def run_multi_sim(sim, n_runs, celery=True, analyzer=None):
+
+    from .celery import run_sim
+    from celery import group
+
+    analyzer_string = dill.dumps(analyzer)
+
+    if celery:
+        # Run simulations using celery
+        job = group([run_sim.s(sim=sim, seed=i, analyzer_string=analyzer_string) for i in range(n_runs)])
+        result = job.apply_async()
+
+        with tqdm.tqdm(total=n_runs) as pbar:
+            while result.completed_count() < n_runs:
+                time.sleep(1)
+                pbar.n = result.completed_count()
+                pbar.refresh()
+            pbar.n = result.completed_count()
+            pbar.refresh()
+        output = result.join()
+        result.forget()
+
+    else:
+        output = []
+        for i in tqdm.tqdm(range(n_runs)):
+            output.append(run_sim(sim=sim, seed=i, analyzer_string=analyzer_string))
+
+    return output
