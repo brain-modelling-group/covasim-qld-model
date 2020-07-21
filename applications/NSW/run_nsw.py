@@ -11,24 +11,13 @@ import numpy as np
 import sys
 
 
-def load_policies():
+def make_people(seed=None, pop_size=100e3, pop_infected=150, savepeople=True, popfile='nswppl.pop', savepopdict=False, popdictfile='nswpopdict.pop'):
     """
-    Load policy packages from Excel file
-    """
-    packages = pd.read_excel('policy_packages.xlsx', index_col=0)
-    packages = packages.T
-    packages = packages.to_dict(orient='index')
-    packages = {name: [policy for policy, active in package.items() if not pd.isnull(active)] for name, package in packages.items()}
-    return packages
-
-
-def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
-    """
-    Load Australian parameters from Excel files
+    Produce popdict and People
     """
 
     db_name = 'input_data_Australia'
-    epi_name = 'epi_data_Australia'
+    epi_name = 'epi_data_Australia' # Not sure why epi datafile needs to be passed in here, but difficult to remove this dependency
 
     all_lkeys = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
                  'transport', 'public_parks', 'large_events', 'social']
@@ -38,18 +27,10 @@ def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
     sim_pars = {'pop_size': int(pop_size),
                 'pop_infected': pop_infected,
                 'pop_scale': 1,
-                'rescale': 0,
-                'beta': 0.032,
-                'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
-                'start_day': '2020-03-01',
-                'end_day': '2020-07-13',
-                'verbose': .1}
-
-    metapars = {'noise': 0.0,
-                'verbose': 0}
+                'rescale': 1} # Pass in a minimal set of sim pars
 
     # return data relevant to each specified location in "locations"
-    loc_data = data.read_data(locations=[location],
+    loc_data = data.read_data(locations=['NSW'],
                               db_name=db_name,
                               epi_name=epi_name,
                               all_lkeys=all_lkeys,
@@ -57,18 +38,10 @@ def make_pars(location='NSW', pop_size=100e3, pop_infected=150):
                               calibration_end={'NSW':'2020-07-13'})
 
     # setup parameters object for this simulation
-    params = parameters.setup_params(location=location,
+    params = parameters.setup_params(location='NSW',
                                      loc_data=loc_data,
-                                     metapars=metapars,
                                      sim_pars=sim_pars)
 
-    return params
-
-
-def make_people(seed=None, params=None, savepeople=True, popfile='nswppl.pop', savepopdict=False, popdictfile='nswpopdict.pop'):
-    """
-    Produce popdict and People
-    """
 
     utils.set_rand_seed({'seed': seed})
     params.pars['rand_seed'] = seed
@@ -79,13 +52,28 @@ def make_people(seed=None, params=None, savepeople=True, popfile='nswppl.pop', s
     return people, popdict
 
 
-def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', datafile='nsw_epi_data.csv'):
-    # setup simulation for this location
-    sim = cv.Sim(pars=params.pars,
+def make_sim(load_pop=True, popfile='nswppl.pop', datafile='nsw_epi_data.csv'):
+
+    layers = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'social']
+    pars = {'pop_size': 100e3,
+            'pop_infected': 150,
+            'pop_scale': 1,
+            'rescale': 1,
+            'rand_seed': 1,
+            'beta': 0.0132, # Overall beta to use for calibration
+                                    # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
+            'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers),
+            'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.1], index=layers),
+            'iso_factor':  pd.Series([0.2,  0.20,   0.2,    0.2,    0.20,   0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2], index=layers),
+            'quar_factor': pd.Series([1,    0.01,   0.1,    0.2,    0.01,   0,      0,      0,      0,      0,      0.01,   0,      0,      0], index=layers),
+            'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
+            'start_day': '2020-03-01',
+            'end_day': '2020-07-13',
+            'verbose': .1}
+
+    sim = cv.Sim(pars=pars,
                  datafile=datafile,
                  popfile=popfile,
-                 rand_seed=seed,
-                 pop_size=params.pars['pop_size'],
                  load_pop=load_pop)
 
     # Create beta policies
@@ -125,32 +113,36 @@ def make_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop', datafi
     sim.pars['interventions'].append(cv.test_prob(start_day=reopen1, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.001))
 
     # Tracing
-    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'], trace_time=params.extrapars['trace_time'], start_day=0))
+    trace_probs = {'H': 1, 'S': 0.95, 'W': 0.8, 'C': 0.05, 'church': 0.5, 'pSport': 0.8, 'cSport': 0.5,
+                     'entertainment': 0.01, 'cafe_restaurant': 0.01, 'pub_bar': 0.01, 'transport': 0.01,
+                     'public_parks': 0.01, 'large_events': 0.01, 'social': 0.9}
+    trace_time = {'H': 0, 'S': 2, 'W': 2, 'C': 14, 'church': 5, 'pSport': 3, 'cSport': 3, 'entertainment': 14,
+                    'cafe_restaurant': 14, 'pub_bar': 14, 'transport': 14, 'public_parks': 14, 'large_events': 14,
+                    'social': 3}
+    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0))
 
     # Close borders, then open them again in June to account for Victorian imports
     sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [14, 90], 'vals': [0, 1]}}))
+    sim.initialize()
 
     return sim
 
 
-def run_sim(seed=None, params=None, load_pop=True, popfile='nswppl.pop'):
+def run_sim(load_pop=True, popfile='nswppl.pop', datafile='nsw_epi_data.csv'):
     """
     Run a single outbreak simulation
     """
 
-    sim = make_sim(seed=seed, params=params, load_pop=load_pop, popfile=popfile)
+    sim = make_sim(load_pop=load_pop, popfile=popfile, datafile=datafile)
     sim.run()
     return sim
 
 
 T = sc.tic()
-params = make_pars(location='NSW', pop_size=100e3, pop_infected=150)
-popdict = sc.loadobj('nswpopdict.pop')
-
-#Uncommnt this if you need to make people ###
-#people, popdict = make_people(seed=1, params=params, savepeople=True, popfile='nswppl.pop', savepopdict=True, popdictfile='nswpopdict.pop')
-
-sim = run_sim(seed=1, params=params, load_pop=True, popfile='nswppl.pop')
+remakeppl=False
+if remakeppl:
+    people, popdict = make_people(seed=1, pop_size=100e3, pop_infected=150, savepeople=True, popfile='nswppl.pop', savepopdict=True, popdictfile='nswpopdict.pop')
+sim = run_sim(load_pop=True, popfile='nswppl.pop')
 
 # Plotting
 to_plot = sc.objdict({
@@ -163,9 +155,6 @@ to_plot = sc.objdict({
 
 sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
          legend_args={'loc': 'upper left'}, axis_args={'hspace':0.4}, interval=14)
-
-#if do_save:
-#    sim.save(f'nigeria_{which}_{length}.sim')
 
 
 sc.toc(T)
