@@ -58,14 +58,14 @@ def make_sim(load_pop=True, popfile='nswppl.pop', datafile='nsw_epi_data.csv'):
     pars = {'pop_size': 100e3,
             'pop_infected': 150,
             'pop_scale': 1,
-            'rescale': 1,
+            'rescale': 0,
             'rand_seed': 1,
-            'beta': 0.0132, # Overall beta to use for calibration
+            'beta': 0.032, # Overall beta to use for calibration
                                     # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
-            'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers),
-            'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.1], index=layers),
-            'iso_factor':  pd.Series([0.2,  0.20,   0.2,    0.2,    0.20,   0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2], index=layers),
-            'quar_factor': pd.Series([1,    0.01,   0.1,    0.2,    0.01,   0,      0,      0,      0,      0,      0.01,   0,      0,      0], index=layers),
+            'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers).to_dict(),
+            'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.1], index=layers).to_dict(),
+            'iso_factor':  pd.Series([0.2,  0.20,   0.2,    0.2,    0.20,   0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2,    0.2], index=layers).to_dict(),
+            'quar_factor': pd.Series([1,    0.01,   0.1,    0.2,    0.01,   0,      0,      0,      0,      0,      0.01,   0,      0,      0], index=layers).to_dict(),
             'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
             'start_day': '2020-03-01',
             'end_day': '2020-07-13',
