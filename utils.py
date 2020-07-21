@@ -134,7 +134,8 @@ def get_custom_lkeys(all_lkeys=None):
     if all_lkeys is None:
         all_lkeys = get_all_lkeys()
 
-    custom_lkeys = list(set(all_lkeys) - set(get_default_lkeys(all_lkeys)))
+    default_lkeys = set(get_default_lkeys(all_lkeys))
+    custom_lkeys = [x for x in all_lkeys if x not in default_lkeys] # Don't change the order, otherwise runs are not reproducible due to rng
 
     return custom_lkeys
 
