@@ -4,6 +4,7 @@ import outbreak
 import tqdm
 import dill
 import time
+import sciris as sc
 
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
 
@@ -120,6 +121,6 @@ def run_multi_sim(sim, n_runs, celery=True, analyzer=None):
     else:
         output = []
         for i in tqdm.tqdm(range(n_runs)):
-            output.append(run_sim(sim=sim, seed=i, analyzer_string=analyzer_string))
+            output.append(run_sim(sim=sc.dcp(sim), seed=i, analyzer_string=analyzer_string))
 
     return output
