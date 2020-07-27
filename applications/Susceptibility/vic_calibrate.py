@@ -1,6 +1,3 @@
-import user_interface as ui
-from utils import policy_plot2
-import os
 import outbreak
 import contacts as co
 import covasim as cv
@@ -9,23 +6,25 @@ import utils
 import sciris as sc
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
     start_day_relative_to_jul_9 = -40  # Start this many days beforehand
-    n_days = 6*7-start_day_relative_to_jul_9
+    n_days = 6*7-start_day_relative_to_jul_9 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases
     seeded_cases = {2: 100}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2
     beta = 0.03 # Overall beta
     extra_tests = 2000  # Add this many tests per day on top of the linear fit
     symp_test = 5  # People with symptoms are this many times more likely to be tested
-    n_runs = 2  # Number of simulations to run
+    n_runs = 10  # Number of simulations to run
 
     use_stage3_lockdown = True # If True, apply Stage 3 policies on Jul 9
+    use_masks = True # If True, start Masks policy on 22nd Jul. Note masks will only be used if the lockdown duration is at least 2 weeks (so it reaches Jul 22)
     lockdown_duration = 4*7  # Lockdown duration in days (after Jul 9)
 
     # Set up parameters
-    params = outbreak.load_australian_parameters('Victoria', pop_size=5e4, pop_infected=0, n_days=n_days)
+    params = outbreak.load_australian_parameters('Victoria', pop_size=1e5, pop_infected=0, n_days=n_days)
     params.pars["n_imports"] = n_imports # Number of imports per day
     params.pars['beta'] = beta
 
@@ -54,39 +53,34 @@ if __name__ == '__main__':
     beta_schedule = policy_updates.PolicySchedule(params.pars["beta_layer"], params.policies['beta_policies'])
     # Policies before 9th July
     # beta_schedule.start('lockdown_relax', 0) # Lockdown-relax currently has no effect
-    beta_schedule.start('church_4sqm', 0)
-    beta_schedule.start('cafe_restaurant_4sqm', 0)
-    beta_schedule.start('pub_bar_4sqm', 0)
-    beta_schedule.start('outdoor200', 0)
-    beta_schedule.start('large_events', 0)
+    beta_schedule.add('church_4sqm', start_day=0)
+    beta_schedule.add('cafe_restaurant_4sqm', start_day=0)
+    beta_schedule.add('pub_bar_4sqm', start_day=0)
+    beta_schedule.add('outdoor200', start_day=0)
+    beta_schedule.add('large_events', start_day=0)
 
     if use_stage3_lockdown:
         # Add these on 9th July
         jul9 = -start_day_relative_to_jul_9
-        beta_schedule.start('cSports', jul9)
-        beta_schedule.start('entertainment', jul9)
-
-        # Replace these on 9th July
-        beta_schedule.end('cafe_restaurant_4sqm', jul9)
-        beta_schedule.start('cafe_restaurant0', jul9)
-        beta_schedule.end('pub_bar_4sqm', jul9)
-        beta_schedule.start('pub_bar0', jul9)
-        beta_schedule.end('outdoor200', jul9)
-        beta_schedule.start('outdoor2', jul9)
-
-        # Lift lockdowns
+        jul22 = jul9+(22-9)
         lift_day = lockdown_duration+jul9 # Lift lockdown on this day. The 2*7 is 2 weeks after Jul 9.
-        beta_schedule.end('cSports', lift_day)
-        beta_schedule.end('entertainment', lift_day)
 
-        # Replace these on 9th July
-        beta_schedule.start('cafe_restaurant_4sqm', lift_day)
-        beta_schedule.end('cafe_restaurant0', lift_day)
-        beta_schedule.start('pub_bar_4sqm', lift_day)
-        beta_schedule.end('pub_bar0', lift_day)
-        beta_schedule.start('outdoor200', lift_day)
-        beta_schedule.end('outdoor2', lift_day)
+        # Replace these policies and add them back afterwards
+        beta_schedule.end('cafe_restaurant_4sqm', jul9)
+        beta_schedule.end('pub_bar_4sqm', jul9)
+        beta_schedule.end('outdoor200', jul9)
+        beta_schedule.add('cafe_restaurant0', start_day=jul9, end_day=lift_day)
+        beta_schedule.add('pub_bar0', start_day=jul9, end_day=lift_day)
+        beta_schedule.add('outdoor2', start_day=jul9, end_day=lift_day)
+        beta_schedule.add('cafe_restaurant_4sqm', lift_day)
+        beta_schedule.add('pub_bar_4sqm', lift_day)
+        beta_schedule.add('outdoor200', lift_day)
 
+        if use_masks and lift_day > jul22:
+            beta_schedule.add('masks', start_day=jul22, end_day=lift_day)
+
+        beta_schedule.add('cSports', start_day=jul9, end_day=lift_day)
+        beta_schedule.add('entertainment', start_day=jul9, end_day=lift_day)
 
     interventions.append(beta_schedule)
 
@@ -99,6 +93,8 @@ if __name__ == '__main__':
     interventions.append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
                                             trace_time=params.extrapars['trace_time'],
                                             start_day=0))
+
+    # nb. These probably don't do anything because the coverages are all tied to a different simulation start dates
     tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
     if tracing_app is not None:
         interventions.append(tracing_app)
@@ -134,9 +130,9 @@ if __name__ == '__main__':
 
     # Add number-based testing interventions
     tests = pd.read_csv('new_tests.csv',parse_dates=['Date'])
-    tests['day'] = (tests['Date']-pd.to_datetime('2020-07-09')).dt.days # Get day index relative to start day of 18th June
+    tests['day'] = (tests['Date']-pd.to_datetime('2020-07-09')).dt.days # Get day index relative to start day of 9th July
     tests.set_index('day',inplace=True)
-    tests = tests.loc[tests.index>=start_day_relative_to_jul_9]['vic'].replace('-', None, regex=True).astype(int)
+    tests = tests.loc[tests.index>=start_day_relative_to_jul_9]['vic'].dropna().astype(int)
     tests = tests*(sim.n/4.9e6)  # Approximately scale to number of simulation agents - this might need to be changed!
     coeffs = np.polyfit(tests.index-start_day_relative_to_jul_9, tests.values, 1)
     tests_per_day = np.arange(params.pars["n_days"]+1)*coeffs[0]+coeffs[1]
@@ -157,7 +153,7 @@ if __name__ == '__main__':
     # results = run_multi_sim(sim,n_runs, analyzer=analyzer, celery=True)
 
     # Run using MultiSim
-    s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=True, par_args={'ncpus':2})
+    s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=True, par_args={'ncpus':4})
     s.run()
     results = [x.results for x in s.sims]
 
@@ -165,23 +161,110 @@ if __name__ == '__main__':
     ####### ANALYZE RESULTS
 
     def plot_cum_diagnosed(ax):
+        for result in results:
+            ax.plot(result['t'], result['cum_diagnoses'], color='b', alpha=0.05)
 
+        cases = pd.read_csv('new_cases.csv', parse_dates=['Date'])
+        cases['day'] = (cases['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
+        cases.set_index('day', inplace=True)
+        cases = cases.loc[cases.index >= start_day_relative_to_jul_9]['vic'].astype(int).cumsum()
+        ax.scatter(cases.index - start_day_relative_to_jul_9, cases.values, s=5, color='k')
+        after_lockdown = cases.index.values>0
+        ax.scatter(cases.index.values[after_lockdown] - start_day_relative_to_jul_9, cases.values[after_lockdown], s=5, color='r')
+
+        if use_stage3_lockdown:
+            ax.axvspan(-start_day_relative_to_jul_9, lockdown_duration-start_day_relative_to_jul_9, alpha=0.05, color='red')
+
+        if use_masks:
+            ax.axvspan(jul22, lockdown_duration-start_day_relative_to_jul_9, alpha=0.05, color='red')
+
+
+        ax.set_title('Cumulative diagnosed cases')
+
+        exponent = []
+        for res in results:
+            diagnoses = res['cum_diagnoses'].values
+            n_window = (diagnoses>50) & (diagnoses < 2000)
+            if sum(n_window)>4:
+                # Need enough data points to be able to produce a reasonable curve fit
+                x = res['t'][n_window]
+                y = diagnoses[n_window]
+                coeffs = np.polyfit(x, np.log(y), 1, w=np.sqrt(y))
+                exponent.append(coeffs[0])
+            else:
+                exponent.append(0) # Because it never reached 50 diagnoses
+
+        # Fit exponential to data
+        x = cases.index-start_day_relative_to_jul_9
+        y = cases.values
+        n_window = (y > 50) & (y < 2000)
+        coeffs = np.polyfit(x[n_window], np.log(y[n_window]), 1, w=np.sqrt(y[n_window]))
+        ax.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x),'k--', linewidth=1)
+
+        ax.text(0.05,0.9,f'Data exponent = {coeffs[0]:.4f}', transform=ax.transAxes)
+        ax.text(0.05,0.80,f'Average model exponent = {np.mean(exponent):.4f}', transform=ax.transAxes)
 
     def plot_cum_infections(ax):
+        for result in results:
+            ax.plot(result['t'], result['cum_infections'], color='b', alpha=0.05)
+        ax.set_title('Cumulative infections')
+        ax.hlines(params.pars['pop_size'], 0, result['t'][-1])
 
     def plot_new_diagnoses(ax):
+        for result in results:
+            ax.plot(result['t'], result['new_diagnoses'], color='b', alpha=0.05)
+        ax.set_title('New diagnoses')
+
+        cases = pd.read_csv('new_cases.csv', parse_dates=['Date'])
+        cases['day'] = (cases['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
+        cases.set_index('day', inplace=True)
+        cases = cases.loc[cases.index >= start_day_relative_to_jul_9]['vic'].astype(int)
+        ax.scatter(cases.index - start_day_relative_to_jul_9, cases.values, color='k')
+
+        if use_stage3_lockdown:
+            ax.axvspan(-start_day_relative_to_jul_9, lockdown_duration-start_day_relative_to_jul_9, alpha=0.05, color='red')
+
+        if use_masks:
+            ax.axvspan(jul22, lockdown_duration-start_day_relative_to_jul_9, alpha=0.05, color='red')
+
 
     def plot_daily_tests(ax):
+        for result in results:
+            ax.plot(result['t'], result['new_tests'], color='r', alpha=0.05)
+
+        tests = pd.read_csv('new_tests.csv', parse_dates=['Date'])
+        tests['day'] = (tests['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
+        tests.set_index('day', inplace=True)
+        tests = tests.loc[tests.index >= start_day_relative_to_jul_9]['vic'].astype(float)
+        tests = tests * (sim.n / 4.9e6)  # Approximately scale to number of simulation agents
+        ax.scatter(tests.index - start_day_relative_to_jul_9, tests.values, color='k')
+        ax.set_title('Daily tests')
+
+    def plot_test_yield(ax):
+        for result in results:
+            ax.plot(result['t'], result['test_yield'], color='r', alpha=0.05)
+        ax.set_title('Test yield*')
 
     def plot_active_infections(ax):
+        for result in results:
+            ax.plot(result['t'], result['n_infectious'], color='b', alpha=0.05)
+        ax.set_title('Active infections')
 
     def plot_severe_infections(ax):
-        
+        for result in results:
+            ax.plot(result['t'], result['n_severe'], color='b', alpha=0.05)
+        ax.set_title('Severe infections')
+
+        hosp = pd.read_csv('hospitalised.csv', parse_dates=['Date'])
+        hosp['day'] = (hosp['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
+        hosp.set_index('day', inplace=True)
+
+        hosp = hosp.loc[hosp.index >= start_day_relative_to_jul_9]['vic'].astype(int)
+        ax.scatter(hosp.index - start_day_relative_to_jul_9, hosp.values, color='k')
 
 
-    import matplotlib.pyplot as plt
     fig, ax = plt.subplots(2,3)
-    fig.set_size_inches(10, 7)
+    fig.set_size_inches(20, 8)
 
     titlestr = f'{n_imports} imported cases per day, seeded {seeded_cases}'
     if use_stage3_lockdown:
@@ -189,105 +272,17 @@ if __name__ == '__main__':
     else:
         titlestr += f' - No Stage 3'
 
+    if use_masks:
+        titlestr += f' + masks'
+
     fig.suptitle(titlestr)
 
-    # DIAGNOSES
-    for result in results:
-        ax[0][0].plot(result['t'], result['cum_diagnoses'], color='b', alpha=0.05)
+    plot_new_diagnoses(ax[0][0])
+    plot_cum_diagnosed(ax[0][1])
+    plot_cum_infections(ax[0][2])
 
-    cases = pd.read_csv('new_cases.csv',parse_dates=['Date'])
-    cases['day'] = (cases['Date']-pd.to_datetime('2020-07-09')).dt.days # Get day index relative to start day of 18th June
-    cases.set_index('day',inplace=True)
-    cases = cases.loc[cases.index>=start_day_relative_to_jul_9]['vic'].astype(int).cumsum()
-    ax[0][0].scatter(cases.index-start_day_relative_to_jul_9,cases.values,color='k')
-    ax[0][0].set_title('Cumulative diagnosed cases')
-
-    # INFECTIONS
-    for result in results:
-        ax[0][1].plot(result['t'], result['cum_infections'], color='b', alpha=0.05)
-    ax[0][1].set_title('Cumulative infections')
-    ax[0][1].hlines(params.pars['pop_size'],0,result['t'][-1])
-
-    # TESTS
-    for result in results:
-        ax[1][0].plot(result['t'], result['new_tests'], color='r', alpha=0.05)
-
-    tests = pd.read_csv('new_tests.csv',parse_dates=['Date'])
-    tests['day'] = (tests['Date']-pd.to_datetime('2020-07-09')).dt.days # Get day index relative to start day of 18th June
-    tests.set_index('day',inplace=True)
-    tests = tests.loc[tests.index>=start_day_relative_to_jul_9]['vic'].astype(float)
-    tests = tests*(sim.n/4.9e6)  # Approximately scale to number of simulation agents
-    ax[1][0].scatter(tests.index-start_day_relative_to_jul_9,tests.values,color='k')
-    ax[1][0].set_title('Daily tests')
-
-    # for result in results:
-    #     ax[1][1].plot(result['t'], result['test_yield'], color='r', alpha=0.05)
-    # ax[1][1].set_title('Test yield*')
-
-    import numpy as np
-
-    # ### Fit an exponential
-    exponent = []
-    for res in results:
-        diagnoses = res['cum_diagnoses'].values
-        n_window = (diagnoses>50) & (diagnoses < 2000)
-        if sum(n_window)>4:
-            # Need enough data points to be able to produce a reasonable curve fit
-            x = res['t'][n_window]
-            y = diagnoses[n_window]
-            coeffs = np.polyfit(x, np.log(y), 1, w=np.sqrt(y))
-            exponent.append(coeffs[0])
-        else:
-            exponent.append(0) # Because it never reached 50 diagnoses
-
-    # Fit exponential to data
-    x = cases.index-start_day_relative_to_jul_9
-    y = cases.values
-    coeffs = np.polyfit(x, np.log(y), 1, w=np.sqrt(y))
-    # plt.figure()
-    # plt.scatter(x,y,color='k')
-    # plt.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x))
-    # plt.title('Cumulative diagnosed cases')
-
-    ax[0][0].text(0.05,0.9,f'Data exponent = {coeffs[0]:.4f}', transform=ax[0][0].transAxes)
-    ax[0][0].text(0.05,0.80,f'Average model exponent = {np.mean(exponent):.4f}', transform=ax[0][0].transAxes)
-
-
-    # Linear fit to testing rate
-    # x = tests.index-start_day_relative_to_jul_9
-    # y = tests.values
-    # coeffs = np.polyfit(x, y, 1)
-    # plt.figure()
-    # plt.scatter(x,y,color='k')
-    # plt.plot(coeffs[1]+coeffs[0]*x)
-    # plt.title('Daily tests')
-
-    # ACTIVE INFECTIONS
-    for result in results:
-        ax[1][1].plot(result['t'], result['n_infectious'], color='b', alpha=0.05)
-    ax[1][1].set_title('Active infections')
-
-    # NEW DIAGNOSES
-    for result in results:
-        ax[0][2].plot(result['t'], result['new_diagnoses'], color='b', alpha=0.05)
-    ax[0][2].set_title('New diagnoses')
-
-    cases = pd.read_csv('new_cases.csv',parse_dates=['Date'])
-    cases['day'] = (cases['Date']-pd.to_datetime('2020-07-09')).dt.days # Get day index relative to start day of 18th June
-    cases.set_index('day',inplace=True)
-    cases = cases.loc[cases.index>=start_day_relative_to_jul_9]['vic'].astype(int)
-    ax[0][2].scatter(cases.index-start_day_relative_to_jul_9,cases.values,color='k')
-
-    # ACTIVE INFECTIONS
-    for result in results:
-        ax[1][2].plot(result['t'], result['n_severe'], color='b', alpha=0.05)
-    ax[1][2].set_title('Severe infections')
-
-    hosp = pd.read_csv('hospitalised.csv', parse_dates=['Date'])
-    hosp['day'] = (hosp['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
-    hosp.set_index('day', inplace=True)
-
-    hosp = hosp.loc[hosp.index >= start_day_relative_to_jul_9]['vic'].astype(int)
-    ax[1][2].scatter(hosp.index - start_day_relative_to_jul_9, hosp.values, color='k')
+    plot_daily_tests(ax[1][0])
+    plot_active_infections(ax[1][1])
+    plot_severe_infections(ax[1][2])
 
 
