@@ -59,7 +59,7 @@ def make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile='nsw_epi_d
         end_day = '2020-07-31'
     elif whattorun == 'scenarios':
         end_day = '2020-08-31'
-        julybetas = 0.6
+        julybetas = 0.5
 
     pars = {'pop_size': 100e3,
             'pop_infected': 110,
@@ -183,7 +183,7 @@ if domulti:
     sim = make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile)
     msim = cv.MultiSim(base_sim=sim)
     msim.run(n_runs=100, reseed=True, noise=0)
-    msim.save('covasim60.msim')
+    msim.save('covasim50.msim')
     #msim.reduce()
     sim = msim.base_sim
 #    msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
