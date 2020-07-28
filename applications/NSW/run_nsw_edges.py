@@ -1,14 +1,13 @@
 import covasim as cv
 import pandas as pd
+import sciris as sc
 #import contacts as co
 #import data
 #import parameters
-import policy_updates
-import sciris as sc
 #import utils
-import functools
-import numpy as np
-import sys
+#import functools
+#import numpy as np
+#import sys
 
 
 def make_people(seed=None, pop_size=100e3, pop_infected=150, savepeople=True, popfile='nswppl.pop', savepopdict=False, popdictfile='nswpopdict.pop'):
