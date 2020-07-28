@@ -1,11 +1,11 @@
 import covasim as cv
 import pandas as pd
-import contacts as co
-import data
-import parameters
+#import contacts as co
+#import data
+#import parameters
 import policy_updates
 import sciris as sc
-import utils
+#import utils
 import functools
 import numpy as np
 import sys
@@ -186,7 +186,7 @@ if domulti:
     msim.run(n_runs=100, reseed=True, noise=0)
     msim.save()
     #msim.reduce()
-#    sim = msim.base_sim
+    sim = msim.base_sim
 #    msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
 #             legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
 else:
