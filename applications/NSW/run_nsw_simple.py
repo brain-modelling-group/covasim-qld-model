@@ -28,7 +28,7 @@ def make_sim():
     school_dates = ['2020-05-11', '2020-05-18', ]
 
     beta_ints = [cv.change_beta(days=[lockdown, reopen2, reopen4], changes=[1.2, 1.1, 1.0], layers=['h'], do_plot=True),
-                 cv.clip_edges(days=[initresponse, lockdown]+school_dates, changes=[0.75, 0.05, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], layers=['s'], do_plot=False),
+                 cv.clip_edges(days=[initresponse, lockdown]+school_dates, changes=[0.75, 0.05, 0.8, 1], layers=['s'], do_plot=False),
                  cv.change_beta(days=[lockdown, school_dates[0], reopen3, reopen4], changes=[0.2, 0.3, 0.4, 0.5], layers=['w'], do_plot=False),
                  cv.change_beta(days=[lockdown], changes=[0.7], layers=['c'], do_plot=False), # Plot lockdown
                  ]
@@ -60,7 +60,7 @@ def make_sim():
 T = sc.tic()
 
 # Settings
-domultisim=False
+domultisim=True
 
 # Plot settings
 to_plot = sc.objdict({
@@ -74,8 +74,8 @@ to_plot = sc.objdict({
 if domultisim:
     sim = make_sim()
     msim = cv.MultiSim(base_sim=sim)
-    msim.run(n_runs=10, reseed=True, noise=0)
-    msim.reduce()
+    msim.run(n_runs=3, reseed=True, noise=0)
+    msim.save()
     sim = msim.base_sim
     msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
              legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)

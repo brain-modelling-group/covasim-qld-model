@@ -11,7 +11,7 @@ import numpy as np
 import sys
 
 
-def make_people(seed=None, pop_size=500e3, pop_infected=150, savepeople=True, popfile='nswppl.pop', savepopdict=False, popdictfile='nswpopdict.pop'):
+def make_people(seed=None, pop_size=100e3, pop_infected=150, savepeople=True, popfile='nswppl.pop', savepopdict=False, popdictfile='nswpopdict.pop'):
     """
     Produce popdict and People
     """
@@ -179,24 +179,20 @@ to_plot = sc.objdict({
     })
 
 # Run and plot
-#if whattorun == 'scenarios': datafile = None
-#elif whattorun == 'calibration': datafile = 'nsw_epi_data.csv'
 datafile = 'nsw_epi_data.csv'
 if domulti:
     sim = make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile)
     msim = cv.MultiSim(base_sim=sim)
     msim.run(n_runs=100, reseed=True, noise=0)
+    msim.save()
     #msim.reduce()
-    sim = msim.base_sim
-    msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
-             legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
+#    sim = msim.base_sim
+#    msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
+#             legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
 else:
     sim = run_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile)
     sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
              legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
-
-
-
 
 
 
