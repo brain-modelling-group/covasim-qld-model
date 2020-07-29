@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
+    metapars = {'n_runs': 8,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
@@ -99,6 +99,8 @@ if __name__ == "__main__":
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
     # Results
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
     population = 601942
 
     new_inf_LB_sep_oct = sum(
@@ -184,11 +186,11 @@ if __name__ == "__main__":
         mid_nov:end_dec])
     new_diag_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
-            'Moderate easing of restrictions on August']['best'][
+            'Moderate easing of restrictions on August 15']['best'][
         mid_nov:end_dec])
     cum_inf_UB_nov_dec = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'Moderate easing of restrictions on August']['best'][end_dec]
+            'Moderate easing of restrictions on August 15']['best'][end_dec]
     incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population
@@ -212,6 +214,8 @@ if __name__ == "__main__":
          seroprev_MB_nov_dec, seroprev_LB_nov_dec, seroprev_UB_nov_dec]
     ]
 
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
     worksheet.add_table('A1:X4', {'data': projections})
     worksheet2 = workbook.add_worksheet('Daily projections')
     sdate = date(2020, 7, 15)  # start date

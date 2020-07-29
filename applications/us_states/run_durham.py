@@ -75,31 +75,34 @@ if __name__ == "__main__":
     scens = ui.run_scens(scens)
     scens['verbose'] = True
 
-# plot cumulative deaths for calibration
-utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                   fig_path=dirname + '/figs/' + locations[0] + '-calibrate' + '.png',
-                   interval=30, n_cols=1,
-                   fig_args=dict(figsize=(10, 8), dpi=100),
-                   font_size=11,
-                   # y_lim={'new_infections': 500},
-                   legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
-                   axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
-                   fill_args={'alpha': 0.3},
-                   to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
+    # plot cumulative deaths for calibration
+    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+                       fig_path=dirname + '/figs/' + locations[0] + '-calibrate' + '.png',
+                       interval=30, n_cols=1,
+                       fig_args=dict(figsize=(10, 8), dpi=100),
+                       font_size=11,
+                       # y_lim={'new_infections': 500},
+                       legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
+                       axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
+                       fill_args={'alpha': 0.3},
+                       to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
-# plot cumulative infections to see if all the population gets infected
-utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
-                   fig_path=dirname + '/figs/' + locations[0] + '-projections' + '.png',
-                   interval=30, n_cols=1,
-                   fig_args=dict(figsize=(10, 8), dpi=100),
-                   font_size=11,
-                   # y_lim={'new_infections': 500},
-                   legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
-                   axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
-                   fill_args={'alpha': 0.3},
-                   to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
+    # plot cumulative infections to see if all the population gets infected
+    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+                       fig_path=dirname + '/figs/' + locations[0] + '-projections' + '.png',
+                       interval=30, n_cols=1,
+                       fig_args=dict(figsize=(10, 8), dpi=100),
+                       font_size=11,
+                       # y_lim={'new_infections': 500},
+                       legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
+                       axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
+                       fill_args={'alpha': 0.3},
+                       to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
     # Results
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
     population = 274291
+
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections']['No changes to current lockdown restrictions'][
@@ -212,6 +215,8 @@ utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
          seroprev_MB_nov_dec, seroprev_LB_nov_dec, seroprev_UB_nov_dec]
     ]
 
+    workbook = xlsxwriter.Workbook(locations[0] + '_projections.xlsx')
+    worksheet = workbook.add_worksheet('Projections')
     worksheet.add_table('A1:X4', {'data': projections})
     worksheet2 = workbook.add_worksheet('Daily projections')
     sdate = date(2020, 7, 15)  # start date
