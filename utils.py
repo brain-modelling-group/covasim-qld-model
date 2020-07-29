@@ -29,7 +29,8 @@ def colnames():
              'total_tests': 'cum_tests',
              'total_deaths': 'cum_deaths',
              'cum_infections': 'cum_diagnoses',
-             'total_cases': 'cum_diagnoses'} # either total cases or cum_infections in epi book
+             'total_cases': 'cum_diagnoses',
+             'hospitalised': 'n_severe'} # either total cases or cum_infections in epi book
     return names
 
 
@@ -298,7 +299,7 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
             if scen[next(iter(scen))].base_sim.data is not None and reskey in scen[next(iter(scen))].base_sim.data:
                 data_t = np.array((scen[next(iter(scen))].base_sim.data.index - scen[next(iter(scen))].base_sim['start_day']) / np.timedelta64(1, 'D'))
                 #pl.plot(data_t, epidata.base_sim.data[reskey], 'sk', **plot_args)
-                cmap, norm = mpl.colors.from_levels_and_colors(levels=[0,1], colors=['black', 'blue'], extend='max')
+                cmap, norm = mpl.colors.from_levels_and_colors(levels=[0,1], colors=['black', 'black'], extend='max')
                 pl.scatter(x=epidata[next(iter(scen))].index, y=epidata[next(iter(scen))][reskey],c=epidata[next(iter(scen))]['validate'],
                             edgecolor='none', marker='s', cmap=cmap, norm=norm, **plot_args)
                 #pl.plot(epidata[next(iter(scen))].index, epidata[next(iter(scen))][reskey],
@@ -322,7 +323,7 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
         # Plot interventions
         day_projection_starts = utils.get_ndays(scen[next(iter(scen))].base_sim['start_day'] ,
                                                 sc.readdate(calibration_end[next(iter(scen))][next(iter(scen))]))
-        pl.axvline(x=day_projection_starts, color='black', linestyle='--')
+        #pl.axvline(x=day_projection_starts, color='black', linestyle='--')
         scennum = 0
         if plot_ints:
             for scenkey, scendata in resdata.items():

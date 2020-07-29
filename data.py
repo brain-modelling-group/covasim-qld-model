@@ -315,6 +315,7 @@ def extrapolate_tests(tests, future_tests, start_day, n_days, calibration_date):
         test_data = tests.loc[tests['date'] <= calibration_date].copy()  # subset tests
         test_data = test_data['new_tests'].to_numpy()
         tests = np.append(test_data, [future_tests] * days_after_calibration)
+
     return tests
 
 
@@ -358,7 +359,7 @@ def format_epidata(locations, epidata, extrapars):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
     # rename the columns
     epidata = epidata.rename(columns=utils.colnames())
-    to_keep = ['date', 'new_diagnoses', 'cum_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']
+    to_keep = ['date', 'new_diagnoses', 'cum_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests','n_severe']
     epidata_dict = {}
     for l in locations:
         this_country = epidata.loc[l]
@@ -400,7 +401,7 @@ def get_daily_tests(locations, epidata, pars, extrapars, calibration_end):
                                   pars[location]['start_day'],
                                   pars[location]['n_days'],
                                   calibration_date)
-        daily_tests[location] = tests
+        daily_tests[location] = tests * pars[location]['pop_size']/pars[location]['pop_scale']
 
     return daily_tests
 

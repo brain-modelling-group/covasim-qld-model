@@ -13,7 +13,7 @@ if __name__ == '__main__':
     start_day_relative_to_jul_9 = -40  # Start this many days beforehand
     n_days = 5*7-start_day_relative_to_jul_9 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases
-    seeded_cases = {10: 20}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2
+    seeded_cases = {2: 20}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2
     beta = 0.036 # Overall beta
     extra_tests = 4000  # Add this many tests per day on top of the linear fit
     symp_test = 20  # People with symptoms are this many times more likely to be tested
@@ -24,11 +24,15 @@ if __name__ == '__main__':
     lockdown_duration = 4*7  # Lockdown duration in days (after Jul 9)
 
     # Set up parameters
-    params = outbreak.load_australian_parameters('Victoria', pop_size=1e5, pop_infected=0, n_days=n_days)
+    params = outbreak.load_australian_parameters('Victoria', pop_size=2e5, pop_infected=0, n_days=n_days)
     params.pars["n_imports"] = n_imports # Number of imports per day
     params.pars['beta'] = beta
 
     params.extrapars['symp_test'] = symp_test
+
+    params.pars['pop_scale'] = int(4.9e6 / params.pars['pop_size'])
+    params.pars['rescale'] = True
+    params.pars['rescale_threshold'] = 0.1
 
     # Make people
     cv.set_seed(1) # Seed for population generation
