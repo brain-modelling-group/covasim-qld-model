@@ -11,16 +11,16 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     start_day_relative_to_jul_9 = -40  # Start this many days beforehand
-    n_days = 6*7-start_day_relative_to_jul_9 # Total simulation duration (days)
+    n_days = 5*7-start_day_relative_to_jul_9 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases
-    seeded_cases = {2: 100}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2
-    beta = 0.03 # Overall beta
-    extra_tests = 2000  # Add this many tests per day on top of the linear fit
-    symp_test = 5  # People with symptoms are this many times more likely to be tested
-    n_runs = 10  # Number of simulations to run
+    seeded_cases = {10: 20}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2
+    beta = 0.036 # Overall beta
+    extra_tests = 4000  # Add this many tests per day on top of the linear fit
+    symp_test = 20  # People with symptoms are this many times more likely to be tested
+    n_runs = 4  # Number of simulations to run
 
     use_stage3_lockdown = True # If True, apply Stage 3 policies on Jul 9
-    use_masks = True # If True, start Masks policy on 22nd Jul. Note masks will only be used if the lockdown duration is at least 2 weeks (so it reaches Jul 22)
+    use_masks = False # If True, start Masks policy on 22nd Jul. Note masks will only be used if the lockdown duration is at least 2 weeks (so it reaches Jul 22)
     lockdown_duration = 4*7  # Lockdown duration in days (after Jul 9)
 
     # Set up parameters
