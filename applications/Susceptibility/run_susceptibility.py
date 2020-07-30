@@ -17,13 +17,9 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--nruns', default=10, type=int, help='Number of seeds to run per scenario')
 parser.add_argument('--celery', default=False, type=bool, help='If True, use Celery for parallization')
-parser.add_argument('--randompop', default=False, type=bool, help='If True, generate a new population of people for each seed')  #
+parser.add_argument('--randompop', default=True, type=bool, help='If True, generate a new population of people for each seed')  #
 
 args = parser.parse_args()
-
-# Set up results directory
-resultdir = Path(__file__).parent / 'results'
-resultdir.mkdir(parents=True, exist_ok=True)
 
 # Load inputs
 packages = outbreak.load_packages()
@@ -35,28 +31,34 @@ else:
     people, popdict = co.make_people(params)
     population = {'people': people, 'popdict': popdict}
 
-params.test_prob['symp_prob'] = 0.05
+for symp_prob in [0.01,0.05,0.1,0.15,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]:
 
-for name, policies in packages.items():
+    # Set up results directory
+    resultdir = Path(__file__).parent / f'results_{symp_prob*100:03.0f}'
+    resultdir.mkdir(parents=True, exist_ok=True)
 
-    if args.celery:
-        # Run simulations using celery
-        job = group([run_australia_outbreak.s(i, params, policies, **population) for i in range(args.nruns)])
-        result = job.apply_async()
+    params.test_prob['symp_prob'] = symp_prob
 
-        with tqdm(total=args.nruns, desc=name) as pbar:
-            while result.completed_count() < args.nruns:
-                time.sleep(1)
+    for name, policies in packages.items():
+
+        if args.celery:
+            # Run simulations using celery
+            job = group([run_australia_outbreak.s(i, params, policies, **population) for i in range(args.nruns)])
+            result = job.apply_async()
+
+            with tqdm(total=args.nruns, desc=name) as pbar:
+                while result.completed_count() < args.nruns:
+                    time.sleep(1)
+                    pbar.n = result.completed_count()
+                    pbar.refresh()
                 pbar.n = result.completed_count()
                 pbar.refresh()
-            pbar.n = result.completed_count()
-            pbar.refresh()
-        sim_stats = result.join()
-        result.forget()
+            sim_stats = result.join()
+            result.forget()
 
-    else:
-        sim_stats = []
-        for i in tqdm(range(args.nruns), desc=name):
-            sim_stats.append(run_australia_outbreak(i, params, policies, **population))
+        else:
+            sim_stats = []
+            for i in tqdm(range(args.nruns), desc=name):
+                sim_stats.append(run_australia_outbreak(i, params, policies, **population))
 
-    sc.saveobj(resultdir / f'{name}.stats', sim_stats)
+        sc.saveobj(resultdir / f'{name}.stats', sim_stats)

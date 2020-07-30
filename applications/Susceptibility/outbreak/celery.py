@@ -5,6 +5,7 @@ import tqdm
 import dill
 import time
 import sciris as sc
+import numpy as np
 
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
 
@@ -42,6 +43,28 @@ def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=Non
     sim_stats['peak_infections'] = max(sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values)
     sim_stats['peak_incidence'] = max(sim.results['new_infections'])
 
+    sim_stats['symp_prob'] = params.test_prob['symp_prob']
+    sim_stats['asymp_prob'] = params.test_prob['asymp_prob']
+    sim_stats['symp_quar_prob'] = params.test_prob['symp_quar_prob']
+    sim_stats['asymp_quar_prob'] = params.test_prob['asymp_quar_prob']
+
+    sim_stats['cum_tests'] = sim.results['cum_tests'][-1]
+
+    new_infections = np.where(sim.results['new_infections'])[0]
+    new_diagnoses = np.where(sim.results['new_diagnoses'])[0]
+    if len(new_diagnoses) and len(new_infections):
+        sim.results['time_to_first_diagnosis'] = new_diagnoses[0]-new_infections[0] # Time to first diagnosis
+    else:
+        sim.results['time_to_first_diagnosis'] = None
+
+    if len(new_diagnoses):
+        # If there was at least one diagnosis
+        sim_stats['cum_infections_at_first_diagnosis'] = sim.results['cum_infections'][new_diagnoses[0]]
+    else:
+        sim_stats['cum_infections_at_first_diagnosis'] = None
+
+    sim_stats['r_eff7'] = np.average(sim.results['r_eff'][-7:]) # R_eff over last 7 days
+
     return sim_stats
 
 
@@ -60,12 +83,7 @@ def run_australia_test_prob(seed, params, scen_policies, symp_prob, asymp_prob, 
     sim_stats['peak_infections'] = max(sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values)
     sim_stats['peak_incidence'] = max(sim.results['new_infections'])
 
-    sim_stats['symp_prob'] = symp_prob
-    sim_stats['asymp_prob'] = asymp_prob
-    sim_stats['symp_quar_prob'] = symp_quar_prob
-    sim_stats['asymp_quar_prob'] = asymp_quar_prob
 
-    sim_stats['cum_tests'] = sim.results['cum_tests'][-1]
 
     return sim_stats
 
