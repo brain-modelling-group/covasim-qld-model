@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Victoria': {'pop_size': int(1e5),
-                               'beta': 0.045,
+                               'beta': 0.06,
                                'n_days': 70,
                                'calibration_end': '2020-07-27'}}
 
@@ -32,8 +32,10 @@ if __name__ == "__main__":
                                                        [['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
                                                         ['outdoor10'],['church_4sqm']],
                                                        [[lockdown_end],[lockdown_end],[lockdown_end],[lockdown_end]]),
-                                           'turn_off': (['schools', 'social','cSports'],
-                                                        [lockdown_end,lockdown_end,lockdown_end]),
+                                           'turn_on': (['import_cases'],
+                                                        [2]),
+                                           'turn_off': (['schools', 'social','cSports','import_cases'],
+                                                        [lockdown_end,lockdown_end,lockdown_end,4]),
                                            'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
                                                                 'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
                                            'policies': {'lockdown_relax': {'beta': 0.99},

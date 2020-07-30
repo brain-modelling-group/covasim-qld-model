@@ -14,7 +14,7 @@ if __name__ == '__main__':
     n_days = 5*7-start_day_relative_to_jul_9 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases
     seeded_cases = {2: 20}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2
-    beta = 0.036 # Overall beta
+    beta = 0.04 # Overall beta
     extra_tests = 4000  # Add this many tests per day on top of the linear fit
     symp_test = 20  # People with symptoms are this many times more likely to be tested
     n_runs = 4  # Number of simulations to run
@@ -62,6 +62,8 @@ if __name__ == '__main__':
     beta_schedule.add('pub_bar_4sqm', start_day=0)
     beta_schedule.add('outdoor200', start_day=0)
     beta_schedule.add('large_events', start_day=0)
+    beta_schedule.add('entertainment', start_day=0)
+    beta_schedule.add('NE_work', start_day=0)
 
     if use_stage3_lockdown:
         # Add these on 9th July
@@ -76,6 +78,7 @@ if __name__ == '__main__':
         beta_schedule.add('cafe_restaurant0', start_day=jul9, end_day=lift_day)
         beta_schedule.add('pub_bar0', start_day=jul9, end_day=lift_day)
         beta_schedule.add('outdoor2', start_day=jul9, end_day=lift_day)
+        beta_schedule.add('cSports', start_day=jul9, end_day=lift_day)
         beta_schedule.add('cafe_restaurant_4sqm', lift_day)
         beta_schedule.add('pub_bar_4sqm', lift_day)
         beta_schedule.add('outdoor200', lift_day)
@@ -83,8 +86,8 @@ if __name__ == '__main__':
         if use_masks and lift_day > jul22:
             beta_schedule.add('masks', start_day=jul22, end_day=lift_day)
 
-        beta_schedule.add('cSports', start_day=jul9, end_day=lift_day)
-        beta_schedule.add('entertainment', start_day=jul9, end_day=lift_day)
+
+
 
     interventions.append(beta_schedule)
 
