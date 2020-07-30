@@ -1,6 +1,6 @@
 import pandas as pd
 
-states = ['vic','nsw']
+states = ['vic','nsw','qld']
 
 def scrape_data(metric, column, fname):
     dfs = []

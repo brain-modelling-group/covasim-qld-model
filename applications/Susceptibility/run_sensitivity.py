@@ -27,8 +27,8 @@ resultdir.mkdir(parents=True, exist_ok=True)
 packages = outbreak.load_packages()
 params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, pop_infected=1, n_days=31)
 
-symp_probs = np.linspace(0,1,6)
-asymp_quar_probs = np.linspace(0,1,6)
+symp_probs = np.linspace(0,1,11)
+asymp_quar_probs = np.linspace(0,1,11)
 name = 'Pre outbreak'
 policies = packages['Pre outbreak']
 

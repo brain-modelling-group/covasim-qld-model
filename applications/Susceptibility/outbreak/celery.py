@@ -24,8 +24,10 @@ celery.conf.worker_prefetch_multiplier = 1
 celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case they are faster
 
 @celery.task()
-def run_australia_outbreak(seed, params, scen_policies):
-    sim = outbreak.run_australia_outbreak(seed, params, scen_policies)
+def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=None):
+
+    sim = outbreak.get_australia_outbreak(seed, params, scen_policies, people, popdict)
+    sim.run()
 
     # Returning the entire Sim results in too much disk space being consumed by the Redis backend
     # e.g. when running 1000 simulations. So instead, just keep summary statistics
