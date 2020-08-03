@@ -8,8 +8,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Orlando']
     # the name of the databook
-    db_name = 'input_data_US_nash_orlando'
-    epi_name = 'epi_data_US_nash_orlando'
+    db_name = 'input_data_US_group3'
+    epi_name = 'epi_data_US_group3'
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']

@@ -7,22 +7,21 @@ dirname = os.path.dirname(__file__)
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Nashville']
+    locations = ['Jackson']
     # the name of the databook
     db_name = 'input_data_US_group3'
-    epi_name = 'epi_data_US_nash_group3'
+    epi_name = 'epi_data_US_group3'
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
-    user_pars = {'Nashville': {'pop_size': int(10e4),
-                               'beta': 0.08,
-                               'n_days': 150,
+    user_pars = {locations[0]: {'pop_size': int(10e4),
+                               'beta': 0.071,
+                               'n_days': 170,
                                'pop_infected': 20,
-                               'symp_test': 50,
-                               'calibration_end': '2020-05-15'}}
+                               'calibration_end': '2020-08-02'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
@@ -31,7 +30,7 @@ if __name__ == "__main__":
                 'rand_seed': 1}
 
     # the policies to change during scenario runs
-    scen_opts = {'Nashville': {'No changes to current lockdown restrictions':
+    scen_opts = {locations[0]: {'No changes to current lockdown restrictions':
                                    {'replace': (['relax1'], ['relax2'], [[200]]),
                                     'policies': {'relax2': {'beta': 0.6}}}}}
 
@@ -50,7 +49,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
 
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs/Nashville-validate' + '.png',
+                       fig_path=dirname + '/figs/Jackson-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -59,29 +58,29 @@ if __name__ == "__main__":
                        axis_args={'left': 0.1, 'wspace': 0.2, 'right': 0.99, 'hspace': 0.4, 'bottom': 0.15},
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
-
+    '''
     cum_diag_calib_end1 = \
-        scens['scenarios']['Nashville'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
+        scens['scenarios'][locations[0]].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
             80]
     cum_diag_calib_1week = \
-        scens['scenarios']['Nashville'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
+        scens['scenarios'][locations[0]].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
             87]
     cum_diag_calib_2week = \
-        scens['scenarios']['Nashville'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
+        scens['scenarios'][locations[0]].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
             94]
     cum_diag_calib_end2 = \
-        scens['scenarios']['Nashville'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
+        scens['scenarios'][locations[0]].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][
             127]
     cum_death_calib_end1 = \
-        scens['scenarios']['Nashville'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][80]
+        scens['scenarios'][locations[0]].results['cum_deaths']['No changes to current lockdown restrictions']['best'][80]
     cum_death_calib_1week = \
-        scens['scenarios']['Nashville'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][87]
+        scens['scenarios'][locations[0]].results['cum_deaths']['No changes to current lockdown restrictions']['best'][87]
     cum_death_calib_2week = \
-        scens['scenarios']['Nashville'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][94]
+        scens['scenarios'][locations[0]].results['cum_deaths']['No changes to current lockdown restrictions']['best'][94]
     cum_death_calib_end2 = \
-        scens['scenarios']['Nashville'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][127]
+        scens['scenarios'][locations[0]].results['cum_deaths']['No changes to current lockdown restrictions']['best'][127]
 
-    workbook = xlsxwriter.Workbook('Nashville_validation.xlsx')
+    workbook = xlsxwriter.Workbook('Jackson_validation.xlsx')
     worksheet = workbook.add_worksheet('Validation')
 
     validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
@@ -99,4 +98,5 @@ if __name__ == "__main__":
 
     worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
     workbook.close()
+    '''
 
