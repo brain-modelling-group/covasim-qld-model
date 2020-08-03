@@ -13,6 +13,7 @@ import sys
 import tqdm
 import time
 
+
 def load_packages() -> dict:
     """
     Load policy packages from Excel file
@@ -82,15 +83,18 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                                      user_pars=loc_pars)
 
     params.test_prob = {
-        'symp_prob' : 0.1, # Someone who has symptoms has this probability of testing on any given day
-        'asymp_prob' : 0.00, # Someone who is asymptomatic has this probability of testing on any given day
-        'symp_quar_prob' : 0.95, # Someone who is quarantining and has symptoms has this probability of testing on any given day
-        'asymp_quar_prob' : 0.0,
+        'symp_prob': 0.1,  # Someone who has symptoms has this probability of testing on any given day
+        'asymp_prob': 0.00,  # Someone who is asymptomatic has this probability of testing on any given day
+        'symp_quar_prob': 0.95,  # Someone who is quarantining and has symptoms has this probability of testing on any given day
+        'asymp_quar_prob': 0.0,
+        'test_delay': 3, # Number of days for test results to be processed
+        'swab_delay': 2, # Number of days people wait after symptoms before being tested
+        'isolate_while_waiting': True,
     }
 
-    params.seed_infections = {1:n_infected}
+    params.seed_infections = {1: n_infected}
 
-    del params.policies["tracing_policies"]['tracing_app'] # No app-based tracing since it doesn't seem to be having much effect
+    del params.policies["tracing_policies"]['tracing_app']  # No app-based tracing since it doesn't seem to be having much effect
 
     return params
 
@@ -110,7 +114,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     """
 
     utils.set_rand_seed({'seed': seed})  # Set the seed before constructing the people
-    params.pars['rand_seed'] = seed # Covasim resets the seed again internally during initialization...
+    params.pars['rand_seed'] = seed  # Covasim resets the seed again internally during initialization...
 
     if people is None:
         people, popdict = co.make_people(params)
@@ -141,15 +145,15 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     sim.pars['interventions'].append(beta_schedule)
 
     # SET TESTING
-    sim.pars['interventions'].append(cv.test_prob(
+    sim.pars['interventions'].append(utils.test_prob_with_quarantine(
         symp_prob=params.test_prob['symp_prob'],
         asymp_prob=params.test_prob['asymp_prob'],
         symp_quar_prob=params.test_prob['symp_quar_prob'],
         asymp_quar_prob=params.test_prob['asymp_quar_prob'],
-        test_sensitivity=params.extrapars['sensitivity'],
-        test_delay=params.extrapars['test_delay'],
-        loss_prob=params.extrapars['loss_prob'])
-    )
+        test_delay=params.test_prob['test_delay'],
+        swab_delay=params.test_prob['swab_delay'],
+        isolate_while_waiting=params.test_prob['isolate_while_waiting'],
+    ))
 
     # SET TRACING
     sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],

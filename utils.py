@@ -4,6 +4,9 @@ import os
 import sciris as sc
 import utils, policy_updates
 import covasim.utils as cvu
+import covasim.defaults as cvd
+import covasim.base as cvb
+
 
 def get_ndays(start_day, end_day):
     """Calculates the number of days for simulation"""
@@ -30,12 +33,11 @@ def colnames():
              'total_deaths': 'cum_deaths',
              'cum_infections': 'cum_diagnoses',
              'total_cases': 'cum_diagnoses',
-             'hospitalised': 'n_severe'} # either total cases or cum_infections in epi book
+             'hospitalised': 'n_severe'}  # either total cases or cum_infections in epi book
     return names
 
 
 def _format_paths(db_name, epi_name, root):
-
     # databook
     databook_path = os.path.join(root, 'data', db_name)
     if 'xlsx' not in db_name:
@@ -53,7 +55,6 @@ def _format_paths(db_name, epi_name, root):
 
 
 def get_file_paths(db_name, epi_name, root=None):
-
     if root is None:
         root = os.path.dirname(__file__)
 
@@ -126,7 +127,7 @@ def get_default_lkeys(all_lkeys=None):
 
 
 def get_all_lkeys():
-    layers = list(set(get_default_lkeys())|set(get_dynamic_lkeys()))
+    layers = list(set(get_default_lkeys()) | set(get_dynamic_lkeys()))
     return layers
 
 
@@ -136,7 +137,7 @@ def get_custom_lkeys(all_lkeys=None):
         all_lkeys = get_all_lkeys()
 
     default_lkeys = set(get_default_lkeys(all_lkeys))
-    custom_lkeys = [x for x in all_lkeys if x not in default_lkeys] # Don't change the order, otherwise runs are not reproducible due to rng
+    custom_lkeys = [x for x in all_lkeys if x not in default_lkeys]  # Don't change the order, otherwise runs are not reproducible due to rng
 
     return custom_lkeys
 
@@ -166,7 +167,7 @@ def clean_pars(user_pars, locations):
         else:
             calibration_end[location] = None
 
-        new_user_pars[location] = {key: val for key,val in user_pars_oneloc.items() if key in par_keys}
+        new_user_pars[location] = {key: val for key, val in user_pars_oneloc.items() if key in par_keys}
 
     return new_user_pars, calibration_end
 
@@ -186,9 +187,9 @@ def clean_calibration_end(locations, calibration_end):
 
 
 def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=None, fig_args=None, plot_args=None,
-    axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None, plot_base = False,
-    interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
-    do_show=True, sep_figs=False, verbose=1, y_lim=None):
+                 axis_args=None, fill_args=None, legend_args=None, as_dates=True, dateformat=None, plot_base=False,
+                 interval=None, n_cols=1, font_size=18, font_family=None, grid=True, commaticks=True,
+                 do_show=True, sep_figs=False, verbose=1, y_lim=None):
     from matplotlib.ticker import StrMethodFormatter
     import sciris as sc
     import numpy as np
@@ -291,18 +292,18 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
             if commaticks:
                 sc.commaticks()
 
-            epidata[next(iter(scen))]['validate'] = 0 # which data is for validation vs calibration
+            epidata[next(iter(scen))]['validate'] = 0  # which data is for validation vs calibration
             for j in range(len(epidata[next(iter(scen))])):
                 if (epidata[next(iter(scen))]['date'][j]) >= sc.readdate(calibration_end[next(iter(scen))][next(iter(scen))]):
-                    epidata[next(iter(scen))].loc[j,'validate'] = 1
+                    epidata[next(iter(scen))].loc[j, 'validate'] = 1
 
             if scen[next(iter(scen))].base_sim.data is not None and reskey in scen[next(iter(scen))].base_sim.data:
                 data_t = np.array((scen[next(iter(scen))].base_sim.data.index - scen[next(iter(scen))].base_sim['start_day']) / np.timedelta64(1, 'D'))
-                #pl.plot(data_t, epidata.base_sim.data[reskey], 'sk', **plot_args)
-                cmap, norm = mpl.colors.from_levels_and_colors(levels=[0,1], colors=['black', 'black'], extend='max')
-                pl.scatter(x=epidata[next(iter(scen))].index, y=epidata[next(iter(scen))][reskey],c=epidata[next(iter(scen))]['validate'],
-                            edgecolor='none', marker='s', cmap=cmap, norm=norm, **plot_args)
-                #pl.plot(epidata[next(iter(scen))].index, epidata[next(iter(scen))][reskey],
+                # pl.plot(data_t, epidata.base_sim.data[reskey], 'sk', **plot_args)
+                cmap, norm = mpl.colors.from_levels_and_colors(levels=[0, 1], colors=['black', 'black'], extend='max')
+                pl.scatter(x=epidata[next(iter(scen))].index, y=epidata[next(iter(scen))][reskey], c=epidata[next(iter(scen))]['validate'],
+                           edgecolor='none', marker='s', cmap=cmap, norm=norm, **plot_args)
+                # pl.plot(epidata[next(iter(scen))].index, epidata[next(iter(scen))][reskey],
                 #        sc.mergedicts({'c': epidata[next(iter(scen))]['validate'],'cmap': cmap, 'norm':norm}, plot_args))
 
             # Optionally reset tick marks (useful for e.g. plotting weeks/months)
@@ -321,15 +322,15 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
                     ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
         # Plot interventions
-        day_projection_starts = utils.get_ndays(scen[next(iter(scen))].base_sim['start_day'] ,
+        day_projection_starts = utils.get_ndays(scen[next(iter(scen))].base_sim['start_day'],
                                                 sc.readdate(calibration_end[next(iter(scen))][next(iter(scen))]))
-        #pl.axvline(x=day_projection_starts, color='black', linestyle='--')
+        # pl.axvline(x=day_projection_starts, color='black', linestyle='--')
         scennum = 0
         if plot_ints:
             for scenkey, scendata in resdata.items():
                 if scenkey.lower() != 'baseline':
                     for intervention in scen[next(iter(scen))].scenarios[scenkey]['pars']['interventions']:
-                        if hasattr(intervention, 'days'): #and isinstance(intervention, PolicySchedule):
+                        if hasattr(intervention, 'days'):  # and isinstance(intervention, PolicySchedule):
                             otherscen_days = [day for day in intervention.days if day not in otherscen_days]
                         elif hasattr(intervention, 'start_day'):
                             if intervention.start_day != 0:
@@ -355,7 +356,7 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
         if y_lim:
             if reskey in y_lim.keys():
                 ax.set_ylim((0, y_lim[reskey]))
-                if y_lim[reskey] < 20: # kind of arbitrary limit to add decimal places so that it doesn't just plot integer ticks on small ranges
+                if y_lim[reskey] < 20:  # kind of arbitrary limit to add decimal places so that it doesn't just plot integer ticks on small ranges
                     ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
 
     # Ensure the figure actually renders or saves
@@ -372,37 +373,37 @@ def policy_plot2(scens, plot_ints=False, to_plot=None, do_save=None, fig_path=No
 
     return fig
 
+    #
+    # # Plot interventions
+    # scennum = 0
+    # if plot_ints:
+    #     for s, scen_name in enumerate(scen.sims):
+    #         if scen_name.lower() != 'baseline':
+    #             for intervention in scen.sims[scen_name][0]['interventions']:
+    #                 if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule):
+    #                     otherscen_days = [day for day in intervention.days if day not in baseline_days and day not in otherscen_days]
+    #                 elif hasattr(intervention, 'start_day'):
+    #                     if intervention.start_day not in baseline_days and intervention.start_day not in otherscen_days and intervention.start_day != 0:
+    #                         otherscen_days.append(intervention.start_day)
+    #                     if intervention.end_day not in baseline_days and intervention.end_day not in otherscen_days and isinstance(intervention.end_day, int) and intervention.end_day < scen.sims[scen_name][0]['n_days']:
+    #                         otherscen_days.append(intervention.end_day)
+    #                 for day in otherscen_days:
+    #                     #pl.axvline(x=day, color=colors[scennum], linestyle='--')
+    #                     pl.axvline(x=day, color='grey', linestyle='--')
+    #                 #intervention.plot(scen.sims[scen_name][0], ax)
+    #         else:
+    #             for intervention in scen.sims[scen_name][0]['interventions']:
+    #                 if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule) and rk == 0:
+    #                     baseline_days = [day for day in intervention.days if day not in baseline_days]
+    #                 elif hasattr(intervention, 'start_day'):
+    #                     if intervention.start_day not in baseline_days and intervention.start_day != 0:
+    #                         baseline_days.append(intervention.start_day)
+    #                 for day in baseline_days:
+    #                     #pl.axvline(x=day, color=colors[scennum], linestyle='--')
+    #                     pl.axvline(x=day, color='grey', linestyle='--')
+    #                 #intervention.plot(scen.sims[scen_name][0], ax)
+    #         scennum += 1
 
-        #
-        # # Plot interventions
-        # scennum = 0
-        # if plot_ints:
-        #     for s, scen_name in enumerate(scen.sims):
-        #         if scen_name.lower() != 'baseline':
-        #             for intervention in scen.sims[scen_name][0]['interventions']:
-        #                 if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule):
-        #                     otherscen_days = [day for day in intervention.days if day not in baseline_days and day not in otherscen_days]
-        #                 elif hasattr(intervention, 'start_day'):
-        #                     if intervention.start_day not in baseline_days and intervention.start_day not in otherscen_days and intervention.start_day != 0:
-        #                         otherscen_days.append(intervention.start_day)
-        #                     if intervention.end_day not in baseline_days and intervention.end_day not in otherscen_days and isinstance(intervention.end_day, int) and intervention.end_day < scen.sims[scen_name][0]['n_days']:
-        #                         otherscen_days.append(intervention.end_day)
-        #                 for day in otherscen_days:
-        #                     #pl.axvline(x=day, color=colors[scennum], linestyle='--')
-        #                     pl.axvline(x=day, color='grey', linestyle='--')
-        #                 #intervention.plot(scen.sims[scen_name][0], ax)
-        #         else:
-        #             for intervention in scen.sims[scen_name][0]['interventions']:
-        #                 if hasattr(intervention, 'days') and isinstance(intervention, PolicySchedule) and rk == 0:
-        #                     baseline_days = [day for day in intervention.days if day not in baseline_days]
-        #                 elif hasattr(intervention, 'start_day'):
-        #                     if intervention.start_day not in baseline_days and intervention.start_day != 0:
-        #                         baseline_days.append(intervention.start_day)
-        #                 for day in baseline_days:
-        #                     #pl.axvline(x=day, color=colors[scennum], linestyle='--')
-        #                     pl.axvline(x=day, color='grey', linestyle='--')
-        #                 #intervention.plot(scen.sims[scen_name][0], ax)
-        #         scennum += 1
 
 class SeedInfection(cv.Intervention):
     """
@@ -435,3 +436,68 @@ class SeedInfection(cv.Intervention):
             targets = cvu.choose(len(susceptible_inds), self.infections[sim.t])
             target_inds = susceptible_inds[targets]
             sim.people.infect(inds=target_inds)
+
+class test_prob_with_quarantine(cv.test_prob):
+
+    def __init__(self, *args, swab_delay, isolate_while_waiting, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.swab_delay = swab_delay
+        self.isolate_while_waiting = isolate_while_waiting  #: If True, people will be quarantined while waiting for test results
+
+    def apply(self, sim):
+        ''' Perform testing '''
+        t = sim.t
+        if t < self.start_day:
+            return
+        elif self.end_day is not None and t > self.end_day:
+            return
+
+        # People wait swab_delay days before they decide to start testing. If swab_delay is 0 then they will be eligible as soon as they are symptomatic
+        # People effectively become symptomatic at 12:01am, therefore someone should be eligible to test on the day they become symptomatic
+        # (hence >= is used)
+        symp_inds = cvu.true(sim.people.symptomatic) # People who are symptomatic
+        symp_test_inds = symp_inds[sim.people.date_symptomatic[symp_inds] >= t-self.swab_delay]  # People who have been symptomatic long enough to seek testing
+
+        # Define asymptomatics
+        asymp_inds = cvu.false(sim.people.symptomatic)
+
+        # Handle quarantine and other testing criteria
+        quar_inds = cvu.true(sim.people.quarantined)
+        symp_quar_inds  = np.intersect1d(quar_inds, symp_inds) # NOTE - Using `symp_inds` here rather than `symp_test_inds` means that people in quarantine test immediately
+        asymp_quar_inds = np.intersect1d(quar_inds, asymp_inds)
+        # Someone waiting for a test result shouldn't retest. So we check that they aren't diagnosed or
+        # that they aren't waiting for their test. Note that people are diagnosed after interventions are executed,
+        # therefore if someone is tested on day 3 and the test delay is 5, on day 5 then sim.people.diagnosed will NOT
+        # be true at the point where this code is executing. Therefore, they should not be eligible to retest. It's
+        # like they are going to receive their results at 11:59pm so the decisions they make during the day are based
+        # on not having been diagnosed yet. Hence > is used here so that on day 3+2=5, they won't retest. (i.e. they are
+        # waiting for their results if the day they recieve their results is > the current day)
+        diag_inds       = cvu.true(sim.people.diagnosed)
+        tested_inds =  cvu.true(np.isfinite(sim.people.date_tested))
+        pending_result_inds = tested_inds[(sim.people.date_tested[tested_inds]+self.test_delay) > sim.t]
+
+        # Construct the testing probabilities piece by piece -- complicated, since need to do it in the right order
+        test_probs = np.zeros(sim.n)  # Begin by assigning equal testing probability to everyone
+        test_probs[symp_test_inds] = self.symp_prob  # People with symptoms
+        test_probs[asymp_inds] = self.asymp_prob  # People without symptoms
+        test_probs[symp_quar_inds] = self.symp_quar_prob  # People with symptoms in quarantine
+        test_probs[asymp_quar_inds] = self.asymp_quar_prob  # People without symptoms in quarantine
+        test_probs[diag_inds] = 0.0  # People who are diagnosed or awaiting test results don't test
+        test_probs[pending_result_inds] = 0.0  # People awaiting test results don't test
+
+        test_inds = cvu.true(cvu.binomial_arr(test_probs))  # Finally, calculate who actually tests
+
+        sim.people.test(test_inds, test_sensitivity=self.test_sensitivity, loss_prob=self.loss_prob, test_delay=self.test_delay) # Actually test people
+        sim.results['new_tests'][t] += int(len(test_inds)*sim['pop_scale']/sim.rescale_vec[t]) # If we're using dynamic scaling, we have to scale by pop_scale, not rescale_vec
+
+        if self.isolate_while_waiting:
+
+            # If someone tested today is already on quarantine, extend their quarantine
+            extend_quarantine = cvu.true((sim.people.date_tested==sim.t) & sim.people.quarantined)
+            sim.people.date_end_quarantine[extend_quarantine] = np.maximum(sim.people.date_end_quarantine[extend_quarantine], sim.people.date_tested[extend_quarantine]+self.test_delay)
+
+            # Otherwise, if they were tested today and are not quarantined, then start their quarantine
+            new_quarantine = cvu.true((sim.people.date_tested==sim.t) & ~sim.people.quarantined)
+            sim.people.quarantined[new_quarantine] = True
+            sim.people.date_quarantined[new_quarantine] = sim.t
+            sim.people.date_end_quarantine[new_quarantine] = sim.t+self.test_delay
