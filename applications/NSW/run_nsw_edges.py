@@ -162,7 +162,7 @@ T = sc.tic()
 # Settings
 remakeppl=False
 whattorun = ['calibration', 'scenarios'][0]
-domulti = False
+domulti = True
 
 # Make people if not stored
 if remakeppl:
