@@ -55,7 +55,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                             'pop_infected': 0,
                             'pop_scale': 1,
                             'rescale': 0,
-                            'beta': 0.04,
+                            'beta': 0.038,
                             'n_days': n_days,
                             'calibration_end': None,
                             'verbose': 0}}
