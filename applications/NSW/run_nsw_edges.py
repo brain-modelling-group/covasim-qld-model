@@ -76,6 +76,7 @@ def make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile='nsw_epi_d
             'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
             'start_day': '2020-03-01',
             'end_day': end_day,
+            'analyzers': cv.age_histogram(datafile='NSW_AgeHist.csv'),
             'verbose': .1}
 
     sim = cv.Sim(pars=pars,
@@ -160,8 +161,8 @@ T = sc.tic()
 
 # Settings
 remakeppl=False
-whattorun = ['calibration', 'scenarios'][1]
-domulti = True
+whattorun = ['calibration', 'scenarios'][0]
+domulti = False
 
 # Make people if not stored
 if remakeppl:
@@ -183,8 +184,8 @@ if domulti:
     sim = make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile)
     msim = cv.MultiSim(base_sim=sim)
     msim.run(n_runs=100, reseed=True, noise=0)
-    msim.save('covasim50.msim')
     #msim.reduce()
+    msim.save('nswcalib.msim', keep_people=True)
     sim = msim.base_sim
 #    msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_calibration.png',
 #             legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)

@@ -10,23 +10,7 @@ import matplotlib.patches as patches
 T = sc.tic()
 
 # Import files
-msim50 = sc.loadobj('covasim50.msim')
-msim60 = sc.loadobj('covasim60.msim')
 msim70 = sc.loadobj('covasim70.msim')
-
-# Extract probabilities of exceeding n daily diagnoses and n active cases
-listprobs50 = [len([i for i in range(100) if msim50.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(500)]
-listprobs60 = [len([i for i in range(100) if msim60.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(500)]
-listprobs70 = [len([i for i in range(100) if msim70.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(500)]
-
-actprobs50 = [len([i for i in range(100) if msim50.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(6000)]
-actprobs60 = [len([i for i in range(100) if msim60.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(6000)]
-actprobs70 = [len([i for i in range(100) if msim70.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(6000)]
-
-# Reduce the msims for plotting
-msim50.reduce()
-msim60.reduce()
-msim70.reduce()
 
 # Define plotting functions
 #%% Helper functions
