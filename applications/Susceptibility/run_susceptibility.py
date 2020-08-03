@@ -42,14 +42,9 @@ resultdir.mkdir(parents=True, exist_ok=True)
 # np.seterr(all='raise')
 
 params.test_prob['symp_prob'] = 0.1  # Someone who has symptoms has this probability of testing on any given day
-params.test_prob['asymp_prob'] = 0.00  # Someone who is asymptomatic has this probability of testing on any given day
-params.test_prob['symp_quar_prob'] = 0.95  # Someone who is quarantining and has symptoms has this probability of testing on any given day
-params.test_prob['asymp_quar_prob'] = 0.0
 params.test_prob['test_delay'] = 3  # Number of days for test results to be processed
 params.test_prob['swab_delay'] = 2  # Number of days people wait after symptoms before being tested
 params.test_prob['isolate_while_waiting'] = True
-
-packages = {'No restrictions':[]}
 
 for name, policies in packages.items():
 
