@@ -453,57 +453,86 @@ class test_prob_with_quarantine(cv.test_prob):
         elif self.end_day is not None and t > self.end_day:
             return
 
-        # People wait swab_delay days before they decide to start testing. If swab_delay is 0 then they will be eligible as soon as they are symptomatic
-        # People effectively become symptomatic at 12:01am, therefore someone should be eligible to test on the day they become symptomatic
-        # (hence >= is used)
-        symp_inds = cvu.true(sim.people.symptomatic) # People who are symptomatic
-        symp_test_inds = symp_inds[sim.people.date_symptomatic[symp_inds] >= t-self.swab_delay]  # People who have been symptomatic long enough to seek testing
-        severe_inds = cvu.true(sim.people.severe) # People with severe symptoms that would be hospitalised
-
-        # Define asymptomatics
-        asymp_inds = cvu.false(sim.people.symptomatic)
-
-        # Handle quarantine and other testing criteria
-        quar_inds = cvu.true(sim.people.quarantined)
-        symp_quar_inds  = np.intersect1d(quar_inds, symp_inds) # NOTE - Using `symp_inds` here rather than `symp_test_inds` means that people in quarantine test immediately
-        asymp_quar_inds = np.intersect1d(quar_inds, asymp_inds)
-        # Someone waiting for a test result shouldn't retest. So we check that they aren't diagnosed or
-        # that they aren't waiting for their test. Note that people are diagnosed after interventions are executed,
-        # therefore if someone is tested on day 3 and the test delay is 5, on day 5 then sim.people.diagnosed will NOT
-        # be true at the point where this code is executing. Therefore, they should not be eligible to retest. It's
-        # like they are going to receive their results at 11:59pm so the decisions they make during the day are based
-        # on not having been diagnosed yet. Hence > is used here so that on day 3+2=5, they won't retest. (i.e. they are
-        # waiting for their results if the day they recieve their results is > the current day)
-        diag_inds       = cvu.true(sim.people.diagnosed)
-        tested_inds =  cvu.true(np.isfinite(sim.people.date_tested))
-        pending_result_inds = tested_inds[(sim.people.date_tested[tested_inds]+self.test_delay) > sim.t]
+        # TEST LOGIC
+        # 1. People who become symptomatic in the general community will wait `swab_delay` days before getting tested, at rate `symp_prob`
+        # 2. People who become symptomatic while in quarantine will test immediately at rate `symp_quar_test`
+        # 3. People who are symptomatic and then are ordered to quarantine, will test immediately at rate `symp_quar_test`
+        # 4. People who have severe symptoms will be tested
+        # 5. People that have been diagnosed will not be tested
+        # 6. People that are already waiting for a diagnosis will not be retested
+        # 7. People can optionally isolate while waiting for their diagnosis
+        # 8. People already on quarantine while tested will not have their quarantine shortened, but if they are tested at the end of their
+        #    quarantine, the quarantine will be extended
 
         # Construct the testing probabilities piece by piece -- complicated, since need to do it in the right order
         test_probs = np.zeros(sim.n)  # Begin by assigning equal testing probability to everyone
-        test_probs[symp_test_inds] = self.symp_prob  # People with symptoms
-        test_probs[asymp_inds] = self.asymp_prob  # People without symptoms
-        test_probs[symp_quar_inds] = self.symp_quar_prob  # People with symptoms in quarantine
-        test_probs[asymp_quar_inds] = self.asymp_quar_prob  # People without symptoms in quarantine
-        test_probs[severe_inds] = 1.0  # People with severe symptoms are guaranteed to be tested unless already diagnosed or awaiting results
+
+        # (1) People wait swab_delay days before they decide to start testing. If swab_delay is 0 then they will be eligible as soon as they are symptomatic
+        symp_inds = cvu.true(sim.people.symptomatic) # People who are symptomatic
+        symp_test_inds = symp_inds[sim.people.date_symptomatic[symp_inds] == t-self.swab_delay]  # People who have been symptomatic and who are eligible to test today
+        test_probs[symp_test_inds] = self.symp_prob  # People with symptoms eligible to test today
+
+
+        # People whose symptomatic scheduled day falls during quarantine will test at the symp_quar_prob rate
+        # People who are already symptomatic, missed their test, and then enter quarantine, will test at the symp_quar_prob rate
+        # People get quarantined at 11:59pm so the people getting quarantined today haven't been quarantined yet.
+        # The order is
+        # Day 4 - Test, quarantine people waiting for results
+        # Day 4 - Trace
+        # Day 4 - Quarantine known contacts
+        # Day 5 - Test, nobody has entered quarantine on day 5 yet - if someone was symptomatic and untested and was quarantined *yesterday* then
+        #         they need to be tested *today*
+
+        # Someone waiting for a test result shouldn't retest. So we check that they aren't already waiting for their test.
+        # Note that people are diagnosed after interventions are executed,
+        # therefore if someone is tested on day 3 and the test delay is 2, on day 5 then sim.people.diagnosed will NOT
+        # be true at the point where this code is executing. Therefore, they should not be eligible to retest. It's
+        # like they are going to receive their results at 11:59pm so the decisions they make during the day are based
+        # on not having been diagnosed yet. Hence > is used here so that on day 3+2=5, they won't retest. (i.e. they are
+        # waiting for their results if the day they recieve their results is > the current day). Note that they become
+        # symptomatic prior to interventions e.g. they wake up with symptoms
+        if sim.t > 0:
+            # If quarantined, there's no swab delay
+
+            # (2) People who become symptomatic while quarantining test immediately
+            quarantine_test_inds = symp_inds(sim.people.quarantined[symp_inds] & (sim.people.date_symptomatic[symp_inds] == t)) # People that became symptomatic today while already on quarantine
+            test_probs[quarantine_test_inds] = self.symp_quar_prob  # People with symptoms in quarantine are eligible to test without waiting
+
+            # (3) People who are symptomatic and undiagnosed before entering quarantine, test as soon as they are quarantined
+            newly_quarantined_test_inds = cvu.true((sim.people.date_quarantined == (sim.t-1)) & sim.people.symptomatic & ~sim.people.diagnosed) # People that just entered quarantine, who are already symptomatic
+            test_probs[newly_quarantined_test_inds] = self.symp_quar_prob  # People with symptoms that just entered quarantine are eligible to test
+
+        # (4) People with severe symptoms that would be hospitalised are guaranteed to be tested
+        test_probs[sim.people.severe] = 1.0  # People with severe symptoms are guaranteed to be tested unless already diagnosed or awaiting results
+
+        # (5) People that have been diagnosed aren't tested
+        diag_inds = cvu.true(sim.people.diagnosed)
         test_probs[diag_inds] = 0.0  # People who are diagnosed or awaiting test results don't test
+
+        # (6) People waiting for results don't get tested
+        tested_inds = cvu.true(np.isfinite(sim.people.date_tested))
+        pending_result_inds = tested_inds[(sim.people.date_tested[tested_inds] + self.test_delay) > sim.t]  # People who have been tested and will receive test results after the current timestep
         test_probs[pending_result_inds] = 0.0  # People awaiting test results don't test
 
-        test_inds = cvu.true(cvu.binomial_arr(test_probs))  # Finally, calculate who actually tests
-
+        # Test people based on their per-person test probability
+        test_inds = cvu.true(cvu.binomial_arr(test_probs))
         sim.people.test(test_inds, test_sensitivity=self.test_sensitivity, loss_prob=self.loss_prob, test_delay=self.test_delay) # Actually test people
         sim.results['new_tests'][t] += int(len(test_inds)*sim['pop_scale']/sim.rescale_vec[t]) # If we're using dynamic scaling, we have to scale by pop_scale, not rescale_vec
 
+        # Check the number of diagnosed people to decide whether to turn on isolation while waiting for results
+        # Using >= here means an isolation threshold of 0 is a second check to ensure isolation takes place
+        # (normally the `isolate_while_waiting` flag should be pre-set in the constructor)
         if (not self.isolate_while_waiting) and (sim.t > 0 and sim.results['cum_diagnoses'][t-1] >= self.isolation_threshold):
-            # Using >= here means an isolation threshold of 0 ensures isolation takes place
             self.isolate_while_waiting = True
 
         if self.isolate_while_waiting:
 
-            # If someone tested today is already on quarantine, extend their quarantine
+            # (8) If the diagnosis waiting period goes beyond an existing quarantine, extend it
+            # This goes first, so that people entering quarantine below aren't included
             extend_quarantine = cvu.true((sim.people.date_tested==sim.t) & sim.people.quarantined)
             sim.people.date_end_quarantine[extend_quarantine] = np.maximum(sim.people.date_end_quarantine[extend_quarantine], sim.people.date_tested[extend_quarantine]+self.test_delay)
 
-            # Otherwise, if they were tested today and are not quarantined, then start their quarantine
+            # (7) If not on quarantine, isolate the period while waiting for the test result
             new_quarantine = cvu.true((sim.people.date_tested==sim.t) & ~sim.people.quarantined)
             sim.people.quarantined[new_quarantine] = True
             sim.people.date_quarantined[new_quarantine] = sim.t
