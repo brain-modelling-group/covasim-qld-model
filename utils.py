@@ -439,10 +439,11 @@ class SeedInfection(cv.Intervention):
 
 class test_prob_with_quarantine(cv.test_prob):
 
-    def __init__(self, *args, swab_delay, isolate_while_waiting, **kwargs):
+    def __init__(self, *args, swab_delay, isolation_threshold, **kwargs):
         super().__init__(*args, **kwargs)
         self.swab_delay = swab_delay
-        self.isolate_while_waiting = isolate_while_waiting  #: If True, people will be quarantined while waiting for test results
+        self.isolation_threshold = isolation_threshold  #: Isolate people while waiting for tests after cum_diagnosed exceeds this amount
+        self.isolate_while_waiting = isolation_threshold == 0 # If the threshold is 0 then isolate straight away
 
     def apply(self, sim):
         ''' Perform testing '''
@@ -457,6 +458,7 @@ class test_prob_with_quarantine(cv.test_prob):
         # (hence >= is used)
         symp_inds = cvu.true(sim.people.symptomatic) # People who are symptomatic
         symp_test_inds = symp_inds[sim.people.date_symptomatic[symp_inds] >= t-self.swab_delay]  # People who have been symptomatic long enough to seek testing
+        severe_inds = cvu.true(sim.people.severe) # People with severe symptoms that would be hospitalised
 
         # Define asymptomatics
         asymp_inds = cvu.false(sim.people.symptomatic)
@@ -482,6 +484,7 @@ class test_prob_with_quarantine(cv.test_prob):
         test_probs[asymp_inds] = self.asymp_prob  # People without symptoms
         test_probs[symp_quar_inds] = self.symp_quar_prob  # People with symptoms in quarantine
         test_probs[asymp_quar_inds] = self.asymp_quar_prob  # People without symptoms in quarantine
+        test_probs[severe_inds] = 1.0  # People with severe symptoms are guaranteed to be tested unless already diagnosed or awaiting results
         test_probs[diag_inds] = 0.0  # People who are diagnosed or awaiting test results don't test
         test_probs[pending_result_inds] = 0.0  # People awaiting test results don't test
 
@@ -489,6 +492,10 @@ class test_prob_with_quarantine(cv.test_prob):
 
         sim.people.test(test_inds, test_sensitivity=self.test_sensitivity, loss_prob=self.loss_prob, test_delay=self.test_delay) # Actually test people
         sim.results['new_tests'][t] += int(len(test_inds)*sim['pop_scale']/sim.rescale_vec[t]) # If we're using dynamic scaling, we have to scale by pop_scale, not rescale_vec
+
+        if (not self.isolate_while_waiting) and (sim.t > 0 and sim.results['cum_diagnoses'][t-1] >= self.isolation_threshold):
+            # Using >= here means an isolation threshold of 0 ensures isolation takes place
+            self.isolate_while_waiting = True
 
         if self.isolate_while_waiting:
 
