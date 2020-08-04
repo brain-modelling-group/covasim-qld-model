@@ -1,17 +1,12 @@
-from pathlib import Path
 import covasim as cv
 import pandas as pd
+
 import contacts as co
 import data
 import parameters
 import policy_updates
-import sciris as sc
 import utils
-import functools
-import numpy as np
-import sys
-import tqdm
-import time
+
 
 def load_packages(fname) -> dict:
     """
@@ -27,7 +22,6 @@ def load_packages(fname) -> dict:
 
     """
 
-    from outbreak import rootdir
     packages = pd.read_csv(fname, index_col=0)
     packages = packages.to_dict(orient='index')
     packages = {name: [policy for policy, active in package.items() if not pd.isnull(active)] for name, package in packages.items()}
@@ -45,7 +39,6 @@ def load_scenarios(fname) -> dict:
 
     """
 
-    from outbreak import rootdir
     scenarios = pd.read_csv(fname, index_col=0)
     scenarios = scenarios.to_dict(orient='index')
     return scenarios
@@ -116,7 +109,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
 
     params.seed_infections = {1: n_infected}
 
-    del params.policies["tracing_policies"]['tracing_app']  # No app-based tracing since it doesn't seem to be having much effect
+    # del params.policies["tracing_policies"]['tracing_app']  # No app-based tracing since it doesn't seem to be having much effect
 
     return params
 
@@ -179,14 +172,15 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     ))
 
     # SET TRACING
-    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
-                                                        trace_time=params.extrapars['trace_time'],
-                                                        start_day=0))
-    tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
-    if tracing_app is not None:
-        sim.pars['interventions'].append(tracing_app)
-    if id_checks is not None:
-        sim.pars['interventions'].append(id_checks)
+    if 'contact_tracing' in scen_policies:
+        sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
+                                                            trace_time=params.extrapars['trace_time'],
+                                                            start_day=0))
+        tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
+        if tracing_app is not None:
+            sim.pars['interventions'].append(tracing_app)
+        if id_checks is not None:
+            sim.pars['interventions'].append(id_checks)
 
     # SET CLIPPING POLICIES
     for policy, clip_attributes in params.policies['clip_policies'].items():

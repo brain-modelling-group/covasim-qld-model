@@ -512,9 +512,13 @@ class test_prob_with_quarantine(cv.test_prob):
         if self.leaving_quar_prob:
             leaving_inds = cvu.true(sim.people.quarantined & sim.people.known_contact) # Everyone on quarantine that is a known contact.
             leaving_inds = leaving_inds[(sim.people.date_end_quarantine[leaving_inds]-self.test_delay) == sim.t] # Subset of people that might need to test today because they are leaving quarantine
-            quarantine_never_tested = leaving_inds[~np.isfinite(sim.people.date_tested[leaving_inds])] # Subset that have not been tested
-            quarantine_tested_before = leaving_inds[sim.people.date_tested[leaving_inds] < sim.people.date_quarantined[leaving_inds]] # Subset that were last tested before quarantine
-            leaving_inds = np.hstack([quarantine_never_tested,quarantine_tested_before])
+            tested = np.isfinite(sim.people.date_tested[leaving_inds])
+            quarantine_never_tested = leaving_inds[~tested] # Subset that have not been tested
+            if any(tested):
+                quarantine_tested_before = leaving_inds[tested][sim.people.date_tested[tested] < sim.people.date_quarantined[tested]] # Subset that were last tested before quarantine
+                leaving_inds = np.hstack([quarantine_never_tested,quarantine_tested_before])
+            else:
+                leaving_inds = quarantine_never_tested
             test_probs[leaving_inds] = np.maximum(test_probs[leaving_inds], self.leaving_quar_prob) # If they are already supposed to test at a higher rate e.g. severe symptoms, keep it
 
         # (6) People that have been diagnosed aren't tested

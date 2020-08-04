@@ -1,10 +1,8 @@
-﻿package_name,church0,church_4sqm,cafe_restaurant0,cafe_restaurant_4sqm,pub_bar0,pub_bar_4sqm,outdoor2,outdoor10,outdoor200,cSports,child_care,schools,entertainment,large_events,NE_work,social,masks
-Stage 3 + masks,Y,,Y,,Y,,Y,,,Y,,Y,Y,Y,Y,Y,Y
-Stage 3 restrictions,Y,,Y,,Y,,Y,,,Y,,Y,Y,Y,Y,Y,Y
-Relax 1 (school + small social),Y,,Y,,Y,,,Y,,Y,,,Y,Y,Y,,
-Relax 1 + masks,Y,,Y,,Y,,,Y,,Y,,,Y,Y,Y,,Y
-Relax 2 (relax 1 + 4sqm venues),Y,,,Y,,Y,,Y,,Y,,,Y,Y,Y,,
-"Relax 3 (relax 2 + church, sport, entertainment with distancing)",,Y,,Y,,Y,,,Y,,,,,Y,Y,,
-"Relax 4 (relax 3 + cafes, restauraunts, church, NE work)",,,,,,,,,Y,,,,,Y,,,
-Large events only,,,,,,,,,,,,,,Y,,,
-No restrictions,,,,,,,,,,,,,,,,,
+﻿package_name,church0,church_4sqm,cafe_restaurant0,cafe_restaurant_4sqm,pub_bar0,pub_bar_4sqm,outdoor2,outdoor10,outdoor200,cSports,child_care,schools,entertainment,large_events,NE_work,social,masks,contact_tracing
+stage_3_no_tracing,Y,,Y,,Y,,Y,,,Y,,Y,Y,Y,Y,Y,,
+stage_3,Y,,Y,,Y,,Y,,,Y,,Y,Y,Y,Y,Y,,Y
+relax_1,Y,,Y,,Y,,,Y,,Y,,,Y,Y,Y,,,Y
+relax_2,Y,,,Y,,Y,,Y,,Y,,,Y,Y,Y,,,Y
+relax_3,,Y,,Y,,Y,,,Y,,,,,Y,,,,Y
+relax_4,,,,,,,,,Y,,,,,Y,,,,Y
+no_restrictions,,,,,,,,,,,,,,,,,,Y
