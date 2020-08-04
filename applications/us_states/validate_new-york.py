@@ -17,14 +17,14 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'New York': {'pop_size': int(10e4),
-                               'beta': 0.165,
+                               'beta': 0.175,
                                'n_days': 139,
                                'symp_test': 100.0,
                                'calibration_end': '2020-07-07'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0,
+    metapars = {'n_runs': 4,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
     
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
     
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-              fig_path=dirname + '/figs/New-York-calibrate' + '.png',
+              fig_path=dirname + '/figs/New-York-calibrate1' + '.png',
               interval=30, n_cols = 2,
               fig_args=dict(figsize=(10, 5), dpi=100),
               font_size=11,

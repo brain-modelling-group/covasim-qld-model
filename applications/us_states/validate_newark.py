@@ -19,14 +19,13 @@ if __name__ == "__main__":
     user_pars = {'Newark': {'pop_size': int(10e4),
                                'beta': 0.05,
                                'n_days': 120,
-                                'pop_infected': 2000,
+                                'pop_infected': 2500,
                                 'calibration_end': '2020-06-30'}}
 
 #future daily = 600
 
-
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 8,
+    metapars = {'n_runs': 4,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
@@ -56,7 +55,7 @@ if __name__ == "__main__":
 
 
     # Plot validation
-    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
                        fig_path=dirname + '/figs_newark/Newark-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),

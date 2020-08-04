@@ -20,11 +20,11 @@ if __name__ == "__main__":
                                'beta': 0.065,
                                'n_days': 118,
                                # 'symp_test': 100.0,
-                               'calibration_end': '2020-06-27'}}
+                               'calibration_end': '2020-05-15'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0,
+    metapars = {'n_runs': 4,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
     

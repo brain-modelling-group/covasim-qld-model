@@ -19,6 +19,7 @@ def set_baseline(params, popdict, trace_policies):
     n_days = pars['n_days']
     extrapars = params.extrapars
     dynamic_lkeys = params.dynamic_lkeys
+    dispersion = params.layerchars['dispersion']
 
     baseline_policies = policy_updates.PolicySchedule(pars['beta_layer'], policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for d, dates in enumerate(policies['policy_dates']):  # add start and end dates to beta layer, import and edge clipping policies
@@ -51,7 +52,8 @@ def set_baseline(params, popdict, trace_policies):
                                 clip_policies=policies['clip_policies'],
                                 daily_tests=daily_tests,
                                 dynamic_lkeys=dynamic_lkeys,
-                                extrapars=extrapars)
+                                extrapars=extrapars,
+                                dispersion=dispersion)
 
     return base_scenario, baseline_policies
 
@@ -66,7 +68,8 @@ def create_scen(scenarios,
                 clip_policies,
                 daily_tests,
                 dynamic_lkeys,
-                extrapars):
+                extrapars,
+                dispersion):
 
     interventions = [beta_policies,
                      cv.dynamic_pars({'n_imports': imports_dict}),
@@ -81,7 +84,8 @@ def create_scen(scenarios,
                                         start_day=0),
                      policy_updates.UpdateNetworks(layers=dynamic_lkeys,
                                                    contact_numbers=contacts,
-                                                   popdict=popdict)]
+                                                   popdict=popdict,
+                                                   dispersion=dispersion)]
 
     # add in tracing policies
     tracing_app, id_checks = policy_updates.make_tracing(trace_policies=trace_policies)
@@ -120,6 +124,7 @@ def create_scens(scen_opts,
     daily_tests = params.daily_tests
     n_days = params.pars['n_days']
     dynamic_lkeys = params.dynamic_lkeys
+    dispersion = params.layerchars['dispersion']
 
     # create necessary params for covasim interventions
     imports_dict = {'days': np.arange(len(imported_cases)), 'vals': imported_cases}
@@ -186,7 +191,8 @@ def create_scens(scen_opts,
                                     clip_policies=clip_schedule,
                                     daily_tests=daily_tests,
                                     dynamic_lkeys=dynamic_lkeys,
-                                    extrapars=extrapars)
+                                    extrapars=extrapars,
+                                    dispersion=dispersion)
 
     return scenarios
 

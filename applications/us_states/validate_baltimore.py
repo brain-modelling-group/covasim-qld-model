@@ -22,8 +22,8 @@ if __name__ == "__main__":
                                'calibration_end': '2020-06-28'}}
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0,
+    metapars = {'n_runs': 4,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
     
@@ -58,29 +58,29 @@ if __name__ == "__main__":
               to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
     
     
-    cum_diag_calib_end1 = scens['scenarios']['Baltimore'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][62]    
-    cum_diag_calib_1week = scens['scenarios']['Baltimore'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][69]    
-    cum_diag_calib_2week = scens['scenarios']['Baltimore'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][76]    
-    cum_diag_calib_end2 = scens['scenarios']['Baltimore'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][110]    
-    cum_death_calib_end1 = scens['scenarios']['Baltimore'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][62]    
-    cum_death_calib_1week = scens['scenarios']['Baltimore'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][69]    
-    cum_death_calib_2week = scens['scenarios']['Baltimore'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][76]    
-    cum_death_calib_end2 = scens['scenarios']['Baltimore'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][110]    
+    # cum_diag_calib_end1 = scens['scenarios']['Baltimore'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][62]    
+    # cum_diag_calib_1week = scens['scenarios']['Baltimore'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][69]    
+    # cum_diag_calib_2week = scens['scenarios']['Baltimore'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][76]    
+    # cum_diag_calib_end2 = scens['scenarios']['Baltimore'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][110]    
+    # cum_death_calib_end1 = scens['scenarios']['Baltimore'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][62]    
+    # cum_death_calib_1week = scens['scenarios']['Baltimore'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][69]    
+    # cum_death_calib_2week = scens['scenarios']['Baltimore'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][76]    
+    # cum_death_calib_end2 = scens['scenarios']['Baltimore'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][110]    
         
-    workbook = xlsxwriter.Workbook('Baltimore_validation.xlsx')     
-    worksheet = workbook.add_worksheet('Validation')
+    # workbook = xlsxwriter.Workbook('Baltimore_validation.xlsx')     
+    # worksheet = workbook.add_worksheet('Validation')
     
-    validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
-                  'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],
-                  ['At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-                    'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-                    'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-                    'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection'],
-                  [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week), int(cum_diag_calib_end2),
-                  '', '', '', '',
-                  int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week), int(cum_death_calib_end2)]
-                  ]
+    # validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
+    #               'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],
+    #               ['At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+    #                 'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+    #                 'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
+    #                 'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection'],
+    #               [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week), int(cum_diag_calib_end2),
+    #               '', '', '', '',
+    #               int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week), int(cum_death_calib_end2)]
+    #               ]
     
 
-    worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
-    workbook.close()
+    # worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
+    # workbook.close()

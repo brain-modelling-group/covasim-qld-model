@@ -81,6 +81,18 @@ def _get_extrapars(locations, databook, all_lkeys):
     return all_extrapars
 
 
+def get_dispersion_parameter(value):
+    cluster_type = 'random'
+    name_dispersion = value.split('_')
+    if len(name_dispersion) == 1:
+        dispersion = None
+    elif len(name_dispersion) == 2:
+        dispersion = float(name_dispersion[1])
+    else:
+        raise Exception(f'Invalid cluster type {value}')
+    return cluster_type, dispersion
+
+
 def _get_layerchars(locations, databook, all_lkeys):
 
     all_layers = _get_layers(locations, databook, all_lkeys)
@@ -93,7 +105,13 @@ def _get_layerchars(locations, databook, all_lkeys):
             temp[ckey] = {}
             for lkey in all_lkeys:
                 l_chars = all_layers[lkey]
-                temp[ckey].update({lkey: l_chars[location][ckey]})
+                value = l_chars[location][ckey]
+                if isinstance(value, str):
+                    if 'random' in value:
+                        value, dispersion = get_dispersion_parameter(value)
+                        temp['dispersion'] = dispersion
+
+                temp[ckey].update({lkey: value})
             layerchars.update(temp)
         all_layerchars[location] = layerchars
     return all_layerchars
