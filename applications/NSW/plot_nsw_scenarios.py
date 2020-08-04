@@ -7,26 +7,31 @@ from matplotlib import ticker
 import datetime as dt
 import matplotlib.patches as patches
 
+# Filepaths
+resultsfolder = 'results'
+figsfolder = 'figs'
+simsfilepath = f'{resultsfolder}/nsw_calibration.obj'
+
+julybetas = [0.5, 0.6, 0.7] # Values used in the scenarios
+
 T = sc.tic()
 
-# Import files
-msim50 = sc.loadobj('covasim50.msim')
-msim60 = sc.loadobj('covasim60.msim')
-msim70 = sc.loadobj('covasim70.msim')
+# Load in scenario multisims
+diagprobs = []
+infprobs = []
+diagvals = []
+infvals = []
+for jb in julybetas:
+    msim = sc.loadobj(f'{resultsfolder}/nsw_scenarios_{int(jb*100)}.obj')
+    diagprobs.append([len([i for i in range(100) if msim.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(500)])
+    infprobs.append([len([i for i in range(100) if msim.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(6000)])
+    diagvals.append(msim.sims[0].results['new_diagnoses'].values[-60:])
+    infvals.append(msim.sims[0].results['n_exposed'].values[-60:])
+    msim.reduce()
+    if jb == 0.7: # Save these as the main scenario
+        sims = msim.sims
+        sim = sims[0]
 
-# Extract probabilities of exceeding n daily diagnoses and n active cases
-listprobs50 = [len([i for i in range(100) if msim50.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(500)]
-listprobs60 = [len([i for i in range(100) if msim60.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(500)]
-listprobs70 = [len([i for i in range(100) if msim70.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(500)]
-
-actprobs50 = [len([i for i in range(100) if msim50.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(6000)]
-actprobs60 = [len([i for i in range(100) if msim60.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(6000)]
-actprobs70 = [len([i for i in range(100) if msim70.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(6000)]
-
-# Reduce the msims for plotting
-msim50.reduce()
-msim60.reduce()
-msim70.reduce()
 
 # Define plotting functions
 #%% Helper functions
@@ -125,10 +130,6 @@ pl.rcParams['font.size'] = font_size
 pl.rcParams['font.family'] = font_family
 pl.figure(figsize=(24,15))
 
-# Extract a sim to refer to
-sims = msim70.sims
-sim = sims[0]
-
 # Plot locations
 ygaps = 0.03
 xgaps = 0.06
@@ -158,13 +159,13 @@ sc.commaticks()
 pl.xlim([0, 60])
 sc.boxoff()
 tvec = np.arange(60)
-v70 = msim70.base_sim.results['new_diagnoses'].values[-60:]
-v60 = msim60.base_sim.results['new_diagnoses'].values[-60:]
-v50 = msim50.base_sim.results['new_diagnoses'].values[-60:]
+#v70 = msim70.base_sim.results['new_diagnoses'].values[-60:]
+#v60 = msim60.base_sim.results['new_diagnoses'].values[-60:]
+#v50 = msim50.base_sim.results['new_diagnoses'].values[-60:]
 colors = pl.cm.GnBu([0.9,0.6,0.3])
-pl.plot(tvec, v70, c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, v60, c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, v50, c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[0], c=colors[0], label="Without masks", lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[1], c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[2], c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
 pl.ylabel('Daily diagnoses')
 sc.setylim()
 xmin, xmax = ax2.get_xlim()
@@ -173,9 +174,9 @@ pl.legend(loc='upper left', frameon=False)
 
 x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, subplotheight
 ax3 = pl.axes([x0, y0, dx, dy])
-ax3.plot(range(300), listprobs70[:300], '-', lw=4, c=colors[0], alpha=1.0)
-ax3.plot(range(300), listprobs60[:300], '-', lw=4, c=colors[1], alpha=1.0)
-ax3.plot(range(300), listprobs50[:300], '-', lw=4, c=colors[2], alpha=1.0)
+ax3.plot(range(300), diagprobs[0][:300], '-', lw=4, c=colors[0], alpha=1.0)
+ax3.plot(range(300), diagprobs[1][:300], '-', lw=4, c=colors[1], alpha=1.0)
+ax3.plot(range(300), diagprobs[2][:300], '-', lw=4, c=colors[2], alpha=1.0)
 ax3.set_ylim(0,1)
 pl.ylabel('Probability of more\nthan n daily cases')
 sc.boxoff(ax=ax3)
@@ -199,30 +200,29 @@ sc.commaticks()
 pl.xlim([0, 60])
 sc.boxoff()
 tvec = np.arange(60)
-v70 = msim70.base_sim.results['n_exposed'].values[-60:]
-v60 = msim60.base_sim.results['n_exposed'].values[-60:]
-v50 = msim50.base_sim.results['n_exposed'].values[-60:]
+#v70 = msim70.base_sim.results['n_exposed'].values[-60:]
+#v60 = msim60.base_sim.results['n_exposed'].values[-60:]
+#v50 = msim50.base_sim.results['n_exposed'].values[-60:]
 colors = pl.cm.hot([0.3,0.5,0.7])
-pl.plot(tvec, v70, c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, v60, c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, v50, c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
+pl.plot(tvec, infvals[0], c=colors[0], label="Without masks", lw=4, alpha=1.0)
+pl.plot(tvec, infvals[1], c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
+pl.plot(tvec, infvals[2], c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
 pl.ylabel('Active infections')
 sc.setylim()
 xmin, xmax = ax5.get_xlim()
 ax5.set_xticks(pl.arange(xmin + 2, xmax, 7))
 pl.legend(loc='upper left', frameon=False)
 
-#x0, y0, dx, dy = xgaps+.5, ygaps*3+mainplotheight*2.2,  0.25, 0.1
 x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*1+0*mainplotheight, subplotwidth, subplotheight
 ax6 = pl.axes([x0, y0, dx, dy])
-ax6.plot(range(6000), actprobs70, '-', lw=4, c=colors[0], alpha=1.0)
-ax6.plot(range(6000), actprobs60, '-', lw=4, c=colors[1], alpha=1.0)
-ax6.plot(range(6000), actprobs50, '-', lw=4, c=colors[2], alpha=1.0)
+ax6.plot(range(6000), infprobs[0], '-', lw=4, c=colors[0], alpha=1.0)
+ax6.plot(range(6000), infprobs[1], '-', lw=4, c=colors[1], alpha=1.0)
+ax6.plot(range(6000), infprobs[2], '-', lw=4, c=colors[2], alpha=1.0)
 ax6.set_ylim(0,1)
 pl.ylabel('Probability of more\nthan n active infections')
 sc.boxoff(ax=ax6)
 
 
-cv.savefig('probs.png', dpi=100)
+cv.savefig(f'{figsfolder}/nsw_scenarios.png', dpi=100)
 
 sc.toc(T)
