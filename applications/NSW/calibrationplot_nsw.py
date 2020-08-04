@@ -7,10 +7,16 @@ from matplotlib import ticker
 import datetime as dt
 import matplotlib.patches as patches
 
+# Filepaths
+resultsfolder = 'results'
+figsfolder = 'figs'
+simsfilepath = f'{resultsfolder}/nsw_calibration.obj'
+
+
 T = sc.tic()
 
 # Import files
-nswcalib = sc.loadobj('nswcalib.msim')
+simsfile = sc.loadobj(simsfilepath)
 
 # Define plotting functions
 #%% Helper functions
@@ -110,7 +116,7 @@ pl.rcParams['font.family'] = font_family
 pl.figure(figsize=(24,15))
 
 # Extract a sim to refer to
-sims = nswcalib.sims
+sims = simsfile.sims
 sim = sims[0]
 
 # Plot locations
@@ -208,6 +214,6 @@ sc.boxoff(ax1s)
 pl.legend(frameon=False, bbox_to_anchor=(0.7,1.1))
 
 
-cv.savefig('calibration.png', dpi=100)
+cv.savefig(f'{figsfolder}/nsw_calibration.png', dpi=100)
 
 sc.toc(T)
