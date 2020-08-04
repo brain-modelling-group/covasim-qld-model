@@ -57,7 +57,7 @@ fig.savefig(resultsdir / 'infection_size.png', bbox_inches='tight', dpi=300, tra
 
 # EFFECTIVENESS OF EACH POLICY
 fig, ax = plt.subplots()
-baseline = packages.groupby('package').mean().loc['No policies']
+baseline = packages.groupby('package').mean().loc['No restrictions']
 mean_outcome = policies.groupby('package').mean()
 reduction = 100*(baseline-mean_outcome)/baseline
 reduction = reduction.sort_values(by='cum_infections')

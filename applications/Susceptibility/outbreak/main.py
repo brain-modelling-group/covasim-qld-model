@@ -10,6 +10,8 @@ import utils
 import functools
 import numpy as np
 import sys
+import tqdm
+import time
 
 
 def load_packages() -> dict:
@@ -27,14 +29,14 @@ def load_packages() -> dict:
     return packages
 
 
-def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, pop_infected: int = 1, n_days: int = 31) -> parameters.Parameters:
+def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, n_infected: int = 1, n_days: int = 31) -> parameters.Parameters:
     """
     Load Australian parameters
 
     Args:
         location: Location string for an Australian location e.g. 'Victoria'
         pop_size: Number of agents
-        pop_infected: Number of initial infections
+        n_infected: Number of initial infections
         n_days:
 
     Returns:
@@ -50,10 +52,10 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                      'transport', 'public_parks', 'large_events']
 
     user_pars = {location: {'pop_size': int(pop_size),
-                            'pop_infected': pop_infected,
+                            'pop_infected': 0,
                             'pop_scale': 1,
                             'rescale': 0,
-                            'beta': 0.065,  # TODO - check where this value came from
+                            'beta': 0.038,
                             'n_days': n_days,
                             'calibration_end': None,
                             'verbose': 0}}
@@ -80,10 +82,24 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                                      metapars=metapars,
                                      user_pars=loc_pars)
 
+    params.test_prob = {
+        'symp_prob': 0.1,  # Someone who has symptoms has this probability of testing on any given day
+        'asymp_prob': 0.00,  # Someone who is asymptomatic has this probability of testing on any given day
+        'symp_quar_prob': 1.0,  # Someone who is quarantining and has symptoms has this probability of testing on any given day
+        'asymp_quar_prob': 0.0,
+        'test_delay': 3, # Number of days for test results to be processed
+        'swab_delay': 2, # Number of days people wait after symptoms before being tested
+        'isolation_threshold': 0,
+    }
+
+    params.seed_infections = {1: n_infected}
+
+    del params.policies["tracing_policies"]['tracing_app']  # No app-based tracing since it doesn't seem to be having much effect
+
     return params
 
 
-def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_policies: list) -> cv.Sim:
+def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_policies: list, people=None, popdict=None) -> cv.Sim:
     """
     Produce outbreak simulation but don't run it
 
@@ -91,15 +107,19 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
         seed: Integer seed
         params: `Parameters` object (e.g. returned by `load_australian_parameters()`
         scen_policies: List of policies to use e.g. `['outdoor2','schools'] (should appear on the 'policies' sheet in the input data Excel file)
+        people: Optionally call `co.make_people()` externally and pass in the people and popdict
 
     Returns: A `cv.Sim` instance, before execution
 
     """
 
     utils.set_rand_seed({'seed': seed})  # Set the seed before constructing the people
-    params.pars['rand_seed'] = seed # Covasim resets the seed again internally during initialization...
+    params.pars['rand_seed'] = seed  # Covasim resets the seed again internally during initialization...
 
-    people, popdict = co.make_people(params)
+    if people is None:
+        people, popdict = co.make_people(params)
+    else:
+        assert popdict is not None, 'If specifying people, popdict must be provided as well'
 
     # setup simulation for this location
     sim = cv.Sim(pars=params.pars,
@@ -112,6 +132,9 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     # ADD DYNAMIC LAYERS INTERVENTION
     sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys, contact_numbers=params.pars['contacts'], popdict=popdict))
 
+    # SET TRACING
+    sim.pars['interventions'].append(utils.SeedInfection(params.seed_infections))
+
     # SET BETA POLICIES
     beta_schedule = policy_updates.PolicySchedule(params.pars["beta_layer"], params.policies['beta_policies'])  # create policy schedule with beta layer adjustments
     for policy in scen_policies:
@@ -122,12 +145,15 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     sim.pars['interventions'].append(beta_schedule)
 
     # SET TESTING
-    sim.pars['interventions'].append(cv.test_num(daily_tests=params.extrapars["future_daily_tests"],
-                                                 symp_test=params.extrapars['symp_test'],
-                                                 quar_test=params.extrapars['quar_test'],
-                                                 sensitivity=params.extrapars['sensitivity'],
-                                                 test_delay=params.extrapars['test_delay'],
-                                                 loss_prob=params.extrapars['loss_prob']))
+    sim.pars['interventions'].append(utils.test_prob_with_quarantine(
+        symp_prob=params.test_prob['symp_prob'],
+        asymp_prob=params.test_prob['asymp_prob'],
+        symp_quar_prob=params.test_prob['symp_quar_prob'],
+        asymp_quar_prob=params.test_prob['asymp_quar_prob'],
+        test_delay=params.test_prob['test_delay'],
+        swab_delay=params.test_prob['swab_delay'],
+        isolation_threshold=params.test_prob['isolation_threshold'],
+    ))
 
     # SET TRACING
     sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
@@ -148,52 +174,4 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
                                                            layers=clip_attributes['layers'],
                                                            changes=clip_attributes['change']))
 
-    return sim
-
-
-def run_australia_outbreak(seed: int, params: parameters.Parameters, scen_policies: list) -> cv.Sim:
-    """
-    Run a single outbreak simulation
-
-    Args:
-        seed: Integer seed
-        params: `Parameters` object (e.g. returned by `load_australian_parameters()`
-        scen_policies: List of policies to use e.g. `['outdoor2','schools'] (should appear on the 'policies' sheet in the input data Excel file)
-
-    Returns: A `cv.Sim` instance, after execution
-
-    """
-
-    sim = get_australia_outbreak(seed, params, scen_policies)
-    sim.run()
-    return sim
-
-
-def run_australia_test_prob(seed: int, params: parameters.Parameters, scen_policies: list, symp_prob, asymp_prob, symp_quar_prob, asymp_quar_prob) -> cv.Sim:
-    """
-    Run sensitivity to testing probability
-
-    Args:
-        seed: Integer seed
-        params: `Parameters` object (e.g. returned by `load_australian_parameters()`
-        scen_policies: List of policies to use e.g. `['outdoor2','schools'] (should appear on the 'policies' sheet in the input data Excel file)
-    Returns: A `cv.Sim` instance, after execution
-
-    """
-
-
-    sim = get_australia_outbreak(seed, params, scen_policies)
-
-    # Remove the testing intervention
-    sim.pars['interventions'] = [x for x in sim.pars['interventions'] if not isinstance(x, cv.test_num)]
-
-    # Add a test_prob intervention
-    sim.pars['interventions'].append(cv.test_prob(
-        symp_prob=symp_prob,
-        asymp_prob=asymp_prob,
-        symp_quar_prob=symp_quar_prob,
-        asymp_quar_prob=asymp_quar_prob,
-    ))
-
-    sim.run()
     return sim
