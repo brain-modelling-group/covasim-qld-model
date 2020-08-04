@@ -1,0 +1,11 @@
+﻿scenario_name,symp_prob,symp_quar_prob,test_delay,swab_delay,isolation_threshold,leaving_quar_prob
+baseline,0.15,0.8,2,1,0,0
+less_testing,0.1,0.8,2,1,0,0
+more_testing,0.2,0.8,2,1,0,0
+faster_results,0.15,0.8,1,1,0,0
+faster_swabs,0.15,0.8,2,0,0,0
+slower_results,0.15,0.8,3,1,0,0
+slower_swabs,0.15,0.8,2,2,0,0
+test_all_quarantined,0.15,0.8,2,1,0,1
+more_testing_without_iso,0.2,0.8,2,2,99999,0
+even_more_testing_without_iso,0.3,0.8,2,2,99999,0

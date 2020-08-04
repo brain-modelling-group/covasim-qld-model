@@ -37,68 +37,84 @@ else:
 
 scenarios = {
     'baseline': { # Resembles current policies
-        'symp_prob': 0.1, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+        'symp_prob': 0.15, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
+        'test_delay': 2 , # Number of days for test results to be processed. It could be worse, or could be better
+        'swab_delay': 1 , # Number of days people wait after symptoms before being tested
+        'isolation_threshold': 0, # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 0, # Not required to test if known contact
+    },
+    'less_testing': {  # Resembles current policies
+        'symp_prob': 0.10,  # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
+        'test_delay': 2,  # Number of days for test results to be processed. It could be worse, or could be better
+        'swab_delay': 1,  # Number of days people wait after symptoms before being tested
+        'isolation_threshold': 0,  # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 0,  # Not required to test if known contact
+    },
+    'more_testing': {  # Resembles current policies
+        'symp_prob': 0.2,  # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
+        'test_delay': 2,  # Number of days for test results to be processed. It could be worse, or could be better
+        'swab_delay': 1,  # Number of days people wait after symptoms before being tested
+        'isolation_threshold': 0,  # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 0,  # Not required to test if known contact
+    },
+    'faster_results': {  # Process tests 1 day faster
+        'symp_prob': 0.15, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
+        'test_delay': 1 , # Number of days for test results to be processed. It could be worse, or could be better
+        'swab_delay': 1 , # Number of days people wait after symptoms before being tested
+        'isolation_threshold': 0, # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 0, # Not required to test if known contact
+    },
+    'faster_swabs': {  # Encourage people to get tested earlier
+        'symp_prob': 0.15, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
+        'test_delay': 2 , # Number of days for test results to be processed. It could be worse, or could be better
+        'swab_delay': 0 , # Number of days people wait after symptoms before being tested
+        'isolation_threshold': 0, # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 0, # Not required to test if known contact
+    },
+    'slower_results': {  # Process tests 1 day slower
+        'symp_prob': 0.15, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
         'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
         'test_delay': 3 , # Number of days for test results to be processed. It could be worse, or could be better
         'swab_delay': 1 , # Number of days people wait after symptoms before being tested
         'isolation_threshold': 0, # Currently people are supposed to isolate while waiting
         'leaving_quar_prob': 0, # Not required to test if known contact
     },
-    'no_isolation': { # If people don't need to isolate, they're more likely to test
-        'symp_prob': 0.4, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+    'slower_swabs': {  # People wait longer to get tested
+        'symp_prob': 0.15, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
         'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
-        'test_delay': 3 , # Number of days for test results to be processed. It could be worse, or could be better
-        'swab_delay': 1 , # Number of days people wait after symptoms before being tested
-        'isolation_threshold': np.inf, # Currently people are supposed to isolate while waiting
+        'test_delay': 2 , # Number of days for test results to be processed. It could be worse, or could be better
+        'swab_delay': 2 , # Number of days people wait after symptoms before being tested
+        'isolation_threshold': 0, # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 0, # Not required to test if known contact
     },
-    'faster_results': {  # Process tests 1 day faster
-        'symp_prob': 0.25, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+    'test_all_quarantined': {  # People don't isolate
+        'symp_prob': 0.15, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
         'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
         'test_delay': 2 , # Number of days for test results to be processed. It could be worse, or could be better
         'swab_delay': 1 , # Number of days people wait after symptoms before being tested
         'isolation_threshold': 0, # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 1, # Everyone that is a known contact is tested when they leave quarantine
     },
-    'faster_swabs': {  # Encourage people to get tested earlier
-        'symp_prob': 0.25,  # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+    'more_testing_without_iso': {  # Fast swab and fast tests with no isolation
+        'symp_prob': 0.2, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
         'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
-        'test_delay': 3,  # Number of days for test results to be processed. It could be worse, or could be better
-        'swab_delay': 0,  # Number of days people wait after symptoms before being tested
-        'isolation_threshold': 0,  # Currently people are supposed to isolate while waiting
+        'test_delay': 2 , # Number of days for test results to be processed. It could be worse, or could be better
+        'swab_delay': 2 , # Number of days people wait after symptoms before being tested
+        'isolation_threshold': np.inf, # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 0, # Not required to test if known contact
     },
-    'slower_results': {  # Process tests 1 day slower
-        'symp_prob': 0.25,  # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+    'even_more_testing_without_iso': {  # Ideal, but add isolation back once 20 cases have been diagnosed
+        'symp_prob': 0.3, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
         'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
-        'test_delay': 4,  # Number of days for test results to be processed. It could be worse, or could be better
-        'swab_delay': 1,  # Number of days people wait after symptoms before being tested
-        'isolation_threshold': 0,  # Currently people are supposed to isolate while waiting
-    },
-    'slower_swabs': {  # People wait longer to get tested
-        'symp_prob': 0.25,  # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
-        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
-        'test_delay': 3,  # Number of days for test results to be processed. It could be worse, or could be better
-        'swab_delay': 2,  # Number of days people wait after symptoms before being tested
-        'isolation_threshold': 0,  # Currently people are supposed to isolate while waiting
-    },
-    'non_compliant_iso': {  # People don't isolate
-        'symp_prob': 0.25,  # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
-        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
-        'test_delay': 3,  # Number of days for test results to be processed. It could be worse, or could be better
-        'swab_delay': 1,  # Number of days people wait after symptoms before being tested
-        'isolation_threshold': np.inf,  # Currently people are supposed to isolate while waiting
-    },
-    'ideal': {  # Fast swab and fast tests with no isolation
-        'symp_prob': 0.4,  # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
-        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
-        'test_delay': 1,  # Number of days for test results to be processed. It could be worse, or could be better
-        'swab_delay': 0,  # Number of days people wait after symptoms before being tested
-        'isolation_threshold': np.inf,  # Currently people are supposed to isolate while waiting
-    },
-    'ideal_trigger_20': {  # Ideal, but add isolation back once 20 cases have been diagnosed
-        'symp_prob': 0.4,  # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
-        'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
-        'test_delay': 1,  # Number of days for test results to be processed. It could be worse, or could be better
-        'swab_delay': 0,  # Number of days people wait after symptoms before being tested
-        'isolation_threshold': 20,  # Currently people are supposed to isolate while waiting
+        'test_delay': 2 , # Number of days for test results to be processed. It could be worse, or could be better
+        'swab_delay': 2 , # Number of days people wait after symptoms before being tested
+        'isolation_threshold': np.inf, # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob': 0, # Not required to test if known contact
     },
 }
 

@@ -95,9 +95,12 @@ plt.close()
 sensitivity_rows = {
  'Test delay +/- 1 day':['slower_results','faster_results'],
  'Swab delay +/- 1 day':['slower_swabs','faster_swabs'],
- 'Non-compliant isolation':['non_compliant_iso'],
- 'Isolation not required':['no_isolation'],
+ 'Test proportion +/- 5%':['less_testing','more_testing'],
+ 'Isolation not required (+testing)':['more_testing_without_iso'],
+ 'Isolation not required (++testing)': ['even_more_testing_without_iso'],
+'Test all quarantined': ['test_all_quarantined'],
 }
+
 
 level = 100
 group = df.reset_index().groupby(['scenario_name', 'package_name'])
@@ -122,3 +125,25 @@ for package in packages:
     plt.xlim(-50,50)
     fig.savefig(scendir / f'tornado_{package}.png', bbox_inches='tight', dpi=300, transparent=False)
     plt.close()
+
+
+
+# Yield - not interesting to look at because we aren't testing
+y = df['cum_diagnoses']/df['cum_tests']
+y.reset_index().groupby(['scenario_name', 'package_name']).mean()
+
+for package in packages:
+    df1 = df.xs(package, level=1)
+
+    fig, ax = plt.subplots()
+    grouped = df1.reset_index().groupby(['scenario_name'])
+    df2 = pd.DataFrame({col:vals['cum_infections'] for col,vals in grouped})
+    means = df2.mean()
+    means.sort_values(ascending=True, inplace=True)
+    df2 = df2[means.index]
+    df2.boxplot()
+    fig.set_size_inches(16, 7)
+    plt.ylabel('Total number of infections')
+    # fig.savefig(scendir / f'infection_size_boxplot_{package}.png', bbox_inches='tight', dpi=300, transparent=False)
+    # plt.close()
+
