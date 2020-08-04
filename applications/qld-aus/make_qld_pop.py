@@ -63,3 +63,4 @@ if __name__ == '__main__':
   T = sc.tic()
   people, popdict = make_people(seed=42)
   sc.toc(T)
+  
