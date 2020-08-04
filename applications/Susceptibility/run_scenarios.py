@@ -25,7 +25,8 @@ parser.add_argument('--randompop', default=True, type=bool, help='If True, gener
 args = parser.parse_args()
 
 # Load inputs
-packages = outbreak.load_packages()
+packages = outbreak.load_packages('packages.csv')
+scenarios = outbreak.load_scenarios('scenarios.csv')
 params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=1, n_days=31)
 
 if args.randompop:

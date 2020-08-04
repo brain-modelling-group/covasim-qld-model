@@ -13,21 +13,42 @@ import sys
 import tqdm
 import time
 
-
-def load_packages() -> dict:
+def load_packages(fname) -> dict:
     """
-    Load policy packages from Excel file
+    Load policy packages from CSV file
+
+    CSV file should just be a table with rows for packages, columns
+    for policies, and non-empty cells if the package contains a policy
+
+    Args:
+        fname: File name to load
 
     Returns: Dictionary `{package_name:[policies]}`
 
     """
+
     from outbreak import rootdir
-    packages = pd.read_excel(rootdir / 'policy_packages.xlsx', index_col=0)
-    packages = packages.T
+    packages = pd.read_csv(fname, index_col=0)
     packages = packages.to_dict(orient='index')
     packages = {name: [policy for policy, active in package.items() if not pd.isnull(active)] for name, package in packages.items()}
     return packages
 
+def load_scenarios(fname) -> dict:
+    """
+    Load scenarios from CSV file
+
+    CSV file
+    Args:
+        fname: File name to load
+
+    Returns: Dictionary {scenario_name:{parameter:value}}
+
+    """
+
+    from outbreak import rootdir
+    scenarios = pd.read_csv(fname, index_col=0)
+    scenarios = scenarios.to_dict(orient='index')
+    return scenarios
 
 def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, n_infected: int = 1, n_days: int = 31) -> parameters.Parameters:
     """
