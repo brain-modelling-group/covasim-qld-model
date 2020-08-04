@@ -10,7 +10,7 @@ import matplotlib.patches as patches
 T = sc.tic()
 
 # Import files
-msim70 = sc.loadobj('covasim70.msim')
+nswcalib = sc.loadobj('nswcalib.msim')
 
 # Define plotting functions
 #%% Helper functions
@@ -63,9 +63,9 @@ def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.02
     end = None
     if flabel:
         if which == 'infections':
-            fill_label = '95% projec-\nted interval'
+            fill_label = '95% projected interval'
         else:
-            fill_label = '95% projected\ninterval'
+            fill_label = '95% projected interval'
     else:
         fill_label = None
     pl.fill_between(tvec[startday:end], low[startday:end], high[startday:end], facecolor=color, alpha=0.2, label=fill_label)
@@ -110,7 +110,7 @@ pl.rcParams['font.family'] = font_family
 pl.figure(figsize=(24,15))
 
 # Extract a sim to refer to
-sims = msim70.sims
+sims = nswcalib.sims
 sim = sims[0]
 
 # Plot locations
@@ -123,90 +123,81 @@ mainplotwidth = 0.5
 subplotheight = (mainplotheight-ygaps)/2
 subplotwidth = 1-mainplotwidth-2.5*xgaps
 
-# Plot diagnoses
+# a: daily diagnoses
 x0, y0, dx, dy = xgaps, ygaps*2+1*mainplotheight, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 format_ax(ax1, sim)
 plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='Daily diagnoses')
 plot_intervs(sim)
 
-#Plot diagnoses scenarios
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*3+1*mainplotheight+subplotheight, subplotwidth, subplotheight
+# b. cumulative diagnoses
+x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, mainplotheight
 ax2 = pl.axes([x0, y0, dx, dy])
-#format_ax(ax2, sim)
-@ticker.FuncFormatter
-def date_formatter(x, pos):
-    return (dt.date(2020,7,1) + dt.timedelta(days=x)).strftime('%b-%d')
-ax2.xaxis.set_major_formatter(date_formatter)
-sc.commaticks()
-pl.xlim([0, 60])
-sc.boxoff()
-tvec = np.arange(60)
-v70 = msim70.base_sim.results['new_diagnoses'].values[-60:]
-v60 = msim60.base_sim.results['new_diagnoses'].values[-60:]
-v50 = msim50.base_sim.results['new_diagnoses'].values[-60:]
-colors = pl.cm.GnBu([0.9,0.6,0.3])
-pl.plot(tvec, v70, c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, v60, c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, v50, c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
-pl.ylabel('Daily diagnoses')
-sc.setylim()
-xmin, xmax = ax2.get_xlim()
-ax2.set_xticks(pl.arange(xmin + 2, xmax, 7))
-pl.legend(loc='upper left', frameon=False)
+format_ax(ax2, sim)
+plotter('cum_diagnoses', sims, ax2, calib=True, label='Model', ylabel='Cumulative diagnoses')
+pl.legend(loc='lower right', frameon=False)
 
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, subplotheight
-ax3 = pl.axes([x0, y0, dx, dy])
-ax3.plot(range(300), listprobs70[:300], '-', lw=4, c=colors[0], alpha=1.0)
-ax3.plot(range(300), listprobs60[:300], '-', lw=4, c=colors[1], alpha=1.0)
-ax3.plot(range(300), listprobs50[:300], '-', lw=4, c=colors[2], alpha=1.0)
-ax3.set_ylim(0,1)
-pl.ylabel('Probability of more\nthan n daily cases')
-sc.boxoff(ax=ax3)
-
-# Plot active cases
+# c. deaths
 x0, y0, dx, dy = xgaps, ygaps*1+0*mainplotheight, mainplotwidth, mainplotheight
+ax3 = pl.axes([x0, y0, dx, dy])
+format_ax(ax3, sim)
+plotter('cum_deaths', sims, ax3, calib=True, label='Model', ylabel='Cumulative deaths')
+pl.legend(loc='lower right', frameon=False)
+
+# d. active and cumulative infections
+x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*1+0*mainplotheight, subplotwidth, mainplotheight
 ax4 = pl.axes([x0, y0, dx, dy])
 format_ax(ax4, sim)
-plotter('n_exposed', sims, ax4, calib=False, label='Model', ylabel='Active infections')
-#pl.legend(loc='upper center', frameon=False)
-
-#Plot active cases scenarios
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+0*mainplotheight+subplotheight, subplotwidth, subplotheight
-ax5 = pl.axes([x0, y0, dx, dy])
-#format_ax(ax2, sim)
-@ticker.FuncFormatter
-def date_formatter(x, pos):
-    return (dt.date(2020,7,1) + dt.timedelta(days=x)).strftime('%b-%d')
-ax5.xaxis.set_major_formatter(date_formatter)
-sc.commaticks()
-pl.xlim([0, 60])
-sc.boxoff()
-tvec = np.arange(60)
-v70 = msim70.base_sim.results['n_exposed'].values[-60:]
-v60 = msim60.base_sim.results['n_exposed'].values[-60:]
-v50 = msim50.base_sim.results['n_exposed'].values[-60:]
-colors = pl.cm.hot([0.3,0.5,0.7])
-pl.plot(tvec, v70, c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, v60, c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, v50, c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
-pl.ylabel('Active infections')
-sc.setylim()
-xmin, xmax = ax5.get_xlim()
-ax5.set_xticks(pl.arange(xmin + 2, xmax, 7))
+plotter('cum_infections', sims, ax4, calib=True, label='Cumulative infections (modeled)', ylabel='Infections')
+plotter('n_infectious', sims, ax4, calib=True, label='Active infections (modeled)', ylabel='Infections', flabel=False)
 pl.legend(loc='upper left', frameon=False)
+#pl.ylim([0, 10e3])
 
-#x0, y0, dx, dy = xgaps+.5, ygaps*3+mainplotheight*2.2,  0.25, 0.1
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*1+0*mainplotheight, subplotwidth, subplotheight
-ax6 = pl.axes([x0, y0, dx, dy])
-ax6.plot(range(6000), actprobs70, '-', lw=4, c=colors[0], alpha=1.0)
-ax6.plot(range(6000), actprobs60, '-', lw=4, c=colors[1], alpha=1.0)
-ax6.plot(range(6000), actprobs50, '-', lw=4, c=colors[2], alpha=1.0)
-ax6.set_ylim(0,1)
-pl.ylabel('Probability of more\nthan n active infections')
-sc.boxoff(ax=ax6)
+# Add histogram
+'''
+age_data = pd.read_csv('/Users/robynstuart/Documents/git/covasim-australia/applications/NSW/NSW_AgeHist.csv')
 
+agehists = []
 
-cv.savefig('probs.png', dpi=100)
+for s,sim in enumerate(sims):
+    agehist = cv.age_histogram(days = [sim.day('2020-03-09'), sim.day('2020-04-24')], edges=np.linspace(0,70,15), sim=sim)
+    agehists.append(agehist.hists[-1])
+x = age_data['age'].values
+pos = age_data['cum_diagnoses'].values
+
+# From the model
+mposlist = []
+for hists in agehists:
+    mposlist.append(hists['diagnosed'])
+mposarr = np.array(mposlist)
+low_q = 0.1
+high_q = 0.9
+mpbest = pl.median(mposarr, axis=0)
+mplow  = pl.quantile(mposarr, q=low_q, axis=0)
+mphigh = pl.quantile(mposarr, q=high_q, axis=0)
+
+# Plotting
+w = 4
+off = 2
+bins = x.tolist() + [100]
+
+x0s, y0s, dxs, dys = 0.105, 0.84, 0.17, 0.13
+ax1s = pl.axes([x0s, y0s, dxs, dys])
+# ax = pl.subplot(4,2,7)
+c1 = [0.3,0.3,0.6]
+c2 = [0.6,0.7,0.9]
+xx = x+w-off
+pl.bar(x-off,pos, width=w, label='Data', facecolor=c1)
+pl.bar(xx, mpbest, width=w, label='Model', facecolor=c2)
+for i,ix in enumerate(xx):
+    pl.plot([ix,ix], [mplow[i], mphigh[i]], c='k')
+ax1s.set_xticks(np.arange(0,81,20))
+pl.xlabel('Age')
+pl.ylabel('Cases')
+sc.boxoff(ax1s)
+pl.legend(frameon=False, bbox_to_anchor=(0.7,1.1))
+'''
+
+cv.savefig('calibration.png', dpi=100)
 
 sc.toc(T)

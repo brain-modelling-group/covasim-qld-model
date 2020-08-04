@@ -6,7 +6,7 @@ import sciris as sc
 #import parameters
 #import utils
 #import functools
-#import numpy as np
+import numpy as np
 #import sys
 
 
@@ -76,7 +76,7 @@ def make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile='nsw_epi_d
             'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
             'start_day': '2020-03-01',
             'end_day': end_day,
-            'analyzers': cv.age_histogram(datafile='NSW_AgeHist.csv'),
+            'analyzers': cv.age_histogram(datafile='NSW_AgeHist.csv', edges=np.linspace(0,70,15), days = [ 8, 54]),
             'verbose': .1}
 
     sim = cv.Sim(pars=pars,
