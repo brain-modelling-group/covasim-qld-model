@@ -89,8 +89,8 @@ def plot_intervs(sim, labels=True):
     color = [0, 0, 0]
     mar23 = sim.day('2020-03-23')
     may01 = sim.day('2020-05-01')
-    jul07 = sim.day('2020-07-07')
-    for day in [mar23, may01, jul07]:
+#    jul07 = sim.day('2020-07-07')
+    for day in [mar23, may01]:
         pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
 
     if labels:
@@ -98,7 +98,7 @@ def plot_intervs(sim, labels=True):
         labely = yl[1]*0.95
         pl.text(mar23-20, labely, 'Lockdown', color=color, alpha=0.9, style='italic')
         pl.text(may01+1,  labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul07+1,  labely, 'NSW/Victoria \nborder closed', color=color, alpha=0.9, style='italic')
+#        pl.text(jul07+1,  labely, 'NSW/Victoria \nborder closed', color=color, alpha=0.9, style='italic')
     return
 
 
@@ -154,16 +154,18 @@ pl.legend(loc='upper left', frameon=False)
 #pl.ylim([0, 10e3])
 
 # Add histogram
-'''
-age_data = pd.read_csv('/Users/robynstuart/Documents/git/covasim-australia/applications/NSW/NSW_AgeHist.csv')
-
 agehists = []
 
 for s,sim in enumerate(sims):
-    agehist = cv.age_histogram(days = [sim.day('2020-03-09'), sim.day('2020-04-24')], edges=np.linspace(0,70,15), sim=sim)
+    agehist = sim['analyzers'][0]
+    if s == 0:
+        age_data = agehist.data
     agehists.append(agehist.hists[-1])
-x = age_data['age'].values
-pos = age_data['cum_diagnoses'].values
+raw_x = age_data['age'].values
+raw_pos = age_data['cum_diagnoses'].values
+
+x = ["0-29", "30-54", "55+"]
+pos = [raw_pos[0:6].sum(), raw_pos[6:11].sum(), raw_pos[11:].sum()]
 
 # From the model
 mposlist = []
@@ -172,31 +174,39 @@ for hists in agehists:
 mposarr = np.array(mposlist)
 low_q = 0.1
 high_q = 0.9
-mpbest = pl.median(mposarr, axis=0)
-mplow  = pl.quantile(mposarr, q=low_q, axis=0)
-mphigh = pl.quantile(mposarr, q=high_q, axis=0)
+raw_mpbest = pl.median(mposarr, axis=0)
+raw_mplow  = pl.quantile(mposarr, q=low_q, axis=0)
+raw_mphigh = pl.quantile(mposarr, q=high_q, axis=0)
+
+mpbest = [raw_mpbest[0:6].sum(), raw_mpbest[6:11].sum(), raw_mpbest[11:].sum()]
+mplow = [raw_mplow[0:6].sum(), raw_mplow[6:11].sum(), raw_mplow[11:].sum()]
+mphigh = [raw_mphigh[0:6].sum(), raw_mphigh[6:11].sum(), raw_mphigh[11:].sum()]
 
 # Plotting
-w = 4
-off = 2
-bins = x.tolist() + [100]
+w = 0.4
+off = .8
+#bins = x.tolist()
 
-x0s, y0s, dxs, dys = 0.105, 0.84, 0.17, 0.13
+x0s, y0s, dxs, dys = xgaps+0.6*mainplotwidth, ygaps*2+1.5*mainplotheight, 0.1, 0.15
 ax1s = pl.axes([x0s, y0s, dxs, dys])
 # ax = pl.subplot(4,2,7)
 c1 = [0.3,0.3,0.6]
 c2 = [0.6,0.7,0.9]
-xx = x+w-off
-pl.bar(x-off,pos, width=w, label='Data', facecolor=c1)
-pl.bar(xx, mpbest, width=w, label='Model', facecolor=c2)
-for i,ix in enumerate(xx):
+X = np.arange(len(x))
+XX = X+w-off
+pl.bar(X,pos, width=w, label='Data', facecolor=c1)
+pl.bar(XX, mpbest, width=w, label='Model', facecolor=c2)
+#pl.bar(x-off,pos, width=w, label='Data', facecolor=c1)
+#pl.bar(xx, mpbest, width=w, label='Model', facecolor=c2)
+for i,ix in enumerate(XX):
     pl.plot([ix,ix], [mplow[i], mphigh[i]], c='k')
-ax1s.set_xticks(np.arange(0,81,20))
+ax1s.set_xticks((X+XX)/2)
+ax1s.set_xticklabels(x)
 pl.xlabel('Age')
-pl.ylabel('Cases')
+pl.ylabel('Cases 9 Mar–24 Apr')
 sc.boxoff(ax1s)
 pl.legend(frameon=False, bbox_to_anchor=(0.7,1.1))
-'''
+
 
 cv.savefig('calibration.png', dpi=100)
 
