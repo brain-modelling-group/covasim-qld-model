@@ -29,7 +29,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='nswppl.pop', dat
             'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
             'start_day': '2020-03-01',
             'end_day': end_day,
-            'analyzers': cv.age_histogram(agedatafile=agedatafile, edges=np.linspace(0,75,16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which NSW has published age-disaggregated case counts
+            'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0,75,16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which NSW has published age-disaggregated case counts
             'verbose': .1}
 
     sim = cv.Sim(pars=pars,
