@@ -5,6 +5,7 @@ import xlsxwriter
 from datetime import date, timedelta
 import pandas as pd
 
+
 dirname = os.path.dirname(__file__)
 
 if __name__ == "__main__":
@@ -86,7 +87,7 @@ if __name__ == "__main__":
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
-    population = 6.92e5
+    population = 1.6e5
 
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(
