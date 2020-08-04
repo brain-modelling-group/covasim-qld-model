@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Run celery worker processes
+
 COVADIR="$(dirname $(dirname $(dirname $(realpath $0))))"
 export PYTHONPATH="${PYTHONPATH}:${COVADIR}"
 

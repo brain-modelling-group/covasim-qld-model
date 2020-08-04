@@ -1,3 +1,5 @@
+# Main script to run Victoria calibration
+
 import outbreak
 import contacts as co
 import covasim as cv
@@ -136,7 +138,7 @@ if __name__ == '__main__':
 
 
     # Add number-based testing interventions
-    tests = pd.read_csv('new_tests.csv',parse_dates=['Date'])
+    tests = pd.read_csv('data/new_tests.csv',parse_dates=['Date'])
     tests['day'] = (tests['Date']-pd.to_datetime('2020-07-09')).dt.days # Get day index relative to start day of 9th July
     tests.set_index('day',inplace=True)
     tests = tests.loc[tests.index>=start_day_relative_to_jul_9]['vic'].dropna().astype(int)
@@ -171,7 +173,7 @@ if __name__ == '__main__':
         for result in results:
             ax.plot(result['t'], result['cum_diagnoses'], color='b', alpha=0.05)
 
-        cases = pd.read_csv('new_cases.csv', parse_dates=['Date'])
+        cases = pd.read_csv('data/new_cases.csv', parse_dates=['Date'])
         cases['day'] = (cases['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
         cases.set_index('day', inplace=True)
         cases = cases.loc[cases.index >= start_day_relative_to_jul_9]['vic'].astype(int).cumsum()
@@ -222,7 +224,7 @@ if __name__ == '__main__':
             ax.plot(result['t'], result['new_diagnoses'], color='b', alpha=0.05)
         ax.set_title('New diagnoses')
 
-        cases = pd.read_csv('new_cases.csv', parse_dates=['Date'])
+        cases = pd.read_csv('data/new_cases.csv', parse_dates=['Date'])
         cases['day'] = (cases['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
         cases.set_index('day', inplace=True)
         cases = cases.loc[cases.index >= start_day_relative_to_jul_9]['vic'].astype(int)
@@ -239,7 +241,7 @@ if __name__ == '__main__':
         for result in results:
             ax.plot(result['t'], result['new_tests'], color='r', alpha=0.05)
 
-        tests = pd.read_csv('new_tests.csv', parse_dates=['Date'])
+        tests = pd.read_csv('data/new_tests.csv', parse_dates=['Date'])
         tests['day'] = (tests['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
         tests.set_index('day', inplace=True)
         tests = tests.loc[tests.index >= start_day_relative_to_jul_9]['vic'].astype(float)
@@ -262,7 +264,7 @@ if __name__ == '__main__':
             ax.plot(result['t'], result['n_severe'], color='b', alpha=0.05)
         ax.set_title('Severe infections')
 
-        hosp = pd.read_csv('hospitalised.csv', parse_dates=['Date'])
+        hosp = pd.read_csv('data/hospitalised.csv', parse_dates=['Date'])
         hosp['day'] = (hosp['Date'] - pd.to_datetime('2020-07-09')).dt.days  # Get day index relative to start day of 18th June
         hosp.set_index('day', inplace=True)
 

@@ -439,11 +439,12 @@ class SeedInfection(cv.Intervention):
 
 class test_prob_with_quarantine(cv.test_prob):
 
-    def __init__(self, *args, swab_delay, isolation_threshold, **kwargs):
+    def __init__(self, *args, swab_delay, isolation_threshold, leaving_quar_prob,**kwargs):
         super().__init__(*args, **kwargs)
         self.swab_delay = swab_delay
         self.isolation_threshold = isolation_threshold  #: Isolate people while waiting for tests after cum_diagnosed exceeds this amount
-        self.isolate_while_waiting = isolation_threshold == 0 # If the threshold is 0 then isolate straight away
+        self.isolate_while_waiting = isolation_threshold == 0  # If the threshold is 0 then isolate straight away
+        self.leaving_quar_prob = leaving_quar_prob  # Test rate for people leaving quarantine
 
     def apply(self, sim):
         ''' Perform testing '''
@@ -458,10 +459,11 @@ class test_prob_with_quarantine(cv.test_prob):
         # 2. People who become symptomatic while in quarantine will test immediately at rate `symp_quar_test`
         # 3. People who are symptomatic and then are ordered to quarantine, will test immediately at rate `symp_quar_test`
         # 4. People who have severe symptoms will be tested
-        # 5. People that have been diagnosed will not be tested
-        # 6. People that are already waiting for a diagnosis will not be retested
-        # 7. People can optionally isolate while waiting for their diagnosis
-        # 8. People already on quarantine while tested will not have their quarantine shortened, but if they are tested at the end of their
+        # 5. (Optional) People that are asymptomatic test before leaving quarantine
+        # 6. People that have been diagnosed will not be tested
+        # 7. People that are already waiting for a diagnosis will not be retested
+        # 8. People can optionally isolate while waiting for their diagnosis
+        # 9. People already on quarantine while tested will not have their quarantine shortened, but if they are tested at the end of their
         #    quarantine, the quarantine will be extended
 
         # Construct the testing probabilities piece by piece -- complicated, since need to do it in the right order
@@ -471,7 +473,6 @@ class test_prob_with_quarantine(cv.test_prob):
         symp_inds = cvu.true(sim.people.symptomatic) # People who are symptomatic
         symp_test_inds = symp_inds[sim.people.date_symptomatic[symp_inds] == t-self.swab_delay]  # People who have been symptomatic and who are eligible to test today
         test_probs[symp_test_inds] = self.symp_prob  # People with symptoms eligible to test today
-
 
         # People whose symptomatic scheduled day falls during quarantine will test at the symp_quar_prob rate
         # People who are already symptomatic, missed their test, and then enter quarantine, will test at the symp_quar_prob rate
@@ -495,7 +496,7 @@ class test_prob_with_quarantine(cv.test_prob):
             # If quarantined, there's no swab delay
 
             # (2) People who become symptomatic while quarantining test immediately
-            quarantine_test_inds = symp_inds(sim.people.quarantined[symp_inds] & (sim.people.date_symptomatic[symp_inds] == t)) # People that became symptomatic today while already on quarantine
+            quarantine_test_inds = symp_inds[sim.people.quarantined[symp_inds] & (sim.people.date_symptomatic[symp_inds] == t)] # People that became symptomatic today while already on quarantine
             test_probs[quarantine_test_inds] = self.symp_quar_prob  # People with symptoms in quarantine are eligible to test without waiting
 
             # (3) People who are symptomatic and undiagnosed before entering quarantine, test as soon as they are quarantined
@@ -505,11 +506,26 @@ class test_prob_with_quarantine(cv.test_prob):
         # (4) People with severe symptoms that would be hospitalised are guaranteed to be tested
         test_probs[sim.people.severe] = 1.0  # People with severe symptoms are guaranteed to be tested unless already diagnosed or awaiting results
 
-        # (5) People that have been diagnosed aren't tested
+        # (5) People leaving quarantine test before leaving
+        # Note that this test is irrespective of symptoms. The idea is that the policy intervention would be 'require that close contacts get tested'
+        # so even if someone failed to voluntarily test in quarantine based on `symp_quar_prob`, the policy would force them to test. It is anticipated
+        # that the `leaving_quar_prob` test rate would be high e.g. 0.9-0.95 as it reflects failure to comply with legal obligations rather than
+        # voluntarily not deciding to test. Take the maximum in case they would fall into another category e.g. they became symptomatic on the
+        # same day.
+        # quarantine_inds = cvu.true(sim.people.quarantined) # Everyone on quarantine
+        # quar_tested_inds = quarantine_inds[np.isfinite(sim.people.date_tested[quarantine_inds])] # Everyone on quarantine that has been tested
+        # quar_tested_before_quarantine = quarantine_inds[np.isfinite(sim.people.date_tested[quarantine_inds])] # Everyone on quarantine that has been tested
+        # quar_not_tested_inds = quarantine_inds[np.isfinite(sim.people.date_tested[quarantine_inds])] # Everyone on quarantine that has been tested
+        # leaving_quarantine_inds = cvu.true(sim.people.known_contact[quarantine_inds] &
+        #                                    ((sim.people.date_end_quarantine[quarantine_inds]-self.test_delay) == sim.t) &
+        #                                    ~(sim.people.date_tested)) # Test people regardless of their symptoms when they are about to leave quarantine
+        # test_probs[leaving_quarantine_inds] = np.maximum(test_probs[leaving_quarantine_inds],self.leaving_quar_prob)
+
+        # (6) People that have been diagnosed aren't tested
         diag_inds = cvu.true(sim.people.diagnosed)
         test_probs[diag_inds] = 0.0  # People who are diagnosed or awaiting test results don't test
 
-        # (6) People waiting for results don't get tested
+        # (7) People waiting for results don't get tested
         tested_inds = cvu.true(np.isfinite(sim.people.date_tested))
         pending_result_inds = tested_inds[(sim.people.date_tested[tested_inds] + self.test_delay) > sim.t]  # People who have been tested and will receive test results after the current timestep
         test_probs[pending_result_inds] = 0.0  # People awaiting test results don't test
@@ -527,12 +543,12 @@ class test_prob_with_quarantine(cv.test_prob):
 
         if self.isolate_while_waiting:
 
-            # (8) If the diagnosis waiting period goes beyond an existing quarantine, extend it
+            # (9) If the diagnosis waiting period goes beyond an existing quarantine, extend it
             # This goes first, so that people entering quarantine below aren't included
             extend_quarantine = cvu.true((sim.people.date_tested==sim.t) & sim.people.quarantined)
             sim.people.date_end_quarantine[extend_quarantine] = np.maximum(sim.people.date_end_quarantine[extend_quarantine], sim.people.date_tested[extend_quarantine]+self.test_delay)
 
-            # (7) If not on quarantine, isolate the period while waiting for the test result
+            # (8) If not on quarantine, isolate the period while waiting for the test result
             new_quarantine = cvu.true((sim.people.date_tested==sim.t) & ~sim.people.quarantined)
             sim.people.quarantined[new_quarantine] = True
             sim.people.date_quarantined[new_quarantine] = sim.t

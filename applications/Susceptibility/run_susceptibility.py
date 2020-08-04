@@ -1,3 +1,5 @@
+# Main script to run scenarios
+
 import sys
 
 sys.path.append('../../')
@@ -34,12 +36,13 @@ else:
 
 
 scenarios = {
-    'baseline':{ # Resembles current policies
-        'symp_prob': 0.25, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
+    'baseline': { # Resembles current policies
+        'symp_prob': 0.1, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
         'symp_quar_prob': 0.8,  # Assume 80% of people told to quarantine will go for testing
         'test_delay': 3 , # Number of days for test results to be processed. It could be worse, or could be better
         'swab_delay': 1 , # Number of days people wait after symptoms before being tested
         'isolation_threshold': 0, # Currently people are supposed to isolate while waiting
+        'leaving_quar_prob'
     },
     'no_isolation': { # If people don't need to isolate, they're more likely to test
         'symp_prob': 0.4, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
