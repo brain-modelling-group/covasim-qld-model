@@ -26,7 +26,7 @@ if __name__ == '__main__':
     lockdown_duration = 4*7  # Lockdown duration in days (after Jul 9)
 
     # Set up parameters
-    params = outbreak.load_australian_parameters('Victoria', pop_size=2e5, pop_infected=0, n_days=n_days)
+    params = outbreak.load_australian_parameters('Victoria', pop_size=1e5, n_infected=0, n_days=n_days)
     params.pars["n_imports"] = n_imports # Number of imports per day
     params.pars['beta'] = beta
 

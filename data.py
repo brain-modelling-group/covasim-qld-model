@@ -364,7 +364,7 @@ def format_epidata(locations, epidata, extrapars):
     for l in locations:
         this_country = epidata.loc[l]
         this_country = this_country.reset_index(drop=True)  # reset row numbers
-        this_country = this_country[to_keep]  # drop unwanted columns
+        this_country = this_country.reindex(to_keep,axis=1)  # drop unwanted columns, add NaN columns for missing variables
         # scale the cumulative infections by undiagnosed
         undiagnosed = extrapars[l]['undiag']
         #this_country['cum_infections'] = this_country['cum_infections'] * (1 + undiagnosed)

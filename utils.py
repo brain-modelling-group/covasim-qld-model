@@ -507,19 +507,15 @@ class test_prob_with_quarantine(cv.test_prob):
         test_probs[sim.people.severe] = 1.0  # People with severe symptoms are guaranteed to be tested unless already diagnosed or awaiting results
 
         # (5) People leaving quarantine test before leaving
-        # Note that this test is irrespective of symptoms. The idea is that the policy intervention would be 'require that close contacts get tested'
-        # so even if someone failed to voluntarily test in quarantine based on `symp_quar_prob`, the policy would force them to test. It is anticipated
-        # that the `leaving_quar_prob` test rate would be high e.g. 0.9-0.95 as it reflects failure to comply with legal obligations rather than
-        # voluntarily not deciding to test. Take the maximum in case they would fall into another category e.g. they became symptomatic on the
-        # same day.
-        # quarantine_inds = cvu.true(sim.people.quarantined) # Everyone on quarantine
-        # quar_tested_inds = quarantine_inds[np.isfinite(sim.people.date_tested[quarantine_inds])] # Everyone on quarantine that has been tested
-        # quar_tested_before_quarantine = quarantine_inds[np.isfinite(sim.people.date_tested[quarantine_inds])] # Everyone on quarantine that has been tested
-        # quar_not_tested_inds = quarantine_inds[np.isfinite(sim.people.date_tested[quarantine_inds])] # Everyone on quarantine that has been tested
-        # leaving_quarantine_inds = cvu.true(sim.people.known_contact[quarantine_inds] &
-        #                                    ((sim.people.date_end_quarantine[quarantine_inds]-self.test_delay) == sim.t) &
-        #                                    ~(sim.people.date_tested)) # Test people regardless of their symptoms when they are about to leave quarantine
-        # test_probs[leaving_quarantine_inds] = np.maximum(test_probs[leaving_quarantine_inds],self.leaving_quar_prob)
+        # Note that this test is irrespective of symptoms. If someone has not been tested during quarantine, they will test at this probability if they are
+        # quarantining as a known contact
+        if self.leaving_quar_prob:
+            leaving_inds = cvu.true(sim.people.quarantined & sim.people.known_contact) # Everyone on quarantine that is a known contact.
+            leaving_inds = leaving_inds[(sim.people.date_end_quarantine[leaving_inds]-self.test_delay) == sim.t] # Subset of people that might need to test today because they are leaving quarantine
+            quarantine_never_tested = leaving_inds[~np.isfinite(sim.people.date_tested[leaving_inds])] # Subset that have not been tested
+            quarantine_tested_before = leaving_inds[sim.people.date_tested[leaving_inds] < sim.people.date_quarantined[leaving_inds]] # Subset that were last tested before quarantine
+            leaving_inds = quarantine_never_tested+quarantine_tested_before
+            test_probs[leaving_inds] = np.maximum(test_probs[leaving_inds], self.leaving_quar_prob) # If they are already supposed to test at a higher rate e.g. severe symptoms, keep it
 
         # (6) People that have been diagnosed aren't tested
         diag_inds = cvu.true(sim.people.diagnosed)

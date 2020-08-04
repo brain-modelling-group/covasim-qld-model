@@ -73,14 +73,14 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                               dynamic_lkeys=dynamic_lkeys,
                               calibration_end=calibration_end)
 
-    loc_data = all_data[location]
+    loc_data = all_data
     loc_pars = user_pars[location]
 
     # setup parameters object for this simulation
     params = parameters.setup_params(location=location,
                                      loc_data=loc_data,
                                      metapars=metapars,
-                                     user_pars=loc_pars)
+                                     sim_pars=loc_pars)
 
     params.test_prob = {
         'symp_prob': 0.1,  # Someone who has symptoms has this probability of testing on any given day
@@ -90,6 +90,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
         'test_delay': 3, # Number of days for test results to be processed
         'swab_delay': 2, # Number of days people wait after symptoms before being tested
         'isolation_threshold': 0,
+        'leaving_quar_prob': 0,
     }
 
     params.seed_infections = {1: n_infected}
@@ -153,6 +154,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
         test_delay=params.test_prob['test_delay'],
         swab_delay=params.test_prob['swab_delay'],
         isolation_threshold=params.test_prob['isolation_threshold'],
+        leaving_quar_prob=params.test_prob['leaving_quar_prob'],
     ))
 
     # SET TRACING
