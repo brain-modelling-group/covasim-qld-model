@@ -42,7 +42,7 @@ scenarios = {
         'test_delay': 3 , # Number of days for test results to be processed. It could be worse, or could be better
         'swab_delay': 1 , # Number of days people wait after symptoms before being tested
         'isolation_threshold': 0, # Currently people are supposed to isolate while waiting
-        'leaving_quar_prob'
+        'leaving_quar_prob': 0, # Not required to test if known contact
     },
     'no_isolation': { # If people don't need to isolate, they're more likely to test
         'symp_prob': 0.4, # Based on ~60% of cases being asymptomatic, and 10x as many infections as diagnosed, implying 25% of symptomatic cases get diagnosed
