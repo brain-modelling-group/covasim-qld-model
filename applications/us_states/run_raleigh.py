@@ -9,7 +9,7 @@ dirname = os.path.dirname(__file__)
 
 if __name__ == "__main__":
     # the list of locations for this analysis
-    locations = ['Jackson']
+    locations = ['Raleigh']
     # the name of the databook
     db_name = 'input_data_US_group3'
     epi_name = 'epi_data_US_group3'
@@ -21,9 +21,9 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {locations[0]: {'pop_size': int(10e4),
-                              'beta': 0.071,
+                              'beta': 0.073,
                               'n_days': 320,
-                              'pop_infected': 20,
+                              'pop_infected': 25,
                               'calibration_end': '2020-08-02'}}
 
     mid_aug = 167  # make this the key date
@@ -41,20 +41,20 @@ if __name__ == "__main__":
     # the policies to change during scenario runs
 
     scen_opts = {locations[0]:  {'Small easing of restrictions in mid-August':
-                                {'replace': (['lockdown4'], [['relax3']], [[mid_aug]]),
-                                 'policies': {'relax1': {'beta': 0.58}}},
+                                {'replace': (['lockdown4'], [['relax4']], [[mid_aug]]),
+                                 'policies': {'relax1': {'beta': 0.7}}},
 
                                 'Moderate easing of restrictions in mid-August':
-                                {'replace': (['lockdown4'], [['relax4']], [[mid_aug]]),
-                                 'policies': {'relax4': {'beta': 0.68}}},
+                                {'replace': (['lockdown4'], [['relax5']], [[mid_aug]]),
+                                 'policies': {'relax4': {'beta': 0.8}}},
 
                                 'Small easing of restrictions in mid-September':
-                                {'replace': (['lockdown4'], [['relax3']], [[mid_sep]]),
-                                 'policies': {'relax1': {'beta': 0.58}}},
+                                {'replace': (['lockdown4'], [['relax4']], [[mid_sep]]),
+                                 'policies': {'relax1': {'beta': 0.7}}},
 
                                 'Moderate easing of restrictions in mid-September':
-                                {'replace': (['lockdown4'], [['relax4']], [[mid_sep]]),
-                                 'policies': {'relax4': {'beta': 0.68}}},
+                                {'replace': (['lockdown4'], [['relax5']], [[mid_sep]]),
+                                 'policies': {'relax4': {'beta': 0.8}}},
 
                                 'No changes to current lockdown restrictions':
                                 {'replace': (['lockdown4'], [['lockdown4']], [[500]])},
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
 
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs/Jackson-projections' + '.png',
+                       fig_path=dirname + '/figs/Raleigh-projections' + '.png',
                        interval=30, n_cols=1,
                        fig_args=dict(figsize=(10, 8), dpi=100),
                        font_size=11,
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses'])
 
-    population = 1.6e5
+    population = 4.74e5
 
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     ]
 
     # Export results to Excel
-    workbook = xlsxwriter.Workbook('Jackson_projections.xlsx')
+    workbook = xlsxwriter.Workbook('Raleigh_projections.xlsx')
     worksheet = workbook.add_worksheet('Projections')
     worksheet.add_table('A1:X4', {'data': projections, 'header_row': False})
     worksheet2 = workbook.add_worksheet('Daily projections')
