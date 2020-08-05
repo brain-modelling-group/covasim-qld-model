@@ -439,12 +439,11 @@ class SeedInfection(cv.Intervention):
 
 class test_prob_with_quarantine(cv.test_prob):
 
-    def __init__(self, *args, swab_delay, isolation_threshold, leaving_quar_prob,**kwargs):
+    def __init__(self, *args, swab_delay, test_isolation_compliance, leaving_quar_prob,**kwargs):
         super().__init__(*args, **kwargs)
         self.swab_delay = swab_delay
-        self.isolation_threshold = isolation_threshold  #: Isolate people while waiting for tests after cum_diagnosed exceeds this amount
-        self.isolate_while_waiting = isolation_threshold == 0  # If the threshold is 0 then isolate straight away
-        self.leaving_quar_prob = leaving_quar_prob  # Test rate for people leaving quarantine
+        self.test_isolation_compliance = test_isolation_compliance  #: Compliance level for individuals in general population isolating after testing. People already in quarantine are assumed to be compliant
+        self.leaving_quar_prob = leaving_quar_prob  # Probability of testing for people leaving quarantine e.g. set to 1 to ensure people test before leaving quarantine
 
     def apply(self, sim):
         ''' Perform testing '''
@@ -534,18 +533,18 @@ class test_prob_with_quarantine(cv.test_prob):
         # Check the number of diagnosed people to decide whether to turn on isolation while waiting for results
         # Using >= here means an isolation threshold of 0 is a second check to ensure isolation takes place
         # (normally the `isolate_while_waiting` flag should be pre-set in the constructor)
-        if (not self.isolate_while_waiting) and (sim.t > 0 and sim.results['cum_diagnoses'][t-1] >= self.isolation_threshold):
-            self.isolate_while_waiting = True
 
-        if self.isolate_while_waiting:
+        if self.test_isolation_compliance:
 
             # (9) If the diagnosis waiting period goes beyond an existing quarantine, extend it
-            # This goes first, so that people entering quarantine below aren't included
+            # This goes first, so that people entering quarantine below aren't included.
             extend_quarantine = cvu.true((sim.people.date_tested==sim.t) & sim.people.quarantined)
+            extend_quarantine = cvu.binomial_filter(self.test_isolation_compliance, extend_quarantine)
             sim.people.date_end_quarantine[extend_quarantine] = np.maximum(sim.people.date_end_quarantine[extend_quarantine], sim.people.date_tested[extend_quarantine]+self.test_delay)
 
             # (8) If not on quarantine, isolate the period while waiting for the test result
             new_quarantine = cvu.true((sim.people.date_tested==sim.t) & ~sim.people.quarantined)
+            new_quarantine = cvu.binomial_filter(self.test_isolation_compliance, new_quarantine)
             sim.people.quarantined[new_quarantine] = True
             sim.people.date_quarantined[new_quarantine] = sim.t
             sim.people.date_end_quarantine[new_quarantine] = sim.t+self.test_delay
