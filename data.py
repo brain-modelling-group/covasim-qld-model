@@ -155,7 +155,7 @@ def read_policies(locations, databook, all_lkeys):
 
             # check if there is a change in beta values on this layer (i.e. change in transmission risk)
             layers_in_use = all_lkeys + ['beta']
-            beta_vals = row[layers_in_use]
+            beta_vals = row.loc[row.index.intersection(layers_in_use)]
             beta_change = beta_vals.prod()  # multiply series together
             if not math.isclose(beta_change, 1, abs_tol=1e-9):
                 policies['beta_policies'][pol_name] = {}
