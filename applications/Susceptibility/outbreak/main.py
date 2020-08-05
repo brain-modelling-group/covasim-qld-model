@@ -103,7 +103,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
         'asymp_quar_prob': 0.0,
         'test_delay': 3, # Number of days for test results to be processed
         'swab_delay': 2, # Number of days people wait after symptoms before being tested
-        'isolation_threshold': 0,
+        'test_isolation_compliance': 0,
         'leaving_quar_prob': 0,
     }
 
@@ -167,7 +167,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
         asymp_quar_prob=params.test_prob['asymp_quar_prob'],
         test_delay=params.test_prob['test_delay'],
         swab_delay=params.test_prob['swab_delay'],
-        isolation_threshold=params.test_prob['isolation_threshold'],
+        test_isolation_compliance=params.test_prob['test_isolation_compliance'],
         leaving_quar_prob=params.test_prob['leaving_quar_prob'],
     ))
 
