@@ -22,9 +22,9 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {locations[0]: {'pop_size': int(10e4),
-                              'beta': 0.071,
+                              'beta': 0.0709,
                               'n_days': 360,
-                              'pop_infected': 20,
+                              'pop_infected': 5,
                               'calibration_end': '2020-08-02'}}
 
     mid_aug = 206  # make this the key date
@@ -35,27 +35,27 @@ if __name__ == "__main__":
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
-                'noise': 0.03,
+                'noise': 0.003,
                 'verbose': 1,
                 'rand_seed': 1}
 
     # the policies to change during scenario runs
 
     scen_opts = {locations[0]:  {'Small easing of restrictions in mid-August':
-                                {'replace': (['lockdown4'], [['relax3']], [[mid_aug]]),
-                                 'policies': {'relax1': {'beta': 0.58}}},
+                                {'replace': (['lockdown6'], [['relax2']], [[mid_aug]]),
+                                 'policies': {'relax1': {'beta': 0.65}}},
 
                                 'Moderate easing of restrictions in mid-August':
-                                {'replace': (['lockdown4'], [['relax4']], [[mid_aug]]),
-                                 'policies': {'relax4': {'beta': 0.68}}},
+                                {'replace': (['lockdown6'], [['relax3']], [[mid_aug]]),
+                                 'policies': {'relax4': {'beta': 0.75}}},
 
                                 'Small easing of restrictions in mid-September':
-                                {'replace': (['lockdown4'], [['relax3']], [[mid_sep]]),
-                                 'policies': {'relax1': {'beta': 0.58}}},
+                                {'replace': (['lockdown6'], [['relax2']], [[mid_sep]]),
+                                 'policies': {'relax1': {'beta': 0.65}}},
 
                                 'Moderate easing of restrictions in mid-September':
-                                {'replace': (['lockdown4'], [['relax4']], [[mid_sep]]),
-                                 'policies': {'relax4': {'beta': 0.68}}},
+                                {'replace': (['lockdown6'], [['relax3']], [[mid_sep]]),
+                                 'policies': {'relax4': {'beta': 0.75}}},
 
                                 'No changes to current lockdown restrictions':
                                 {'replace': (['lockdown4'], [['lockdown4']], [[500]])},
