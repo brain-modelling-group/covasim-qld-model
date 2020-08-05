@@ -155,7 +155,7 @@ def read_policies(locations, databook, all_lkeys):
 
             # check if there is a change in beta values on this layer (i.e. change in transmission risk)
             layers_in_use = all_lkeys + ['beta']
-            beta_vals = row[layers_in_use]
+            beta_vals = row.loc[row.index.intersection(layers_in_use)]
             beta_change = beta_vals.prod()  # multiply series together
             if not math.isclose(beta_change, 1, abs_tol=1e-9):
                 policies['beta_policies'][pol_name] = {}
@@ -359,7 +359,7 @@ def format_epidata(locations, epidata, extrapars):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
     # rename the columns
     epidata = epidata.rename(columns=utils.colnames())
-    to_keep = ['date', 'new_diagnoses', 'cum_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests','n_severe']
+    to_keep = ['date', 'new_diagnoses', 'cum_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']#,'n_severe']
     epidata_dict = {}
     for l in locations:
         this_country = epidata.loc[l]
@@ -401,7 +401,7 @@ def get_daily_tests(locations, epidata, pars, extrapars, calibration_end):
                                   pars[location]['start_day'],
                                   pars[location]['n_days'],
                                   calibration_date)
-        daily_tests[location] = tests * pars[location]['pop_size']/pars[location]['pop_scale']
+        daily_tests[location] = tests
 
     return daily_tests
 
