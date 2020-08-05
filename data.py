@@ -401,7 +401,7 @@ def get_daily_tests(locations, epidata, pars, extrapars, calibration_end):
                                   pars[location]['start_day'],
                                   pars[location]['n_days'],
                                   calibration_date)
-        daily_tests[location] = tests * pars[location]['pop_size']/pars[location]['pop_scale']
+        daily_tests[location] = tests
 
     return daily_tests
 
