@@ -47,7 +47,7 @@ def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=Non
     sim_stats['symp_quar_prob'] = params.test_prob['symp_quar_prob']
     sim_stats['test_delay'] = params.test_prob['test_delay']
     sim_stats['swab_delay'] = params.test_prob['swab_delay']
-    sim_stats['isolation_threshold'] = params.test_prob['isolation_threshold']
+    sim_stats['test_isolation_compliance'] = params.test_prob['test_isolation_compliance']
 
     sim_stats['cum_tests'] = sim.results['cum_tests'][-1]
 
