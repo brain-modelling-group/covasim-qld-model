@@ -18,14 +18,14 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {locations[0]: {'pop_size': int(10e4),
-                               'beta': 0.0709,
-                               'n_days': 200,
-                               'pop_infected': 5,
+                               'beta': 0.088,
+                               'n_days': 170,
+                               'pop_infected': 25,
                                'calibration_end': '2020-08-02'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
-                'noise': 0.005,
+                'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
 
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs/Phoenix-calibrate2' + '.png',
+                       fig_path=dirname + '/figs/Phoenix-calibrate' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
