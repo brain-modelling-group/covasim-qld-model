@@ -514,8 +514,10 @@ class test_prob_with_quarantine(cv.test_prob):
             leaving_inds = leaving_inds[(sim.people.date_end_quarantine[leaving_inds]-self.test_delay) == sim.t] # Subset of people that might need to test today because they are leaving quarantine
             tested = np.isfinite(sim.people.date_tested[leaving_inds])
             quarantine_never_tested = leaving_inds[~tested] # Subset that have not been tested
+
             if any(tested):
-                quarantine_tested_before = leaving_inds[tested][sim.people.date_tested[tested] < sim.people.date_quarantined[tested]] # Subset that were last tested before quarantine
+                quarantine_tested = leaving_inds[tested]  # Subset that have not been tested
+                quarantine_tested_before = quarantine_tested[sim.people.date_tested[quarantine_tested] < sim.people.date_quarantined[quarantine_tested]] # Subset that were last tested before quarantine
                 leaving_inds = np.hstack([quarantine_never_tested,quarantine_tested_before])
             else:
                 leaving_inds = quarantine_never_tested

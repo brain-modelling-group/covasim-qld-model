@@ -46,12 +46,17 @@ for scen_name, scenario in scenarios.items():
 
     for name, policies in packages.items():
 
+        savefile = resultdir / f'{name}.stats'
+        if savefile.exists():
+            print(f'{scen_name}-{name} exists, skipping')
+            continue
+
         if args.celery:
             # Run simulations using celery
             job = group([run_australia_outbreak.s(i, params, policies, **population) for i in range(args.nruns)])
             result = job.apply_async()
 
-            with tqdm(total=args.nruns, desc=name) as pbar:
+            with tqdm(total=args.nruns, desc=f'{scen_name}-{name}') as pbar:
                 while result.completed_count() < args.nruns:
                     time.sleep(1)
                     pbar.n = result.completed_count()
@@ -66,4 +71,4 @@ for scen_name, scenario in scenarios.items():
             for i in tqdm(range(args.nruns), desc=name):
                 sim_stats.append(run_australia_outbreak(i, params, policies, **population))
 
-        sc.saveobj(resultdir / f'{name}.stats', sim_stats)
+        sc.saveobj(savefile, sim_stats)
