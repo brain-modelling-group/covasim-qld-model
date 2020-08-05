@@ -85,7 +85,7 @@ class Parameters:
             print(f'- {key}: {value}')
 
 
-def setup_params(location, loc_data, metapars, user_pars):
+def setup_params(location=None, loc_data=None, metapars=None, sim_pars=None):
     """Read in the required parameter types and put in container
     :return a Parameters container object"""
 
@@ -120,7 +120,7 @@ def setup_params(location, loc_data, metapars, user_pars):
                         custom_lkeys=custom_lkeys,
                         dynamic_lkeys=dynamic_lkeys)
 
-    # if specified by user, overwrite parameter values from the databook
-    if user_pars is not None:
-        params.update_pars(user_pars)
+    # if specified by user, overwrite sim parameter values from the databook
+    if sim_pars is not None:
+        params.update_pars(sim_pars)
     return params

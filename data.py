@@ -155,7 +155,7 @@ def read_policies(locations, databook, all_lkeys):
 
             # check if there is a change in beta values on this layer (i.e. change in transmission risk)
             layers_in_use = all_lkeys + ['beta']
-            beta_vals = row[layers_in_use]
+            beta_vals = row.loc[row.index.intersection(layers_in_use)]
             beta_change = beta_vals.prod()  # multiply series together
             if not math.isclose(beta_change, 1, abs_tol=1e-9):
                 policies['beta_policies'][pol_name] = {}
@@ -315,6 +315,7 @@ def extrapolate_tests(tests, future_tests, start_day, n_days, calibration_date):
         test_data = tests.loc[tests['date'] <= calibration_date].copy()  # subset tests
         test_data = test_data['new_tests'].to_numpy()
         tests = np.append(test_data, [future_tests] * days_after_calibration)
+
     return tests
 
 
@@ -358,12 +359,12 @@ def format_epidata(locations, epidata, extrapars):
     """Convert the dataframe to a dictionary of dataframes, where the key is the location"""
     # rename the columns
     epidata = epidata.rename(columns=utils.colnames())
-    to_keep = ['date', 'new_diagnoses', 'cum_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']
+    to_keep = ['date', 'new_diagnoses', 'cum_diagnoses', 'cum_deaths', 'new_deaths', 'new_tests', 'cum_tests']#,'n_severe']
     epidata_dict = {}
     for l in locations:
         this_country = epidata.loc[l]
         this_country = this_country.reset_index(drop=True)  # reset row numbers
-        this_country = this_country[to_keep]  # drop unwanted columns
+        this_country = this_country.reindex(to_keep,axis=1)  # drop unwanted columns, add NaN columns for missing variables
         # scale the cumulative infections by undiagnosed
         undiagnosed = extrapars[l]['undiag']
         #this_country['cum_infections'] = this_country['cum_infections'] * (1 + undiagnosed)
@@ -467,7 +468,7 @@ def read_params(locations, db, all_lkeys):
     return pars, extrapars, layerchars
 
 
-def read_data(locations, db_name, epi_name, all_lkeys, dynamic_lkeys, calibration_end):
+def read_data(locations=None, db_name=None, epi_name=None, all_lkeys=None, dynamic_lkeys=None, calibration_end=None):
     """Reads in all data in the appropriate format"""
     db_path, epi_path = utils.get_file_paths(db_name=db_name, epi_name=epi_name)
 
@@ -503,4 +504,6 @@ def read_data(locations, db_name, epi_name, all_lkeys, dynamic_lkeys, calibratio
                               'dynamic_lkeys': dynamic_lkeys,
                               'custom_lkeys': custom_lkeys}
 
-    return all_data
+    # don't return a dict if you're just looking at one location
+    if len(locations)==1:   return all_data[locations[0]]
+    else:                   return all_data
