@@ -20,12 +20,12 @@ if __name__ == "__main__":
     user_pars = {locations[0]: {'pop_size': int(10e4),
                                'beta': 0.07,
                                'n_days': 200,
-                               'pop_infected': 2,
+                               'pop_infected': 5,
                                'calibration_end': '2020-08-02'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 4,
-                'noise': 0.02,
+                'noise': 0.005,
                 'verbose': 1,
                 'rand_seed': 1}
 
