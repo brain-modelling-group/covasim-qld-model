@@ -10,6 +10,6 @@ The main code is in `covasim-australia/applications/nsw/`
 
 ## Generalisations
 
-The NSW analysis can be applied to other settings by following these steps. Suppose you want to model a new location <myloc>:
-1. Go into covasim-australia/data/epi_data_Australia.csv and add a couple of placeholder rows for <myloc>. These are not used, but the logic of creating a population is inexplicably bound up with the reading in of this file, so there need to be some values here.
-2. Go into covasim-australia/data/input_data_Australia.xlsx and add rows for <myloc> throughout, copying what's in NSW and Victoria. **IMPORTANT**: the only values you actually need to input correctly here are those in the sheets `age_sex` and `households`. Everything else gets overwritten later, but again, the script doesn't run without placeholder values. 
+The NSW analysis can be applied to other settings by following these steps. Suppose you want to model a new location `myloc`:
+1. Go into covasim-australia/data/epi_data_Australia.csv and add a couple of placeholder rows for `myloc`. These are not used, but the logic of creating a population is inexplicably bound up with the reading in of this file, so there need to be some values here.
+2. Go into covasim-australia/data/input_data_Australia.xlsx and add rows for `myloc` throughout, copying what's in NSW and Victoria. **IMPORTANT**: the only values you actually need to input correctly here are those in the sheets `age_sex` and `households`. Everything else gets overwritten later, but again, the script doesn't run without placeholder values. 
