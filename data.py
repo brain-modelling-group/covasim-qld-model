@@ -364,7 +364,7 @@ def format_epidata(locations, epidata, extrapars):
     for l in locations:
         this_country = epidata.loc[l]
         this_country = this_country.reset_index(drop=True)  # reset row numbers
-        this_country = this_country[to_keep] #this_country = this_country.reindex(to_keep,axis=1)  # drop unwanted columns, add NaN columns for missing variables
+        this_country = this_country.reindex(to_keep,axis=1)  # drop unwanted columns, add NaN columns for missing variables
         # scale the cumulative infections by undiagnosed
         undiagnosed = extrapars[l]['undiag']
         #this_country['cum_infections'] = this_country['cum_infections'] * (1 + undiagnosed)
@@ -504,4 +504,6 @@ def read_data(locations=None, db_name=None, epi_name=None, all_lkeys=None, dynam
                               'dynamic_lkeys': dynamic_lkeys,
                               'custom_lkeys': custom_lkeys}
 
-    return all_data
+    # don't return a dict if you're just looking at one location
+    if len(locations)==1:   return all_data[locations[0]]
+    else:                   return all_data
