@@ -36,8 +36,8 @@ if __name__ == "__main__":
     end_dec = mid_nov + 46
 
     # metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
-                'noise': 0.0,
+    metapars = {'n_runs': 1,  # test: 1, run: 8
+                'noise': 0.0, # test: 0, run: 0.01 to 0.03
                 'verbose': 1,
                 'rand_seed': 1}
 
@@ -49,10 +49,10 @@ if __name__ == "__main__":
                                 {'replace': (['relax3'], ['relax5'], [[177]])},
 
                                 'Small easing of restrictions on September 30':
-                                {'replace': (['relax3'], ['relax4'], [[208]])},
+                                {'replace': (['relax3'], ['relax4'], [[207]])},
 
                                 'Moderate easing of restrictions on September 30':
-                                {'replace': (['relax3'], ['relax5'], [[208]])},
+                                {'replace': (['relax3'], ['relax5'], [[207]])},
 
                                 'No changes to current lockdown restrictions':
                                 {'replace': (['relax3'], [['relax3']], [[370]])}
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     # plot cumulative infections to see if all the population gets infected
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_mobile/Mobile-projections' + '.png',
+                       fig_path=dirname + '/figs_mobile/Mobile-projection' + '.png',
                        interval=30, n_cols=1,
                        fig_args=dict(figsize=(10, 8), dpi=100),
                        font_size=11,
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     worksheet = workbook.add_worksheet('Projections')
     population = 413210
 
-    # Lower Bound: no change in restrictions
+    # Lower Bound (LB): no change in restrictions
     new_inf_LB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections']['No changes to current lockdown restrictions'][
             'best'][
@@ -132,64 +132,66 @@ if __name__ == "__main__":
     detected_LB_nov_dec = 100 * new_diag_LB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_LB_nov_dec = cum_inf_LB_nov_dec / population
 
-    # Mid Bound: small change mid- July
+    # Mid Bound (MB): small change mid- July
     new_inf_MB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
-            'Small easing of restrictions on August 30']['best'][
+            'Small easing of restrictions on August 31']['best'][
         mid_sep:end_oct])
+    
     new_diag_MB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
-            'Small easing of restrictions on August 30']['best'][
+            'Small easing of restrictions on August 31']['best'][
         mid_sep:end_oct])
+    
     cum_inf_MB_sep_oct = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'Small easing of restrictions on August 30']['best'][end_oct]
+            'Small easing of restrictions on August 31']['best'][end_oct]
     incidence_MB_sep_oct = 100 * new_inf_MB_sep_oct * 30 / (end_oct - mid_sep) / population
     detected_MB_sep_oct = 100 * new_diag_MB_sep_oct * 30 / (end_oct - mid_sep) / population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct / population
 
     new_inf_MB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
-            'Small easing of restrictions on August 30']['best'][
+            'Small easing of restrictions on August 31']['best'][
         mid_nov:end_dec])
     new_diag_MB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
-            'Small easing of restrictions on August 30']['best'][
+            'Small easing of restrictions on August 31']['best'][
         mid_nov:end_dec])
     cum_inf_MB_nov_dec = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'Small easing of restrictions on August 30']['best'][end_dec]
+            'Small easing of restrictions on August 31']['best'][end_dec]
     incidence_MB_nov_dec = 100 * new_inf_MB_nov_dec * 30 / (end_dec - mid_nov) / population
     detected_MB_nov_dec = 100 * new_diag_MB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec / population
 
-    # Upper Bound: moderate change mid-August
+    # Upper Bound (UB): moderate change mid-August
     new_inf_UB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
-            'Moderate easing of restrictions on August 30']['best'][
+            'Moderate easing of restrictions on August 31']['best'][
         mid_sep:end_oct])
     new_diag_UB_sep_oct = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
-            'Moderate easing of restrictions on August 30']['best'][
+            'Moderate easing of restrictions on August 31']['best'][
         mid_sep:end_oct])
     cum_inf_UB_sep_oct = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'Moderate easing of restrictions on August 30']['best'][end_oct]
+            'Moderate easing of restrictions on August 31']['best'][end_oct]
     incidence_UB_sep_oct = 100 * new_inf_UB_sep_oct * 30 / (end_oct - mid_sep) / population
     detected_UB_sep_oct = 100 * new_diag_UB_sep_oct * 30 / (end_oct - mid_sep) / population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct / population
 
     new_inf_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_infections'][
-            'Moderate easing of restrictions on August 30']['best'][
+            'Moderate easing of restrictions on August 31']['best'][
         mid_nov:end_dec])
     new_diag_UB_nov_dec = sum(
         scens['scenarios'][locations[0]].results['new_diagnoses'][
-            'Moderate easing of restrictions on August 30']['best'][
+            'Moderate easing of restrictions on August 31']['best'][
         mid_nov:end_dec])
     cum_inf_UB_nov_dec = \
         scens['scenarios'][locations[0]].results['cum_infections'][
-            'Moderate easing of restrictions on August 30']['best'][end_dec]
+            'Moderate easing of restrictions on August 31']['best'][end_dec]
     incidence_UB_nov_dec = 100 * new_inf_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     detected_UB_nov_dec = 100 * new_diag_UB_nov_dec * 30 / (end_dec - mid_nov) / population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec / population
