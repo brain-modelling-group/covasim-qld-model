@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # country-Guadalajaraecific parameters
     user_pars = {'Guadalajara': {'pop_size': int(10e4),
-                               'beta': 0.031,
+                               'beta': 0.029,
                                'n_days': 366,
                                'calibration_end': '2020-08-01'}}
 
@@ -42,18 +42,17 @@ if __name__ == "__main__":
     end_dec = mid_nov + 46
 
     # the policies to change during scenario runs
-    # scen_opts = {'Guadalajara': {'No changes to current lockdown restrictions': 
     scen_opts = {'Guadalajara': {'Small easing of restrictions in mid-September': 
-                              {'replace': (['red2'], [['orange']], [[mid_sep]])},
+                              {'replace': (['red2'], [['relax1']], [[mid_sep]])},
 
                             'Moderate easing of restrictions in mid-September': 
-                              {'replace': (['red2'], [['yellow']], [[mid_sep]])},
+                              {'replace': (['red2'], [['relax2']], [[mid_sep]])},
 
                             'Small easing of restrictions in mid-August': 
-                              {'replace': (['red2'], [['orange']], [[mid_aug]])},
+                              {'replace': (['red2'], [['relax1']], [[mid_aug]])},
 
                             'Moderate easing of restrictions in mid-August': 
-                              {'replace': (['red2'], [['yellow']], [[mid_aug]])},
+                              {'replace': (['red2'], [['relax2']], [[mid_aug]])},
 
                             'No changes to current lockdown restrictions': 
                               {'replace': (['green'], [['green']], [[1]])}}}
@@ -78,7 +77,7 @@ if __name__ == "__main__":
                   interval=30, n_cols=1,
                   fig_args=dict(figsize=(10, 8), dpi=100),
                   font_size=11,
-                  #y_lim={'new_infections': 500},
+                  # y_lim={'new_infections': 10000},
                   legend_args={'loc': 'upper center', 'bbox_to_anchor': (0.5, -3)},
                   axis_args={'left': 0.1, 'wspace': 0.3, 'right': 0.95, 'hspace': 0.4, 'bottom': 0.2},
                   fill_args={'alpha': 0.3},
@@ -103,16 +102,16 @@ if __name__ == "__main__":
     seroprev_LB_nov_dec = cum_inf_LB_nov_dec/population
 
     # Mid Bound: small change mid- July    
-    new_inf_MB_sep_oct = sum(scens['scenarios']['Guadalajara'].results['new_infections']['Small easing of restrictions in mid-August']['best'][mid_sep:end_oct])    
-    new_diag_MB_sep_oct = sum(scens['scenarios']['Guadalajara'].results['new_diagnoses']['Small easing of restrictions in mid-August']['best'][mid_sep:end_oct])    
-    cum_inf_MB_sep_oct = scens['scenarios']['Guadalajara'].results['cum_infections']['Small easing of restrictions in mid-August']['best'][end_oct]    
+    new_inf_MB_sep_oct = sum(scens['scenarios']['Guadalajara'].results['new_infections']['Small easing of restrictions in mid-September']['best'][mid_sep:end_oct])    
+    new_diag_MB_sep_oct = sum(scens['scenarios']['Guadalajara'].results['new_diagnoses']['Small easing of restrictions in mid-September']['best'][mid_sep:end_oct])    
+    cum_inf_MB_sep_oct = scens['scenarios']['Guadalajara'].results['cum_infections']['Small easing of restrictions in mid-September']['best'][end_oct]    
     incidence_MB_sep_oct = 100*new_inf_MB_sep_oct*30/(end_oct-mid_sep)/population
     detected_MB_sep_oct = 100*new_diag_MB_sep_oct*30/(end_oct-mid_sep)/population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct/population
 
-    new_inf_MB_nov_dec = sum(scens['scenarios']['Guadalajara'].results['new_infections']['Small easing of restrictions in mid-August']['best'][start_nov:end_dec])    
-    new_diag_MB_nov_dec = sum(scens['scenarios']['Guadalajara'].results['new_diagnoses']['Small easing of restrictions in mid-August']['best'][start_nov:end_dec])    
-    cum_inf_MB_nov_dec = scens['scenarios']['Guadalajara'].results['cum_infections']['Small easing of restrictions in mid-August']['best'][end_dec]    
+    new_inf_MB_nov_dec = sum(scens['scenarios']['Guadalajara'].results['new_infections']['Small easing of restrictions in mid-September']['best'][start_nov:end_dec])    
+    new_diag_MB_nov_dec = sum(scens['scenarios']['Guadalajara'].results['new_diagnoses']['Small easing of restrictions in mid-September']['best'][start_nov:end_dec])    
+    cum_inf_MB_nov_dec = scens['scenarios']['Guadalajara'].results['cum_infections']['Small easing of restrictions in mid-September']['best'][end_dec]    
     incidence_MB_nov_dec = 100*new_inf_MB_nov_dec*30/(end_dec-start_nov)/population
     detected_MB_nov_dec = 100*new_diag_MB_nov_dec*30/(end_dec-start_nov)/population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec/population
