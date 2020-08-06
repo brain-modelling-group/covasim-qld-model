@@ -28,13 +28,13 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
         end_day = '2020-08-31'
         julybetas = julybetas
 
-    pars = {'pop_size': 100000,
-            'pop_infected': 10,
+    pars = {'pop_size': 500000,
+            'pop_infected': 50,
             'pop_scale': 1,
             'rescale': False,
             'rand_seed': 42,
             'rel_death_prob': 0.8,
-            'beta': 0.0015, # Overall beta to use for calibration
+            'beta': 0.015, # Overall beta to use for calibration
                                     # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers).to_dict(),
             'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
@@ -157,7 +157,7 @@ if __name__ == '__main__':
                 msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
                       legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
         elif whattorun == 'scenarios':
-            julybetas = [0.2, 0.3, 0.4]
+            julybetas = [0.4, 0.5, 0.6]
             for jb in julybetas:
                 sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)

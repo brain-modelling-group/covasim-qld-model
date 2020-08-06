@@ -15,7 +15,7 @@ import utils
 import functools
 import numpy as np
 
-def make_people(seed=None, pop_size=100000, pop_infected=150, 
+def make_people(seed=None, pop_size=500000, pop_infected=50, 
                 savepeople=True, popfile='qldppl.pop', 
                 savepopdict=False, popdictfile='qdlpopdict.pop'):
     """
