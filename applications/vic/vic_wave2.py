@@ -11,14 +11,14 @@ if __name__ == "__main__":
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C', 'church','cSport','entertainment','cafe_restaurant','pub_bar',
-                 'transport','public_parks','large_events','child_care','social']
+                 'transport','public_parks','large_events','child_care','social','aged_care']
     dynamic_lkeys = ['C','entertainment','cafe_restaurant','pub_bar',
                  'transport','public_parks','large_events']  # layers which update dynamically (subset of all_lkeys)
 
     # country-specific parameters
-    user_pars = {'Victoria': {'pop_size': int(1e5),
-                               'beta': 0.06,
-                               'n_days': 70,
+    user_pars = {'Victoria': {'pop_size': int(2e5),
+                               'beta': 0.015,
+                               'n_days': 90,
                                'calibration_end': '2020-07-27'}}
 
     # the metapars for all countries and scenarios
@@ -26,22 +26,33 @@ if __name__ == "__main__":
                 'noise': 0.0,
                 'verbose': 1,
                 'rand_seed': 1}
-    lockdown_end = 80
+    stage4 = 62
+    lockdown_end = stage4+6*7
 #Pub app scenarios
-    scen_base = {'Victoria': {'baseline': {'replace': (['pub_bar0','cafe_restaurant0','outdoor2','church0'],
-                                                       [['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
-                                                        ['outdoor10'],['church_4sqm']],
-                                                       [[lockdown_end],[lockdown_end],[lockdown_end],[lockdown_end]]),
-                                           'turn_on': (['import_cases'],
-                                                        [2]),
-                                           'turn_off': (['schools', 'social','cSports','import_cases'],
-                                                        [lockdown_end,lockdown_end,lockdown_end,4]),
+    scen_base = {'Victoria': {'baseline': {'replace': (['outdoor2'],[['outdoor10']],[[lockdown_end]]),
+                                           'turn_on': (['import_cases'],[2]),
+                                           'turn_off': (['import_cases','lockdown_relax','stage4'],
+                                                        [6,lockdown_end,lockdown_end]),
                                            'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
                                                                 'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
                                            'policies': {'lockdown_relax': {'beta': 0.99},
                                                         'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.2},
                                                         'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.2}}
                                                         }}}
+    # {'Victoria': {'baseline': {'replace': (['pub_bar0', 'cafe_restaurant0', 'outdoor2', 'church0'],
+    #                                        [['pub_bar_4sqm'], ['cafe_restaurant_4sqm'],
+    #                                         ['outdoor10'], ['church_4sqm']],
+    #                                        [[lockdown_end], [lockdown_end], [lockdown_end], [lockdown_end]]),
+    #                            'turn_on': (['import_cases', 'stage4'],
+    #                                        [2, 62]),
+    #                            'turn_off': (['schools', 'social', 'cSports', 'import_cases', 'lockdown_relax'],
+    #                                         [lockdown_end, lockdown_end, lockdown_end, 6, lockdown_end]),
+    #                            'tracing_policies': {'tracing_app': {'coverage': [0, 0.1], 'days': [0, 60]},
+    #                                                 'id_checks': {'coverage': [0, 0.8], 'days': [0, 93]}},
+    #                            'policies': {'lockdown_relax': {'beta': 0.99},
+    #                                         'pub_bar_4sqm': {'beta': 1, 'pub_bar': 0.2},
+    #                                         'cafe_restaurant_4sqm': {'beta': 1, 'cafe_restaurant': 0.2}}
+    #                            }}}
                                  # '2 week lockdown': {'replace': (['lockdown', 'pub_bar0','cafe_restaurant0','outdoor2','church0'],
                                  #                           [['lockdown_relax', 'lockdown_2', 'lockdown_2_exit'],
                                  #                            ['pub_bar_4sqm'],['cafe_restaurant_4sqm'],
