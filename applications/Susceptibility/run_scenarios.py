@@ -35,7 +35,7 @@ else:
     people, popdict = co.make_people(params)
     population = {'people': people, 'popdict': popdict}
 
-packages = {'relax_3':packages['relax_3'],'relax_4':['relax_4']}
+# packages = {'relax_3':packages['relax_3'],'relax_4':['relax_4']}
 
 for scen_name, scenario in scenarios.items():
 

@@ -137,8 +137,8 @@ for package in packages:
     fig.savefig(scendir / f'scenario_comparison_{package}.png', bbox_inches='tight', dpi=300, transparent=False)
     plt.close()
 
-
-level = 250
+# Plot outbreak size with error bars
+level = 100
 color = risk_levels[level]
 
 group = df.reset_index().groupby(['scenario_name', 'package_name'])
@@ -166,7 +166,6 @@ means = calc_prob(group,level)
 mean_samples = [calc_prob(group,level,True) for _ in range(n_bootstrap)]  # Bootstrap samples of the mean
 stds = pd.concat(mean_samples).groupby(['scenario_name', 'package_name']).std().sort_index()
 
-# Plot outbreak size with error bars
 for package in packages:
 
     px = means.reorder_levels(['package_name', 'scenario_name']).loc[package]
@@ -197,7 +196,7 @@ for package in packages:
     ax.invert_yaxis()
     plt.title('Probability of outbreak size')
     fig.set_size_inches(16, 7)
-    fig.savefig(scendir / f'probability_bars_{scenario}.png', bbox_inches='tight', dpi=300, transparent=False)
+    fig.savefig(scendir / f'probability_errorbars_{package}.png', bbox_inches='tight', dpi=300, transparent=False)
     plt.close()
 
 
