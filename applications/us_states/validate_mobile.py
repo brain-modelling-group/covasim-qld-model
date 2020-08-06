@@ -17,16 +17,16 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Mobile': {'pop_size': int(10e4),
-                            'beta': 0.28, # key calibration parameter, overwrites value in input databook `other_par` tab
+                            'beta': 0.1, # key calibration parameter, overwrites value in input databook `other_par` tab
                             'n_days': 147, # number of days in data series (start day = day 0; calibration: all days; validation: 2/3 days)
                             'pop_infected': 5, # initial number of people infected, may need adjustment when calibrating
                             'calibration_end': '2020-08-01'}} #for first, and run calibration: date last data entry available, for validation calibration: data series start 2020-03-08 (1st case) to end 2020-08-01, 147 days * 2/3rd data series (i.e. *0.67)= 98 days -> 2020-03-08 + 98 days= 2020-06-13 
 
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,   #test = 1, run = 8
-                'noise': 0.0,  #test = 0, run = 0.03
-                'verbose': 1,
+    metapars = {'n_runs': 8,   #test = 1, run = 8
+                'noise': 0.3,  #test = 0, run = 0.03
+                'verbose': 0,
                 'rand_seed': 1}
 
 
@@ -50,12 +50,12 @@ if __name__ == "__main__":
 
     # run the scenarios
     scens = ui.run_scens(scens)
-    scens['verbose'] = False #set to true when validating
+    scens['verbose'] = True
 
 
     # Plot validation
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_mobile/Mobile-validate' + '.png',
+                       fig_path=dirname + '/figs_mobile/Mobile-calibration' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
@@ -65,32 +65,7 @@ if __name__ == "__main__":
                        fill_args={'alpha': 0.3},
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
-# Results
-    cum_diag_calib_end1 = scens['scenarios']['Mobile'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][85]
-    cum_diag_calib_1week = scens['scenarios']['Mobile'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][92]
-    cum_diag_calib_2week = scens['scenarios']['Mobile'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][99]
-    cum_diag_calib_end2 = scens['scenarios']['Mobile'].results['cum_diagnoses']['No changes to current lockdown restrictions']['best'][136]
-    cum_death_calib_end1 = scens['scenarios']['Mobile'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][85]
-    cum_death_calib_1week = scens['scenarios']['Mobile'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][92]
-    cum_death_calib_2week = scens['scenarios']['Mobile'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][99]
-    cum_death_calib_end2 = scens['scenarios']['Mobile'].results['cum_deaths']['No changes to current lockdown restrictions']['best'][136]
 
-    workbook = xlsxwriter.Workbook('Mobile_validation.xlsx')
-    worksheet = workbook.add_worksheet('calibrate')
-
-    validation = [['Cumulative Diagnoses (Projections)', '', '', '', 'Cumulative Diagnoses (Data)', '', '', '',
-                   'Cumulative Deaths (Projections)', '', '', '', 'Cumulative Deaths (Data)', '', '', ''],
-                  ['At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection',
-                   'At end of calibration', 'After 1 week', 'After 2 weeks', 'At end of projection'],
-                  [int(cum_diag_calib_end1), int(cum_diag_calib_1week), int(cum_diag_calib_2week), int(cum_diag_calib_end2),
-                   '', '', '', '',
-                   int(cum_death_calib_end1), int(cum_death_calib_1week), int(cum_death_calib_2week), int(cum_death_calib_end2)]
-                  ]
-
-    worksheet.add_table('A1:P3', {'data': validation, 'header_row': False})
-    workbook.close()
 
 
 
