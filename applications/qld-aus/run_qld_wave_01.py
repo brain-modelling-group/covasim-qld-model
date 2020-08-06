@@ -15,7 +15,7 @@ import sciris as sc
 import numpy as np
 
 
-def make_sim(whattorun, julybetas=None, load_pop=True, popfile='nswppl.pop', datafile=None, agedatafile=None):
+def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None):
 
     layers = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'social']
 
@@ -25,11 +25,11 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='nswppl.pop', dat
         end_day = '2020-08-31'
         julybetas = julybetas
 
-    pars = {'pop_size': 100e3,
-            'pop_infected': 110,
-            'pop_scale': 10,
-            'rescale': True,
-            'rand_seed': 1,
+    pars = {'pop_size': 100000,
+            'pop_infected': 10,
+            'pop_scale': 1,
+            'rescale': False,
+            'rand_seed': 42,
             'rel_death_prob': 0.8,
             'beta': 0.02999, # Overall beta to use for calibration
                                     # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
@@ -40,7 +40,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='nswppl.pop', dat
             'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
             'start_day': '2020-03-01',
             'end_day': end_day,
-            'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0,75,16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which NSW has published age-disaggregated case counts
+            'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0,75,16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
             'verbose': .1}
 
     sim = cv.Sim(pars=pars,
@@ -89,7 +89,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='nswppl.pop', dat
 
     # Testing
     symp_prob_prelockdown = 0.05  # Limited testing pre lockdown
-    symp_prob_lockdown = 0.2  # Increased testing during lockdown
+    symp_prob_lockdown = 0.2      # Increased testing during lockdown
     symp_prob_postlockdown = 0.2  # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.001, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen1, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.001,do_plot=False))
@@ -113,7 +113,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='nswppl.pop', dat
 
 
 # Start setting up to run
-# NB, this file assumes that you've already generated a population file saved in the same folder as this script, called nswpop.pop
+# NB, this file assumes that you've already generated a population file saved in the same folder as this script, called qldpop.pop
 
 T = sc.tic()
 
@@ -126,8 +126,8 @@ dosave = True
 # Filepaths
 inputsfolder = 'inputs'
 resultsfolder = 'results'
-datafile = f'{inputsfolder}/nsw_epi_data.csv'
-agedatafile = f'{inputsfolder}/nsw_age_data.csv'
+datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
+agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
 
 # Plot settings
 to_plot = sc.objdict({
@@ -142,29 +142,29 @@ to_plot = sc.objdict({
 # Run and plot
 if domulti:
     if whattorun == 'calibration':
-        sim = make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
+        sim = make_sim(whattorun, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
         msim = cv.MultiSim(base_sim=sim)
-        msim.run(n_runs=100, reseed=True, noise=0)
-        if dosave: msim.save(f'{resultsfolder}/nsw_{whattorun}.obj')
+        msim.run(n_runs=20, reseed=True, noise=0)
+        if dosave: msim.save(f'{resultsfolder}/qld_{whattorun}.obj')
         if doplot:
-            msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
+            msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
                   legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
     elif whattorun == 'scenarios':
         julybetas = [0.5, 0.6, 0.7]
         for jb in julybetas:
-            sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
+            sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)
-            msim.run(n_runs=100, reseed=True, noise=0)
-            if dosave: msim.save(f'{resultsfolder}/nsw_{whattorun}_{int(jb*100)}.obj')
+            msim.run(n_runs=20, reseed=True, noise=0)
+            if dosave: msim.save(f'{resultsfolder}/qld_{whattorun}_{int(jb*100)}.obj')
             if doplot:
-                msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}_{int(jb*100)}.png',
+                msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}_{int(jb*100)}.png',
                       legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
 else:
-    sim = make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
+    sim = make_sim(whattorun, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
     sim.run()
-    if dosave: sim.save(f'{resultsfolder}/nsw_{whattorun}.obj')
+    if dosave: sim.save(f'{resultsfolder}/qld_{whattorun}.obj')
     if doplot:
-        sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
+        sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
                  legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
 
 
