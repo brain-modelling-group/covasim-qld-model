@@ -21,7 +21,7 @@ if __name__ == "__main__":
                                'beta': 0.091,
                                'n_days': 220,
                                'pop_infected': 50,
-                               'calibration_end': '2020-08-06'}}
+                               'calibration_end': '2020-08-05'}}
 
     # the metapars for all countries and scenarios
     metapars = {'n_runs': 8,
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     scens['verbose'] = True
 
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs/Lombardy-calibrate' + '.png',
+                       fig_path=dirname + '/figs/Lombardy-calibrate1' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,

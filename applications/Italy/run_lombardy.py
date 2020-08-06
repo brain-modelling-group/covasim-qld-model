@@ -25,7 +25,7 @@ if __name__ == "__main__":
                               'beta': 0.091,
                               'n_days': 360,
                               'pop_infected': 50,
-                              'calibration_end': '2020-08-06'}}
+                              'calibration_end': '2020-08-05'}}
 
     mid_aug = 199  # make this the key date
     mid_sep = mid_aug + 31
