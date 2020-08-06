@@ -43,16 +43,16 @@ if __name__ == "__main__":
 
     # policies to change during scenario runs
     scen_opts = {locations[0]:  {'Small easing of restrictions on August 31':
-                                {'replace': (['relax3'], ['relax4'], [[177]])},
+                                {'replace': (['relax3'], [['relax4']], [[177]])},
 
                                 'Moderate easing of restrictions on August 31':
-                                {'replace': (['relax3'], ['relax5'], [[177]])},
+                                {'replace': (['relax3'], [['relax5']], [[177]])},
 
                                 'Small easing of restrictions on September 30':
-                                {'replace': (['relax3'], ['relax4'], [[207]])},
+                                {'replace': (['relax3'], [['relax4']], [[207]])},
 
                                 'Moderate easing of restrictions on September 30':
-                                {'replace': (['relax3'], ['relax5'], [[207]])},
+                                {'replace': (['relax3'], [['relax5']], [[207]])},
 
                                 'No changes to current lockdown restrictions':
                                 {'replace': (['relax3'], [['relax3']], [[370]])}
