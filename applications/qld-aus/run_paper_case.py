@@ -36,7 +36,7 @@ cv.test_prob(start_day= '2020-05-20' , symp_prob= 0.10 , symp_quar_prob= 0.8 , t
 
 cv.contact_tracing(start_day= '2020-04-20', 
                    trace_probs=trace_probs, 
-                   trace_time=trace_time) 
+                   trace_time=trace_time) ]
  
 sim  = cv.Sim(pars=pars, 
               interventions=interventions) 
