@@ -5,14 +5,17 @@ Replicate first coronavirus outbreak in Queensland Australia
 =============================================================
 
 
-# author: Paula Sanz-Leon, QIMRB, August 2020
-
+# author: For QLD Paula Sanz-Leon, QIMRB, August 2020
+#         based on NSW analysis originally written by Robyn Stuart, Optima, 2020
 """
 
-import covasim as cv
+# Import scientific python
 import pandas as pd
-import sciris as sc
 import numpy as np
+
+# Import IDM/Optima code
+import covasim as cv
+import sciris as sc
 
 
 def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None):
@@ -31,16 +34,16 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
             'rescale': False,
             'rand_seed': 42,
             'rel_death_prob': 0.8,
-            'beta': 0.02999, # Overall beta to use for calibration
+            'beta': 0.0015, # Overall beta to use for calibration
                                     # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers).to_dict(),
             'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,  0,      0,      0.1,    0,      0,      0,      0,      0,      0,      0,      0,      0,      0], index=layers).to_dict(),
             'quar_factor': pd.Series([1,    0.1,    0.1,    0.2,    0.01,   0,      0,      0,      0,      0,      0.1 ,   0,      0,      0], index=layers).to_dict(),
-            'n_imports': 2, # Number of new cases to import per day -- varied over time as part of the interventions
+            'n_imports': 1, # Number of new cases to import per day -- varied over time as part of the interventions
             'start_day': '2020-03-01',
             'end_day': end_day,
-            'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0,75,16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
+            'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
             'verbose': .1}
 
     sim = cv.Sim(pars=pars,
@@ -54,8 +57,9 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     lockdown = '2020-03-23'
     reopen1  = '2020-05-01' # Two adults allowed to visit a house
     reopen2  = '2020-05-15' # Up to 5 adults can visit a house; food service and non-essential retail start to resume
-    reopen3  = '2020-06-01' # Pubs and regional travel open, plus more social activities
-    reopen4  = '2020-07-01' # large events, cinemas, museums, open; fewer restrictions on cafes/pubs/etc,
+    reopen3  = '2020-06-01' # Pubs open, plus more social activities
+    reopen4  = '2020-06-19' # large events, cinemas, museums, open; fewer restrictions on cafes/pubs/etc,
+    reopen5  = '2020-07-10' # regional travel open,
     school_dates = ['2020-05-11', '2020-05-18', '2020-05-25']
 
     beta_ints = [cv.clip_edges(days=[initresponse,lockdown]+school_dates, changes=[0.75, 0.05, 0.8, 0.9, 1.0], layers=['S'], do_plot=False),
@@ -89,83 +93,86 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
 
     # Testing
     symp_prob_prelockdown = 0.05  # Limited testing pre lockdown
-    symp_prob_lockdown = 0.2      # Increased testing during lockdown
+    symp_prob_lockdown = 0.3      # Increased testing during lockdown
     symp_prob_postlockdown = 0.2  # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.001, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen1, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.001,do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=reopen1, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.001,do_plot=True))
 
     # Tracing
-    trace_probs = {'H': 1, 'S': 0.95, 'W': 0.8, 'C': 0.05, 'church': 0.5, 'pSport': 0.8, 'cSport': 0.5,
-                     'entertainment': 0.01, 'cafe_restaurant': 0.01, 'pub_bar': 0.01, 'transport': 0.01,
-                     'public_parks': 0.01, 'large_events': 0.01, 'social': 0.9}
-    trace_time = {'H': 0, 'S': 2, 'W': 2, 'C': 14, 'church': 5, 'pSport': 3, 'cSport': 3, 'entertainment': 14,
-                    'cafe_restaurant': 14, 'pub_bar': 14, 'transport': 14, 'public_parks': 14, 'large_events': 14,
-                    'social': 3}
+    trace_probs = {'H': 1, 'S': 0.95, 'W': 0.8, 'C': 0.05, 
+                   'church': 0.5, 'pSport': 0.8, 'cSport': 0.5,
+                   'entertainment': 0.01, 'cafe_restaurant': 0.01, 'pub_bar': 0.01, 
+                   'transport': 0.01, 'public_parks': 0.01, 'large_events': 0.01, 'social': 0.9}
+    trace_time = {'H': 0, 'S': 2, 'W': 2, 'C': 14, 
+                  'church': 5, 'pSport': 3, 'cSport': 3, 'entertainment': 14,
+                  'cafe_restaurant': 14, 'pub_bar': 14, 'transport': 14, 'public_parks': 14, 'large_events': 14,
+                  'social': 3}
     sim.pars['interventions'].append(cv.contact_tracing(trace_probs=trace_probs, trace_time=trace_time, start_day=0, do_plot=False))
 
     # Close borders, then open them again to account for Victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [14, 106, 115], 'vals': [0, 5, 0]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [115], 'vals': [3]}}, do_plot=False))
 
     sim.initialize()
 
     return sim
 
-
 # Start setting up to run
 # NB, this file assumes that you've already generated a population file saved in the same folder as this script, called qldpop.pop
 
-T = sc.tic()
+if __name__ == '__main__':
+    
+    T = sc.tic()
 
-# Settings
-whattorun = ['calibration', 'scenarios'][1]
-domulti = True
-doplot = False
-dosave = True
+    # Settings
+    whattorun = ['calibration', 'scenarios'][1]
+    domulti = True
+    doplot = False
+    dosave = True
 
-# Filepaths
-inputsfolder = 'inputs'
-resultsfolder = 'results'
-datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
-agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
+    # Filepaths
+    inputsfolder = 'inputs'
+    resultsfolder = 'results'
+    datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
+    agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
 
-# Plot settings
-to_plot = sc.objdict({
-    'Cumulative diagnoses': ['cum_diagnoses'],
-    'Cumulative deaths': ['cum_deaths'],
-    'Cumulative infections': ['cum_infections'],
-    'New infections': ['new_infections'],
-    'Daily diagnoses': ['new_diagnoses'],
-    'Active infections': ['n_exposed']
-    })
+    # Plot settings
+    to_plot = sc.objdict({
+        'Cumulative diagnoses': ['cum_diagnoses'],
+        'Cumulative deaths': ['cum_deaths'],
+        'Cumulative infections': ['cum_infections'],
+        'New infections': ['new_infections'],
+        'Daily diagnoses': ['new_diagnoses'],
+        'Active infections': ['n_exposed']
+        })
 
-# Run and plot
-if domulti:
-    if whattorun == 'calibration':
-        sim = make_sim(whattorun, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
-        msim = cv.MultiSim(base_sim=sim)
-        msim.run(n_runs=20, reseed=True, noise=0)
-        if dosave: msim.save(f'{resultsfolder}/qld_{whattorun}.obj')
-        if doplot:
-            msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
-                  legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
-    elif whattorun == 'scenarios':
-        julybetas = [0.5, 0.6, 0.7]
-        for jb in julybetas:
-            sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
+    # Run and plot
+    if domulti:
+        if whattorun == 'calibration':
+            sim = make_sim(whattorun, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)
             msim.run(n_runs=20, reseed=True, noise=0)
-            if dosave: msim.save(f'{resultsfolder}/qld_{whattorun}_{int(jb*100)}.obj')
+            if dosave: msim.save(f'{resultsfolder}/qld_{whattorun}.obj')
             if doplot:
-                msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}_{int(jb*100)}.png',
+                msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
                       legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
-else:
-    sim = make_sim(whattorun, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
-    sim.run()
-    if dosave: sim.save(f'{resultsfolder}/qld_{whattorun}.obj')
-    if doplot:
-        sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
-                 legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
+        elif whattorun == 'scenarios':
+            julybetas = [0.2, 0.3, 0.4]
+            for jb in julybetas:
+                sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
+                msim = cv.MultiSim(base_sim=sim)
+                msim.run(n_runs=20, reseed=True, noise=0)
+                if dosave: msim.save(f'{resultsfolder}/qld_{whattorun}_{int(jb*100)}.obj')
+                if doplot:
+                    msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}_{int(jb*100)}.png',
+                          legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
+    else:
+        sim = make_sim(whattorun, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
+        sim.run()
+        if dosave: sim.save(f'{resultsfolder}/qld_{whattorun}.obj')
+        if doplot:
+            sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
+                     legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
 
 
-sc.toc(T)
+    sc.toc(T)
