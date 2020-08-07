@@ -15,7 +15,7 @@ import utils
 import functools
 import numpy as np
 
-def make_people(seed=None, pop_size=500000, pop_infected=50, 
+def make_people(seed=None, pop_size=200000, pop_infected=50, 
                 savepeople=True, popfile='qldppl.pop', 
                 savepopdict=False, popdictfile='qdlpopdict.pop'):
     """
@@ -32,7 +32,7 @@ def make_people(seed=None, pop_size=500000, pop_infected=50,
 
     sim_pars = {'pop_size': pop_size,
                 'pop_infected': pop_infected,
-                'pop_scale': 1,
+                'pop_scale': 10,
                 'rescale': 1} # Pass in a minimal set of sim pars
 
     # return data relevant to each specified location in "locations"

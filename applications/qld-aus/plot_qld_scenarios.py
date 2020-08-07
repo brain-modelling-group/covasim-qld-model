@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# coding: utf-8
+"""
+Plot QLD results obtained with run_qld_wave_01.py 
+=============================================================
+
+
+# author: For QLD Paula Sanz-Leon, QIMRB, August 2020
+#         based on NSW plotting originally written by Robyn Stuart, Optima, 2020
+"""
+
 import covasim as cv
 import pandas as pd
 import sciris as sc
@@ -12,7 +23,7 @@ resultsfolder = 'results'
 figsfolder = 'figs'
 simsfilepath = f'{resultsfolder}/qld_calibration.obj'
 
-julybetas = [0.5, 0.6, 0.7] # Values used in the scenarios
+julybetas = [0.1, 0.15, 0.2] # Values used in the scenarios
 
 T = sc.tic()
 
@@ -22,6 +33,7 @@ infprobs = []
 diagvals = []
 infvals = []
 num_sim_runs = 20
+
 for jb in julybetas:
     msim = sc.loadobj(f'{resultsfolder}/qld_scenarios_{int(jb*100)}.obj')
     diagprobs.append([len([i for i in range(num_sim_runs) if msim.sims[i].results['new_diagnoses'].values[-1]>j])/num_sim_runs for j in range(500)])
@@ -29,7 +41,7 @@ for jb in julybetas:
     diagvals.append(msim.sims[0].results['new_diagnoses'].values[-60:])
     infvals.append(msim.sims[0].results['n_exposed'].values[-60:])
     msim.reduce()
-    if jb == 0.7: # Save these as the main scenario
+    if jb == julybetas[-1]: # Save these as the main scenario
         sims = msim.sims
         sim = sims[0]
 
@@ -111,8 +123,8 @@ def plot_intervs(sim, labels=True):
     color = [0, 0, 0]
     mar23 = sim.day('2020-03-23')
     may01 = sim.day('2020-05-01')
-    jul07 = sim.day('2020-07-07')
-    for day in [mar23, may01, jul07]:
+    jul10 = sim.day('2020-07-10')
+    for day in [mar23, may01, jul10]:
         pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
 
     if labels:
@@ -120,7 +132,7 @@ def plot_intervs(sim, labels=True):
         labely = yl[1]*0.95
         pl.text(mar23-20, labely, 'Lockdown', color=color, alpha=0.9, style='italic')
         pl.text(may01+1,  labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul07+1,  labely, 'QLD/Victoria \nborder closed', color=color, alpha=0.9, style='italic')
+        pl.text(jul10+1,  labely, 'QLD \nborder open', color=color, alpha=0.9, style='italic')
     return
 
 
@@ -164,9 +176,9 @@ tvec = np.arange(60)
 #v60 = msim60.base_sim.results['new_diagnoses'].values[-60:]
 #v50 = msim50.base_sim.results['new_diagnoses'].values[-60:]
 colors = pl.cm.GnBu([0.9,0.6,0.3])
-pl.plot(tvec, diagvals[0], c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, diagvals[1], c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, diagvals[2], c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[0], c=colors[0], label=str(julybetas[0]), lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[1], c=colors[1], label=str(julybetas[1]), lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[2], c=colors[2], label=str(julybetas[2]), lw=4, alpha=1.0)
 pl.ylabel('Daily diagnoses')
 sc.setylim()
 xmin, xmax = ax2.get_xlim()
@@ -205,9 +217,9 @@ tvec = np.arange(60)
 #v60 = msim60.base_sim.results['n_exposed'].values[-60:]
 #v50 = msim50.base_sim.results['n_exposed'].values[-60:]
 colors = pl.cm.hot([0.3,0.5,0.7])
-pl.plot(tvec, infvals[0], c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, infvals[1], c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, infvals[2], c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
+pl.plot(tvec, infvals[0], c=colors[0], label=str(julybetas[0]), lw=4, alpha=1.0)
+pl.plot(tvec, infvals[1], c=colors[1], label=str(julybetas[1]), lw=4, alpha=1.0)
+pl.plot(tvec, infvals[2], c=colors[2], label=str(julybetas[2]), lw=4, alpha=1.0)
 pl.ylabel('Active infections')
 sc.setylim()
 xmin, xmax = ax5.get_xlim()

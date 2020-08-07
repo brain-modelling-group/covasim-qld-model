@@ -157,7 +157,7 @@ if __name__ == '__main__':
                 msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
                       legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
         elif whattorun == 'scenarios':
-            julybetas = [0.35, 0.45, 0.55]
+            julybetas = [0.1, 0.15, 0.2]
             for jb in julybetas:
                 sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)
