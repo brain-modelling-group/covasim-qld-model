@@ -28,13 +28,13 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
         end_day = '2020-08-31'
         julybetas = julybetas
 
-    pars = {'pop_size': 500000,
-            'pop_infected': 50,
-            'pop_scale': 1,
+    pars = {'pop_size': 200e3,
+            'pop_infected': 30,
+            'pop_scale': 10,
             'rescale': False,
             'rand_seed': 42,
             'rel_death_prob': 0.8,
-            'beta': 0.015, # Overall beta to use for calibration
+            'beta': 0.03, # Overall beta to use for calibration
                                     # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers).to_dict(),
             'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
@@ -54,10 +54,10 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     # Create beta policies
     # Important dates
     initresponse = '2020-03-15'
-    lockdown = '2020-03-23'
+    lockdown = '2020-03-22'
     reopen1  = '2020-05-01' # Two adults allowed to visit a house
     reopen2  = '2020-05-15' # Up to 5 adults can visit a house; food service and non-essential retail start to resume
-    reopen3  = '2020-06-01' # Pubs open, plus more social activities
+    reopen3  = '2020-06-08' # Pubs open, plus more social activities
     reopen4  = '2020-06-19' # large events, cinemas, museums, open; fewer restrictions on cafes/pubs/etc,
     reopen5  = '2020-07-10' # regional travel open,
     school_dates = ['2020-05-11', '2020-05-18', '2020-05-25']
@@ -157,7 +157,7 @@ if __name__ == '__main__':
                 msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'qld_{whattorun}.png',
                       legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
         elif whattorun == 'scenarios':
-            julybetas = [0.4, 0.5, 0.6]
+            julybetas = [0.35, 0.45, 0.55]
             for jb in julybetas:
                 sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)
