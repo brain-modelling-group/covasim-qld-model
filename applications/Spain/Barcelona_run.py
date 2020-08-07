@@ -42,16 +42,16 @@ if __name__ == "__main__":
     end_dec = mid_nov + 46
 
     # the policies to change during scenario runs
-    scen_opts = {'Barcelona': {'Small easing of restrictions in mid-September': 
+    scen_opts = {'Barcelona': {'Small increase of restrictions in mid-September': 
                               {'replace': (['restrictions'], [['relax1']], [[mid_sep]])},
 
-                            'Moderate easing of restrictions in mid-September': 
+                            'Moderate increase of restrictions in mid-September': 
                               {'replace': (['restrictions'], [['relax2']], [[mid_sep]])},
 
-                            'Small easing of restrictions in mid-August': 
+                            'Small increase of restrictions in mid-August': 
                               {'replace': (['restrictions'], [['relax1']], [[mid_aug]])},
 
-                            'Moderate easing of restrictions in mid-August': 
+                            'Moderate increase of restrictions in mid-August': 
                               {'replace': (['restrictions'], [['relax2']], [[mid_aug]])},
 
                             'No changes to current lockdown restrictions': 
@@ -102,31 +102,31 @@ if __name__ == "__main__":
     seroprev_LB_nov_dec = cum_inf_LB_nov_dec/population
 
     # Mid Bound: small change mid- July    
-    new_inf_MB_sep_oct = sum(scens['scenarios']['Barcelona'].results['new_infections']['Small easing of restrictions in mid-September']['best'][mid_sep:end_oct])    
-    new_diag_MB_sep_oct = sum(scens['scenarios']['Barcelona'].results['new_diagnoses']['Small easing of restrictions in mid-September']['best'][mid_sep:end_oct])    
-    cum_inf_MB_sep_oct = scens['scenarios']['Barcelona'].results['cum_infections']['Small easing of restrictions in mid-September']['best'][end_oct]    
+    new_inf_MB_sep_oct = sum(scens['scenarios']['Barcelona'].results['new_infections']['Small increase of restrictions in mid-September']['best'][mid_sep:end_oct])    
+    new_diag_MB_sep_oct = sum(scens['scenarios']['Barcelona'].results['new_diagnoses']['Small increase of restrictions in mid-September']['best'][mid_sep:end_oct])    
+    cum_inf_MB_sep_oct = scens['scenarios']['Barcelona'].results['cum_infections']['Small increase of restrictions in mid-September']['best'][end_oct]    
     incidence_MB_sep_oct = 100*new_inf_MB_sep_oct*30/(end_oct-mid_sep)/population
     detected_MB_sep_oct = 100*new_diag_MB_sep_oct*30/(end_oct-mid_sep)/population
     seroprev_MB_sep_oct = cum_inf_MB_sep_oct/population
 
-    new_inf_MB_nov_dec = sum(scens['scenarios']['Barcelona'].results['new_infections']['Small easing of restrictions in mid-September']['best'][start_nov:end_dec])    
-    new_diag_MB_nov_dec = sum(scens['scenarios']['Barcelona'].results['new_diagnoses']['Small easing of restrictions in mid-September']['best'][start_nov:end_dec])    
-    cum_inf_MB_nov_dec = scens['scenarios']['Barcelona'].results['cum_infections']['Small easing of restrictions in mid-September']['best'][end_dec]    
+    new_inf_MB_nov_dec = sum(scens['scenarios']['Barcelona'].results['new_infections']['Small increase of restrictions in mid-September']['best'][start_nov:end_dec])    
+    new_diag_MB_nov_dec = sum(scens['scenarios']['Barcelona'].results['new_diagnoses']['Small increase of restrictions in mid-September']['best'][start_nov:end_dec])    
+    cum_inf_MB_nov_dec = scens['scenarios']['Barcelona'].results['cum_infections']['Small increase of restrictions in mid-September']['best'][end_dec]    
     incidence_MB_nov_dec = 100*new_inf_MB_nov_dec*30/(end_dec-start_nov)/population
     detected_MB_nov_dec = 100*new_diag_MB_nov_dec*30/(end_dec-start_nov)/population
     seroprev_MB_nov_dec = cum_inf_MB_nov_dec/population
 
     # Upper Bound: moderate change mid-September    
-    new_inf_UB_sep_oct = sum(scens['scenarios']['Barcelona'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][mid_sep:end_oct])    
-    new_diag_UB_sep_oct = sum(scens['scenarios']['Barcelona'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][mid_sep:end_oct])    
-    cum_inf_UB_sep_oct = scens['scenarios']['Barcelona'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][end_oct]    
+    new_inf_UB_sep_oct = sum(scens['scenarios']['Barcelona'].results['new_infections']['Moderate increase of restrictions in mid-August']['best'][mid_sep:end_oct])    
+    new_diag_UB_sep_oct = sum(scens['scenarios']['Barcelona'].results['new_diagnoses']['Moderate increase of restrictions in mid-August']['best'][mid_sep:end_oct])    
+    cum_inf_UB_sep_oct = scens['scenarios']['Barcelona'].results['cum_infections']['Moderate increase of restrictions in mid-August']['best'][end_oct]    
     incidence_UB_sep_oct = 100*new_inf_UB_sep_oct*30/(end_oct-mid_sep)/population
     detected_UB_sep_oct = 100*new_diag_UB_sep_oct*30/(end_oct-mid_sep)/population
     seroprev_UB_sep_oct = cum_inf_UB_sep_oct/population
 
-    new_inf_UB_nov_dec = sum(scens['scenarios']['Barcelona'].results['new_infections']['Moderate easing of restrictions in mid-August']['best'][start_nov:end_dec])    
-    new_diag_UB_nov_dec = sum(scens['scenarios']['Barcelona'].results['new_diagnoses']['Moderate easing of restrictions in mid-August']['best'][start_nov:end_dec])    
-    cum_inf_UB_nov_dec = scens['scenarios']['Barcelona'].results['cum_infections']['Moderate easing of restrictions in mid-August']['best'][end_dec]    
+    new_inf_UB_nov_dec = sum(scens['scenarios']['Barcelona'].results['new_infections']['Moderate increase of restrictions in mid-August']['best'][start_nov:end_dec])    
+    new_diag_UB_nov_dec = sum(scens['scenarios']['Barcelona'].results['new_diagnoses']['Moderate increase of restrictions in mid-August']['best'][start_nov:end_dec])    
+    cum_inf_UB_nov_dec = scens['scenarios']['Barcelona'].results['cum_infections']['Moderate increase of restrictions in mid-August']['best'][end_dec]    
     incidence_UB_nov_dec = 100*new_inf_UB_nov_dec*30/(end_dec-start_nov)/population
     detected_UB_nov_dec = 100*new_diag_UB_nov_dec*30/(end_dec-start_nov)/population
     seroprev_UB_nov_dec = cum_inf_UB_nov_dec/population
@@ -157,43 +157,43 @@ if __name__ == "__main__":
 
 
     daily_inf_small_aug = scens['scenarios'][locations[0]].results['new_infections'][
-                              'Small easing of restrictions in mid-August'] \
+                              'Small increase of restrictions in mid-August'] \
                               ['best'][mid_july:end_dec]
     daily_death_small_aug = scens['scenarios'][locations[0]].results['new_deaths'][
-                                'Small easing of restrictions in mid-August'] \
+                                'Small increase of restrictions in mid-August'] \
                                 ['best'][mid_july:end_dec]
     daily_diag_small_aug = scens['scenarios'][locations[0]].results['new_diagnoses'][
-                               'Small easing of restrictions in mid-August'] \
+                               'Small increase of restrictions in mid-August'] \
                                ['best'][mid_july:end_dec]
 
     daily_inf_mod_aug = scens['scenarios'][locations[0]].results['new_infections'][
-                            'Moderate easing of restrictions in mid-August'] \
+                            'Moderate increase of restrictions in mid-August'] \
                             ['best'][mid_july:end_dec]
     daily_death_mod_aug = scens['scenarios'][locations[0]].results['new_deaths'][
-                              'Moderate easing of restrictions in mid-August'] \
+                              'Moderate increase of restrictions in mid-August'] \
                               ['best'][mid_july:end_dec]
     daily_diag_mod_aug = scens['scenarios'][locations[0]].results['new_diagnoses'][
-                             'Moderate easing of restrictions in mid-August'] \
+                             'Moderate increase of restrictions in mid-August'] \
                              ['best'][mid_july:end_dec]
 
     daily_inf_small_sep = scens['scenarios'][locations[0]].results['new_infections'][
-                              'Small easing of restrictions in mid-September'] \
+                              'Small increase of restrictions in mid-September'] \
                               ['best'][mid_july:end_dec]
     daily_death_small_sep = scens['scenarios'][locations[0]].results['new_deaths'][
-                                'Small easing of restrictions in mid-September'] \
+                                'Small increase of restrictions in mid-September'] \
                                 ['best'][mid_july:end_dec]
     daily_diag_small_sep = scens['scenarios'][locations[0]].results['new_diagnoses'][
-                               'Small easing of restrictions in mid-September'] \
+                               'Small increase of restrictions in mid-September'] \
                                ['best'][mid_july:end_dec]
 
     daily_inf_mod_sep = scens['scenarios'][locations[0]].results['new_infections'][
-                            'Moderate easing of restrictions in mid-September'] \
+                            'Moderate increase of restrictions in mid-September'] \
                             ['best'][mid_july:end_dec]
     daily_death_mod_sep = scens['scenarios'][locations[0]].results['new_deaths'][
-                              'Moderate easing of restrictions in mid-September'] \
+                              'Moderate increase of restrictions in mid-September'] \
                               ['best'][mid_july:end_dec]
     daily_diag_mod_sep = scens['scenarios'][locations[0]].results['new_diagnoses'][
-                             'Moderate easing of restrictions in mid-September'] \
+                             'Moderate increase of restrictions in mid-September'] \
                              ['best'][mid_july:end_dec]
 
     daily_inf_no_release = scens['scenarios'][locations[0]].results['new_infections']['No changes to current lockdown restrictions'] \
@@ -206,22 +206,22 @@ if __name__ == "__main__":
     daily_projections = [
         ['Dates'] + [str(d) for d in pd.date_range(sdate, edate - timedelta(days=1), freq='d')],
         ['New infections'],
-        ['Small easing of restrictions in mid-August'] + [int(val) for val in daily_inf_small_aug],
-        ['Moderate easing of restrictions in mid-August'] + [int(val) for val in daily_inf_mod_aug],
-        ['Small easing of restrictions in mid-September'] + [int(val) for val in daily_inf_small_sep],
-        ['Moderate easing of restrictions in mid-September'] + [int(val) for val in daily_inf_mod_sep],
+        ['Small increase of restrictions in mid-August'] + [int(val) for val in daily_inf_small_aug],
+        ['Moderate increase of restrictions in mid-August'] + [int(val) for val in daily_inf_mod_aug],
+        ['Small increase of restrictions in mid-September'] + [int(val) for val in daily_inf_small_sep],
+        ['Moderate increase of restrictions in mid-September'] + [int(val) for val in daily_inf_mod_sep],
         ['No changes to current lockdown restrictions'] + [int(val) for val in daily_inf_no_release],
         ['New deaths'],
-        ['Small easing of restrictions in mid-August'] + [int(val) for val in daily_death_small_aug],
-        ['Moderate easing of restrictions in mid-August'] + [int(val) for val in daily_death_mod_aug],
-        ['Small easing of restrictions in mid-September'] + [int(val) for val in daily_death_small_sep],
-        ['Moderate easing of restrictions in mid-September'] + [int(val) for val in daily_death_mod_sep],
+        ['Small increase of restrictions in mid-August'] + [int(val) for val in daily_death_small_aug],
+        ['Moderate increase of restrictions in mid-August'] + [int(val) for val in daily_death_mod_aug],
+        ['Small increase of restrictions in mid-September'] + [int(val) for val in daily_death_small_sep],
+        ['Moderate increase of restrictions in mid-September'] + [int(val) for val in daily_death_mod_sep],
         ['No changes to current lockdown restrictions'] + [int(val) for val in daily_death_no_release],
         ['New diagnoses'],
-        ['Small easing of restrictions in mid-August'] + [int(val) for val in daily_diag_small_aug],
-        ['Moderate easing of restrictions in mid-August'] + [int(val) for val in daily_diag_mod_aug],
-        ['Small easing of restrictions in mid-September'] + [int(val) for val in daily_diag_small_sep],
-        ['Moderate easing of restrictions in mid-September'] + [int(val) for val in daily_diag_mod_sep],
+        ['Small increase of restrictions in mid-August'] + [int(val) for val in daily_diag_small_aug],
+        ['Moderate increase of restrictions in mid-August'] + [int(val) for val in daily_diag_mod_aug],
+        ['Small increase of restrictions in mid-September'] + [int(val) for val in daily_diag_small_sep],
+        ['Moderate increase of restrictions in mid-September'] + [int(val) for val in daily_diag_mod_sep],
         ['No changes to current lockdown restrictions'] + [int(val) for val in daily_diag_no_release]]
     worksheet2.add_table('A1:FO20', {'data': daily_projections})
     workbook.close()
