@@ -551,7 +551,6 @@ class test_prob_with_quarantine(cv.test_prob):
             sim.people.date_end_quarantine[new_quarantine] = sim.t+self.test_delay
 
 
-
 class limited_contact_tracing(cv.contact_tracing):
     """
     Contact tracing with capacity limit
@@ -562,7 +561,7 @@ class limited_contact_tracing(cv.contact_tracing):
     """
 
 
-    def __init__(self, capacity=np.inf, **kwargs):
+    def __init__(self, capacity=np.inf, dynamic_layers=None, **kwargs):
         """
 
         Args:
@@ -570,8 +569,8 @@ class limited_contact_tracing(cv.contact_tracing):
         """
         super().__init__(**kwargs) # Initialize the Intervention object
         self.capacity = capacity
+        self.dynamic_layers = dynamic_layers or []
         return
-
 
     def apply(self, sim):
         t = sim.t
@@ -590,10 +589,37 @@ class limited_contact_tracing(cv.contact_tracing):
         if len(trace_from_inds):
             if len(trace_from_inds) > self.capacity:
                 trace_from_inds = trace_from_inds[cvu.choose(len(trace_from_inds),self.capacity)]
-
             print(f'Tracing {len(trace_from_inds)}')
 
-            # If there are any just-diagnosed people, go trace their contacts
-            sim.people.trace(trace_from_inds, self.trace_probs, self.trace_time)
+            traceable_layers = {k: v for k, v in self.trace_probs.items() if v != 0.}  # Only trace if there's a non-zero tracing probability
+            dynamic_traceable = {k: v for k, v in traceable_layers.items() if k in self.dynamic_layers}
+
+            if dynamic_traceable:
+                ind_set = set(trace_from_inds)
+                dynamic_infections = [x for x in sim.people.infection_log if (x['source'] in ind_set) and x['layer'] in dynamic_traceable]
+
+            # Extract the indices of the people who'll be contacted
+            traceable_layers = {k: v for k, v in self.trace_probs.items() if v != 0.}  # Only trace if there's a non-zero tracing probability
+            for lkey, this_trace_prob in traceable_layers.items():
+                this_trace_time = self.trace_time[lkey]
+
+                # Find all the contacts of these people
+                inds_list = []
+                for k1, k2 in [['p1', 'p2'], ['p2', 'p1']]:  # Loop over the contact network in both directions -- k1,k2 are the keys
+                    in_k1 = np.isin(sim.people.contacts[lkey][k1], trace_from_inds).nonzero()[0]  # Get all the indices of the pairs that each person is in
+                    inds_list.append(sim.people.contacts[lkey][k2][in_k1])  # Find their pairing partner
+
+                if lkey in dynamic_traceable and dynamic_infections:
+                    # If it's a dynamic layer, then extract contacts from the infection log as well
+                    # This is done before np.unique() so that people don't get double counted
+                    dynamic_inds = np.array([x['target'] for x in dynamic_infections if x['layer'] == lkey], dtype=np.int32)
+                    inds_list.append(dynamic_inds)
+
+                # Check contacts
+                edge_inds = np.unique(np.concatenate(inds_list))  # Find all edges
+                contact_inds = cvu.binomial_filter(this_trace_prob, edge_inds)  # Filter the indices according to the probability of being able to trace this layer
+                if len(contact_inds):
+                    sim.people.known_contact[contact_inds] = True
+                    sim.people.date_known_contact[contact_inds] = np.fmin(sim.people.date_known_contact[contact_inds], sim.t + this_trace_time)
 
         return
