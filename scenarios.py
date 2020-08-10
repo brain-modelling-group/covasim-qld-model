@@ -79,9 +79,12 @@ def create_scen(scenarios,
                                  sensitivity=extrapars['sensitivity'],
                                  test_delay=extrapars['test_delay'],
                                  loss_prob=extrapars['loss_prob']),
-                     cv.contact_tracing(trace_probs=extrapars['trace_probs'],
-                                        trace_time=extrapars['trace_time'],
-                                        start_day=0),
+                     utils.limited_contact_tracing(trace_probs=extrapars['trace_probs'],
+                                                   trace_time=extrapars['trace_time'],
+                                                   start_day=0,
+                                                   capacity=100,
+                                                   dynamic_layers=dynamic_lkeys,
+                                                   ),
                      policy_updates.UpdateNetworks(layers=dynamic_lkeys,
                                                    contact_numbers=contacts,
                                                    popdict=popdict,
@@ -392,5 +395,5 @@ def run_scens(scens):
     """Runs scenarios for each country in scens"""
 
     for location, scen in scens.items():
-        scen.run()
+        scen.run(debug=True)
     return scens
