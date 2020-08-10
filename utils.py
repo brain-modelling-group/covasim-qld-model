@@ -549,3 +549,51 @@ class test_prob_with_quarantine(cv.test_prob):
             sim.people.quarantined[new_quarantine] = True
             sim.people.date_quarantined[new_quarantine] = sim.t
             sim.people.date_end_quarantine[new_quarantine] = sim.t+self.test_delay
+
+
+
+class limited_contact_tracing(cv.contact_tracing):
+    """
+    Contact tracing with capacity limit
+
+    Each timestep, this intervention will trace contacts for newly diagnosed
+    people (or newly tested people, if the `presumptive` flag is set). The number of
+    people
+    """
+
+
+    def __init__(self, capacity=np.inf, **kwargs):
+        """
+
+        Args:
+            capacity: Maximum number of newly diagnosed people to trace per day
+        """
+        super().__init__(**kwargs) # Initialize the Intervention object
+        self.capacity = capacity
+        return
+
+
+    def apply(self, sim):
+        t = sim.t
+        if t < self.start_day:
+            return
+        elif self.end_day is not None and t > self.end_day:
+            return
+
+        # Figure out whom to test and trace
+        if not self.presumptive:
+            trace_from_inds = cvu.true(sim.people.date_diagnosed == t) # Diagnosed this time step, time to trace
+        else:
+            just_tested = cvu.true(sim.people.date_tested == t) # Tested this time step, time to trace
+            trace_from_inds = cvu.itruei(sim.people.exposed, just_tested) # This is necessary to avoid infinite chains of asymptomatic testing
+
+        if len(trace_from_inds):
+            if len(trace_from_inds) > self.capacity:
+                trace_from_inds = trace_from_inds[cvu.choose(len(trace_from_inds),self.capacity)]
+
+            print(f'Tracing {len(trace_from_inds)}')
+
+            # If there are any just-diagnosed people, go trace their contacts
+            sim.people.trace(trace_from_inds, self.trace_probs, self.trace_time)
+
+        return
