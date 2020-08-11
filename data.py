@@ -4,7 +4,7 @@ import pandas as pd
 import sciris as sc
 import utils
 import warnings
-
+from collections import defaultdict
 
 def _get_layers(locations, databook, all_lkeys):
 
@@ -96,24 +96,23 @@ def get_dispersion_parameter(value):
 def _get_layerchars(locations, databook, all_lkeys):
 
     all_layers = _get_layers(locations, databook, all_lkeys)
-
     all_layerchars = {}
-    for location in locations:
-        layerchars = {}
-        for ckey in utils.layerchar_keys():
-            temp = {}
-            temp[ckey] = {}
-            for lkey in all_lkeys:
-                l_chars = all_layers[lkey]
-                value = l_chars[location][ckey]
-                if isinstance(value, str):
-                    if 'random' in value:
-                        value, dispersion = get_dispersion_parameter(value)
-                        temp['dispersion'] = dispersion
 
-                temp[ckey].update({lkey: value})
-            layerchars.update(temp)
-        all_layerchars[location] = layerchars
+    for location in locations:
+        layerchars = defaultdict(dict) # {characteristic:{layer:value}}
+
+        for ckey in utils.layerchar_keys():
+            for lkey in all_lkeys:
+                value = all_layers[lkey][location][ckey]
+
+                if ckey == 'cluster_type':
+                    cluster_type, dispersion = get_dispersion_parameter(value)
+                    layerchars[ckey][lkey] = cluster_type
+                    layerchars['dispersion'][lkey] = dispersion
+                else:
+                    layerchars[ckey][lkey] = value
+        all_layerchars[location] = dict(layerchars)
+
     return all_layerchars
 
 
