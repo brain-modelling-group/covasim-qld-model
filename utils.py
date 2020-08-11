@@ -424,7 +424,11 @@ class SeedInfection(cv.Intervention):
 
         """
         super().__init__()
-        self.infections = infections  #: Dictionary mapping {day: n_infections}
+        self.infections = infections  #: Dictionary mapping {day: n_infections}. Day can be an int, or a string date like '20200701'
+
+    def initialize(self, sim):
+        super().initialize(sim)
+        self.infections = {sim.day(k):v for k,v in self.infections.items()}  # Convert any day strings to ints
 
     def apply(self, sim):
         if sim.t in self.infections:
@@ -436,6 +440,7 @@ class SeedInfection(cv.Intervention):
             targets = cvu.choose(len(susceptible_inds), self.infections[sim.t])
             target_inds = susceptible_inds[targets]
             sim.people.infect(inds=target_inds)
+
 
 class test_prob_with_quarantine(cv.test_prob):
 
@@ -568,9 +573,8 @@ class limited_contact_tracing(cv.contact_tracing):
             capacity: Maximum number of newly diagnosed people to trace per day
         """
         super().__init__(**kwargs) # Initialize the Intervention object
-        self.capacity = capacity
-        self.dynamic_layers = dynamic_layers or []
-        return
+        self.capacity = capacity  #: Dict with capacity by layer e.g. {'H': 100, 'W': 50}
+        self.dynamic_layers = dynamic_layers or [] #: List of layers to trace via infection log (if their contacts are regenerated each timestep)
 
     def apply(self, sim):
         t = sim.t
