@@ -50,9 +50,9 @@ f, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(18, 10), sharex=True)
 
 # Plot new cases
 ax1.bar(data.index, data['new_cases'])
-#set ticks every week
+# Set ticks every week
 ax1.xaxis.set_major_locator(mdates.WeekdayLocator())
-#set major ticks format
+# Set major ticks format
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
 ax1.set_ylabel('new cases')
 plt.setp(ax1.get_xticklabels(), 
@@ -62,9 +62,7 @@ plt.setp(ax1.get_xticklabels(),
 
 # Plot new deaths
 ax2.bar(data.index, data['new_deaths'], color='#ad150b')
-#set ticks every week
 ax2.xaxis.set_major_locator(mdates.WeekdayLocator())
-#set major ticks format
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
 ax2.set_ylabel('new deaths')
 plt.setp(ax2.get_xticklabels(), 
@@ -73,9 +71,7 @@ plt.setp(ax2.get_xticklabels(),
 
 # Plot new testing
 ax3.bar(data.index, data['new_tests'], color='#e5a810')
-#set ticks every week
 ax3.xaxis.set_major_locator(mdates.WeekdayLocator())
-#set major ticks format
 ax3.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
 ax3.set_ylabel('new tests')
 plt.setp(ax3.get_xticklabels(), 
@@ -84,9 +80,7 @@ plt.setp(ax3.get_xticklabels(),
 
 # Plot imported cases
 ax4.bar(data.index, data['imported_cases'], color='k')
-#set ticks every week
 ax4.xaxis.set_major_locator(mdates.WeekdayLocator())
-#set major ticks format
 ax4.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
 ax4.set_ylabel('imported cases')
 plt.setp(ax4.get_xticklabels(), 
