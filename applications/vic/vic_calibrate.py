@@ -168,7 +168,7 @@ if __name__ == '__main__':
     interventions.append(utils.limited_contact_tracing(trace_probs=params.extrapars['trace_probs'],
                                                        trace_time=params.extrapars['trace_time'],
                                                        start_day=0,
-                                                       capacity=np.inf,
+                                                       capacity=tracing_capacity,
                                                        dynamic_layers=params.dynamic_lkeys,
                                                        ))
 
