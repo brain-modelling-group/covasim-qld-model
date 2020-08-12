@@ -45,7 +45,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
             'beta_layer':  pd.Series([1,    0.3,    0.2,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,  0,      0,      0.1,    0,      0,      0,      0,      0,      0,      0,      0,      0,      0], index=layers).to_dict(),
             'quar_factor': pd.Series([1,    0.1,    0.1,    0.2,    0.01,   0,      0,      0,      0,      0,      0.1 ,   0,      0,      0], index=layers).to_dict(),
-            'n_imports': 1, # Number of new cases to import per day -- varied over time as part of the interventions
+            'n_imports': 0.1, # Number of new cases to import per day -- varied over time as part of the interventions
             'start_day': '2020-03-01',
             'end_day': end_day,
             'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
@@ -66,6 +66,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     reopen4  = '2020-06-19' # large events, cinemas, museums, open; fewer restrictions on cafes/pubs/etc,
     reopen5  = '2020-07-10' # regional travel open,
     school_dates = ['2020-05-11', '2020-05-18', '2020-05-25']
+    closeborders='2020-08-05'
 
     beta_ints = [cv.clip_edges(days=[initresponse,lockdown]+school_dates, 
                                changes=[0.75, 0.05, 0.8, 0.9, 1.0], 
@@ -91,7 +92,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  cv.change_beta(days=[lockdown, reopen1, reopen2, reopen3, reopen4], 
                                 changes=[0.0, 0.3, 0.4, 0.5, 0.7], 
                                 layers=['social'], do_plot=False),
-                 # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events']
+                 # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
+                 # 'pub_bar', 'transport', 'public_parks', 'large_events']
                  cv.change_beta(days=[lockdown], 
                                 changes=[0.7], 
                                 layers=['C'], do_plot=True),
@@ -104,8 +106,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  cv.change_beta(days=[lockdown, reopen3, reopen4], 
                                 changes=[0, 0.4, 0.5], 
                                 layers=['pub_bar'], do_plot=False),
-                 cv.change_beta(days=[lockdown, reopen2, reopen4], 
-                                changes=[0.2, 0.3, 0.7], 
+                 cv.change_beta(days=[lockdown, reopen2, reopen4, closeborders], 
+                                changes=[0.2, 0.3, 0.7, 0.2], 
                                 layers=['transport'], do_plot=False),
                  cv.change_beta(days=[lockdown, reopen4, reopen5], 
                                 changes=[0.1, 0.5, 0.7], 
@@ -118,7 +120,9 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     if whattorun == 'scenarios':
         # Approximate a mask intervention by changing beta in all layers where people would wear masks - assuming not in schools, sport, social gatherings, or home
         beta_ints += [cv.change_beta(days=['2020-07-31']*10, changes=[julybetas]*10,
-                                     layers=['W', 'church','C','entertainment','cafe_restaurant','pub_bar','transport','public_parks','large_events'])
+                                     layers=['W', 'church','C',
+                                             'entertainment','cafe_restaurant',
+                                             'pub_bar','transport','public_parks','large_events'])
                      ]
 
     sim.pars['interventions'].extend(beta_ints)
@@ -161,7 +165,6 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
 
     # Close borders, then open them again to account for Victorian imports and leaky quarantine
     sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [115], 'vals': [3]}}, do_plot=False))
-
     sim.initialize()
 
     return sim
@@ -175,7 +178,7 @@ if __name__ == '__main__':
     # Settings
     whattorun = ['calibration', 'scenarios'][1]
     domulti = True
-    doplot = True
+    doplot = False
     dosave = True
 
     # Filepaths
@@ -197,10 +200,14 @@ if __name__ == '__main__':
     # Run and plot
     if domulti:
         if whattorun == 'calibration':
-            sim  = make_sim(whattorun, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
+            sim  = make_sim(whattorun, load_pop=True, 
+                            popfile='qldppl.pop', 
+                            datafile=datafile, 
+                            agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)
             msim.run(n_runs=20, reseed=True, noise=0)
-            if dosave: msim.save(f'{resultsfolder}/qld_{whattorun}.obj')
+            if dosave: 
+              msim.save(f'{resultsfolder}/qld_{whattorun}.obj')
             if doplot:
                 msim.plot(to_plot=to_plot, do_save=True, do_show=False, 
                           fig_path=f'qld_{whattorun}.png',
@@ -213,7 +220,8 @@ if __name__ == '__main__':
                 sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)
                 msim.run(n_runs=20, reseed=True, noise=0)
-                if dosave: msim.save(f'{resultsfolder}/qld_{whattorun}_{int(jb*100)}.obj')
+                if dosave: 
+                  msim.save(f'{resultsfolder}/qld_{whattorun}_{int(jb*100)}.obj')
                 if doplot:
                     msim.plot(to_plot=to_plot, do_save=True, do_show=False, 
                               fig_path=f'qld_{whattorun}_{int(jb*100)}.png',
