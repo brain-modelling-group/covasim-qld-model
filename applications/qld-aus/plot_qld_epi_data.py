@@ -2,6 +2,7 @@
 # coding: utf-8
 """
 Plot QLD epidata taken from covidlive, covidata and ABS 
+Plots new cases
 =======================================================
 
 
