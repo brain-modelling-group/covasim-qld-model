@@ -88,5 +88,4 @@ plt.setp(ax4.get_xticklabels(),
          rotation=45, ha="right",
          rotation_mode="anchor")
 
-#plt.show()
 cv.savefig("/".join((figs_folder, output_fig)), dpi=100)
