@@ -34,7 +34,7 @@ input_data = 'qld_epi_data_wave_01_basic_stats.csv'
 
 # Output data
 figs_folder = 'figs'
-output_fig =  "-".join((now_str, 'qld_epi_data.png'))
+output_fig =  "-".join((now_str, 'qld_epi_data_daily_cases.png'))
 
 # import ipdb
 # ipdb.set_trace()
