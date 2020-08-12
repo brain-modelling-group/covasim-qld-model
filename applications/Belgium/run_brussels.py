@@ -21,8 +21,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Brussels': {'pop_size': int(5e4),
-                        'beta': 0.135,
-                        'n_days': 155,
+                        'beta': 0.14,
+                        'n_days': 315,
                         'pop_infected': 350,
                         'calibration_end': '2020-08-15'}}
 
@@ -34,24 +34,24 @@ if __name__ == "__main__":
     end_dec = mid_nov + 46
 
     # the metapars for all countries and scenarios
-    metapars = {'n_runs': 1,
+    metapars = {'n_runs': 8,
                 'noise': 0.03,
                 'verbose': 1,
                 'rand_seed': 1}
 
     # the policies to change during scenario runs
 
-    scen_opts = {'Brussels': {#'Small easing of restrictions on August 15':
-                                #     {'replace': (['policy_1'], [['policy_2']], [[mid_aug]])},
-                                #
-                                # 'Moderate easing of restrictions on August 15':
-                                # {'replace': (['policy_1'], [['policy_3']], [[mid_aug]])},
-                                #
-                                # 'Small easing of restrictions on September 15':
-                                # {'replace': (['policy_1'], [['policy_2']], [[mid_sep]])},
-                                #
-                                # 'Moderate easing of restrictions on September 15':
-                                # {'replace': (['policy_1'], [['policy_3']], [[mid_sep]])},
+    scen_opts = {'Brussels': {'Small easing of restrictions on August 15':
+                                {'replace': (['policy_1'], [['policy_2']], [[mid_aug]])},
+
+                                'Moderate easing of restrictions on August 15':
+                                {'replace': (['policy_1'], [['policy_3']], [[mid_aug]])},
+
+                                'Small easing of restrictions on September 15':
+                                {'replace': (['policy_1'], [['policy_2']], [[mid_sep]])},
+
+                                'Moderate easing of restrictions on September 15':
+                                {'replace': (['policy_1'], [['policy_3']], [[mid_sep]])},
 
                                 'No changes to current lockdown restrictions':
                                 {'replace': (['policy_1'], [['policy_3']], [[370]])}
@@ -84,7 +84,7 @@ if __name__ == "__main__":
                        to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
 
     # plot cumulative infections to see if all the population gets infected
-    utils.policy_plot2(scens, plot_ints=False, do_save=False, do_show=True,
+    utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
                        fig_path=dirname + '/figs/Brussels-projections' + '.png',
                        interval=30, n_cols=1,
                        fig_args=dict(figsize=(10, 8), dpi=100),
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     # Results
     workbook = xlsxwriter.Workbook(locations[0] + '_projections_1.xlsx')
     worksheet = workbook.add_worksheet('Projections')
-    population = 481587
+    population = 174383
 
     # Lower Bound: no change in restrictions
     new_inf_LB_sep_oct = sum(
