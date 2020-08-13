@@ -70,7 +70,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
 
     if whattorun == 'scenarios':
         # Approximate a mask intervention by changing beta in all layers where people would wear masks - assuming not in schools, sport, social gatherings, or home
-        beta_ints += [cv.change_beta(days=['2020-07-31']*10, changes=[julybetas]*10,
+        beta_ints += [cv.change_beta(days=['2020-08-15']*10, changes=[mask_beta_change]*10,
                                      layers=['W', 'church','C','entertainment','cafe_restaurant','pub_bar','transport','public_parks','large_events'])
                      ]
 
