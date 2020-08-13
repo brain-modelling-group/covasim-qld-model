@@ -4,15 +4,15 @@ import sciris as sc
 import numpy as np
 
 
-def make_sim(whattorun, julybetas=None, load_pop=True, popfile='nswppl.pop', datafile=None, agedatafile=None):
+def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.pop', datafile=None, agedatafile=None):
 
     layers = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'social']
 
     if whattorun == 'calibration':
-        end_day = '2020-07-31'
+        end_day = '2020-08-13'
     elif whattorun == 'scenarios':
-        end_day = '2020-08-31'
-        julybetas = julybetas
+        end_day = '2020-09-15'
+        mask_beta_change = mask_beta_change
 
     pars = {'pop_size': 100e3,
             'pop_infected': 110,
@@ -70,7 +70,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='nswppl.pop', dat
 
     if whattorun == 'scenarios':
         # Approximate a mask intervention by changing beta in all layers where people would wear masks - assuming not in schools, sport, social gatherings, or home
-        beta_ints += [cv.change_beta(days=['2020-07-31']*10, changes=[julybetas]*10,
+        beta_ints += [cv.change_beta(days=['2020-08-15']*10, changes=[mask_beta_change]*10,
                                      layers=['W', 'church','C','entertainment','cafe_restaurant','pub_bar','transport','public_parks','large_events'])
                      ]
 
@@ -139,9 +139,12 @@ if domulti:
             msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
                   legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
     elif whattorun == 'scenarios':
-        julybetas = [0.5, 0.6, 0.7]
-        for jb in julybetas:
-            sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
+
+        # Calculation of the mask_beta_change is (1-maskuptake)*0.7 + maskuptake*0.7*maskeff
+        # Using values of maskuptake in [0, 0.5, 0.7] and maskeff in [0.05, 0.1, 0.2], this gives values in the range [0.6, 0.7]
+        mask_beta_change = [0.6, 0.65, 0.7]
+        for jb in mask_beta_change:
+            sim = make_sim(whattorun, mask_beta_change=jb, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)
             msim.run(n_runs=100, reseed=True, noise=0)
             if dosave: msim.save(f'{resultsfolder}/nsw_{whattorun}_{int(jb*100)}.obj')
