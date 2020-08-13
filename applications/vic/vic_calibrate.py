@@ -26,22 +26,22 @@ if __name__ == '__main__':
     start_day = '2020-06-01'
     n_days = 90 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
-    seeded_cases = {2:10}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.02 # Overall beta
+    seeded_cases = {5:20}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
+    beta = 0.018 # Overall beta
     extra_tests = 4000  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
-    symp_test = 20  # People with symptoms are this many times more likely to be tested
+    symp_test = 200  # People with symptoms are this many times more likely to be tested
     n_runs = 1  # Number of simulations to run
-    tracing_capacity = 100 # People per day that can be traced. Household contacts are always all immediately notified
+    tracing_capacity = 10000 # People per day that can be traced. Household contacts are always all immediately notified
     pop_size = 1e5  # Number of agents
     location = 'Victoria' # Location to use when reading input spreadsheets
 
 
     # 2 - LOAD DATA AND CREATE SIM
-    db_name = 'input_data_Australia'  # the name of the databook
+    db_name = 'input_data_Australia2'  # the name of the databook
     epi_name = 'epi_data_Australia'
 
     all_lkeys = ['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
-                 'transport', 'public_parks', 'large_events', 'child_care', 'social']
+                 'transport', 'public_parks', 'large_events', 'child_care', 'social','aged_care']
     dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
                      'transport', 'public_parks', 'large_events']
 
@@ -124,19 +124,21 @@ if __name__ == '__main__':
     beta_schedule.add('NE_work', start_day=0)
 
     # Stage 3 from 9th July
+    jul2 = sim.day('20200702')
     jul9 = sim.day('20200709')
-    jul22 = sim.day('20200722')
+    jul23 = sim.day('20200723')
     aug6 = sim.day('20200806')
 
-    beta_schedule.end('cafe_restaurant_4sqm', jul9)
-    beta_schedule.end('pub_bar_4sqm', jul9)
-    beta_schedule.end('outdoor200', jul9)
-    beta_schedule.add('cafe_restaurant0', jul9)
-    beta_schedule.add('pub_bar0', jul9)
-    beta_schedule.add('outdoor2', jul9)
-    beta_schedule.add('cSports', jul9)
+    beta_schedule.end('cafe_restaurant_4sqm', jul2)
+    beta_schedule.end('pub_bar_4sqm', jul2)
+    beta_schedule.end('outdoor200', jul2)
+    beta_schedule.add('cafe_restaurant0', jul2)
+    beta_schedule.add('pub_bar0', jul2)
+    beta_schedule.add('church0', jul2)
+    beta_schedule.add('outdoor2', jul2)
+    beta_schedule.add('cSports', jul2)
 
-    beta_schedule.add('masks', jul22)
+    beta_schedule.add('masks', jul23)
 
     beta_schedule.add('stage4', aug6)
 
@@ -148,10 +150,10 @@ if __name__ == '__main__':
     interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.2], layers='W'))
 
     # Social layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul9,aug6], changes=[0.5,0.2], layers='social'))
+    interventions.append(cv.clip_edges(days=[jul2,aug6], changes=[0.5,0.2], layers='social'))
 
     # Other layers clipped by stage 3 on jul9
-    interventions.append(cv.clip_edges(days=[jul9], changes=[0.5], layers=['church', 'pub_bar', 'cafe_restaurant', 'cSports', 'S']))
+    #interventions.append(cv.clip_edges(days=[jul2], changes=[0.5], layers=['church', 'pub_bar', 'cafe_restaurant', 'cSports', 'S']))
 
 
     # Add tracing intervention for households
@@ -245,6 +247,9 @@ if __name__ == '__main__':
         ax.scatter(cases.index, cases.values, s=5, color='k')
         after_lockdown = cases.index.values>0
         ax.scatter(cases.index.values[after_lockdown], cases.values[after_lockdown], s=5, color='r')
+        ax.axvline(x=jul2, color='grey', linestyle='--')
+        ax.axvline(x=jul23, color='grey', linestyle='--')
+        ax.axvline(x=aug6, color='grey', linestyle='--')
 
         ax.set_title('Cumulative diagnosed cases')
 
@@ -266,7 +271,7 @@ if __name__ == '__main__':
         y = cases.values
         n_window = (y > 50) & (y < 2000)
         coeffs = np.polyfit(x[n_window], np.log(y[n_window]), 1, w=np.sqrt(y[n_window]))
-        ax.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x),'k--', linewidth=1)
+        #ax.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x),'k--', linewidth=1)
 
         ax.text(0.05,0.9,f'Data exponent = {coeffs[0]:.4f}', transform=ax.transAxes)
         ax.text(0.05,0.80,f'Average model exponent = {np.mean(exponent):.4f}', transform=ax.transAxes)
@@ -293,6 +298,9 @@ if __name__ == '__main__':
         ax.scatter(cases.index, cases.values, color='k')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
         ax.locator_params('x',nbins=4)
+        ax.axvline(x=jul2, color='grey', linestyle='--')
+        ax.axvline(x=jul23, color='grey', linestyle='--')
+        ax.axvline(x=aug6, color='grey', linestyle='--')
 
     def plot_daily_tests(ax):
         for result in results:
