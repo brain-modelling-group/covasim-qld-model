@@ -50,7 +50,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
             'beta_layer':  pd.Series([1,    0.3,    0.2,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,  0,      0,      0.1,    0,      0,      0,      0,      0,      0,      0,      0,      0,      0], index=layers).to_dict(),
             'quar_factor': pd.Series([1,    0.1,    0.1,    0.2,    0.01,   0,      0,      0,      0,      0,      0.1 ,   0,      0,      0], index=layers).to_dict(),
-            'n_imports': 0.01, # Number of new cases to import per day -- varied over time as part of the interventions
+            'n_imports': 0.001, # Number of new cases to import per day -- varied over time as part of the interventions
             'start_day': '2020-03-01',
             'end_day': end_day,
             'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
@@ -70,11 +70,11 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     reopen3  = '2020-06-22' # Pubs open, plus more social activities
     reopen4  = '2020-06-30' # large events, cinemas, museums, open; fewer restrictions on cafes/pubs/etc,
     reopen5  = '2020-07-10' # regional travel open,
-    school_dates = ['2020-05-11', '2020-05-18', '2020-05-25']
+    school_dates = ['2020-05-11', '2020-05-18', '2020-06-25']
     closeborders='2020-08-05'
 
     beta_ints = [cv.clip_edges(days=[initresponse,lockdown]+school_dates, 
-                               changes=[0.75, 0.05, 0.8, 0.9, 1.0], 
+                               changes=[0.75, 0.05, 0.8, 0.9, 0.9], 
                                layers=['S'], do_plot=False),
                  cv.clip_edges(days=[lockdown, reopen2, reopen3, reopen4], 
                                changes=[0.3, 0.4, 0.5, 0.55], 
@@ -110,8 +110,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  cv.change_beta(days=[lockdown, reopen3, reopen4], 
                                 changes=[0, 0.4, 0.5], 
                                 layers=['pub_bar'], do_plot=False),
-                 cv.change_beta(days=[lockdown, reopen2, reopen5, closeborders], 
-                                changes=[0.2, 0.3, 0.5, 0.1], 
+                 cv.change_beta(days=[lockdown, reopen5, closeborders], 
+                                changes=[0.2, 0.3, 0.05], 
                                 layers=['transport'], do_plot=False),
                  cv.change_beta(days=[lockdown, reopen4, reopen5], 
                                 changes=[0.1, 0.5, 0.6], 
