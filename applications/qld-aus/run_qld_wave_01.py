@@ -193,6 +193,7 @@ if __name__ == '__main__':
     domulti = True
     doplot = False
     dosave = True
+    number_of_runs = 200
 
     # Filepaths
     inputsfolder = 'inputs'
@@ -218,7 +219,7 @@ if __name__ == '__main__':
                             datafile=datafile, 
                             agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)
-            msim.run(n_runs=20, reseed=True, noise=0)
+            msim.run(n_runs=number_of_runs, reseed=True, noise=0)
             if dosave: 
               msim.save(f'{resultsfolder}/qld_{whattorun}.obj')
             if doplot:
@@ -232,7 +233,7 @@ if __name__ == '__main__':
             for jb in julybetas:
                 sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)
-                msim.run(n_runs=20, reseed=True, noise=0)
+                msim.run(n_runs=number_of_runs, reseed=True, noise=0)
                 if dosave: 
                   msim.save(f'{resultsfolder}/qld_{whattorun}_{int(jb*100)}.obj')
                 if doplot:
