@@ -17,8 +17,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Rotterdam': {'pop_size': int(10e4),
-                            'beta': 0.04, # key calibration parameter, overwrites value in input databook `other_par` tab
-                            'n_days': 146, # number of days in data series (validation: 2/3 days)
+                            'beta': 0.08, # key calibration parameter, overwrites value in input databook `other_par` tab
+                            'n_days': 155, # number of days in data series (validation: 2/3 days)
                             'pop_infected': 200, # number cases day 0, may need adjustment
                             'calibration_end': '2020-08-06'}} # data series end date
     
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     # Plot validation
     utils.policy_plot2(scens, plot_ints=False, do_save=True, do_show=True,
-                       fig_path=dirname + '/figs_rotterdam/Rotterdam-calibration' + '.png',
+                       fig_path=dirname + '/figs_rotterdam/Rotterdam-calibration1' + '.png',
                        interval=30, n_cols=2,
                        fig_args=dict(figsize=(10, 5), dpi=100),
                        font_size=11,
