@@ -23,7 +23,7 @@ resultsfolder = 'results'
 figsfolder = 'figs'
 simsfilepath = f'{resultsfolder}/qld_calibration.obj'
 
-julybetas = [0.1, 0.15, 0.2] # Values used in the scenarios
+julybetas = [0.025, 0.05, 0.1] # Values used in the scenarios
 
 T = sc.tic()
 
@@ -138,9 +138,9 @@ def plot_intervs(sim, labels=True):
 
 # Fonts and sizes
 font_size = 22
-font_family = 'Proxima Nova'
+# font_family = 'Proxima Nova'
 pl.rcParams['font.size'] = font_size
-pl.rcParams['font.family'] = font_family
+# pl.rcParams['font.family'] = font_family
 pl.figure(figsize=(24,15))
 
 # Plot locations
@@ -187,9 +187,9 @@ pl.legend(loc='upper left', frameon=False)
 
 x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, subplotheight
 ax3 = pl.axes([x0, y0, dx, dy])
-ax3.plot(range(300), diagprobs[0][:300], '-', lw=4, c=colors[0], alpha=1.0)
-ax3.plot(range(300), diagprobs[1][:300], '-', lw=4, c=colors[1], alpha=1.0)
-ax3.plot(range(300), diagprobs[2][:300], '-', lw=4, c=colors[2], alpha=1.0)
+ax3.plot(range(80), diagprobs[0][:80], '-', lw=4, c=colors[0], alpha=1.0)
+ax3.plot(range(80), diagprobs[1][:80], '-', lw=4, c=colors[1], alpha=1.0)
+ax3.plot(range(80), diagprobs[2][:80], '-', lw=4, c=colors[2], alpha=1.0)
 ax3.set_ylim(0,1)
 pl.ylabel('Probability of more\nthan n daily cases')
 sc.boxoff(ax=ax3)

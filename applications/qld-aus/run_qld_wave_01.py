@@ -67,7 +67,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     lockdown = '2020-03-22'
     reopen1  = '2020-05-01' # Two adults allowed to visit a house
     reopen2  = '2020-05-15' # Up to 5 adults can visit a house; food service and non-essential retail start to resume
-    reopen3  = '2020-06-08' # Pubs open, plus more social activities
+    reopen3  = '2020-06-22' # Pubs open, plus more social activities
     reopen4  = '2020-06-30' # large events, cinemas, museums, open; fewer restrictions on cafes/pubs/etc,
     reopen5  = '2020-07-10' # regional travel open,
     school_dates = ['2020-05-11', '2020-05-18', '2020-05-25']
@@ -77,16 +77,16 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                changes=[0.75, 0.05, 0.8, 0.9, 1.0], 
                                layers=['S'], do_plot=False),
                  cv.clip_edges(days=[lockdown, reopen2, reopen3, reopen4], 
-                               changes=[0.3, 0.4, 0.5, 0.65], 
+                               changes=[0.3, 0.4, 0.5, 0.55], 
                                layers=['W'], do_plot=False),
                  cv.clip_edges(days=[lockdown, reopen2, reopen4], 
-                               changes=[0, 0.5, 0.9], 
+                               changes=[0, 0.5, 0.7], 
                                layers=['pSport'], do_plot=False),
                  cv.clip_edges(days=[lockdown, '2020-06-30'],
-                               changes=[0, 1.0], 
+                               changes=[0, 0.7], 
                                layers=['cSport'], do_plot=False),
                  # Reduce overall beta to account for distancing, handwashing, etc
-                 cv.change_beta([initresponse, '2020-07-01'], [0.8, 0.85], do_plot=False), 
+                 cv.change_beta([initresponse, '2020-07-01'], [0.7, 0.75], do_plot=False), 
                  cv.change_beta(days=[lockdown, reopen2, reopen4], 
                                 changes=[1.2, 1.1, 1.], 
                                 layers=['H'], do_plot=True),
@@ -94,7 +94,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 changes=[0, 0.7], 
                                 layers=['church'], do_plot=False),
                  cv.change_beta(days=[lockdown, reopen1, reopen2, reopen3, reopen4], 
-                                changes=[0.0, 0.3, 0.4, 0.5, 0.7], 
+                                changes=[0.0, 0.3, 0.4, 0.5, 0.6], 
                                 layers=['social'], do_plot=False),
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
@@ -111,13 +111,13 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 changes=[0, 0.4, 0.5], 
                                 layers=['pub_bar'], do_plot=False),
                  cv.change_beta(days=[lockdown, reopen2, reopen5, closeborders], 
-                                changes=[0.2, 0.3, 0.5, 0.2], 
+                                changes=[0.2, 0.3, 0.5, 0.1], 
                                 layers=['transport'], do_plot=False),
                  cv.change_beta(days=[lockdown, reopen4, reopen5], 
-                                changes=[0.1, 0.5, 0.7], 
+                                changes=[0.1, 0.5, 0.6], 
                                 layers=['public_parks'], do_plot=False),
                  cv.change_beta(days=[lockdown, reopen4], 
-                                changes=[0.0, 0.6], 
+                                changes=[0.0, 0.5], 
                                 layers=['large_events'], do_plot=False),
                  ]
 
@@ -134,7 +134,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     # Testing
     symp_prob_prelockdown = 0.05   # Limited testing pre lockdown
     symp_prob_lockdown = 0.3       # Increased testing during lockdown
-    symp_prob_postlockdown = 0.45  # Testing since lockdown
+    symp_prob_postlockdown = 0.5   # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, 
                                                   end_day=lockdown, 
                                                   symp_prob=symp_prob_prelockdown, 
@@ -149,10 +149,11 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
 
     # Tracing
     trace_probs = {'H': 1, 'S': 0.95, 
-                   'W': 0.8, 'C': 0.05, 
+                   'W': 0.9, 'C': 0.05, 
                    'church': 0.5, 
-                   'pSport': 0.8, 'cSport': 0.5,
-                   'entertainment': 0.01, 
+                   'pSport': 0.8, 
+                   'cSport': 0.5,
+                   'entertainment': 0.1, 
                    'cafe_restaurant': 0.8, 
                    'pub_bar': 0.8, 
                    'transport': 0.8, 
@@ -164,7 +165,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                   'church': 5, 
                   'pSport': 3, 
                   'cSport': 3, 
-                  'entertainment': 14,
+                  'entertainment': 7,
                   'cafe_restaurant': 4, 
                   'pub_bar': 4, 
                   'transport': 2, 
@@ -227,7 +228,7 @@ if __name__ == '__main__':
                           axis_args={'hspace': 0.4}, 
                           interval=21)
         elif whattorun == 'scenarios':
-            julybetas = [0.1, 0.15, 0.2]
+            julybetas = [0.025, 0.05, 0.1]
             for jb in julybetas:
                 sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)
