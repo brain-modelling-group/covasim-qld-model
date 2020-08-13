@@ -124,7 +124,9 @@ def plot_intervs(sim, labels=True):
     mar23 = sim.day('2020-03-23')
     may01 = sim.day('2020-05-01')
     jul10 = sim.day('2020-07-10')
-    for day in [mar23, may01, jul10]:
+    aug05 = sim.day('2020-08-05')
+
+    for day in [mar23, may01, jul10, aug05]:
         pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
 
     if labels:
@@ -132,9 +134,9 @@ def plot_intervs(sim, labels=True):
         labely = yl[1]*0.95
         pl.text(mar23-20, labely, 'Lockdown', color=color, alpha=0.9, style='italic')
         pl.text(may01+1,  labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul10+1,  labely, 'QLD \nborder open', color=color, alpha=0.9, style='italic')
+        pl.text(jul10+1,  labely, 'QLD \nborder \nopen', color=color, alpha=0.9, style='italic')
+        pl.text(aug05+1,  labely, 'QLD \nborder \nclosed', color=color, alpha=0.9, style='italic')
     return
-
 
 # Fonts and sizes
 font_size = 22
