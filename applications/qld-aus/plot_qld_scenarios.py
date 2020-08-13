@@ -187,9 +187,9 @@ tvec = np.arange(60)
 #v60 = msim60.base_sim.results['new_diagnoses'].values[-60:]
 #v50 = msim50.base_sim.results['new_diagnoses'].values[-60:]
 colors = pl.cm.GnBu([0.9,0.6,0.3])
-pl.plot(tvec, diagvals[0], c=colors[0], label=str(julybetas[0]), lw=4, alpha=1.0)
-pl.plot(tvec, diagvals[1], c=colors[1], label=str(julybetas[1]), lw=4, alpha=1.0)
-pl.plot(tvec, diagvals[2], c=colors[2], label=str(julybetas[2]), lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[0], c=colors[0], '-',  label=str(julybetas[0]), lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[1], c=colors[1], '--', label=str(julybetas[1]), lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[2], c=colors[2], '-',  label=str(julybetas[2]), lw=4, alpha=1.0)
 pl.ylabel('Daily diagnoses')
 sc.setylim()
 xmin, xmax = ax2.get_xlim()
