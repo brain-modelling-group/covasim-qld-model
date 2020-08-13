@@ -52,7 +52,8 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
                  cv.clip_edges(days=[lockdown, reopen2, reopen4], changes=[0, 0.5, 1.0], layers=['pSport'], do_plot=False),
                  cv.clip_edges(days=[lockdown, '2020-06-22'], changes=[0, 1.0], layers=['cSport'], do_plot=False),
 
-                 cv.change_beta([initresponse, '2020-07-01'], [0.8, 0.9], do_plot=False), # Reduce overall beta to account for distancing, handwashing, etc
+#                 cv.change_beta([initresponse, '2020-07-01'], [0.8, 0.9], do_plot=False), # Reduce overall beta to account for distancing, handwashing, etc
+                 cv.change_beta([initresponse], [0.8], do_plot=False), # Reduce overall beta to account for distancing, handwashing, etc
                  cv.change_beta(days=[lockdown, reopen2, reopen4], changes=[1.2, 1.1, 1.], layers=['H'], do_plot=True),
 
                  cv.change_beta(days=[lockdown, reopen2], changes=[0, 0.7], layers=['church'], do_plot=False),
@@ -107,7 +108,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
 T = sc.tic()
 
 # Settings
-whattorun = ['calibration', 'scenarios'][1]
+whattorun = ['calibration', 'scenarios'][0]
 domulti = True
 doplot = False
 dosave = True
