@@ -23,7 +23,7 @@ resultsfolder = 'results'
 figsfolder = 'figs'
 simsfilepath = f'{resultsfolder}/qld_calibration.obj'
 
-julybetas = [0.025, 0.05, 0.1] # Values used in the scenarios
+julybetas = [0.05, 0.1, 0.15] # Values used in the scenarios
 
 T = sc.tic()
 

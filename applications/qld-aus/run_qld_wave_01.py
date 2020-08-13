@@ -228,7 +228,7 @@ if __name__ == '__main__':
                           axis_args={'hspace': 0.4}, 
                           interval=21)
         elif whattorun == 'scenarios':
-            julybetas = [0.025, 0.05, 0.1]
+            julybetas = [0.05, 0.1, 0.15]
             for jb in julybetas:
                 sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)
