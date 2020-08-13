@@ -13,13 +13,13 @@ if __name__ == "__main__":
     db_name = 'input_data_Australia_FH'
     epi_name = 'epi_data_Australia_FH'
 
-    # Victoriaecify layer keys to use
+    # Victoria specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
-    # country-Victoriaecific parameters
+    # country-Victoria specific parameters
     user_pars = {'Victoria': {'pop_size': int(10e4),
-                               'beta': 0.045,
+                               'beta': 0.027,
                                'n_days': 343,
                                'calibration_end': '2020-08-11'}}
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     mid_aug = end_july + 15
     end_aug = mid_aug + 15
     mid_sep = mid_aug + 31
-    end_sep = mid_sep +15
+    end_sep = mid_sep + 15
     mid_oct = mid_sep + 30
     end_oct = mid_sep + 46
     start_nov = end_oct + 1
@@ -66,7 +66,7 @@ if __name__ == "__main__":
                            metapars=metapars,
                            all_lkeys=all_lkeys,
                            dynamic_lkeys=dynamic_lkeys)
-
+    
     # run the scenarios
     scens = ui.run_scens(scens)   
     scens['verbose'] = True
