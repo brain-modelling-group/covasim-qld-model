@@ -12,7 +12,7 @@ resultsfolder = 'results'
 figsfolder = 'figs'
 simsfilepath = f'{resultsfolder}/nsw_calibration.obj'
 
-julybetas = [0.5, 0.6, 0.7] # Values used in the scenarios
+julybetas = [0.6, 0.65, 0.7] # Values used in the scenarios
 
 T = sc.tic()
 
@@ -163,9 +163,9 @@ tvec = np.arange(60)
 #v60 = msim60.base_sim.results['new_diagnoses'].values[-60:]
 #v50 = msim50.base_sim.results['new_diagnoses'].values[-60:]
 colors = pl.cm.GnBu([0.9,0.6,0.3])
-pl.plot(tvec, diagvals[0], c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, diagvals[1], c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, diagvals[2], c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[0], c=colors[0], label="Optimistic mask scenario", lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[1], c=colors[1], label="Median mask scenario", lw=4, alpha=1.0)
+pl.plot(tvec, diagvals[2], c=colors[2], label="Pessimistic mask scenario", lw=4, alpha=1.0)
 pl.ylabel('Daily diagnoses')
 sc.setylim()
 xmin, xmax = ax2.get_xlim()
@@ -204,9 +204,9 @@ tvec = np.arange(60)
 #v60 = msim60.base_sim.results['n_exposed'].values[-60:]
 #v50 = msim50.base_sim.results['n_exposed'].values[-60:]
 colors = pl.cm.hot([0.3,0.5,0.7])
-pl.plot(tvec, infvals[0], c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, infvals[1], c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, infvals[2], c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
+pl.plot(tvec, infvals[0], c=colors[0], label="Optimistic mask scenario", lw=4, alpha=1.0)
+pl.plot(tvec, infvals[1], c=colors[1], label="Median mask scenario", lw=4, alpha=1.0)
+pl.plot(tvec, infvals[2], c=colors[2], label="Pessimistic mask scenario", lw=4, alpha=1.0)
 pl.ylabel('Active infections')
 sc.setylim()
 xmin, xmax = ax5.get_xlim()
