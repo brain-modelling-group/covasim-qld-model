@@ -52,8 +52,8 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
                  cv.clip_edges(days=[lockdown, reopen2, reopen4], changes=[0, 0.5, 1.0], layers=['pSport'], do_plot=False),
                  cv.clip_edges(days=[lockdown, '2020-06-22'], changes=[0, 1.0], layers=['cSport'], do_plot=False),
 
-#                 cv.change_beta([initresponse, '2020-07-01'], [0.8, 0.9], do_plot=False), # Reduce overall beta to account for distancing, handwashing, etc
-                 cv.change_beta([initresponse], [0.8], do_plot=False), # Reduce overall beta to account for distancing, handwashing, etc
+                 cv.change_beta([initresponse, '2020-07-01'], [0.8, 0.9], do_plot=False), # Reduce overall beta to account for distancing, handwashing, etc
+#                 cv.change_beta([initresponse], [0.8], do_plot=False), # Reduce overall beta to account for distancing, handwashing, etc
                  cv.change_beta(days=[lockdown, reopen2, reopen4], changes=[1.2, 1.1, 1.], layers=['H'], do_plot=True),
 
                  cv.change_beta(days=[lockdown, reopen2], changes=[0, 0.7], layers=['church'], do_plot=False),
@@ -78,12 +78,12 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing
-    symp_prob_prelockdown = 0.05  # Limited testing pre lockdown
-    symp_prob_lockdown = 0.2  # Increased testing during lockdown
+    symp_prob_prelockdown = 0.075  # Limited testing pre lockdown
+    symp_prob_lockdown = 0.1  # Increased testing during lockdown
     symp_prob_postlockdown = 0.2  # Testing since lockdown
-    sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.001, do_plot=False))
-    sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen1, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.001,do_plot=False))
-    sim.pars['interventions'].append(cv.test_prob(start_day=reopen1, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.001,do_plot=True))
+    sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.01, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen2, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.04,do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day=reopen2, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.05,do_plot=True))
 
     # Tracing
     trace_probs = {'H': 1, 'S': 0.95, 'W': 0.8, 'C': 0.05, 'church': 0.5, 'pSport': 0.8, 'cSport': 0.5,
@@ -108,7 +108,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
 T = sc.tic()
 
 # Settings
-whattorun = ['calibration', 'scenarios'][0]
+whattorun = ['calibration', 'scenarios'][1]
 domulti = True
 doplot = False
 dosave = True
@@ -116,7 +116,7 @@ dosave = True
 # Filepaths
 inputsfolder = 'inputs'
 resultsfolder = 'results'
-datafile = f'{inputsfolder}/nsw_epi_data.csv'
+datafile = f'{inputsfolder}/nsw_epi_data_os_removed.csv'
 agedatafile = f'{inputsfolder}/nsw_age_data.csv'
 
 # Plot settings
