@@ -79,16 +79,16 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  cv.clip_edges(days=[lockdown, reopen2, reopen3, reopen4], 
                                changes=[0.3, 0.4, 0.5, 0.55], 
                                layers=['W'], do_plot=False),
-                 cv.clip_edges(days=[lockdown, reopen2, reopen4], 
-                               changes=[0, 0.5, 0.7], 
+                 cv.clip_edges(days=[lockdown, reopen2, reopen4, closeborders], 
+                               changes=[0, 0.5, 0.7, 0.6], 
                                layers=['pSport'], do_plot=False),
                  cv.clip_edges(days=[lockdown, '2020-06-30'],
                                changes=[0, 0.7], 
                                layers=['cSport'], do_plot=False),
                  # Reduce overall beta to account for distancing, handwashing, etc
                  cv.change_beta([initresponse, '2020-07-01'], [0.7, 0.75], do_plot=False), 
-                 cv.change_beta(days=[lockdown, reopen2, reopen4], 
-                                changes=[1.2, 1.1, 1.], 
+                 cv.change_beta(days=[lockdown, reopen2, reopen4, reopen5], 
+                                changes=[1.2, 1.1, 1., 0.9], 
                                 layers=['H'], do_plot=True),
                  cv.change_beta(days=[lockdown, reopen2], 
                                 changes=[0, 0.7], 
@@ -99,13 +99,13 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
                  cv.change_beta(days=[lockdown], 
-                                changes=[0.7], 
+                                changes=[0.5], 
                                 layers=['C'], do_plot=True),
                  cv.change_beta(days=[lockdown, reopen4], 
-                                changes=[0, 0.7], 
+                                changes=[0, 0.5], 
                                 layers=['entertainment'], do_plot=False),
                  cv.change_beta(days=[lockdown, reopen2], 
-                                changes=[0, 0.7], 
+                                changes=[0, 0.5], 
                                 layers=['cafe_restaurant'], do_plot=False),
                  cv.change_beta(days=[lockdown, reopen3, reopen4], 
                                 changes=[0, 0.4, 0.5], 
@@ -177,7 +177,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                                         start_day=0, do_plot=False))
 
     # Close borders, then open them again to account for Victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [115], 'vals': [3]}}, do_plot=False))
+    #sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [150], 'vals': [3]}}, do_plot=False))
     sim.initialize()
 
     return sim
