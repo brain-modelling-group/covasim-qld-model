@@ -11,8 +11,8 @@ if __name__ == "__main__":
     # analysis location(s) for this analysis
     locations = ['Rotterdam']
     # databook names
-    db_name = 'input_data_rotterdam'
-    epi_name = 'epi_data_rotterdam'
+    db_name = 'input_data_NLD'
+    epi_name = 'epi_data_NLD'
 
     # Specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
