@@ -115,7 +115,7 @@ def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.02
 
     pl.ylabel(ylabel)
 
-    return
+    return tvec, color
 
 
 def plot_intervs(sim, labels=True):
@@ -132,14 +132,14 @@ def plot_intervs(sim, labels=True):
     if labels:
         yl = pl.ylim()
         labely = yl[1]*0.95
-        pl.text(mar23-20, labely, 'Lockdown', color=color, alpha=0.9, style='italic')
+        pl.text(mar23-20, labely, 'Lockdown',               color=color, alpha=0.9, style='italic')
         pl.text(may01+1,  labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul10+1,  labely, 'QLD \nborder \nopen', color=color, alpha=0.9, style='italic')
-        pl.text(aug05+1,  labely, 'QLD \nborder \nclosed', color=color, alpha=0.9, style='italic')
+        pl.text(jul10+1,  labely, 'QLD \nborder \nopen',    color=color, alpha=0.9, style='italic')
+        pl.text(aug05+1,  labely, 'QLD \nborder \nclosed',  color=color, alpha=0.9, style='italic')
     return
 
 # Fonts and sizes
-font_size = 22
+font_size = 20
 # font_family = 'Proxima Nova'
 pl.rcParams['font.size'] = font_size
 # pl.rcParams['font.family'] = font_family
@@ -159,8 +159,17 @@ subplotwidth = 1-mainplotwidth-2.5*xgaps
 x0, y0, dx, dy = xgaps, ygaps*2+1*mainplotheight, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 format_ax(ax1, sim)
-plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='Daily diagnoses')
+tvec, color = plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='new diagnoses')
 plot_intervs(sim)
+# Load actual data 
+inputs_folder = 'inputs'
+input_data = 'qld_epi_data_wave_01_basic_stats.csv'
+
+# Load data
+data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
+xx = data['new_cases'][36:-1]
+#import ipdb; ipdb.set_trace()
+pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], data['new_cases'][36:-1], c=color, label='epi data', lw=4, alpha=0.5)
 
 #Plot diagnoses scenarios
 x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*3+1*mainplotheight+subplotheight, subplotwidth, subplotheight
