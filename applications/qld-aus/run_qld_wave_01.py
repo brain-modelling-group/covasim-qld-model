@@ -33,9 +33,9 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
               'social']
 
     if whattorun == 'calibration':
-        end_day = '2020-07-31'
+        end_day = '2020-08-12'
     elif whattorun == 'scenarios':
-        end_day = '2020-09-30'
+        end_day = '2020-10-31'
         julybetas = julybetas
 
     pars = {'pop_size': 200e3,
