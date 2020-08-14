@@ -88,7 +88,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     borders01 = '2020-07-10' # regional travel open,
     schools   = ['2020-03-30', '2020-05-25']
     # shut borders again
-    border02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
+    borders02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
 
     beta_ints = [cv.clip_edges(days=[response00, response01]+schools, 
                                changes=[0.75, 0.7, 0.05, 0.9], 
