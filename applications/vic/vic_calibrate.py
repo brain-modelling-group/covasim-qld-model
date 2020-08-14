@@ -79,6 +79,8 @@ if __name__ == '__main__':
     params.pars["n_imports"] = n_imports # Number of imports per day
     params.pars['beta'] = beta
     params.pars['start_day'] = start_day
+    params.pars['verbose'] = 0
+    params.pars['rand_seed'] = 1
 
     params.extrapars['symp_test'] = symp_test
 
@@ -177,14 +179,14 @@ if __name__ == '__main__':
     # Add COVIDSafe app based tracing
     interventions.append(policy_updates.AppBasedTracing(name='tracing_app',**params.policies["tracing_policies"]["tracing_app"]))
 
+
     # Now when we run the model, the major free parameters are the overall beta
     # And the date of the seed infection
-    sim.pars['verbose'] = 0
-    sim.pars['rand_seed'] = 1
-    sim.pars['interventions'].append(utils.SeedInfection(seeded_cases))
+
+    interventions.append(utils.SeedInfection(seeded_cases))
 
     # Add probability-based testing interventions
-    sim.pars['interventions'].append(cv.test_prob(
+    interventions.append(cv.test_prob(
         symp_prob=0.1,
         asymp_prob=0.01,
         symp_quar_prob=0.2,
@@ -192,7 +194,7 @@ if __name__ == '__main__':
         start_day=0,
         end_day=20,
     ))
-    sim.pars['interventions'].append(cv.test_prob(
+    interventions.append(cv.test_prob(
         symp_prob=0.1,
         asymp_prob=0.01,
         symp_quar_prob=0.2,
@@ -210,13 +212,15 @@ if __name__ == '__main__':
     coeffs = np.polyfit(tests.index, tests.values, 1)
     tests_per_day = np.arange(params.pars["n_days"]+1)*coeffs[0]+coeffs[1]
 
-    sim.pars['interventions'].append(cv.test_num(daily_tests=extra_tests+tests_per_day,
+    interventions.append(cv.test_num(daily_tests=extra_tests+tests_per_day,
                                                  symp_test=params.extrapars['symp_test'],
                                                  quar_test=params.extrapars['quar_test'],
                                                  sensitivity=params.extrapars['sensitivity'],
                                                  test_delay=params.extrapars['test_delay'],
                                                  loss_prob=params.extrapars['loss_prob'])
                                      )
+
+    sim.pars['interventions'] = interventions # Add the interventions to the scenario
 
     # Run using Celery
     # def analyzer(s):
