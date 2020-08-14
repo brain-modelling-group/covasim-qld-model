@@ -100,12 +100,12 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                changes=[0.9, 0.4, 0.3, 0.2, 0.5], 
                                layers=['W'], do_plot=False),
                  
-                 cv.clip_edges(days=[lockdown, reopen2, reopen4, closeborders], 
-                               changes=[0, 0.5, 0.7, 0.6], 
+                 cv.clip_edges(days=[lockdown00, reopen01], 
+                               changes=[0.0, 0.5], 
                                layers=['pSport'], do_plot=False),
                  
-                 cv.clip_edges(days=[lockdown, '2020-06-30'],
-                               changes=[0, 0.7], 
+                 cv.clip_edges(days=[lockdown00, reopen01],
+                               changes=[0.0, 0.8], 
                                layers=['cSport'], do_plot=False),
 
                  # Reduce overall beta to account for distancing, handwashing, etc
