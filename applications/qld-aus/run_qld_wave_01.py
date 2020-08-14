@@ -75,11 +75,11 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     beach00   = '2020-04-07'  # Beaches closes
     
     # relaxation dates 
-    outdoor00 = '2020-03-30'   # Outdoors ok < 2 ppl
+    outdoors00 = '2020-03-30'   # Outdoors ok < 2 ppl
     beach01   = '2020-04-20'   # Beaches ok <2 ppl
     parks01   = '2020-05-01'   # national parks open
     church00  = '2020-05-16'   # Church 4sqm rule, 
-    outdoor01 = '2020-05-16'   # outdoor ok <10 ppl
+    outdoors01 = '2020-05-16'   # outdoor ok <10 ppl
     beach02   = '2020-05-16'   # Beaches ok <10 ppl
     # reopening dates
     reopen01 = '2020-06-01' # reopen cSports, cinemas, social, beach, psport, shopping 
