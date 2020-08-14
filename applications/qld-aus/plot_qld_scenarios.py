@@ -239,9 +239,9 @@ pl.legend(loc='upper left', frameon=False)
 
 x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*1+0*mainplotheight, subplotwidth, subplotheight
 ax6 = pl.axes([x0, y0, dx, dy])
-ax6.plot(range(6000), infprobs[0], '-', lw=4, c=colors[0], alpha=1.0)
-ax6.plot(range(6000), infprobs[1], '-', lw=4, c=colors[1], alpha=1.0)
-ax6.plot(range(6000), infprobs[2], '-', lw=4, c=colors[2], alpha=1.0)
+ax6.plot(range(400), infprobs[0][:400], '-', lw=4, c=colors[0], alpha=1.0)
+ax6.plot(range(400), infprobs[1][:400], '-', lw=4, c=colors[1], alpha=1.0)
+ax6.plot(range(400), infprobs[2][:400], '-', lw=4, c=colors[2], alpha=1.0)
 ax6.set_ylim(0,1)
 pl.ylabel('Probability of more\nthan n active infections')
 sc.boxoff(ax=ax6)
