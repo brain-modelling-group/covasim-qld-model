@@ -143,8 +143,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 changes=[0.2, 0.3, 0.00], 
                                 layers=['transport'], do_plot=False),
                  
-                 cv.change_beta(days=[parks00, parks01], 
-                                changes=[0.1, 0.5], 
+                 cv.change_beta(days=[outdoors00, parks00, parks01], 
+                                changes=[0.4, 0.1, 0.5], 
                                 layers=['public_parks'], do_plot=False),
                  
                  cv.change_beta(days=[lockdown00, reopen03], 
