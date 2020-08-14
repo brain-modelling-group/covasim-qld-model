@@ -173,14 +173,14 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     symp_prob_lockdown = 0.3       # Increased testing during lockdown
     symp_prob_postlockdown = 0.5   # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, 
-                                                  end_day=lockdown, 
+                                                  end_day=lockdown00, 
                                                   symp_prob=symp_prob_prelockdown, 
                                                   asymp_quar_prob=0.001, do_plot=False))
-    sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, 
-                                                  end_day=reopen1, 
+    sim.pars['interventions'].append(cv.test_prob(start_day=lockdown00, 
+                                                  end_day=reopen01, 
                                                   symp_prob=symp_prob_lockdown, 
                                                   asymp_quar_prob=0.001,do_plot=False))
-    sim.pars['interventions'].append(cv.test_prob(start_day=reopen1, 
+    sim.pars['interventions'].append(cv.test_prob(start_day=reopen01, 
                                                   symp_prob=symp_prob_postlockdown, 
                                                   asymp_quar_prob=0.001,do_plot=True))
 
