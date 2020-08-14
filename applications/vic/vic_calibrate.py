@@ -27,12 +27,12 @@ if __name__ == '__main__':
     n_days = 90 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {5:20}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.018 # Overall beta
+    beta = 0.009 # Overall beta
     extra_tests = 4000  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 200  # People with symptoms are this many times more likely to be tested
-    n_runs = 1  # Number of simulations to run
-    tracing_capacity = 10000 # People per day that can be traced. Household contacts are always all immediately notified
-    pop_size = 1e5  # Number of agents
+    n_runs = 5  # Number of simulations to run
+    tracing_capacity = 400 # People per day that can be traced. Household contacts are always all immediately notified
+    pop_size = 2e5  # Number of agents
     location = 'Victoria' # Location to use when reading input spreadsheets
 
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     beta_schedule.add('outdoor2', jul2)
     beta_schedule.add('cSports', jul2)
 
-    beta_schedule.add('masks', jul23)
+    #beta_schedule.add('masks', jul23)
 
     beta_schedule.add('stage4', aug6)
 
@@ -184,21 +184,21 @@ if __name__ == '__main__':
     sim.pars['interventions'].append(utils.SeedInfection(seeded_cases))
 
     # Add probability-based testing interventions
-    # sim.pars['interventions'].append(cv.test_prob(
-    #     symp_prob=0.1,
-    #     asymp_prob=0.01,
-    #     symp_quar_prob=0.2,
-    #     asymp_quar_prob=0.01,
-    #     start_day=0,
-    #     end_day=20,
-    # ))
-    # sim.pars['interventions'].append(cv.test_prob(
-    #     symp_prob=0.1,
-    #     asymp_prob=0.01,
-    #     symp_quar_prob=0.2,
-    #     asymp_quar_prob=0.01,
-    #     start_day=21,
-    # ))
+    sim.pars['interventions'].append(cv.test_prob(
+        symp_prob=0.1,
+        asymp_prob=0.01,
+        symp_quar_prob=0.2,
+        asymp_quar_prob=0.01,
+        start_day=0,
+        end_day=20,
+    ))
+    sim.pars['interventions'].append(cv.test_prob(
+        symp_prob=0.1,
+        asymp_prob=0.01,
+        symp_quar_prob=0.2,
+        asymp_quar_prob=0.01,
+        start_day=21,
+    ))
 
 
     # Add number-based testing interventions
