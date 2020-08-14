@@ -63,7 +63,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
 
     # Create beta policies
     # Important dates
-    initresponse = '2020-03-15'
+    initresponse = '2020-03-15' # Physical distancing, handwashing -- ongoing
     lockdown = '2020-03-22'
     reopen1  = '2020-05-01' # Two adults allowed to visit a house
     reopen2  = '2020-05-15' # Up to 5 adults can visit a house; food service and non-essential retail start to resume
@@ -85,8 +85,9 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  cv.clip_edges(days=[lockdown, '2020-06-30'],
                                changes=[0, 0.7], 
                                layers=['cSport'], do_plot=False),
+
                  # Reduce overall beta to account for distancing, handwashing, etc
-                 cv.change_beta([initresponse, '2020-07-01'], [0.7, 0.75], do_plot=False), 
+                 cv.change_beta([initresponse], [0.14], do_plot=False), 
                  cv.change_beta(days=[lockdown, reopen2, reopen4, reopen5], 
                                 changes=[1.2, 1.1, 1., 0.9], 
                                 layers=['H'], do_plot=True),
