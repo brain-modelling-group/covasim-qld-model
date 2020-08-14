@@ -122,20 +122,22 @@ def plot_intervs(sim, labels=True):
 
     color = [0, 0, 0]
     mar23 = sim.day('2020-03-23')
+    apr04 = sim.day('2020-04-03')
     may01 = sim.day('2020-05-01')
     jul10 = sim.day('2020-07-10')
     aug05 = sim.day('2020-08-05')
 
-    for day in [mar23, may01, jul10, aug05]:
+    for day in [mar23, apr04, may01, jul10, aug05]:
         pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
 
     if labels:
         yl = pl.ylim()
         labely = yl[1]*0.95
         pl.text(mar23-20, labely, 'Lockdown',               color=color, alpha=0.9, style='italic')
+        pl.text(apr04+1,  labely, '\nQLD \nborder \nclosed',  color=color, alpha=0.9, style='italic')
         pl.text(may01+1,  labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul10+1,  labely, 'QLD \nborder \nopen',    color=color, alpha=0.9, style='italic')
-        pl.text(aug05+1,  labely, 'QLD \nborder \nclosed',  color=color, alpha=0.9, style='italic')
+        pl.text(jul10+1,  labely, '\nQLD \nborder \nopen',    color=color, alpha=0.9, style='italic')
+        pl.text(aug05+1,  labely, '\nQLD \nborder \nclosed',  color=color, alpha=0.9, style='italic')
     return
 
 # Fonts and sizes
@@ -177,7 +179,7 @@ ax2 = pl.axes([x0, y0, dx, dy])
 #format_ax(ax2, sim)
 @ticker.FuncFormatter
 def date_formatter(x, pos):
-    return (dt.date(2020,7,1) + dt.timedelta(days=x)).strftime('%b-%d')
+    return (dt.date(2020,7,28) + dt.timedelta(days=x)).strftime('%b-%d')
 ax2.xaxis.set_major_formatter(date_formatter)
 sc.commaticks()
 pl.xlim([0, 60])
@@ -218,7 +220,7 @@ ax5 = pl.axes([x0, y0, dx, dy])
 #format_ax(ax2, sim)
 @ticker.FuncFormatter
 def date_formatter(x, pos):
-    return (dt.date(2020,7,1) + dt.timedelta(days=x)).strftime('%b-%d')
+    return (dt.date(2020,7,28) + dt.timedelta(days=x)).strftime('%b-%d')
 ax5.xaxis.set_major_formatter(date_formatter)
 sc.commaticks()
 pl.xlim([0, 60])
