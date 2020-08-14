@@ -32,7 +32,7 @@ diagprobs = []
 infprobs = []
 diagvals = []
 infvals = []
-number_of_runs = 200
+number_of_runs = 10
 
 for jb in julybetas:
     msim = sc.loadobj(f'{resultsfolder}/qld_scenarios_{int(jb*100)}.obj')
@@ -198,9 +198,9 @@ pl.legend(loc='upper left', frameon=False)
 
 x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, subplotheight
 ax3 = pl.axes([x0, y0, dx, dy])
-ax3.plot(range(80), diagprobs[0][:80], '-', lw=4, c=colors[0], alpha=1.0)
-ax3.plot(range(80), diagprobs[1][:80], '-', lw=4, c=colors[1], alpha=1.0)
-ax3.plot(range(80), diagprobs[2][:80], '-', lw=4, c=colors[2], alpha=1.0)
+ax3.plot(range(30), diagprobs[0][:30], '-', lw=4, c=colors[0], alpha=1.0)
+ax3.plot(range(30), diagprobs[1][:30], '-', lw=4, c=colors[1], alpha=1.0)
+ax3.plot(range(30), diagprobs[2][:30], '-', lw=4, c=colors[2], alpha=1.0)
 ax3.set_ylim(0,1)
 pl.ylabel('Probability of more\nthan n daily cases')
 sc.boxoff(ax=ax3)
