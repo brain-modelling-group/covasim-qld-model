@@ -62,19 +62,38 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  load_pop=load_pop)
 
     # Create beta policies
-    # Important dates
-    initresponse = '2020-03-15' # Physical distancing, handwashing -- ongoing
-    lockdown = '2020-03-22'
-    reopen1  = '2020-05-01' # Two adults allowed to visit a house
-    reopen2  = '2020-05-15' # Up to 5 adults can visit a house; food service and non-essential retail start to resume
-    reopen3  = '2020-06-22' # Pubs open, plus more social activities
-    reopen4  = '2020-06-30' # large events, cinemas, museums, open; fewer restrictions on cafes/pubs/etc,
-    reopen5  = '2020-07-10' # regional travel open,
-    school_dates = ['2020-05-11', '2020-05-18', '2020-06-25']
-    closeborders='2020-08-05'
+    # Important dates -- lockdown start dates
+    response00 = '2020-03-15' # Physical distancing, handwashing -- ongoing
+    response01 = '2020-03-19' # Outdoors restricted to < 200 ppl
+    response02 = '2020-03-21' # Enahnced screening and distancing within age care facilities
+    lockdown00 = '2020-03-23' # Lockdown starts, churches close, restaurants/pubs close
+                              # cSports cancelled, entratianment, large-events, pSports
+    lockdown01 = '2020-03-25' # noncovid health services close - C-layer
+    lockdown02 = '2020-03-26' # retail close - C layer
 
-    beta_ints = [cv.clip_edges(days=[initresponse,lockdown]+school_dates, 
-                               changes=[0.75, 0.05, 0.8, 0.9, 0.9], 
+    parks00 = '2020-04-03' # national parks close - public parks
+
+    borders00 = '2020-04-03'  # Borders shut to all state
+    beach00 = '2020-04-07'    # Beaches closes
+    
+    # relaxation dates 
+    outdoors = '2020-03-30'   # Outdoors ok < 2 ppl
+    beach01 = '2020-04-20'    # Beaches ok <2 ppl
+    parks01 = '2020-05-01'    # national parks open
+    church00 = '2020-05-16'   # Church 4sqm rule, 
+    beach02 = '2020-05-16'    # Beaches ok <10 ppl
+
+
+    
+    reopen01 = '2020-06-01' # reopen cSports, cinemas, social, beach, psport, shopping 
+    reopen02 = '2020-06-15' # noncovid health services open
+    reopen03 = '2020-06-01' # Pubs open, plus more social activities
+    reopen05 = '2020-07-10' # regional travel open,
+    schools  = ['2020-03-30', '2020-05-25']
+    border00 ='2020-08-05'  # effective border closure NSW, VIC, ACT
+
+    beta_ints = [cv.clip_edges(days=[response00, response01]+school_dates, 
+                               changes=[0.75, 0.7, 0.05, 0.9], 
                                layers=['S'], do_plot=False),
                  cv.clip_edges(days=[lockdown, reopen2, reopen3, reopen4], 
                                changes=[0.3, 0.4, 0.5, 0.55], 
@@ -87,7 +106,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                layers=['cSport'], do_plot=False),
 
                  # Reduce overall beta to account for distancing, handwashing, etc
-                 cv.change_beta([initresponse], [0.14], do_plot=False), 
+                 cv.change_beta([response], [0.14], do_plot=False), 
                  cv.change_beta(days=[lockdown, reopen2, reopen4, reopen5], 
                                 changes=[1.2, 1.1, 1., 0.9], 
                                 layers=['H'], do_plot=True),
