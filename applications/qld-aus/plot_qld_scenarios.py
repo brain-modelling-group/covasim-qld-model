@@ -36,8 +36,8 @@ number_of_runs = 200
 
 for jb in julybetas:
     msim = sc.loadobj(f'{resultsfolder}/qld_scenarios_{int(jb*100)}.obj')
-    diagprobs.append([len([i for i in range(num_sim_runs) if msim.sims[i].results['new_diagnoses'].values[-1]>j])/num_sim_runs for j in range(500)])
-    infprobs.append([len([i for i in range(num_sim_runs) if msim.sims[i].results['n_exposed'].values[-1]>j])/num_sim_runs for j in range(6000)])
+    diagprobs.append([len([i for i in range(number_of_runs) if msim.sims[i].results['new_diagnoses'].values[-1]>j])/number_of_runs for j in range(500)])
+    infprobs.append([len([i for i in range(number_of_runs) if msim.sims[i].results['n_exposed'].values[-1]>j])/number_of_runs for j in range(6000)])
     diagvals.append(msim.sims[0].results['new_diagnoses'].values[-60:])
     infvals.append(msim.sims[0].results['n_exposed'].values[-60:])
     msim.reduce()
