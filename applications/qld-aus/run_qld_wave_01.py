@@ -71,82 +71,101 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     lockdown01 = '2020-03-25' # noncovid health services close - C-layer
     lockdown02 = '2020-03-26' # retail close - C layer
 
-    parks00 = '2020-04-03' # national parks close - public parks
+    parks00 = '2020-04-03' # National parks close - public parks
 
     borders00 = '2020-04-03'  # Borders shut to all state
-    beach00 = '2020-04-07'    # Beaches closes
+    beach00   = '2020-04-07'  # Beaches closes
     
     # relaxation dates 
     outdoors = '2020-03-30'   # Outdoors ok < 2 ppl
-    beach01 = '2020-04-20'    # Beaches ok <2 ppl
-    parks01 = '2020-05-01'    # national parks open
+    beach01  = '2020-04-20'   # Beaches ok <2 ppl
+    parks01  = '2020-05-01'   # national parks open
     church00 = '2020-05-16'   # Church 4sqm rule, 
-    beach02 = '2020-05-16'    # Beaches ok <10 ppl
-
-
-    
+    beach02  = '2020-05-16'   # Beaches ok <10 ppl
+    # reopening dates
     reopen01 = '2020-06-01' # reopen cSports, cinemas, social, beach, psport, shopping 
     reopen02 = '2020-06-15' # noncovid health services open
+    reopne04 = '2020-07-03' # large events open
     reopen03 = '2020-06-01' # Pubs open, plus more social activities
     reopen05 = '2020-07-10' # regional travel open,
     schools  = ['2020-03-30', '2020-05-25']
+    # shut borders again
     border00 ='2020-08-05'  # effective border closure NSW, VIC, ACT
 
     beta_ints = [cv.clip_edges(days=[response00, response01]+school_dates, 
                                changes=[0.75, 0.7, 0.05, 0.9], 
                                layers=['S'], do_plot=False),
-                 cv.clip_edges(days=[lockdown, reopen2, reopen3, reopen4], 
-                               changes=[0.3, 0.4, 0.5, 0.55], 
+                 
+                 cv.clip_edges(days=[response00, lockdown00, lockdown01, lockdown02, reopen01], 
+                               changes=[0.9, 0.4, 0.3, 0.2, 0.5], 
                                layers=['W'], do_plot=False),
+                 
                  cv.clip_edges(days=[lockdown, reopen2, reopen4, closeborders], 
                                changes=[0, 0.5, 0.7, 0.6], 
                                layers=['pSport'], do_plot=False),
+                 
                  cv.clip_edges(days=[lockdown, '2020-06-30'],
                                changes=[0, 0.7], 
                                layers=['cSport'], do_plot=False),
 
                  # Reduce overall beta to account for distancing, handwashing, etc
-                 cv.change_beta([response], [0.14], do_plot=False), 
+                 cv.change_beta([response00], [0.14], do_plot=False), 
+                 
                  cv.change_beta(days=[lockdown, reopen2, reopen4, reopen5], 
                                 changes=[1.2, 1.1, 1., 0.9], 
                                 layers=['H'], do_plot=True),
-                 cv.change_beta(days=[lockdown, reopen2], 
-                                changes=[0, 0.7], 
+                 
+                 cv.change_beta(days=[lockdown00, church00], 
+                                changes=[0.0, 0.6], 
                                 layers=['church'], do_plot=False),
+                 
                  cv.change_beta(days=[lockdown, reopen1, reopen2, reopen3, reopen4], 
                                 changes=[0.0, 0.3, 0.4, 0.5, 0.6], 
                                 layers=['social'], do_plot=False),
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
+                 
                  cv.change_beta(days=[lockdown], 
                                 changes=[0.5], 
                                 layers=['C'], do_plot=True),
+                 
                  cv.change_beta(days=[lockdown, reopen4], 
                                 changes=[0, 0.5], 
                                 layers=['entertainment'], do_plot=False),
+                 
                  cv.change_beta(days=[lockdown, reopen2], 
                                 changes=[0, 0.5], 
                                 layers=['cafe_restaurant'], do_plot=False),
+                 
                  cv.change_beta(days=[lockdown, reopen3, reopen4], 
                                 changes=[0, 0.4, 0.5], 
                                 layers=['pub_bar'], do_plot=False),
+                 
                  cv.change_beta(days=[lockdown, reopen5, closeborders], 
                                 changes=[0.2, 0.3, 0.00], 
                                 layers=['transport'], do_plot=False),
+                 
                  cv.change_beta(days=[lockdown, reopen4, reopen5], 
                                 changes=[0.1, 0.5, 0.6], 
                                 layers=['public_parks'], do_plot=False),
-                 cv.change_beta(days=[lockdown, reopen4], 
+                 
+                 cv.change_beta(days=[response01, reopen04], 
                                 changes=[0.0, 0.5], 
                                 layers=['large_events'], do_plot=False),
                  ]
 
     if whattorun == 'scenarios':
         # Approximate a mask intervention by changing beta in all layers where people would wear masks - assuming not in schools, sport, social gatherings, or home
-        beta_ints += [cv.change_beta(days=['2020-07-31']*10, changes=[julybetas]*10,
-                                     layers=['W', 'C', 'church',
-                                             'entertainment','cafe_restaurant',
-                                             'pub_bar','transport','public_parks','large_events'])
+        beta_ints += [cv.change_beta(days=['2020-08-21']*10, changes=[julybetas]*10,
+                                     layers=['W', 
+                                             'C', 
+                                             'church',
+                                             'entertainment',
+                                             'cafe_restaurant',
+                                             'pub_bar',
+                                             'transport',
+                                             'public_parks',
+                                             'large_events'])
                      ]
 
     sim.pars['interventions'].extend(beta_ints)
