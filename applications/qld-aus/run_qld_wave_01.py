@@ -70,22 +70,23 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                               # cSports cancelled, entratianment, large-events, pSports
     lockdown01 = '2020-03-25' # noncovid health services close - C-layer
     lockdown02 = '2020-03-26' # retail close - C layer
-    parks00 = '2020-04-03' # National parks close - public parks
+    parks00   = '2020-04-03' # National parks close - public parks
     borders00 = '2020-04-03'  # Borders shut to all state
     beach00   = '2020-04-07'  # Beaches closes
     
     # relaxation dates 
-    outdoors = '2020-03-30'   # Outdoors ok < 2 ppl
-    beach01  = '2020-04-20'   # Beaches ok <2 ppl
-    parks01  = '2020-05-01'   # national parks open
-    church00 = '2020-05-16'   # Church 4sqm rule, 
-    beach02  = '2020-05-16'   # Beaches ok <10 ppl
+    outdoor00 = '2020-03-30'   # Outdoors ok < 2 ppl
+    beach01   = '2020-04-20'   # Beaches ok <2 ppl
+    parks01   = '2020-05-01'   # national parks open
+    church00  = '2020-05-16'   # Church 4sqm rule, 
+    outdoor01 = '2020-05-16'   # outdoor ok <10 ppl
+    beach02   = '2020-05-16'   # Beaches ok <10 ppl
     # reopening dates
     reopen01 = '2020-06-01' # reopen cSports, cinemas, social, beach, psport, shopping 
     reopen02 = '2020-06-15' # noncovid health services open
     reopne03 = '2020-07-03' # large events open
     borders01 = '2020-07-10' # regional travel open,
-    schools  = ['2020-03-30', '2020-05-25']
+    schools   = ['2020-03-30', '2020-05-25']
     # shut borders again
     border02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
 
@@ -108,8 +109,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  # Reduce overall beta to account for distancing, handwashing, etc
                  cv.change_beta([response00, reopen01], [0.14, 0.7], do_plot=False), 
                  
-                 cv.change_beta(days=[lockdown00, reopen01, reopen02, reopen03], 
-                                changes=[1.2, 1.1, 1., 0.9], 
+                 cv.change_beta(days=[lockdown00, reopen01, reopen02], 
+                                changes=[1.2, 1.1, 1.], 
                                 layers=['H'], do_plot=True),
                  
                  cv.change_beta(days=[lockdown00, church00], 
@@ -122,8 +123,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
                  
-                 cv.change_beta(days=[lockdown], 
-                                changes=[0.5], 
+                 cv.change_beta(days=[response01, ], 
+                                changes=[0.7], 
                                 layers=['C'], do_plot=True),
                  
                  cv.change_beta(days=[lockdown, reopen4], 
