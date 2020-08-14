@@ -90,7 +90,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     # shut borders again
     border02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
 
-    beta_ints = [cv.clip_edges(days=[response00, response01]+school_dates, 
+    beta_ints = [cv.clip_edges(days=[response00, response01]+schools, 
                                changes=[0.75, 0.7, 0.05, 0.9], 
                                layers=['S'], do_plot=False),
                  
@@ -230,7 +230,7 @@ if __name__ == '__main__':
     domulti = True
     doplot = False
     dosave = True
-    number_of_runs = 200
+    number_of_runs = 10
 
     # Filepaths
     inputsfolder = 'inputs'
