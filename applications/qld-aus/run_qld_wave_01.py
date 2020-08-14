@@ -70,9 +70,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                               # cSports cancelled, entratianment, large-events, pSports
     lockdown01 = '2020-03-25' # noncovid health services close - C-layer
     lockdown02 = '2020-03-26' # retail close - C layer
-
     parks00 = '2020-04-03' # National parks close - public parks
-
     borders00 = '2020-04-03'  # Borders shut to all state
     beach00   = '2020-04-07'  # Beaches closes
     
@@ -85,12 +83,11 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     # reopening dates
     reopen01 = '2020-06-01' # reopen cSports, cinemas, social, beach, psport, shopping 
     reopen02 = '2020-06-15' # noncovid health services open
-    reopne04 = '2020-07-03' # large events open
-    reopen03 = '2020-06-01' # Pubs open, plus more social activities
-    reopen05 = '2020-07-10' # regional travel open,
+    reopne03 = '2020-07-03' # large events open
+    borders01 = '2020-07-10' # regional travel open,
     schools  = ['2020-03-30', '2020-05-25']
     # shut borders again
-    border00 ='2020-08-05'  # effective border closure NSW, VIC, ACT
+    border02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
 
     beta_ints = [cv.clip_edges(days=[response00, response01]+school_dates, 
                                changes=[0.75, 0.7, 0.05, 0.9], 
@@ -119,8 +116,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 changes=[0.0, 0.6], 
                                 layers=['church'], do_plot=False),
                  
-                 cv.change_beta(days=[lockdown, reopen1, reopen2, reopen3, reopen4], 
-                                changes=[0.0, 0.3, 0.4, 0.5, 0.6], 
+                 cv.change_beta(days=[lockdown00, reopen01, reopen02, reopen03], 
+                                changes=[0.0, 0.3, 0.4, 0.5], 
                                 layers=['social'], do_plot=False),
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
