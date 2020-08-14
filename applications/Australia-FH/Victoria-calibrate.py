@@ -7,8 +7,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Victoria']
     # the name of the databook
-    db_name = 'input_data_Australia_FH'
-    epi_name = 'epi_data_Australia_FH'
+    db_name = 'input_data_Australia-FH'
+    epi_name = 'epi_data_Australia-FH'
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C', 'aged_care']
@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     # country-specific parameters
     user_pars = {'Victoria': {'pop_size': int(10e4),
-                               'beta': 0.027,
-                               'n_days': 200,
+                               'beta': 0.1,
+                               'n_days': 75,
                                'calibration_end': '2020-08-11'}}
 
     # the metapars for all countries and scenarios

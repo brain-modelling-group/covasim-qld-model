@@ -10,14 +10,14 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['NSW']
     # the name of the databook
-    db_name = 'input_data_Australia_FH'
-    epi_name = 'epi_data_Australia_FH'
+    db_name = 'input_data_Australia-FH'
+    epi_name = 'epi_data_Australia-FH'
 
-    # NSWecify layer keys to use
+    # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
-    # country-NSWecific parameters
+    # country-specific parameters
     user_pars = {'NSW': {'pop_size': int(10e4),
                                'beta': 0.033,
                                'n_days': 343,

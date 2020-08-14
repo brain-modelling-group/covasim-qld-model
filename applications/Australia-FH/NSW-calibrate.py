@@ -7,8 +7,8 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['NSW']
     # the name of the databook
-    db_name = 'input_data_Australia_FH'
-    epi_name = 'epi_data_Australia_FH'
+    db_name = 'input_data_Australia-FH'
+    epi_name = 'epi_data_Australia-FH'
 
     # specify layer keys to use
     all_lkeys = ['H', 'S', 'W', 'C']

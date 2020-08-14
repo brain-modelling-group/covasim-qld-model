@@ -10,17 +10,17 @@ if __name__ == "__main__":
     # the list of locations for this analysis
     locations = ['Victoria']
     # the name of the databook
-    db_name = 'input_data_Australia_FH'
-    epi_name = 'epi_data_Australia_FH'
+    db_name = 'input_data_Australia-FH'
+    epi_name = 'epi_data_Australia-FH'
 
     # Victoria specify layer keys to use
-    all_lkeys = ['H', 'S', 'W', 'C']
+    all_lkeys = ['H', 'S', 'W', 'C', 'aged_care']
     dynamic_lkeys = ['C']  # layers which update dynamically (subset of all_lkeys)
 
     # country-Victoria specific parameters
     user_pars = {'Victoria': {'pop_size': int(10e4),
-                               'beta': 0.027,
-                               'n_days': 343,
+                               'beta': 0.1,
+                               'n_days': 215,
                                'calibration_end': '2020-08-11'}}
 
     # the metapars for all countries and scenarios
@@ -29,7 +29,7 @@ if __name__ == "__main__":
                 'verbose': 1,
                 'rand_seed': 1}
 
-    mid_july = 173 # make this the key date
+    mid_july = 45 # make this the key date
     end_july = mid_july + 16
     mid_aug = end_july + 15
     end_aug = mid_aug + 15
