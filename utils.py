@@ -593,7 +593,7 @@ class limited_contact_tracing(cv.contact_tracing):
         if len(trace_from_inds):
             if len(trace_from_inds) > self.capacity:
                 trace_from_inds = trace_from_inds[cvu.choose(len(trace_from_inds),self.capacity)]
-            print(f'Tracing {len(trace_from_inds)}')
+            # print(f'Tracing {len(trace_from_inds)}')
 
             traceable_layers = {k: v for k, v in self.trace_probs.items() if v != 0.}  # Only trace if there's a non-zero tracing probability
             dynamic_traceable = {k: v for k, v in traceable_layers.items() if k in self.dynamic_layers}
