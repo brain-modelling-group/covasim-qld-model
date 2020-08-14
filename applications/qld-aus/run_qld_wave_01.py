@@ -123,8 +123,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
                  
-                 cv.change_beta(days=[response01, ], 
-                                changes=[0.7], 
+                 cv.change_beta(days=[response01, lockdown01, lockdown02, reopen01, reopen02], 
+                                changes=[0.7, 0.67, 0.6, 0.7, 0.8], 
                                 layers=['C'], do_plot=True),
                  
                  cv.change_beta(days=[lockdown, reopen4], 
