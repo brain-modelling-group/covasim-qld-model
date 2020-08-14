@@ -84,7 +84,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     # reopening dates
     reopen01 = '2020-06-01' # reopen cSports, cinemas, social, beach, psport, shopping 
     reopen02 = '2020-06-15' # noncovid health services open
-    reopne03 = '2020-07-03' # large events open
+    reopen03 = '2020-07-03' # large events open
     borders01 = '2020-07-10' # regional travel open,
     schools   = ['2020-03-30', '2020-05-25']
     # shut borders again
@@ -127,28 +127,28 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 changes=[0.7, 0.67, 0.6, 0.7, 0.8], 
                                 layers=['C'], do_plot=True),
                  
-                 cv.change_beta(days=[lockdown, reopen4], 
-                                changes=[0, 0.5], 
+                 cv.change_beta(days=[lockdown00, reopen01], 
+                                changes=[0.0, 0.8], 
                                 layers=['entertainment'], do_plot=False),
                  
-                 cv.change_beta(days=[lockdown, reopen2], 
-                                changes=[0, 0.5], 
+                 cv.change_beta(days=[lockdown00, reopen01], 
+                                changes=[0.0, 0.5], 
                                 layers=['cafe_restaurant'], do_plot=False),
                  
-                 cv.change_beta(days=[lockdown, reopen3, reopen4], 
-                                changes=[0, 0.4, 0.5], 
+                 cv.change_beta(days=[lockdown00, reopen01], 
+                                changes=[0.0, 0.5], 
                                 layers=['pub_bar'], do_plot=False),
                  
                  cv.change_beta(days=[lockdown, reopen5, closeborders], 
                                 changes=[0.2, 0.3, 0.00], 
                                 layers=['transport'], do_plot=False),
                  
-                 cv.change_beta(days=[lockdown, reopen4, reopen5], 
-                                changes=[0.1, 0.5, 0.6], 
+                 cv.change_beta(days=[parks00, parks01], 
+                                changes=[0.1, 0.5], 
                                 layers=['public_parks'], do_plot=False),
                  
-                 cv.change_beta(days=[response01, reopen04], 
-                                changes=[0.0, 0.5], 
+                 cv.change_beta(days=[lockdown00, reopen03], 
+                                changes=[0.0, 0.6], 
                                 layers=['large_events'], do_plot=False),
                  ]
 
