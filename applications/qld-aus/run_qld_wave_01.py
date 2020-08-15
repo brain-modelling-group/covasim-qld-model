@@ -214,7 +214,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                                         start_day=0, do_plot=False))
 
     # Close borders, then open them again to account for Victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [150, 164], 'vals': [2, 2]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [14, 150, 164], 'vals': [10, 2, 2]}}, do_plot=False))
     sim.initialize()
 
     return sim
