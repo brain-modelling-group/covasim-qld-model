@@ -107,7 +107,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                layers=['cSport'], do_plot=False),
 
                  # Reduce overall beta to account for distancing, handwashing, etc
-                 cv.change_beta([reopen01], [0.7], do_plot=False), 
+                 cv.change_beta([response00, response01, reopen01], [0.4, 0.2, 0.7], do_plot=False), 
                  
                  cv.change_beta(days=[lockdown00, reopen01, reopen02], 
                                 changes=[1.2, 1.1, 1.], 
