@@ -153,7 +153,7 @@ pl.figure(figsize=(24,15))
 
 # Plot locations
 ygaps = 0.06
-xgaps = 0.12
+xgaps = 0.06
 remainingy = 1-3*ygaps
 remainingx = 1-3*xgaps
 mainplotheight = remainingy/2
