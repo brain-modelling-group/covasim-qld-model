@@ -121,23 +121,27 @@ def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.02
 def plot_intervs(sim, labels=True):
 
     color = [0, 0, 0]
+    mar15 = sim.day('2020-03-15')
+    mar19 = sim.day('2020-03-19')
     mar23 = sim.day('2020-03-23')
     apr04 = sim.day('2020-04-03')
     may01 = sim.day('2020-05-01')
     jul10 = sim.day('2020-07-10')
     aug05 = sim.day('2020-08-05')
 
-    for day in [mar23, apr04, may01, jul10, aug05]:
+    for day in [mar15, mar19, mar23, apr04, may01, jul10, aug05]:
         pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
 
     if labels:
         yl = pl.ylim()
         labely = yl[1]*0.95
-        pl.text(mar23-20, labely, 'Lockdown',               color=color, alpha=0.9, style='italic')
-        pl.text(apr04+1,  labely, '\nQLD \nborder \nclosed',  color=color, alpha=0.9, style='italic')
-        pl.text(may01+1,  labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul10+1,  labely, '\nQLD \nborder \nopen',    color=color, alpha=0.9, style='italic')
-        pl.text(aug05+1,  labely, '\nQLD \nborder \nclosed',  color=color, alpha=0.9, style='italic')
+        pl.text(mar15, labely*1.15, 'Physical \ndistancing', bbox=dict(facecolor='#e5d210', alpha=0.5), color=color, alpha=0.9, style='italic')
+        pl.text(mar19+1, labely, 'Outdoors \nrestricted',  bbox=dict(facecolor='#e5ae10', alpha=0.7), color=color, alpha=0.9, style='italic')
+        pl.text(mar23+1, labely*0.92,  'Lockdown',  bbox=dict(facecolor='red', alpha=0.5), color=color, alpha=0.9, style='italic')
+        pl.text(apr04+1, labely*0.7, 'QLD \nborder \nclosed', bbox=dict(facecolor='red', alpha=0.7), color=color, alpha=0.9, style='italic')
+        pl.text(may01+1, labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
+        pl.text(jul10+1, labely, '\nQLD \nborder \nopen',    color=color, alpha=0.9, style='italic')
+        pl.text(aug05+1, labely, '\nQLD \nborder \nclosed',  color=color, alpha=0.9, style='italic')
     return
 
 # Fonts and sizes
@@ -148,8 +152,8 @@ pl.rcParams['font.size'] = font_size
 pl.figure(figsize=(24,15))
 
 # Plot locations
-ygaps = 0.03
-xgaps = 0.06
+ygaps = 0.06
+xgaps = 0.12
 remainingy = 1-3*ygaps
 remainingx = 1-3*xgaps
 mainplotheight = remainingy/2
@@ -172,7 +176,7 @@ data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 xx = data['new_cases'][36:-1]
 #import ipdb; ipdb.set_trace()
 pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], data['new_cases'][36:-1], c=color, label='epi data', lw=4, alpha=0.5)
-
+ax1.set_ylim([0, 100])
 #Plot diagnoses scenarios
 x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*3+1*mainplotheight+subplotheight, subplotwidth, subplotheight
 ax2 = pl.axes([x0, y0, dx, dy])
