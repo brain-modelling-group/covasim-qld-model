@@ -94,8 +94,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                changes=[0.75, 0.7, 0.05, 0.9], 
                                layers=['S'], do_plot=False),
                  
-                 cv.clip_edges(days=[response00, lockdown00, lockdown01, lockdown02, reopen01], 
-                               changes=[0.9, 0.4, 0.3, 0.2, 0.5], 
+                 cv.clip_edges(days=[response00, response01, lockdown00, lockdown01, lockdown02, reopen01], 
+                               changes=[0.9, 0.7, 0.4, 0.3, 0.2, 0.5], 
                                layers=['W'], do_plot=False),
                  
                  cv.clip_edges(days=[lockdown00, reopen01], 
@@ -117,8 +117,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 changes=[0.0, 0.6], 
                                 layers=['church'], do_plot=False),
                  
-                 cv.change_beta(days=[lockdown00, reopen01, reopen02, reopen03], 
-                                changes=[0.0, 0.3, 0.4, 0.5], 
+                 cv.change_beta(days=[response01, lockdown00, reopen01, reopen02, reopen03], 
+                                changes=[0.4, 0.0, 0.3, 0.4, 0.5], 
                                 layers=['social'], do_plot=False),
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
