@@ -22,11 +22,7 @@ infprobs = []
 diagvals = []
 infvals = []
 layer_counts = []
-layer_remap = {'H': 0, 'S': 1, 'W': 2, 'church': 3, 'pSport': 3, 'cSport': 3, 'social': 3, 'C': 4, 'entertainment': 4,
-               'cafe_restaurant': 4, 'pub_bar': 4, 'transport': 4, 'public_parks': 4, 'large_events': 4,
-               'importation': 4}
-n_new_layers = 5  # H, S, W, DC, SC
-colors = sc.gridcolors(n_new_layers)
+#colors = sc.gridcolors(n_new_layers)
 
 # Load objects
 for i,jb in enumerate(maskbetas):
@@ -45,15 +41,8 @@ for i,jb in enumerate(maskbetas):
         sim = sims[0]
 
     # Now load the individual runs that contain the people for making transmission trees
-    sim = sc.loadobj(f'results/nsw_scenarios_{int(jb*100)}_single.obj')
-    tt = sim.make_transtree()
-    layer_keys = list(sim.people.layer_keys()) + ['importation']
-    layer_counts.append(np.zeros((sim.npts, n_new_layers)))
-    for source_ind, target_ind in tt.transmissions:
-        dd = tt.detailed[target_ind]
-        date = dd['date']
-        layer_num = layer_remap[dd['layer']]
-        layer_counts[-1][date, layer_num] += sim.rescale_vec[date]
+    tlc = sc.loadobj(f'results/nsw_layer_counts_{int(jb*100)}.obj')
+    layer_counts.append(tlc)
 
 # Sum transmission by layer over the relevant date ranges
 jun01 = cv.date('2020-06-01')
