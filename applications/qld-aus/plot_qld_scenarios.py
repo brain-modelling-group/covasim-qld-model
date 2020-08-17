@@ -32,7 +32,7 @@ diagprobs = []
 infprobs = []
 diagvals = []
 infvals = []
-number_of_runs = 10
+number_of_runs = 100
 
 for jb in julybetas:
     msim = sc.loadobj(f'{resultsfolder}/qld_scenarios_{int(jb*100)}.obj')
