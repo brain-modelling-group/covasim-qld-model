@@ -82,6 +82,7 @@ def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.02
         best = sims[chooseseed].results[key].values
     low  = pl.quantile(yarr, q=low_q, axis=0)
     high = pl.quantile(yarr, q=high_q, axis=0)
+    halfsies = pl.quantile(yarr, q=0.5, axis=0)
 
     sim = sims[0] # For having a sim to refer to
 
@@ -103,7 +104,8 @@ def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.02
     else:
         fill_label = None
     pl.fill_between(tvec[startday:end], low[startday:end], high[startday:end], facecolor=color, alpha=0.2, label=fill_label)
-    pl.plot(tvec[startday:end], best[startday:end], c=color, label=label, lw=4, alpha=1.0)
+    pl.plot(tvec[startday:end], halfsies[startday:end], c=color, label=label, lw=4, alpha=1.0)
+    pl.plot(tvec[startday:end], best[startday:end], c=color, label=label, ls='-.', lw=1, alpha=1.0)
 
     sc.setylim()
 
@@ -140,8 +142,8 @@ def plot_intervs(sim, labels=True):
         pl.text(mar23+1, labely*0.92,  'Lockdown',  bbox=dict(facecolor='red', alpha=0.5), color=color, alpha=0.9, style='italic')
         pl.text(apr04+1, labely*0.7, 'QLD \nborder \nclosed', bbox=dict(facecolor='red', alpha=0.7), color=color, alpha=0.9, style='italic')
         pl.text(may01+1, labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul10+1, labely, '\nQLD \nborder \nopen',    color=color, alpha=0.9, style='italic')
-        pl.text(aug05+1, labely, '\nQLD \nborder \nclosed',  color=color, alpha=0.9, style='italic')
+        pl.text(jul10+1, labely, '\nQLD \nborder \nopen',  color=color, alpha=0.9, style='italic')
+        pl.text(aug05+1, labely, '\nQLD \nborder \nclosed', color=color, alpha=0.9, style='italic')
     return
 
 # Fonts and sizes
