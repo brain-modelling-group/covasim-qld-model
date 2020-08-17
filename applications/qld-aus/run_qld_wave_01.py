@@ -70,7 +70,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                               # cSports cancelled, entratianment, large-events, pSports
     lockdown01 = '2020-03-25' # noncovid health services close - C-layer
     lockdown02 = '2020-03-26' # retail close - C layer
-    parks00   = '2020-04-03' # National parks close - public parks
+    parks00   = '2020-04-03'  # National parks close - public parks
     borders00 = '2020-04-03'  # Borders shut to all state
     beach00   = '2020-04-07'  # Beaches closes
     
@@ -107,7 +107,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                layers=['cSport'], do_plot=False),
 
                  # Reduce overall beta to account for distancing, handwashing, etc
-                 cv.change_beta([response00, response01, reopen01], [0.4, 0.2, 0.7], do_plot=False), 
+                 cv.change_beta([response00, response01, reopen01], [0.9, 0.8, 0.9], do_plot=False), 
                  
                  cv.change_beta(days=[lockdown00, reopen01, reopen02], 
                                 changes=[1.2, 1.1, 1.], 
