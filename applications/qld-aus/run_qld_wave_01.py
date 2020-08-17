@@ -19,7 +19,7 @@ import sciris as sc
 
 
 def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None):
-
+    start_day = '2020-03-01'
     layers = ['H', 'S', 'W', 'C', 
               'church', 
               'pSport', 
@@ -50,8 +50,8 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
             'beta_layer':  pd.Series([1,    0.3,    0.2,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,  0,      0,      0.1,    0,      0,      0,      0,      0,      0,      0,      0,      0,      0], index=layers).to_dict(),
             'quar_factor': pd.Series([1,    0.1,    0.1,    0.2,    0.01,   0,      0,      0,      0,      0,      0.1 ,   0,      0,      0], index=layers).to_dict(),
-            'n_imports': 0.02, # Number of new cases to import per day -- varied over time as part of the interventions
-            'start_day': '2020-03-01',
+            'n_imports': 0.1, # Number of new cases to import per day -- varied over time as part of the interventions
+            'start_day': start_day,
             'end_day': end_day,
             'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
             'verbose': .1}
@@ -91,11 +91,11 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     borders02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
 
     beta_ints = [cv.clip_edges(days=[response00, response01]+schools, 
-                               changes=[0.75, 0.7, 0.05, 0.9], 
+                               changes=[0.95, 0.85, 0.05, 0.9], 
                                layers=['S'], do_plot=False),
                  
                  cv.clip_edges(days=[response00, response01, lockdown00, lockdown01, lockdown02, reopen01], 
-                               changes=[0.9, 0.7, 0.4, 0.3, 0.2, 0.5], 
+                               changes=[0.95, 0.8, 0.4, 0.3, 0.2, 0.5], 
                                layers=['W'], do_plot=False),
                  
                  cv.clip_edges(days=[lockdown00, reopen01], 
@@ -118,13 +118,13 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 layers=['church'], do_plot=False),
                  
                  cv.change_beta(days=[lockdown00, reopen01, reopen02, reopen03], 
-                                changes=[0.0, 0.3, 0.4, 0.5], 
+                                changes=[0.1, 0.3, 0.4, 0.5], 
                                 layers=['social'], do_plot=False),
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
                  
-                 cv.change_beta(days=[response01, lockdown01, lockdown02, reopen01, reopen02, borders02], 
-                                changes=[0.7, 0.67, 0.6, 0.7, 0.8, 0.6], 
+                 cv.change_beta(days=[start_day, response01, lockdown01, lockdown02, reopen01, reopen02, borders02], 
+                                changes=[3.0, 0.7, 0.67, 0.6, 0.7, 0.8, 0.9], 
                                 layers=['C'], do_plot=True),
                  
                  cv.change_beta(days=[lockdown00, reopen01], 
@@ -132,7 +132,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 layers=['entertainment'], do_plot=False),
                  
                  cv.change_beta(days=[lockdown00, reopen01], 
-                                changes=[0.0, 0.5], 
+                                changes=[0.1, 0.7], 
                                 layers=['cafe_restaurant'], do_plot=False),
                  
                  cv.change_beta(days=[lockdown00, reopen01], 
@@ -140,7 +140,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                 layers=['pub_bar'], do_plot=False),
                  
                  cv.change_beta(days=[lockdown00, borders00, borders01, borders02], 
-                                changes=[0.7, 0.4, 0.5, 0.2], 
+                                changes=[0.5, 0.4, 0.5, 0.2], 
                                 layers=['transport'], do_plot=False),
                  
                  cv.change_beta(days=[outdoors00, parks00, parks01], 
@@ -214,7 +214,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
                                                         start_day=0, do_plot=False))
 
     # Close borders, then open them again to account for Victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [14, 150, 164], 'vals': [10, 2, 2]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [150, 155, 164], 'vals': [2, 0.5, 0.1]}}, do_plot=False))
     sim.initialize()
 
     return sim
@@ -230,7 +230,7 @@ if __name__ == '__main__':
     domulti = True
     doplot = False
     dosave = True
-    number_of_runs = 10
+    number_of_runs = 100
 
     # Filepaths
     inputsfolder = 'inputs'
@@ -266,7 +266,7 @@ if __name__ == '__main__':
                           axis_args={'hspace': 0.4}, 
                           interval=21)
         elif whattorun == 'scenarios':
-            julybetas = [0.05, 0.1, 0.15]
+            julybetas = [0.15, 0.2, 1.0]
             for jb in julybetas:
                 sim = make_sim(whattorun, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)
