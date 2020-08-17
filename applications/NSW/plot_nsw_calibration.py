@@ -96,7 +96,7 @@ def plot_intervs(sim, labels=True):
     mar23 = sim.day('2020-03-23')
     may01 = sim.day('2020-05-01')
     jul07 = sim.day('2020-07-07')
-    for day in [mar23, may01]:
+    for day in [mar23, may01, jul07]:
         pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
 
     if labels:

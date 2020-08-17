@@ -139,26 +139,61 @@ if domulti:
         if doplot:
             msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
                   legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
+
+
     elif whattorun == 'scenarios':
 
         # Calculation of the mask_beta_change is (1-maskuptake)*0.7 + maskuptake*0.7*maskeff
         # Using values of maskuptake in [0, 0.5, 0.7] and maskeff in [0.05, 0.1, 0.2], this gives values in the range [0.6, 0.7]
         mask_beta_change = [0.6, 0.65, 0.7]
+        layer_counts = []
+        layer_remap = {'H': 0, 'S': 1, 'W': 2, 'church': 3, 'pSport': 3, 'cSport': 3, 'social': 3, 'C': 4,
+                       'entertainment': 4,
+                       'cafe_restaurant': 4, 'pub_bar': 4, 'transport': 4, 'public_parks': 4, 'large_events': 4,
+                       'importation': 4}
+        n_new_layers = 5  # H, S, W, DC, SC
+
         for jb in mask_beta_change:
             sim = make_sim(whattorun, mask_beta_change=jb, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)
             msim.run(n_runs=100, reseed=True, noise=0)
-            if dosave: msim.save(f'{resultsfolder}/nsw_{whattorun}_{int(jb*100)}.obj')
+
+            for sim in msim.sims:
+                tt = sim.make_transtree()
+                layer_keys = list(sim.people.layer_keys()) + ['importation']
+                layer_counts = np.zeros((sim.npts, n_new_layers))
+                for source_ind, target_ind in tt.transmissions:
+                    dd = tt.detailed[target_ind]
+                    date = dd['date']
+                    layer_num = layer_remap[dd['layer']]
+                    layer_counts[date, layer_num] += sim.rescale_vec[date]
+
+            if dosave:
+                msim.save(f'{resultsfolder}/nsw_{whattorun}_{int(jb*100)}.obj')
+                sc.saveobj(f'{resultsfolder}/nsw_layer_counts_{int(jb*100)}.obj', layer_counts)
+
             if doplot:
                 msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}_{int(jb*100)}.png',
                       legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
 else:
-    sim = make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
-    sim.run()
-    if dosave: sim.save(f'{resultsfolder}/nsw_{whattorun}.obj')
-    if doplot:
-        sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
-                 legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
 
+    if whattorun == 'calibration':
+        sim = make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
+        sim.run(keep_people=True)
+        if dosave: sim.save(f'{resultsfolder}/nsw_{whattorun}_single.obj',keep_people=True)
+        if doplot:
+            sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
+                  legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
+    elif whattorun == 'scenarios':
+        # Calculation of the mask_beta_change is (1-maskuptake)*0.7 + maskuptake*0.7*maskeff
+        # Using values of maskuptake in [0, 0.5, 0.7] and maskeff in [0.05, 0.1, 0.2], this gives values in the range [0.6, 0.7]
+        mask_beta_change = [0.6, 0.65, 0.7]
+        for jb in mask_beta_change:
+            sim = make_sim(whattorun, mask_beta_change=jb, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
+            sim.run(keep_people=True)
+            if dosave: sim.save(f'{resultsfolder}/nsw_{whattorun}_{int(jb*100)}_single.obj',keep_people=True)
+            if doplot:
+                sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}_{int(jb*100)}.png',
+                      legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
 
 sc.toc(T)
