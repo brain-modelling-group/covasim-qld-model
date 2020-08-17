@@ -169,11 +169,13 @@ if domulti:
                     all_layer_counts[jb][sn, date, layer_num] += sim.rescale_vec[date]
 
             if dosave: msim.save(f'{resultsfolder}/nsw_{whattorun}_{int(jb*100)}.obj')
-        if dosave: sc.saveobj(f'{resultsfolder}/nsw_layer_counts_{int(jb*100)}.obj', all_layer_counts)
 
             if doplot:
                 msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}_{int(jb*100)}.png',
                       legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=21)
+
+        if dosave: sc.saveobj(f'{resultsfolder}/nsw_layer_counts_{int(jb*100)}.obj', all_layer_counts)
+
 else:
 
     if whattorun == 'calibration':
