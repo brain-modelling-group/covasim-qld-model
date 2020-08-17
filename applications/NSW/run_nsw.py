@@ -156,7 +156,7 @@ if domulti:
         for jb in mask_beta_change:
             sim = make_sim(whattorun, mask_beta_change=jb, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)
-            msim.run(n_runs=100, reseed=True, noise=0)
+            msim.run(n_runs=100, reseed=True, noise=0, keep_people=True)
 
             for sim in msim.sims:
                 tt = sim.make_transtree()
