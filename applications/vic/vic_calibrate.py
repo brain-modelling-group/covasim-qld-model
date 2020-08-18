@@ -25,15 +25,16 @@ if __name__ == '__main__':
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
     n_days = 90 # Total simulation duration (days)
-    n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
-    seeded_cases = {5:20}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.009 # Overall beta
-    extra_tests = 4000  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
-    symp_test = 200  # People with symptoms are this many times more likely to be tested
-    n_runs = 5  # Number of simulations to run
-    tracing_capacity = 400 # People per day that can be traced. Household contacts are always all immediately notified
-    pop_size = 2e5  # Number of agents
+    n_imports = 6  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
+    seeded_cases = {3:0}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
+    beta = 0.034 # Overall beta
+    extra_tests = 100  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
+    symp_test = 100  # People with symptoms are this many times more likely to be tested
+    n_runs = 8  # Number of simulations to run
+    pop_size = 1e5  # Number of agents
+    tracing_capacity = 14 * (pop_size/1e5)  # People per day that can be traced (dependent on pop_size). Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
+    scale_tests = 8 # Multiplicative factor for scaling tests by population proportion
 
 
     # 2 - LOAD DATA AND CREATE SIM
@@ -48,7 +49,7 @@ if __name__ == '__main__':
     user_pars = {location: {'pop_size': int(pop_size),
                             'pop_infected': 0, # Start with zero infections
                             'pop_scale': 1,
-                            'rescale': 0,
+                            'rescale': 1,
                             'beta': beta,
                             'n_days': n_days,
                             'calibration_end': None,
@@ -85,9 +86,9 @@ if __name__ == '__main__':
     params.extrapars['symp_test'] = symp_test
 
     # Uncomment section below to use population scaling
-    # params.pars['pop_scale'] = int(4.9e6 / params.pars['pop_size'])
-    # params.pars['rescale'] = True
-    # params.pars['rescale_threshold'] = 0.1
+    params.pars['pop_scale'] = int(4.9e6 / params.pars['pop_size'])
+    params.pars['rescale'] = True
+    params.pars['rescale_threshold'] = 0.05
 
     # Make people
     cv.set_seed(1) # Seed for population generation
@@ -140,7 +141,7 @@ if __name__ == '__main__':
     beta_schedule.add('outdoor2', jul2)
     beta_schedule.add('cSports', jul2)
 
-    #beta_schedule.add('masks', jul23)
+    beta_schedule.add('masks', jul23)
 
     beta_schedule.add('stage4', aug6)
 
@@ -186,6 +187,7 @@ if __name__ == '__main__':
     interventions.append(utils.SeedInfection(seeded_cases))
 
     # Add probability-based testing interventions
+    '''
     interventions.append(cv.test_prob(
         symp_prob=0.1,
         asymp_prob=0.01,
@@ -201,6 +203,7 @@ if __name__ == '__main__':
         asymp_quar_prob=0.01,
         start_day=21,
     ))
+    '''
 
 
     # Add number-based testing interventions
@@ -208,9 +211,10 @@ if __name__ == '__main__':
     tests['day'] = tests['Date'].map(sim.day)
     tests.set_index('day',inplace=True)
     tests = tests.loc[tests.index >= 0]['vic'].dropna().astype(int)
-    tests = tests*(sim.n/4.9e6)  # Approximately scale to number of simulation agents - this might need to be changed!
+    tests = tests*scale_tests*(sim.n/4.9e6)  # Approximately scale to number of simulation agents - this might need to be changed!
     coeffs = np.polyfit(tests.index, tests.values, 1)
     tests_per_day = np.arange(params.pars["n_days"]+1)*coeffs[0]+coeffs[1]
+    #tests_per_day = tests.values
 
     interventions.append(cv.test_num(daily_tests=extra_tests+tests_per_day,
                                                  symp_test=params.extrapars['symp_test'],
@@ -314,7 +318,7 @@ if __name__ == '__main__':
         tests['day'] = tests['Date'].map(sim.day)
         tests.set_index('day', inplace=True)
         tests = tests.loc[tests.index >= 0]['vic'].astype(float)
-        tests = tests * (sim.n / 4.9e6)  # Approximately scale to number of simulation agents
+        tests = tests * scale_tests * (sim.n / 4.9e6)  # Approximately scale to number of simulation agents
         ax.scatter(tests.index, tests.values, color='k')
         ax.set_title('Daily tests')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
@@ -327,10 +331,10 @@ if __name__ == '__main__':
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
         ax.locator_params('x',nbins=4)
 
-    def plot_active_infections(ax):
+    def plot_daily_infections(ax):
         for result in results:
-            ax.plot(result['t'], result['n_infectious'], color='b', alpha=0.1)
-        ax.set_title('Active infections')
+            ax.plot(result['t'], result['new_infections'], color='b', alpha=0.1)
+        ax.set_title('Daily new infections')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
         ax.locator_params('x',nbins=4)
 
@@ -360,7 +364,11 @@ if __name__ == '__main__':
     plot_cum_infections(ax[0][2])
 
     plot_daily_tests(ax[1][0])
-    plot_active_infections(ax[1][1])
+    plot_daily_infections(ax[1][1])
     plot_severe_infections(ax[1][2])
+
+    plt.savefig('vic_calibrate.png')
+    plt.show()
+
 
 
