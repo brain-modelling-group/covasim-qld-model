@@ -1,5 +1,6 @@
 from pathlib import Path
 import covasim as cv
+import covasim.utils as cvu
 import pandas as pd
 import contacts as co
 import data
@@ -87,14 +88,14 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
         'asymp_prob': 0.00,  # Someone who is asymptomatic has this probability of testing on any given day
         'symp_quar_prob': 1.0,  # Someone who is quarantining and has symptoms has this probability of testing on any given day
         'asymp_quar_prob': 0.0,
-        'test_delay': 3, # Number of days for test results to be processed
-        'swab_delay': 2, # Number of days people wait after symptoms before being tested
+        'test_delay': 3,  # Number of days for test results to be processed
+        'swab_delay': 2,  # Number of days people wait after symptoms before being tested
         'isolation_threshold': 0,
         'leaving_quar_prob': 0,
     }
 
     params.seed_infections = {1: n_infected}
-
+    params.extrapars['trace_capacity'] = 350
     del params.policies["tracing_policies"]['tracing_app']  # No app-based tracing since it doesn't seem to be having much effect
 
     return params
@@ -114,7 +115,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
 
     """
 
-    utils.set_rand_seed({'seed': seed})  # Set the seed before constructing the people
+    cvu.set_seed(seed)  # Set the seed before constructing the people
     params.pars['rand_seed'] = seed  # Covasim resets the seed again internally during initialization...
 
     if people is None:
@@ -131,7 +132,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
                  save_pop=False)
 
     # ADD DYNAMIC LAYERS INTERVENTION
-    sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys, contact_numbers=params.pars['contacts'], popdict=popdict))
+    sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys, contact_numbers=params.pars['contacts'], popdict=popdict, dispersion=params.layerchars['dispersion']))
 
     # SET TRACING
     sim.pars['interventions'].append(utils.SeedInfection(params.seed_infections))
@@ -158,9 +159,12 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     ))
 
     # SET TRACING
-    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=params.extrapars['trace_probs'],
-                                                        trace_time=params.extrapars['trace_time'],
-                                                        start_day=0))
+    sim.pars['interventions'].append(utils.limited_contact_tracing(trace_probs=params.extrapars['trace_probs'],
+                                                                   trace_time=params.extrapars['trace_time'],
+                                                                   start_day=0,
+                                                                   capacity=params.extrapars['trace_capacity'],
+                                                                   dynamic_layers=params.dynamic_lkeys))
+
     tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
     if tracing_app is not None:
         sim.pars['interventions'].append(tracing_app)
