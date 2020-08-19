@@ -9,7 +9,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
     layers = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'social']
 
     if whattorun == 'calibration':
-        end_day = '2020-09-20'
+        end_day = '2020-08-20'
     elif whattorun == 'scenarios':
         end_day = '2020-09-15'
         mask_beta_change = mask_beta_change
@@ -116,7 +116,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
 T = sc.tic()
 
 # Settings
-whattorun = ['calibration', 'scenarios'][1]
+whattorun = ['calibration', 'scenarios'][0]
 domulti = True
 doplot = False
 dosave = True

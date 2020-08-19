@@ -8,7 +8,7 @@ import datetime as dt
 import matplotlib.patches as patches
 
 # Filepaths
-resultsfolder = 'results'
+resultsfolder = 'results0819'
 figsfolder = 'figs'
 simsfilepath = f'{resultsfolder}/nsw_calibration.obj'
 addhist = False
@@ -32,7 +32,7 @@ def format_ax(ax, sim, key=None):
     sc.boxoff()
     return
 
-def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=0):
+def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=3):
 
     which = key.split('_')[1]
     try:
@@ -52,6 +52,8 @@ def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.02
     yarr = np.array(ys)
     if chooseseed is not None:
         best = sims[chooseseed].results[key].values
+    else:
+        best = pl.mean(yarr, axis=0)
     low  = pl.quantile(yarr, q=low_q, axis=0)
     high = pl.quantile(yarr, q=high_q, axis=0)
 
