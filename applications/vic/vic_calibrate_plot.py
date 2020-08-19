@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import parameters
 import data
 import matplotlib.ticker as ticker
+import user_interface as ui
 
 # Overall strategy
 # 1. Set key parameters for simulation and calibration
@@ -24,15 +25,15 @@ if __name__ == '__main__':
 
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
-    n_days = 90 # Total simulation duration (days)
-    n_imports = 5  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
+    n_days = 80 # Total simulation duration (days)
+    n_imports = 6  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:0}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.038 # Overall beta
+    beta = 0.034 # Overall beta
     extra_tests = 100  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 100  # People with symptoms are this many times more likely to be tested
-    n_runs = 8  # Number of simulations to run
+    n_runs = 4  # Number of simulations to run
     pop_size = 1e5  # Number of agents
-    tracing_capacity = 200  # People per day that can be traced. Household contacts are always all immediately notified
+    tracing_capacity = 300  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
     scale_tests = 8 # Multiplicative factor for scaling tests by population proportion
 
@@ -70,6 +71,7 @@ if __name__ == '__main__':
 
     loc_data = all_data
     loc_pars = user_pars[location]
+
 
     # setup parameters object for this simulation
     params = parameters.setup_params(location=location,
@@ -141,9 +143,9 @@ if __name__ == '__main__':
     #beta_schedule.add('outdoor2', jul2)
     #beta_schedule.add('cSports', jul2)
 
-    beta_schedule.add('masks', jul23)
+    #beta_schedule.add('masks', jul23)
 
-    beta_schedule.add('stage4', aug6)
+    #beta_schedule.add('stage4', aug6)
 
     interventions.append(beta_schedule)
 
@@ -235,12 +237,24 @@ if __name__ == '__main__':
     # Run using MultiSim
     if n_runs == 1:
         sim.run()
-        s = sim
+        s=sim
         results = [sim.results]
     else:
-        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=True, par_args={'ncpus': 4})
+        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=True, par_args={'ncpus':4})
         s.run()
         s.reduce()
+        #s.plot(to_plot=['new_infections', 'cum_infections', 'cum_diagnoses', 'cum_deaths'])
+        #utils.calibrate_plot(s, epi,plot_ints=False, do_save=True, do_show=True,
+        #      fig_path='vic_calibrate_test' + '.png',
+        #      interval=30, n_cols = 2,
+        #      fig_args=dict(figsize=(10, 5), dpi=100),
+        #      font_size=11,
+        #      #y_lim={'new_infections': 500},
+        #      legend_args={'loc': 'upper center', 'bbox_to_anchor': (1.0, -1.6)},
+        #      axis_args={'left': 0.1, 'wspace': 0.2,'right': 0.99, 'hspace': 0.4,'bottom': 0.15},
+        #      fill_args={'alpha': 0.3},
+        #      to_plot=['new_infections', 'cum_infections', 'new_diagnoses', 'cum_diagnoses', 'new_tests', 'cum_deaths'])
+        #results = [x.results for x in s.sims]
 
 
     ####### ANALYZE RESULTS
@@ -255,7 +269,7 @@ if __name__ == '__main__':
         cases.set_index('day', inplace=True)
         cases = cases.loc[cases.index >= 0]['vic'].astype(int).cumsum()
         ax.scatter(cases.index, cases.values, s=5, color='k')
-        after_lockdown = cases.index.values > 0
+        after_lockdown = cases.index.values>0
         ax.scatter(cases.index.values[after_lockdown], cases.values[after_lockdown], s=5, color='r')
         ax.axvline(x=jul2, color='grey', linestyle='--')
         ax.axvline(x=jul23, color='grey', linestyle='--')
@@ -266,38 +280,36 @@ if __name__ == '__main__':
         exponent = []
         for res in s.sims:
             diagnoses = res.results['cum_diagnoses'].values[:]
-            n_window = (diagnoses > 50) & (diagnoses < 2000)
-            if sum(n_window) > 4:
+            n_window = (diagnoses>50) & (diagnoses < 2000)
+            if sum(n_window)>4:
                 # Need enough data points to be able to produce a reasonable curve fit
                 x = s.base_sim.tvec[n_window]
                 y = diagnoses[n_window]
                 coeffs = np.polyfit(x, np.log(y), 1, w=np.sqrt(y))
                 exponent.append(coeffs[0])
             else:
-                exponent.append(0)  # Because it never reached 50 diagnoses
+                exponent.append(0) # Because it never reached 50 diagnoses
 
         # Fit exponential to data
         x = cases.index
         y = cases.values
         n_window = (y > 50) & (y < 2000)
         coeffs = np.polyfit(x[n_window], np.log(y[n_window]), 1, w=np.sqrt(y[n_window]))
-        # ax.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x),'k--', linewidth=1)
+        #ax.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x),'k--', linewidth=1)
 
-        ax.text(0.05, 0.9, f'Data exponent = {coeffs[0]:.4f}', transform=ax.transAxes)
-        ax.text(0.05, 0.80, f'Average model exponent = {np.mean(exponent):.4f}', transform=ax.transAxes)
+        ax.text(0.05,0.9,f'Data exponent = {coeffs[0]:.4f}', transform=ax.transAxes)
+        ax.text(0.05,0.80,f'Average model exponent = {np.mean(exponent):.4f}', transform=ax.transAxes)
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x', nbins=3)
-
+        ax.locator_params('x',nbins=4)
 
     def plot_cum_infections(ax):
         fill_args = {'alpha': 0.3}
         ax.fill_between(s.base_sim.tvec, s.results['cum_infections'].low, s.results['cum_infections'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['cum_infections'].values[:], color='b', alpha=0.1)
         ax.set_title('Cumulative infections')
-        #ax.hlines(params.pars['pop_size'], 0, s.base_sim.tvec[-1])
+        ax.hlines(params.pars['pop_size'], 0, s.base_sim.tvec[-1])
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x', nbins=3)
-
+        ax.locator_params('x',nbins=4)
 
     def plot_new_diagnoses(ax):
         fill_args = {'alpha': 0.3}
@@ -311,11 +323,10 @@ if __name__ == '__main__':
         cases = cases.loc[cases.index >= 0]['vic'].astype(int)
         ax.scatter(cases.index, cases.values, color='k')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x', nbins=3)
+        ax.locator_params('x',nbins=4)
         ax.axvline(x=jul2, color='grey', linestyle='--')
         ax.axvline(x=jul23, color='grey', linestyle='--')
         ax.axvline(x=aug6, color='grey', linestyle='--')
-
 
     def plot_daily_tests(ax):
         fill_args = {'alpha': 0.3}
@@ -330,8 +341,7 @@ if __name__ == '__main__':
         ax.scatter(tests.index, tests.values, color='k')
         ax.set_title('Daily tests')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x', nbins=3)
-
+        ax.locator_params('x',nbins=4)
 
     def plot_test_yield(ax):
         fill_args = {'alpha': 0.3}
@@ -339,17 +349,15 @@ if __name__ == '__main__':
         ax.plot(s.base_sim.tvec, s.results['test_yield'].values[:], color='b', alpha=0.1)
         ax.set_title('Test yield*')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x', nbins=3)
+        ax.locator_params('x',nbins=4)
 
-
-    def plot_active_cases(ax):
+    def plot_daily_infections(ax):
         fill_args = {'alpha': 0.3}
-        ax.fill_between(s.base_sim.tvec, s.results['n_infectious'].low, s.results['n_infectious'].high, **fill_args)
-        ax.plot(s.base_sim.tvec, s.results['n_infectious'].values[:], color='b', alpha=0.1)
+        ax.fill_between(s.base_sim.tvec, s.results['new_infections'].low, s.results['new_infections'].high, **fill_args)
+        ax.plot(s.base_sim.tvec, s.results['new_infections'].values[:], color='b', alpha=0.1)
         ax.set_title('Daily new infections')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x', nbins=3)
-
+        ax.locator_params('x',nbins=4)
 
     def plot_severe_infections(ax):
         fill_args = {'alpha': 0.3}
@@ -364,11 +372,10 @@ if __name__ == '__main__':
         hosp = hosp.loc[hosp.index >= 0]['vic'].astype(int)
         ax.scatter(hosp.index, hosp.values, color='k')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x', nbins=3)
+        ax.locator_params('x',nbins=4)
 
-
-    fig, ax = plt.subplots(3, 2)
-    fig.set_size_inches(8, 11)
+    fig, ax = plt.subplots(2,3)
+    fig.set_size_inches(20, 8)
 
     titlestr = f'{n_imports} imported cases per day, seeded {seeded_cases}'
 
@@ -376,14 +383,15 @@ if __name__ == '__main__':
 
     plot_new_diagnoses(ax[0][0])
     plot_cum_diagnosed(ax[0][1])
-    plot_cum_infections(ax[2][0])
+    plot_cum_infections(ax[0][2])
 
     plot_daily_tests(ax[1][0])
-    plot_active_cases(ax[1][1])
-    plot_severe_infections(ax[2][1])
+    plot_daily_infections(ax[1][1])
+    plot_severe_infections(ax[1][2])
 
-    plt.savefig('vic_calibrate_1908.png')
+    plt.savefig('vic_calibrate_new.png')
     plt.show()
+
 
 
 
