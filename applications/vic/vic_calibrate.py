@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
-    n_days = 90 # Total simulation duration (days)
+    n_days = 100 # Total simulation duration (days)
     n_imports = 5  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:0}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
     beta = 0.038 # Overall beta
@@ -346,7 +346,12 @@ if __name__ == '__main__':
         fill_args = {'alpha': 0.3}
         ax.fill_between(s.base_sim.tvec, s.results['n_infectious'].low, s.results['n_infectious'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['n_infectious'].values[:], color='b', alpha=0.1)
-        ax.set_title('Daily new infections')
+        ax.set_title('Active cases')
+        cases = pd.read_csv('active_cases.csv')
+        cases['day'] = cases['Date'].map(sim.day)
+        cases.set_index('day', inplace=True)
+        cases = cases.loc[cases.index >= 0]['vic'].astype(int)
+        ax.scatter(cases.index, cases.values, color='k')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
         ax.locator_params('x', nbins=3)
 
@@ -382,7 +387,7 @@ if __name__ == '__main__':
     plot_active_cases(ax[1][1])
     plot_severe_infections(ax[2][1])
 
-    plt.savefig('vic_calibrate_1908.png')
+    plt.savefig('vic_calibrate_2008.png')
     plt.show()
 
 
