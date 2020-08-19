@@ -9,7 +9,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
     layers = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'social']
 
     if whattorun == 'calibration':
-        end_day = '2020-09-20'
+        end_day = '2020-08-19'
     elif whattorun == 'scenarios':
         end_day = '2020-09-15'
         mask_beta_change = mask_beta_change
@@ -20,7 +20,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
             'rescale': True,
             'rand_seed': 1,
 #            'rel_death_prob': 0.8,
-            'beta': 0.0255, # Overall beta to use for calibration
+            'beta': 0.0256, # Overall beta to use for calibration
                                     # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers).to_dict(),
             'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
@@ -79,8 +79,8 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
 
     # Testing
     symp_prob_prelockdown = 0.07  # Limited testing pre lockdown
-    symp_prob_lockdown = 0.1  # Increased testing during lockdown
-    symp_prob_postlockdown = 0.19  # Testing since lockdown
+    symp_prob_lockdown = 0.09  # Increased testing during lockdown
+    symp_prob_postlockdown = 0.17  # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.01, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen2, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.01,do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=reopen2, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.02,do_plot=True))
