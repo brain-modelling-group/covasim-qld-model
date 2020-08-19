@@ -32,7 +32,7 @@ def format_ax(ax, sim, key=None):
     sc.boxoff()
     return
 
-def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=None):
+def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=1):
 
     which = key.split('_')[1]
     try:
