@@ -20,7 +20,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
             'rescale': True,
             'rand_seed': 1,
 #            'rel_death_prob': 0.8,
-            'beta': 0.0256, # Overall beta to use for calibration
+            'beta': 0.028, # Overall beta to use for calibration
                                     # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers).to_dict(),
             'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
@@ -78,9 +78,9 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing
-    symp_prob_prelockdown = 0.07  # Limited testing pre lockdown
-    symp_prob_lockdown = 0.09  # Increased testing during lockdown
-    symp_prob_postlockdown = 0.17  # Testing since lockdown
+    symp_prob_prelockdown = 0.05  # Limited testing pre lockdown
+    symp_prob_lockdown = 0.07  # Increased testing during lockdown
+    symp_prob_postlockdown = 0.15  # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.01, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen2, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.01,do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=reopen2, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.02,do_plot=True))
@@ -116,7 +116,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
 T = sc.tic()
 
 # Settings
-whattorun = ['calibration', 'scenarios'][1]
+whattorun = ['calibration', 'scenarios'][0]
 domulti = True
 doplot = False
 dosave = True

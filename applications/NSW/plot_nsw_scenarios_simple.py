@@ -15,7 +15,7 @@ figsfolder = 'figs'
 if resultsfolder=='results0819':
     maskbetas_main = [0.59, 0.62, 0.7] # Values used in the scenarios
     maskbetas_sens = [0.55, 0.60, 0.7] # Values used in the scenarios
-    maskbetas = maskbetas_main
+    maskbetas = maskbetas_sens
 
 else:
     maskbetas = [0.6, 0.65, 0.7]
