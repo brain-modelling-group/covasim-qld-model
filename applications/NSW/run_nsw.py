@@ -117,9 +117,9 @@ T = sc.tic()
 
 # Settings
 whattorun = ['calibration', 'scenarios'][0]
-domulti = False
-doplot = True
-dosave = False
+domulti = True
+doplot = False
+dosave = True
 
 # Filepaths
 inputsfolder = 'inputs'
