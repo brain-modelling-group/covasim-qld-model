@@ -115,49 +115,37 @@ font_size = 22
 font_family = 'Proxima Nova'
 pl.rcParams['font.size'] = font_size
 pl.rcParams['font.family'] = font_family
-pl.figure(figsize=(24,15))
+pl.figure(figsize=(24,8))
 
 # Extract a sim to refer to
 sims = simsfile.sims
 sim = sims[0]
 
 # Plot locations
-ygaps = 0.03
-xgaps = 0.06
-remainingy = 1-3*ygaps
+ygaps = 0.05
+xgaps = 0.05
+remainingy = 1-2*ygaps
 remainingx = 1-3*xgaps
-mainplotheight = remainingy/2
+mainplotheight = remainingy
 mainplotwidth = 0.5
 subplotheight = (mainplotheight-ygaps)/2
 subplotwidth = 1-mainplotwidth-2.5*xgaps
 
 # a: daily diagnoses
-x0, y0, dx, dy = xgaps, ygaps*2+1*mainplotheight, mainplotwidth, mainplotheight
+x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 format_ax(ax1, sim)
-plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='Daily diagnoses')
+plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='Daily diagnoses (locally acquired)')
+#plotter('new_infections', sims, ax1, calib=True, label='Active infections (modeled)', ylabel='', flabel=False)
 plot_intervs(sim)
 
 # b. cumulative diagnoses
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, mainplotheight
+x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps, subplotwidth, mainplotheight
 ax2 = pl.axes([x0, y0, dx, dy])
 format_ax(ax2, sim)
-plotter('cum_diagnoses', sims, ax2, calib=True, label='Model', ylabel='Cumulative diagnoses')
-pl.legend(loc='lower right', frameon=False)
-
-# c. deaths
-x0, y0, dx, dy = xgaps, ygaps*1+0*mainplotheight, mainplotwidth, mainplotheight
-ax3 = pl.axes([x0, y0, dx, dy])
-format_ax(ax3, sim)
-plotter('cum_deaths', sims, ax3, calib=True, label='Model', ylabel='Cumulative deaths')
-pl.legend(loc='lower right', frameon=False)
-
-# d. active and cumulative infections
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*1+0*mainplotheight, subplotwidth, mainplotheight
-ax4 = pl.axes([x0, y0, dx, dy])
-format_ax(ax4, sim)
-plotter('cum_infections', sims, ax4, calib=True, label='Cumulative infections (modeled)', ylabel='Infections')
-plotter('n_infectious', sims, ax4, calib=True, label='Active infections (modeled)', ylabel='Infections', flabel=False)
+plotter('cum_infections', sims, ax2, calib=True, label='Cumulative infections (modeled)', ylabel='', flabel=False)
+#plotter('n_infectious', sims, ax2, calib=True, label='Active infections (modeled)', ylabel='', flabel=False)
+plotter('cum_diagnoses', sims, ax2, calib=True, label='Cumulative diagnoses (modeled)', ylabel='Locally acquired infections & diagnoses', flabel=False)
 pl.legend(loc='upper left', frameon=False)
 #pl.ylim([0, 10e3])
 

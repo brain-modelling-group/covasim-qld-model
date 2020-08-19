@@ -32,7 +32,7 @@ def format_ax(ax, sim, key=None):
     sc.boxoff()
     return
 
-def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=0):
+def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=12):
 
     which = key.split('_')[1]
     try:
@@ -53,7 +53,7 @@ def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.02
     if chooseseed is not None:
         best = sims[chooseseed].results[key].values
     else:
-        best = pl.mean(yarr, axis=0)
+        best = pl.median(yarr, axis=0)
     low  = pl.quantile(yarr, q=low_q, axis=0)
     high = pl.quantile(yarr, q=high_q, axis=0)
 
@@ -115,45 +115,48 @@ font_size = 22
 font_family = 'Proxima Nova'
 pl.rcParams['font.size'] = font_size
 pl.rcParams['font.family'] = font_family
-pl.figure(figsize=(24,15))
+pl.figure(figsize=(24,8))
 
 # Extract a sim to refer to
 sims = simsfile.sims
 sim = sims[0]
 
 # Plot locations
-ygaps = 0.03
+ygaps = 0.06
 xgaps = 0.06
-remainingy = 1-3*ygaps
-remainingx = 1-3*xgaps
-mainplotheight = remainingy/2
-mainplotwidth = 0.5
-subplotheight = (mainplotheight-ygaps)/2
-subplotwidth = 1-mainplotwidth-2.5*xgaps
+remainingy = 1-2*ygaps
+remainingx = 1-4*xgaps
+mainplotheight = remainingy
+mainplotwidth = remainingx/3
+#subplotheight = (mainplotheight-ygaps)/2
+#subplotwidth = 1-mainplotwidth-2.5*xgaps
 
 # a: daily diagnoses
-x0, y0, dx, dy = xgaps, ygaps*2+1*mainplotheight, mainplotwidth, mainplotheight
+pl.figtext(xgaps*0.2, ygaps/2+mainplotheight, 'A', fontsize=40)
+x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 format_ax(ax1, sim)
 plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='Daily diagnoses')
 plot_intervs(sim)
 
 # b. cumulative diagnoses
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, mainplotheight
+pl.figtext(xgaps*1.5+mainplotwidth, ygaps/2+mainplotheight, 'B', fontsize=40)
+x0, y0, dx, dy = xgaps*2+mainplotwidth, ygaps, mainplotwidth, mainplotheight
 ax2 = pl.axes([x0, y0, dx, dy])
 format_ax(ax2, sim)
 plotter('cum_diagnoses', sims, ax2, calib=True, label='Model', ylabel='Cumulative diagnoses')
 pl.legend(loc='lower right', frameon=False)
 
-# c. deaths
-x0, y0, dx, dy = xgaps, ygaps*1+0*mainplotheight, mainplotwidth, mainplotheight
-ax3 = pl.axes([x0, y0, dx, dy])
-format_ax(ax3, sim)
-plotter('cum_deaths', sims, ax3, calib=True, label='Model', ylabel='Cumulative deaths')
-pl.legend(loc='lower right', frameon=False)
+# deaths - not including
+#x0, y0, dx, dy = xgaps, ygaps*1+0*mainplotheight, mainplotwidth, mainplotheight
+#ax3 = pl.axes([x0, y0, dx, dy])
+#format_ax(ax3, sim)
+#plotter('cum_deaths', sims, ax3, calib=True, label='Model', ylabel='Cumulative deaths')
+#pl.legend(loc='lower right', frameon=False)
 
-# d. active and cumulative infections
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*1+0*mainplotheight, subplotwidth, mainplotheight
+# c. active and cumulative infections
+pl.figtext(xgaps*1.5+mainplotwidth*2, ygaps/2+mainplotheight, 'C', fontsize=40)
+x0, y0, dx, dy = xgaps*3+mainplotwidth*2, ygaps, mainplotwidth, mainplotheight
 ax4 = pl.axes([x0, y0, dx, dy])
 format_ax(ax4, sim)
 plotter('cum_infections', sims, ax4, calib=True, label='Cumulative infections (modeled)', ylabel='Infections')
