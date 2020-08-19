@@ -32,7 +32,7 @@ if __name__ == '__main__':
     symp_test = 100  # People with symptoms are this many times more likely to be tested
     n_runs = 8  # Number of simulations to run
     pop_size = 1e5  # Number of agents
-    tracing_capacity = 14 * (pop_size/1e5)  # People per day that can be traced (dependent on pop_size). Household contacts are always all immediately notified
+    tracing_capacity = 100  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
     scale_tests = 8 # Multiplicative factor for scaling tests by population proportion
 
@@ -367,7 +367,7 @@ if __name__ == '__main__':
     plot_daily_infections(ax[1][1])
     plot_severe_infections(ax[1][2])
 
-    plt.savefig('vic_calibrate.png')
+    plt.savefig('vic_calibrate_1908.png')
     plt.show()
 
 
