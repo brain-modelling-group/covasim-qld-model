@@ -116,7 +116,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
 T = sc.tic()
 
 # Settings
-whattorun = ['calibration', 'scenarios'][0]
+whattorun = ['calibration', 'scenarios'][1]
 domulti = True
 doplot = False
 dosave = True
@@ -153,7 +153,10 @@ if domulti:
 
         # Calculation of the mask_beta_change is (1-maskuptake)*0.7 + maskuptake*0.7*maskeff
         # Using values of maskuptake in [0, 0.5, 0.7] and maskeff in [0.05, 0.1, 0.2], this gives values in the range [0.6, 0.7]
-        mask_beta_change = [0.6, 0.65, 0.7]
+        # Calculation of the mask_beta_change is (1-maskuptake)*0.7 + maskuptake*0.7*(1-maskeff)
+        # Using values of maskuptake in [0, 0.5, 0.7] and maskeff = 0.23, this gives values in the range [0.59, 0.62, 0.7]
+        # Using values of maskuptake in [0, 0.5, 0.7] and maskeff = 0.3, this gives values in the range [0.55, 0.6, 0.7]
+        mask_beta_change = [0.55, 0.59, 0.6, 0.62, 0.7]
         all_layer_counts = {}
         layer_remap = {'H': 0, 'S': 1, 'W': 2, 'church': 3, 'pSport': 3, 'cSport': 3, 'social': 3, 'C': 4,
                        'entertainment': 4,
@@ -194,9 +197,10 @@ else:
             sim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
                   legend_args={'loc': 'upper left'}, axis_args={'hspace': 0.4}, interval=28)
     elif whattorun == 'scenarios':
-        # Calculation of the mask_beta_change is (1-maskuptake)*0.7 + maskuptake*0.7*maskeff
-        # Using values of maskuptake in [0, 0.5, 0.7] and maskeff in [0.05, 0.1, 0.2], this gives values in the range [0.6, 0.7]
-        mask_beta_change = [0.6, 0.65, 0.7]
+        # Calculation of the mask_beta_change is (1-maskuptake)*0.7 + maskuptake*0.7*(1-maskeff)
+        # Using values of maskuptake in [0, 0.5, 0.7] and maskeff = 0.23, this gives values in the range [0.59, 0.62, 0.7]
+        # Using values of maskuptake in [0, 0.5, 0.7] and maskeff = 0.3, this gives values in the range [0.55, 0.6, 0.7]
+        mask_beta_change = [0.55, 0.59, 0.6, 0.62, 0.7]
         for jb in mask_beta_change:
             sim = make_sim(whattorun, mask_beta_change=jb, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
             sim.run(keep_people=True)
