@@ -24,15 +24,15 @@ if __name__ == '__main__':
 
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
-    n_days = 90 # Total simulation duration (days)
-    n_imports = 6  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
+    n_days = 100 # Total simulation duration (days)
+    n_imports = 5  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:0}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.034 # Overall beta
+    beta = 0.038 # Overall beta
     extra_tests = 100  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 100  # People with symptoms are this many times more likely to be tested
     n_runs = 8  # Number of simulations to run
     pop_size = 1e5  # Number of agents
-    tracing_capacity = 14 * (pop_size/1e5)  # People per day that can be traced (dependent on pop_size). Household contacts are always all immediately notified
+    tracing_capacity = 200  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
     scale_tests = 8 # Multiplicative factor for scaling tests by population proportion
 
@@ -135,11 +135,11 @@ if __name__ == '__main__':
     beta_schedule.end('cafe_restaurant_4sqm', jul2)
     beta_schedule.end('pub_bar_4sqm', jul2)
     beta_schedule.end('outdoor200', jul2)
-    beta_schedule.add('cafe_restaurant0', jul2)
-    beta_schedule.add('pub_bar0', jul2)
-    beta_schedule.add('church0', jul2)
-    beta_schedule.add('outdoor2', jul2)
-    beta_schedule.add('cSports', jul2)
+    #beta_schedule.add('cafe_restaurant0', jul2)
+    #beta_schedule.add('pub_bar0', jul2)
+    #beta_schedule.add('church0', jul2)
+    #beta_schedule.add('outdoor2', jul2)
+    #beta_schedule.add('cSports', jul2)
 
     beta_schedule.add('masks', jul23)
 
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.2], layers='W'))
 
     # Social layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2,aug6], changes=[0.5,0.2], layers='social'))
+    #interventions.append(cv.clip_edges(days=[jul2,aug6], changes=[0.5,0.2], layers='social'))
 
     # Other layers clipped by stage 3 on jul9
     #interventions.append(cv.clip_edges(days=[jul2], changes=[0.5], layers=['church', 'pub_bar', 'cafe_restaurant', 'cSports', 'S']))
@@ -235,25 +235,27 @@ if __name__ == '__main__':
     # Run using MultiSim
     if n_runs == 1:
         sim.run()
+        s = sim
         results = [sim.results]
     else:
-        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=True, par_args={'ncpus':4})
+        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=True, par_args={'ncpus': 4})
         s.run()
-        results = [x.results for x in s.sims]
+        s.reduce()
 
 
     ####### ANALYZE RESULTS
 
     def plot_cum_diagnosed(ax):
-        for result in results:
-            ax.plot(result['t'], result['cum_diagnoses'], color='b', alpha=0.1)
+        fill_args = {'alpha': 0.3}
+        ax.fill_between(s.base_sim.tvec, s.results['cum_diagnoses'].low, s.results['cum_diagnoses'].high, **fill_args)
+        ax.plot(s.base_sim.tvec, s.results['cum_diagnoses'].values[:], color='b', alpha=0.1)
 
         cases = pd.read_csv('new_cases.csv')
         cases['day'] = cases['Date'].map(sim.day)
         cases.set_index('day', inplace=True)
         cases = cases.loc[cases.index >= 0]['vic'].astype(int).cumsum()
         ax.scatter(cases.index, cases.values, s=5, color='k')
-        after_lockdown = cases.index.values>0
+        after_lockdown = cases.index.values > 0
         ax.scatter(cases.index.values[after_lockdown], cases.values[after_lockdown], s=5, color='r')
         ax.axvline(x=jul2, color='grey', linestyle='--')
         ax.axvline(x=jul23, color='grey', linestyle='--')
@@ -262,41 +264,45 @@ if __name__ == '__main__':
         ax.set_title('Cumulative diagnosed cases')
 
         exponent = []
-        for res in results:
-            diagnoses = res['cum_diagnoses'].values
-            n_window = (diagnoses>50) & (diagnoses < 2000)
-            if sum(n_window)>4:
+        for res in s.sims:
+            diagnoses = res.results['cum_diagnoses'].values[:]
+            n_window = (diagnoses > 50) & (diagnoses < 2000)
+            if sum(n_window) > 4:
                 # Need enough data points to be able to produce a reasonable curve fit
-                x = res['t'][n_window]
+                x = s.base_sim.tvec[n_window]
                 y = diagnoses[n_window]
                 coeffs = np.polyfit(x, np.log(y), 1, w=np.sqrt(y))
                 exponent.append(coeffs[0])
             else:
-                exponent.append(0) # Because it never reached 50 diagnoses
+                exponent.append(0)  # Because it never reached 50 diagnoses
 
         # Fit exponential to data
         x = cases.index
         y = cases.values
         n_window = (y > 50) & (y < 2000)
         coeffs = np.polyfit(x[n_window], np.log(y[n_window]), 1, w=np.sqrt(y[n_window]))
-        #ax.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x),'k--', linewidth=1)
+        # ax.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x),'k--', linewidth=1)
 
-        ax.text(0.05,0.9,f'Data exponent = {coeffs[0]:.4f}', transform=ax.transAxes)
-        ax.text(0.05,0.80,f'Average model exponent = {np.mean(exponent):.4f}', transform=ax.transAxes)
+        ax.text(0.05, 0.9, f'Data exponent = {coeffs[0]:.4f}', transform=ax.transAxes)
+        ax.text(0.05, 0.80, f'Average model exponent = {np.mean(exponent):.4f}', transform=ax.transAxes)
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x',nbins=4)
+        ax.locator_params('x', nbins=3)
+
 
     def plot_cum_infections(ax):
-        for result in results:
-            ax.plot(result['t'], result['cum_infections'], color='b', alpha=0.1)
+        fill_args = {'alpha': 0.3}
+        ax.fill_between(s.base_sim.tvec, s.results['cum_infections'].low, s.results['cum_infections'].high, **fill_args)
+        ax.plot(s.base_sim.tvec, s.results['cum_infections'].values[:], color='b', alpha=0.1)
         ax.set_title('Cumulative infections')
-        ax.hlines(params.pars['pop_size'], 0, result['t'][-1])
+        #ax.hlines(params.pars['pop_size'], 0, s.base_sim.tvec[-1])
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x',nbins=4)
+        ax.locator_params('x', nbins=3)
+
 
     def plot_new_diagnoses(ax):
-        for result in results:
-            ax.plot(result['t'], result['new_diagnoses'], color='b', alpha=0.1)
+        fill_args = {'alpha': 0.3}
+        ax.fill_between(s.base_sim.tvec, s.results['new_diagnoses'].low, s.results['new_diagnoses'].high, **fill_args)
+        ax.plot(s.base_sim.tvec, s.results['new_diagnoses'].values[:], color='b', alpha=0.1)
         ax.set_title('New diagnoses')
 
         cases = pd.read_csv('new_cases.csv')
@@ -305,14 +311,16 @@ if __name__ == '__main__':
         cases = cases.loc[cases.index >= 0]['vic'].astype(int)
         ax.scatter(cases.index, cases.values, color='k')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x',nbins=4)
+        ax.locator_params('x', nbins=3)
         ax.axvline(x=jul2, color='grey', linestyle='--')
         ax.axvline(x=jul23, color='grey', linestyle='--')
         ax.axvline(x=aug6, color='grey', linestyle='--')
 
+
     def plot_daily_tests(ax):
-        for result in results:
-            ax.plot(result['t'], result['new_tests'], color='r', alpha=0.1)
+        fill_args = {'alpha': 0.3}
+        ax.fill_between(s.base_sim.tvec, s.results['new_tests'].low, s.results['new_tests'].high, **fill_args)
+        ax.plot(s.base_sim.tvec, s.results['new_tests'].values[:], color='b', alpha=0.1)
 
         tests = pd.read_csv('new_tests.csv')
         tests['day'] = tests['Date'].map(sim.day)
@@ -322,25 +330,36 @@ if __name__ == '__main__':
         ax.scatter(tests.index, tests.values, color='k')
         ax.set_title('Daily tests')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x',nbins=4)
+        ax.locator_params('x', nbins=3)
+
 
     def plot_test_yield(ax):
-        for result in results:
-            ax.plot(result['t'], result['test_yield'], color='r', alpha=0.1)
+        fill_args = {'alpha': 0.3}
+        ax.fill_between(s.base_sim.tvec, s.results['test_yield'].low, s.results['test_yield'].high, **fill_args)
+        ax.plot(s.base_sim.tvec, s.results['test_yield'].values[:], color='b', alpha=0.1)
         ax.set_title('Test yield*')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x',nbins=4)
+        ax.locator_params('x', nbins=3)
 
-    def plot_daily_infections(ax):
-        for result in results:
-            ax.plot(result['t'], result['new_infections'], color='b', alpha=0.1)
-        ax.set_title('Daily new infections')
+
+    def plot_active_cases(ax):
+        fill_args = {'alpha': 0.3}
+        ax.fill_between(s.base_sim.tvec, s.results['n_infectious'].low, s.results['n_infectious'].high, **fill_args)
+        ax.plot(s.base_sim.tvec, s.results['n_infectious'].values[:], color='b', alpha=0.1)
+        ax.set_title('Active cases')
+        cases = pd.read_csv('active_cases.csv')
+        cases['day'] = cases['Date'].map(sim.day)
+        cases.set_index('day', inplace=True)
+        cases = cases.loc[cases.index >= 0]['vic'].astype(int)
+        ax.scatter(cases.index, cases.values, color='k')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x',nbins=4)
+        ax.locator_params('x', nbins=3)
+
 
     def plot_severe_infections(ax):
-        for result in results:
-            ax.plot(result['t'], result['n_severe'], color='b', alpha=0.1)
+        fill_args = {'alpha': 0.3}
+        ax.fill_between(s.base_sim.tvec, s.results['n_severe'].low, s.results['n_severe'].high, **fill_args)
+        ax.plot(s.base_sim.tvec, s.results['n_severe'].values[:], color='b', alpha=0.1)
         ax.set_title('Severe infections')
 
         hosp = pd.read_csv('hospitalised.csv')
@@ -350,10 +369,11 @@ if __name__ == '__main__':
         hosp = hosp.loc[hosp.index >= 0]['vic'].astype(int)
         ax.scatter(hosp.index, hosp.values, color='k')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x',nbins=4)
+        ax.locator_params('x', nbins=3)
 
-    fig, ax = plt.subplots(2,3)
-    fig.set_size_inches(20, 8)
+
+    fig, ax = plt.subplots(3, 2)
+    fig.set_size_inches(8, 11)
 
     titlestr = f'{n_imports} imported cases per day, seeded {seeded_cases}'
 
@@ -361,13 +381,13 @@ if __name__ == '__main__':
 
     plot_new_diagnoses(ax[0][0])
     plot_cum_diagnosed(ax[0][1])
-    plot_cum_infections(ax[0][2])
+    plot_cum_infections(ax[2][0])
 
     plot_daily_tests(ax[1][0])
-    plot_daily_infections(ax[1][1])
-    plot_severe_infections(ax[1][2])
+    plot_active_cases(ax[1][1])
+    plot_severe_infections(ax[2][1])
 
-    plt.savefig('vic_calibrate.png')
+    plt.savefig('vic_calibrate_2008.png')
     plt.show()
 
 
