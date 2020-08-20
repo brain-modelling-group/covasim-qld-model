@@ -237,16 +237,16 @@ if __name__ == '__main__':
     # The commands below artifically increase clustering for development purposes
     params.extrapars['trace_probs'] = {k: 1 for k in params.extrapars['trace_probs']}  # Perfect contact tracing
     params.extrapars['trace_time'] = {k: 1 for k in params.extrapars['trace_time']} # Instant contact tracing
-    # params.test_prob = {
-    #     'symp_prob': 1.0,  # Someone who has symptoms has this probability of testing on any given day
-    #     'asymp_prob': 0.00,  # Someone who is asymptomatic has this probability of testing on any given day
-    #     'symp_quar_prob': 1.0,  # Someone who is quarantining and has symptoms has this probability of testing on any given day
-    #     'asymp_quar_prob': 1.0,
-    #     'test_delay': 2,  # Number of days for test results to be processed
-    #     'swab_delay': 2,  # Number of days people wait after symptoms before being tested
-    #     'isolation_threshold': 0,
-    #     'leaving_quar_prob': 0.0,
-    # }
+    params.test_prob = {
+        'symp_prob': 1.0,  # Someone who has symptoms has this probability of testing on any given day
+        'asymp_prob': 0.00,  # Someone who is asymptomatic has this probability of testing on any given day
+        'symp_quar_prob': 1.0,  # Someone who is quarantining and has symptoms has this probability of testing on any given day
+        'asymp_quar_prob': 1.0,
+        'test_delay': 2,  # Number of days for test results to be processed
+        'swab_delay': 2,  # Number of days people wait after symptoms before being tested
+        'isolation_threshold': 0,
+        'leaving_quar_prob': 0.0,
+    }
 
     sim = outbreak.get_australia_outbreak(1, params, packages['Large events only'])
     # sim.pars['interventions'].insert(0,cv.test_prob(1,1,1,1))
