@@ -7,6 +7,7 @@ import matplotlib.ticker as ticker
 import numpy as np
 import pylab as pl
 import sciris as sc
+import covasim.misc as cvm
 
 from covasim import utils as cvu
 
@@ -295,7 +296,7 @@ class UpdateNetworks(cv.Intervention):
             new_contacts = {}
             new_contacts['p1'], new_contacts['p2'] = co.make_random_contacts(include=self._include[lkey],
                                                                              mean_number_of_contacts=self.contact_numbers[lkey],
-                                                                             dispersion=self.dispersion,
+                                                                             dispersion=self.dispersion[lkey],
                                                                              array_output=True)
             new_contacts['beta'] = np.ones(new_contacts['p1'].shape, dtype=cvd.default_float)
 

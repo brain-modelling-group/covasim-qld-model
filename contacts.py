@@ -128,7 +128,7 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
         if cl_type == 'complete':   # number of contacts not used for complete clusters
             contacts[layer_key] = clusters_to_contacts([inds])
         elif cl_type == 'random':
-            contacts[layer_key] = make_random_contacts(include=in_layer, mean_number_of_contacts=num_contacts, dispersion=dispersion)
+            contacts[layer_key] = make_random_contacts(include=in_layer, mean_number_of_contacts=num_contacts, dispersion=dispersion[layer_key])
             # contacts[layer_key] = random_contacts(in_layer, num_contacts)
         elif cl_type == 'cluster':
             miniclusters = []
@@ -230,7 +230,7 @@ def make_contacts(params):
     key = 'C'
     com_no = n_contacts[key]
     include = np.ones(len(ages))
-    c_contacts = make_random_contacts(include=include, mean_number_of_contacts=com_no, dispersion=dispersion)
+    c_contacts = make_random_contacts(include=include, mean_number_of_contacts=com_no, dispersion=dispersion['C'])
     contacts[key] = c_contacts
 
     # Custom layers: those that are not households, work, school or community

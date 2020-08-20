@@ -392,5 +392,5 @@ def run_scens(scens):
     """Runs scenarios for each country in scens"""
 
     for location, scen in scens.items():
-        scen.run()
+        scen.run(debug=True)
     return scens

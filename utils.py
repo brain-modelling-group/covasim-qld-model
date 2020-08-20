@@ -6,6 +6,7 @@ import utils, policy_updates
 import covasim.utils as cvu
 import covasim.defaults as cvd
 import covasim.base as cvb
+import networkx as nx
 
 
 def get_ndays(start_day, end_day):
@@ -32,8 +33,8 @@ def colnames():
              'total_tests': 'cum_tests',
              'total_deaths': 'cum_deaths',
              'cum_infections': 'cum_diagnoses',
-             'total_cases': 'cum_diagnoses'}
-            # 'hospitalised': 'n_severe'}  # either total cases or cum_infections in epi book
+             'total_cases': 'cum_diagnoses',
+             'hospitalised': 'n_severe'}  # either total cases or cum_infections in epi book
     return names
 
 
@@ -424,7 +425,11 @@ class SeedInfection(cv.Intervention):
 
         """
         super().__init__()
-        self.infections = infections  #: Dictionary mapping {day: n_infections}
+        self.infections = infections  #: Dictionary mapping {day: n_infections}. Day can be an int, or a string date like '20200701'
+
+    def initialize(self, sim):
+        super().initialize(sim)
+        self.infections = {sim.day(k):v for k,v in self.infections.items()}  # Convert any day strings to ints
 
     def apply(self, sim):
         if sim.t in self.infections:
@@ -437,7 +442,11 @@ class SeedInfection(cv.Intervention):
             target_inds = susceptible_inds[targets]
             sim.people.infect(inds=target_inds)
 
+
 class test_prob_with_quarantine(cv.test_prob):
+    """
+    Testing based on probability with quarantine during tests
+    """
 
     def __init__(self, *args, swab_delay, test_isolation_compliance, leaving_quar_prob,**kwargs):
         super().__init__(*args, **kwargs)
@@ -458,10 +467,10 @@ class test_prob_with_quarantine(cv.test_prob):
         # 2. People who become symptomatic while in quarantine will test immediately at rate `symp_quar_test`
         # 3. People who are symptomatic and then are ordered to quarantine, will test immediately at rate `symp_quar_test`
         # 4. People who have severe symptoms will be tested
-        # 5. (Optional) People that are asymptomatic test before leaving quarantine
+        # 5. People test before leaving quarantine at rate `leaving_quar_prob` (set to 1 to ensure everyone leaving quarantine must have been tested)
         # 6. People that have been diagnosed will not be tested
         # 7. People that are already waiting for a diagnosis will not be retested
-        # 8. People can optionally isolate while waiting for their diagnosis
+        # 8. People quarantine while waiting for their diagnosis with compliance `test_isolation_compliance`
         # 9. People already on quarantine while tested will not have their quarantine shortened, but if they are tested at the end of their
         #    quarantine, the quarantine will be extended
 
@@ -470,8 +479,8 @@ class test_prob_with_quarantine(cv.test_prob):
 
         # (1) People wait swab_delay days before they decide to start testing. If swab_delay is 0 then they will be eligible as soon as they are symptomatic
         symp_inds = cvu.true(sim.people.symptomatic) # People who are symptomatic
-        symp_test_inds = symp_inds[sim.people.date_symptomatic[symp_inds] == t-self.swab_delay]  # People who have been symptomatic and who are eligible to test today
-        test_probs[symp_test_inds] = self.symp_prob  # People with symptoms eligible to test today
+        symp_test_inds = symp_inds[sim.people.date_symptomatic[symp_inds] == (t-self.swab_delay)]  # People who became symptomatic previously and are eligible to test today
+        test_probs[symp_test_inds] = self.symp_prob
 
         # People whose symptomatic scheduled day falls during quarantine will test at the symp_quar_prob rate
         # People who are already symptomatic, missed their test, and then enter quarantine, will test at the symp_quar_prob rate
@@ -499,28 +508,21 @@ class test_prob_with_quarantine(cv.test_prob):
             test_probs[quarantine_test_inds] = self.symp_quar_prob  # People with symptoms in quarantine are eligible to test without waiting
 
             # (3) People who are symptomatic and undiagnosed before entering quarantine, test as soon as they are quarantined
-            newly_quarantined_test_inds = cvu.true((sim.people.date_quarantined == (sim.t-1)) & sim.people.symptomatic & ~sim.people.diagnosed) # People that just entered quarantine, who are already symptomatic
+            newly_quarantined_test_inds = cvu.true((sim.people.date_quarantined == (sim.t-1)) & sim.people.symptomatic & ~sim.people.diagnosed) # People that just entered quarantine, who are current symptomatic and undiagnosed
             test_probs[newly_quarantined_test_inds] = self.symp_quar_prob  # People with symptoms that just entered quarantine are eligible to test
 
         # (4) People with severe symptoms that would be hospitalised are guaranteed to be tested
         test_probs[sim.people.severe] = 1.0  # People with severe symptoms are guaranteed to be tested unless already diagnosed or awaiting results
 
         # (5) People leaving quarantine test before leaving
-        # Note that this test is irrespective of symptoms. If someone has not been tested during quarantine, they will test at this probability if they are
-        # quarantining as a known contact
+        # This tests policies for testing people at least once during quarantine
+        # - If leaving_quar_prob=1 then everyone leaving quarantine must have been tested during quarantine
+        # - If someone was tested during their quarantine, they don't need to test again
         if self.leaving_quar_prob:
-            leaving_inds = cvu.true(sim.people.quarantined & sim.people.known_contact) # Everyone on quarantine that is a known contact.
-            leaving_inds = leaving_inds[(sim.people.date_end_quarantine[leaving_inds]-self.test_delay) == sim.t] # Subset of people that might need to test today because they are leaving quarantine
-            tested = np.isfinite(sim.people.date_tested[leaving_inds])
-            quarantine_never_tested = leaving_inds[~tested] # Subset that have not been tested
-
-            if any(tested):
-                quarantine_tested = leaving_inds[tested]  # Subset that have not been tested
-                quarantine_tested_before = quarantine_tested[sim.people.date_tested[quarantine_tested] < sim.people.date_quarantined[quarantine_tested]] # Subset that were last tested before quarantine
-                leaving_inds = np.hstack([quarantine_never_tested,quarantine_tested_before])
-            else:
-                leaving_inds = quarantine_never_tested
-            test_probs[leaving_inds] = np.maximum(test_probs[leaving_inds], self.leaving_quar_prob) # If they are already supposed to test at a higher rate e.g. severe symptoms, keep it
+            to_test = cvu.true(sim.people.quarantined)  # Everyone currently on quarantine
+            to_test = to_test[(sim.people.date_end_quarantine[to_test]-self.test_delay) == sim.t] # Everyone leaving quarantine that needs to have been tested by today at the latest
+            to_test = to_test[~(sim.people.date_tested[to_test] > sim.people.date_quarantined[to_test])] # Note that this is not the same as <= because of NaNs - if someone was never tested, then both <= and > are False
+            test_probs[to_test] = np.maximum(test_probs[to_test], self.leaving_quar_prob) # If they are already supposed to test at a higher rate e.g. severe symptoms, keep it
 
         # (6) People that have been diagnosed aren't tested
         diag_inds = cvu.true(sim.people.diagnosed)
@@ -534,23 +536,163 @@ class test_prob_with_quarantine(cv.test_prob):
         # Test people based on their per-person test probability
         test_inds = cvu.true(cvu.binomial_arr(test_probs))
         sim.people.test(test_inds, test_sensitivity=self.test_sensitivity, loss_prob=self.loss_prob, test_delay=self.test_delay) # Actually test people
-        sim.results['new_tests'][t] += int(len(test_inds)*sim['pop_scale']/sim.rescale_vec[t]) # If we're using dynamic scaling, we have to scale by pop_scale, not rescale_vec
-
-        # Check the number of diagnosed people to decide whether to turn on isolation while waiting for results
-        # Using >= here means an isolation threshold of 0 is a second check to ensure isolation takes place
-        # (normally the `isolate_while_waiting` flag should be pre-set in the constructor)
+        sim.results['new_tests'][t] += int(len(test_inds))
 
         if self.test_isolation_compliance:
+            # If people are meant to quarantine while waiting for their test, then quarantine some/all of the people waiting for tests
+            quar_inds = cvu.binomial_filter(self.test_isolation_compliance,test_inds)
+            sim.people.quarantine(quar_inds, self.test_delay)
 
-            # (9) If the diagnosis waiting period goes beyond an existing quarantine, extend it
-            # This goes first, so that people entering quarantine below aren't included.
-            extend_quarantine = cvu.true((sim.people.date_tested==sim.t) & sim.people.quarantined)
-            extend_quarantine = cvu.binomial_filter(self.test_isolation_compliance, extend_quarantine)
-            sim.people.date_end_quarantine[extend_quarantine] = np.maximum(sim.people.date_end_quarantine[extend_quarantine], sim.people.date_tested[extend_quarantine]+self.test_delay)
 
-            # (8) If not on quarantine, isolate the period while waiting for the test result
-            new_quarantine = cvu.true((sim.people.date_tested==sim.t) & ~sim.people.quarantined)
-            new_quarantine = cvu.binomial_filter(self.test_isolation_compliance, new_quarantine)
-            sim.people.quarantined[new_quarantine] = True
-            sim.people.date_quarantined[new_quarantine] = sim.t
-            sim.people.date_end_quarantine[new_quarantine] = sim.t+self.test_delay
+class limited_contact_tracing(cv.contact_tracing):
+    """
+    Contact tracing with capacity limit
+
+    Each timestep, this intervention will trace contacts for newly diagnosed
+    people (or newly tested people, if the `presumptive` flag is set). The number of
+    people
+    """
+
+
+    def __init__(self, capacity=np.inf, dynamic_layers=None, **kwargs):
+        """
+
+        Args:
+            capacity: Maximum number of newly diagnosed people to trace per day
+        """
+        super().__init__(**kwargs) # Initialize the Intervention object
+        self.capacity = capacity  #: Dict with capacity by layer e.g. {'H': 100, 'W': 50}
+        self.dynamic_layers = dynamic_layers or [] #: List of layers to trace via infection log (if their contacts are regenerated each timestep)
+
+    def apply(self, sim):
+        t = sim.t
+        if t < self.start_day:
+            return
+        elif self.end_day is not None and t > self.end_day:
+            return
+
+        # Figure out whom to test and trace
+        if not self.presumptive:
+            trace_from_inds = cvu.true(sim.people.date_diagnosed == t) # Diagnosed this time step, time to trace
+        else:
+            just_tested = cvu.true(sim.people.date_tested == t) # Tested this time step, time to trace
+            trace_from_inds = cvu.itruei(sim.people.exposed, just_tested) # This is necessary to avoid infinite chains of asymptomatic testing
+
+        if len(trace_from_inds):
+
+            capacity = np.floor(self.capacity / sim.rescale_vec[t])  # Scale capacity based on dynamic rescaling factor
+            if len(trace_from_inds) > capacity:
+                trace_from_inds = trace_from_inds[cvu.choose(len(trace_from_inds),capacity)]
+
+            traceable_layers = {k: v for k, v in self.trace_probs.items() if v != 0.}  # Only trace if there's a non-zero tracing probability
+            dynamic_traceable = {k: v for k, v in traceable_layers.items() if k in self.dynamic_layers}
+
+            if dynamic_traceable:
+                ind_set = set(trace_from_inds)
+                dynamic_infections = [x for x in sim.people.infection_log if (x['source'] in ind_set or x['target'] in ind_set) and x['layer'] in dynamic_traceable]
+
+            # Extract the indices of the people who'll be contacted
+            for lkey, this_trace_prob in traceable_layers.items():
+                this_trace_time = self.trace_time[lkey]
+
+                # Find all the contacts of these people
+                inds_list = []
+                for k1, k2 in [['p1', 'p2'], ['p2', 'p1']]:  # Loop over the contact network in both directions -- k1,k2 are the keys
+                    in_k1 = np.isin(sim.people.contacts[lkey][k1], trace_from_inds).nonzero()[0]  # Get all the indices of the pairs that each person is in
+                    inds_list.append(sim.people.contacts[lkey][k2][in_k1])  # Find their pairing partner
+
+                if lkey in dynamic_traceable and dynamic_infections:
+                    # If it's a dynamic layer, then extract contacts from the infection log as well
+                    # This is done before np.unique() so that people don't get double counted
+                    dynamic_inds = np.array([x['target'] for x in dynamic_infections if x['layer'] == lkey], dtype=np.int32)
+                    inds_list.append(dynamic_inds)
+
+                # Check contacts
+                edge_inds = np.unique(np.concatenate(inds_list))  # Find all edges
+                contact_inds = cvu.binomial_filter(this_trace_prob, edge_inds)  # Filter the indices according to the probability of being able to trace this layer
+                if len(contact_inds):
+                    sim.people.known_contact[contact_inds] = True
+                    sim.people.date_known_contact[contact_inds] = np.fmin(sim.people.date_known_contact[contact_inds], sim.t + this_trace_time)
+                    sim.people.quarantine(contact_inds, start_date=sim.t + this_trace_time) # Schedule quarantine for the notified people to start on the date they will be notified
+
+
+class limited_contact_tracing_2(cv.contact_tracing):
+    """
+    Contact tracing with capacity limit
+
+    Each timestep, this intervention will trace contacts for newly diagnosed
+    people (or newly tested people, if the `presumptive` flag is set). The number of
+    people
+    """
+
+    def __init__(self, capacity=np.inf, dynamic_layers=None, **kwargs):
+        """
+
+        Args:
+            capacity: Maximum number of newly diagnosed people to trace per day
+        """
+        super().__init__(**kwargs)  # Initialize the Intervention object
+        self.capacity = capacity  #: Dict with capacity by layer e.g. {'H': 100, 'W': 50}
+        self.dynamic_layers = dynamic_layers or []  #: List of layers to trace via infection log (if their contacts are regenerated each timestep)
+        self.notifications = nx.DiGraph()  # Notification edge a->b means that `b` was notified that `a` was a suspected case
+
+    def apply(self, sim):
+        t = sim.t
+        if t < self.start_day:
+            return
+        elif self.end_day is not None and t > self.end_day:
+            return
+
+        # Figure out whom to test and trace
+        if not self.presumptive:
+            trace_from_inds = cvu.true(sim.people.date_diagnosed == t)  # Diagnosed this time step, time to trace
+        else:
+            just_tested = cvu.true(sim.people.date_tested == t)  # Tested this time step, time to trace
+            trace_from_inds = cvu.itruei(sim.people.exposed, just_tested)  # This is necessary to avoid infinite chains of asymptomatic testing
+
+        capacity = np.floor(self.capacity / sim.rescale_vec[t])  # Scale capacity based on dynamic rescaling factor
+        if len(trace_from_inds) > capacity:
+            trace_from_inds = trace_from_inds[cvu.choose(len(trace_from_inds), capacity)]
+
+        if not len(trace_from_inds):
+            return
+
+        traceable_layers = {k: v for k, v in self.trace_probs.items() if v != 0.}  # Only trace if there's a non-zero tracing probability
+        dynamic_traceable = {k: v for k, v in traceable_layers.items() if k in self.dynamic_layers}
+
+        for ind in trace_from_inds:
+
+            # Interactions at previous timesteps recorded involving this person
+            if dynamic_traceable:
+                dynamic_infections = [x for x in sim.people.infection_log if (x['source'] == ind or x['target'] == ind)]
+            else:
+                dynamic_infections = []
+
+            # Extract the indices of the people who'll be contacted
+            for lkey, this_trace_prob in traceable_layers.items():
+
+                layer = sim.people.contacts[lkey]
+
+                # All contacts of this person in the current layer at the current timestep
+                a = layer['p2'][layer['p1'] == ind]
+                b = layer['p1'][layer['p2'] == ind]
+                contacts = set(a)
+                contacts.update(b)
+
+                # Then add any dynamic contacts
+                for infection in dynamic_infections:
+                    if infection['layer'] == lkey:
+                        contacts.add(infection['source'])
+                        contacts.add(infection['target'])
+
+                contacts.discard(ind)  # Can't be a contact of oneself
+
+                identified_contacts = cvu.binomial_filter(this_trace_prob, np.array(list(contacts)))  # Filter the indices according to the probability of being able to trace this layer
+                for contact in identified_contacts:
+                    if not self.notifications.has_edge(ind, contact):
+                        self.notifications.add_edge(ind, contact, t=t + self.trace_time[lkey], layer=lkey)
+
+                if len(identified_contacts):
+                    sim.people.known_contact[identified_contacts] = True
+                    sim.people.date_known_contact[identified_contacts] = np.fmin(sim.people.date_known_contact[identified_contacts], t + self.trace_time[lkey])
+                    sim.people.quarantine(identified_contacts, start_date=t + self.trace_time[lkey])  # Schedule quarantine for the notified people to start on the date they will be notified
