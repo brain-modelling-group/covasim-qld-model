@@ -2,7 +2,8 @@ import covasim as cv
 import numpy as np
 from functools import partial
 import outbreak
-
+import utils
+import networkx as nx
 
 def get_clusters(sim: cv.Sim, t: int) -> dict:
     """
@@ -41,8 +42,6 @@ def get_clusters(sim: cv.Sim, t: int) -> dict:
     Returns: {person_index: {indices of cluster members}} e.g. {1:{1,2,3}}
 
     """
-
-    import networkx as nx
 
     G = nx.DiGraph()
 
@@ -120,6 +119,110 @@ def plot_clusters(sim: cv.Sim, max_clusters=200):
 
     return fig
 
+def get_cluster_graph(sim: cv.Sim) -> nx.DiGraph():
+    """
+    Return cluster graph
+
+    The cluster graph consists of
+
+    - Nodes for every diagnosed person, with a date_diagnosed attribute
+    - Edges for every identified contact, with a date_notified attribute
+
+    A cluster is then a connected component of this graph, and the evolution of
+    the clusters over time can be tracked by filtering the nodes and edges
+    by simulation day.
+
+    Args:
+        sim:
+
+    Returns:
+
+    """
+
+    infections = nx.DiGraph()
+
+    for infection in sim.people.infection_log:
+        ind = infection['target']
+        infections.add_node(ind, date_known_contact=sim.people.date_known_contact[ind],date_diagnosed=sim.people.date_diagnosed[ind])
+        if infection['source'] is not None:
+            infections.add_edge(infection['source'], infection['target'], date=infection['date'])
+
+    try:
+        iv = [x for x in sim.pars['interventions'] if isinstance(x, utils.limited_contact_tracing_2)][0]
+    except IndexError as e:
+        raise Exception('This function can only be used with utils.limited_contact_tracing_2 which records notifications')
+    notifications = iv.notifications.copy()
+
+    # The cluster graph consists of diagnosed nodes and traced edges
+    G = nx.create_empty_copy(infections)
+    G.add_nodes_from(infections)
+    for edge in notifications.edges():
+        if edge[0] in G and edge[1] in G:
+            G.add_edge(*edge, date_notified=notifications.edges[edge]['t'])
+
+    return G
+
+
+def get_clusters_2(G: nx.DiGraph, t: int) -> dict:
+    """
+    Get observed infection clusters
+
+    G - Graph with nodes for diagnosed people, and edges for notifications/traced contacts
+
+    Args:
+        sim: A cv.Sim obj
+        t: Time index at which to check diagnosed and traced contacts
+
+    Returns: {person_index: {indices of cluster members}} e.g. {1:{1,2,3}}
+
+    """
+
+    def filter_diagnosed_nodes(n1, G, t):
+        # Return True if the person was diagnosed by day t
+        return G.nodes[n1]['date_diagnosed'] <= t
+
+    def filter_known_edges(n1,n2,G, t):
+        # Two diagnosed cases are connected if a contact took place between them
+        return G.edges[n1,n2]['date_notified'] <= t
+
+    traced_graph = nx.subgraph_view(G,partial(filter_diagnosed_nodes,G=G,t=t),partial(filter_known_edges,G=G,t=t)) # Filter by both diagnosis and tracing
+
+    label = lambda nodes: min(nodes,key=lambda node: (traced_graph.nodes[node]['date_diagnosed'], node))
+    return {label(cluster):cluster for cluster in nx.weakly_connected_components(traced_graph)}
+
+
+def plot_clusters_2(sim: cv.Sim, max_clusters=200):
+    """
+    Plot clusters for a simulation
+
+    Requires limited_contact_tracing to be used, so that the notifications are recorded
+
+    """
+
+    G = get_cluster_graph(sim)
+
+    cluster_sizes = {i: np.zeros(sim.npts) for i in range(sim.n)}
+    for t in range(sim.npts):
+        clusters = get_clusters_2(G, t)
+        for idx, members in clusters.items():
+            cluster_sizes[idx][t] = len(members)
+
+    cluster_sizes = {k:v for k,v in cluster_sizes.items() if np.any(v)}
+
+    if len(cluster_sizes) == 0:
+        raise Exception('No clusters were found (not enough infections?)')
+
+    if len(cluster_sizes) > max_clusters:
+        raise Exception('Too many clusters to plot, increase `max_clusters` if desired (plotting may be slow)')
+
+    fig, ax = plt.subplots()
+    ax.stackplot(sim.tvec, cluster_sizes.values(),colors=sc.gridcolors(len(cluster_sizes)))
+    ax.set_xlabel('Day')
+    ax.set_ylabel('Infections')
+    ax.set_title('Cumulative infections, coloured by cluster')
+
+    return fig
+
 
 if __name__ == '__main__':
     # Running this file directly produces an example Sim with contact tracing enabled
@@ -129,7 +232,7 @@ if __name__ == '__main__':
     import sciris as sc
 
     packages = outbreak.load_packages()
-    params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=2, n_days=60)
+    params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=5, n_days=30)
 
     # The commands below artifically increase clustering for development purposes
     params.extrapars['trace_probs'] = {k: 1 for k in params.extrapars['trace_probs']}  # Perfect contact tracing
@@ -147,6 +250,13 @@ if __name__ == '__main__':
 
     sim = outbreak.get_australia_outbreak(1, params, packages['Large events only'])
     # sim.pars['interventions'].insert(0,cv.test_prob(1,1,1,1))
-    sim.run()
+    sim.pars['verbose'] = True
+    sim.run(restore_pars=False) # If restore_pars is True then the intervention is unable to record any values...
 
+    #
     plot_clusters(sim, max_clusters=np.inf)
+    #
+    plot_clusters_2(sim, max_clusters=np.inf)
+
+
+

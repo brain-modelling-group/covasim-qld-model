@@ -159,7 +159,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     ))
 
     # SET TRACING
-    sim.pars['interventions'].append(utils.limited_contact_tracing(trace_probs=params.extrapars['trace_probs'],
+    sim.pars['interventions'].append(utils.limited_contact_tracing_2(trace_probs=params.extrapars['trace_probs'],
                                                                    trace_time=params.extrapars['trace_time'],
                                                                    start_day=0,
                                                                    capacity=params.extrapars['trace_capacity'],
