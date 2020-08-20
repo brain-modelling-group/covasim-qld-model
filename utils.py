@@ -563,17 +563,6 @@ class test_prob_with_quarantine(cv.test_prob):
         if self.isolate_while_waiting:
             sim.people.quarantine(cvu.true(sim.people.date_tested == sim.t), self.test_delay)
 
-            # # (9) If the diagnosis waiting period goes beyond an existing quarantine, extend it
-            # # This goes first, so that people entering quarantine below aren't included
-            # extend_quarantine = cvu.true((sim.people.date_tested==sim.t) & sim.people.quarantined)
-            # sim.people.date_end_quarantine[extend_quarantine] = np.maximum(sim.people.date_end_quarantine[extend_quarantine], sim.people.date_tested[extend_quarantine]+self.test_delay)
-            #
-            # # (8) If not on quarantine, isolate the period while waiting for the test result
-            # new_quarantine = cvu.true((sim.people.date_tested==sim.t) & ~sim.people.quarantined)
-            # sim.people.quarantined[new_quarantine] = True
-            # sim.people.date_quarantined[new_quarantine] = sim.t
-            # sim.people.date_end_quarantine[new_quarantine] = sim.t+self.test_delay
-
 
 class limited_contact_tracing(cv.contact_tracing):
     """
@@ -645,7 +634,6 @@ class limited_contact_tracing(cv.contact_tracing):
                     sim.people.known_contact[contact_inds] = True
                     sim.people.date_known_contact[contact_inds] = np.fmin(sim.people.date_known_contact[contact_inds], sim.t + this_trace_time)
                     sim.people.quarantine(contact_inds, start_date=sim.t + this_trace_time) # Schedule quarantine for the notified people to start on the date they will be notified
-        return
 
 
 class limited_contact_tracing_2(cv.contact_tracing):
