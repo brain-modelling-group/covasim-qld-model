@@ -41,6 +41,7 @@ def load_scenarios(fname) -> dict:
     """
 
     scenarios = pd.read_csv(fname, index_col=0)
+    scenarios.fillna(value=scenarios.loc['baseline'], inplace=True)
     scenarios = scenarios.to_dict(orient='index')
     return scenarios
 
@@ -110,7 +111,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
     }
 
     params.seed_infections = {1: n_infected}
-    params.extrapars['trace_capacity'] = 350
+    params.extrapars['trace_capacity'] = 200
 
     return params
 
@@ -173,7 +174,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     ))
 
     # SET TRACING
-    sim.pars['interventions'].append(utils.limited_contact_tracing(trace_probs=params.extrapars['trace_probs'],
+    sim.pars['interventions'].append(utils.limited_contact_tracing_2(trace_probs=params.extrapars['trace_probs'],
                                                                    trace_time=params.extrapars['trace_time'],
                                                                    start_day=0,
                                                                    capacity=params.extrapars['trace_capacity'],

@@ -18,7 +18,7 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--nruns', default=5, type=int, help='Number of seeds to run per scenario')
+parser.add_argument('--nruns', default=4, type=int, help='Number of seeds to run per scenario')
 parser.add_argument('--celery', default=False, type=bool, help='If True, use Celery for parallization')
 parser.add_argument('--randompop', default=True, type=bool, help='If True, generate a new population of people for each seed')  #
 
@@ -35,20 +35,23 @@ else:
     people, popdict = co.make_people(params)
     population = {'people': people, 'popdict': popdict}
 
-# packages = {'relax_3':packages['relax_3'],'relax_4':['relax_4']}
+run_scenarios = {'relax_3', 'relax_3_nomasks'} # Packages to run full scenario analysis for
 
 for scen_name, scenario in scenarios.items():
 
-    resultdir = Path(__file__).parent / f'results_{scen_name}'
+    resultdir = Path(__file__).parent /'scenarios'/f'{scen_name}'
     resultdir.mkdir(parents=True, exist_ok=True)
 
     params.test_prob = sc.mergedicts(params.test_prob, scenario)
 
-    for name, policies in packages.items():
+    for package_name, policies in packages.items():
+        savefile = resultdir / f'{package_name}.stats'
 
-        savefile = resultdir / f'{name}.stats'
+        if scen_name != 'baseline' and package_name not in run_scenarios:
+            continue
+
         if savefile.exists():
-            print(f'{scen_name}-{name} exists, skipping')
+            print(f'{scen_name}-{package_name} exists, skipping')
             continue
 
         if args.celery:
@@ -56,7 +59,7 @@ for scen_name, scenario in scenarios.items():
             job = group([run_australia_outbreak.s(i, params, policies, **population) for i in range(args.nruns)])
             result = job.apply_async()
 
-            with tqdm(total=args.nruns, desc=f'{scen_name}-{name}') as pbar:
+            with tqdm(total=args.nruns, desc=f'{scen_name}-{package_name}') as pbar:
                 while result.completed_count() < args.nruns:
                     time.sleep(1)
                     pbar.n = result.completed_count()
@@ -68,7 +71,7 @@ for scen_name, scenario in scenarios.items():
 
         else:
             sim_stats = []
-            for i in tqdm(range(args.nruns), desc=name):
+            for i in tqdm(range(args.nruns), desc=f'{scen_name}-{package_name}'):
                 sim_stats.append(run_australia_outbreak(i, params, policies, **population))
 
         sc.saveobj(savefile, sim_stats)

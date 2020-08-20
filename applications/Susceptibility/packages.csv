@@ -1,7 +1,9 @@
-﻿package_name,church0,church_4sqm,cafe_restaurant0,cafe_restaurant_4sqm,pub_bar0,pub_bar_4sqm,outdoor2,outdoor10,outdoor200,cSports,child_care,schools,entertainment,large_events,NE_work,social,masks,contact_tracing
-stage_3,Y,,Y,,Y,,Y,,,Y,,Y,Y,Y,Y,Y,,Y
-relax_1,Y,,Y,,Y,,,Y,,Y,,,Y,Y,Y,,,Y
-relax_2,Y,,,Y,,Y,,Y,,Y,,,Y,Y,Y,,,Y
-relax_3,,Y,,Y,,Y,,,Y,,,,,Y,,,,Y
-relax_4,,,,,,,,,Y,,,,,Y,,,,Y
-no_restrictions,,,,,,,,,,,,,,,,,,Y
+﻿package_name,church0,church_4sqm,cafe_restaurant0,cafe_restaurant_4sqm,pub_bar0,pub_bar_4sqm,outdoor2,outdoor10,outdoor200,cSports,child_care,schools,entertainment,large_events,NE_work,social,masks
+stage_3,Y,,Y,,Y,,Y,,,Y,,Y,Y,Y,Y,Y,Y
+relax_1,Y,,Y,,Y,,,Y,,Y,,,Y,Y,Y,,Y
+relax_2,Y,,,Y,,Y,,Y,,Y,,,Y,Y,Y,,Y
+relax_3,,Y,,Y,,Y,,,Y,,,,,Y,Y,,Y
+relax_3_nomasks,,Y,,Y,,Y,,,Y,,,,,Y,Y,,
+relax_4,,,,,,,,,Y,,,,,Y,Y,,Y
+relax_4_nomasks,,,,,,,,,Y,,,,,Y,Y,,
+no_restrictions,,,,,,,,,,,,,,,,,

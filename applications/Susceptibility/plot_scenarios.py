@@ -17,6 +17,8 @@ scenarios = list(df.index.get_level_values(0).unique())
 packages = list(df.index.get_level_values(1).unique())
 risk_levels = {50: '#ffbfbf', 100: '#ff8585', 250: '#c90000'}
 
+raise Exception('Manual stop')
+
 # Plot bar graph of infection size per scenario
 for scenario in scenarios:
 
