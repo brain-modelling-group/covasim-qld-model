@@ -9,18 +9,19 @@ import matplotlib.patches as patches
 import matplotlib.dates as mdates
 
 # Filepaths
-resultsfolder = 'results08193'
+resultsfolder = 'results'
 figsfolder = 'figs'
+which = 'main' # Set to main or sens to produce figures for main scenarios or sensitivity analyis
 
-if resultsfolder=='results08193':
+if resultsfolder=='results':
+    # Main scenarios are with maskeff = 0.23, corresponding to [0.59, 0.62, 0.7]
+    # Sensitivity analyses with maskeff = 0.3 corresponds to [0.55, 0.6, 0.7]
     maskbetas_main = [0.59, 0.62, 0.7] # Values used in the scenarios
     maskbetas_sens = [0.55, 0.60, 0.7] # Values used in the scenarios
-    maskbetas = maskbetas_sens
+    maskbetas = maskbetas_main if which == 'main' else maskbetas_sens
 
-else:
+elif resultsfolder=='oldresults':
     maskbetas = [0.6, 0.65, 0.7]
-# Main scenarios are with maskeff = 0.23, corresponding to [0.59, 0.62, 0.7]
-# Sensitivity analyses with maskeff = 0.3 corresponds to [0.55, 0.6, 0.7]
 
 T = sc.tic()
 
@@ -49,9 +50,9 @@ for i,jb in enumerate(maskbetas):
     msim.reduce()
     w0, w1, w2, w3, w4, w5, w6 = cv.date('2020-08-19'), cv.date('2020-08-26'), cv.date('2020-09-02'), cv.date('2020-09-09'), cv.date('2020-09-16'), cv.date('2020-09-23'), cv.date('2020-09-30')
     wd = [sim.day(w0), sim.day(w1), sim.day(w2), sim.day(w3), sim.day(w4), sim.day(w5), sim.day(w6)]
-    inf_med.append(msim.results['new_diagnoses'].values[wd])
-    inf_low.append(msim.results['new_diagnoses'].low[wd])
-    inf_high.append(msim.results['new_diagnoses'].high[wd])
+    inf_med.append(msim.results['new_infections'].values[wd])
+    inf_low.append(msim.results['new_infections'].low[wd])
+    inf_high.append(msim.results['new_infections'].high[wd])
 
 # Now load the transmission tree data
 tlc = sc.loadobj(f'{resultsfolder}/nsw_layer_counts.obj')
@@ -128,14 +129,10 @@ colors = sc.gridcolors(5)
 
 x = np.arange(5)
 colors = [(0.5,0.5,0.5), pl.cm.GnBu(0.3), pl.cm.GnBu(0.6), pl.cm.GnBu(0.9)]
-#layers_to_plot_med = [layer_counts_pre_med[0], layer_counts_med[2], layer_counts_med[1], layer_counts_med[0]]
-#layers_to_plot_low = [layer_counts_pre_low[0], layer_counts_low[2], layer_counts_low[1], layer_counts_low[0]]
-#layers_to_plot_high = [layer_counts_pre_high[0], layer_counts_high[2], layer_counts_high[1], layer_counts_high[0]]
 layers_to_plot_med = [layer_counts_med[2], layer_counts_med[1], layer_counts_med[0]]
 layers_to_plot_low = [layer_counts_low[2], layer_counts_low[1], layer_counts_low[0]]
 layers_to_plot_high = [layer_counts_high[2], layer_counts_high[1], layer_counts_high[0]]
 labels = ['Household', 'School', 'Workplace', 'Known\ncommunity', 'Unknown\ncommunity']
-#scenlabels = ['Jun 1 - Aug 15', 'Aug 16 - Sep 15: No masks', 'Aug 16 - Sep 15: Moderate masks', 'Aug 16 - Sep 15: Optimistic masks']
 scenlabels = ['No masks', 'Moderate masks', 'High masks']
 
 for ltp in range(3):
@@ -145,7 +142,7 @@ for ltp in range(3):
 bar_ax.set_xticks(x-0.15)
 bar_ax.set_xticklabels(labels)
 #bar_ax.legend(frameon=False)
-pl.ylabel('Cumulative infections by layer\nAug 16 - Sep 15')
+pl.ylabel('Cumulative infections by layer\nAug 19 - Sep 30')
 sc.boxoff(ax=bar_ax)
 
 # D. box plot chart
@@ -154,7 +151,7 @@ x0, y0, dx, dy = xgaps*2+mainplotwidth, ygaps, mainplotwidth, mainplotheight
 box_ax = pl.axes([x0, y0, dx, dy])
 x = np.arange(7)
 for ltp in range(3):
-    box_ax.errorbar(x+0.1*ltp-0.3, inf_med[ltp], yerr=[inf_low[ltp], inf_high[ltp]], fmt='o', color=colors[ltp+1], ecolor=colors[ltp+1], ms=20, elinewidth=3, capsize=0)
+    box_ax.errorbar(x+0.1*ltp-0.3, inf_med[2-ltp], yerr=[inf_low[2-ltp], inf_high[2-ltp]], fmt='o', color=colors[ltp+1], ecolor=colors[ltp+1], ms=20, elinewidth=3, capsize=0)
 
 box_ax.set_xticks(x-0.15)
 #box_ax.set_xticklabels(labels)
@@ -171,7 +168,7 @@ sc.boxoff(ax=box_ax)
 #box_ax.legend(frameon=False)
 
 
-cv.savefig(f'{figsfolder}/nsw_scenarios_new.png', dpi=100)
+cv.savefig(f'{figsfolder}/nsw_scenarios_{which}.png', dpi=100)
 
 # Percentage reductions (for text_
 totinfs = [layer_counts_med[i].sum() for i in range(3)]
