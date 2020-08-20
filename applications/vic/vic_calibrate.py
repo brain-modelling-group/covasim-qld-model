@@ -29,7 +29,7 @@ if __name__ == '__main__':
     seeded_cases = {3:0}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
     beta = 0.038 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
-    symp_test = 150  # People with symptoms are this many times more likely to be tested
+    symp_test = 140  # People with symptoms are this many times more likely to be tested
     n_runs = 8  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 300  # People per day that can be traced. Household contacts are always all immediately notified
@@ -154,18 +154,14 @@ if __name__ == '__main__':
     interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='W'))
 
     # Social layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.85, 0.8, 0.25, 0.05], layers='social'))
+    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.85, 0.8, 0.27, 0.05], layers='social'))
 
+    # church and pub/bar layer, clipped by stages 3 and 4
+    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.85, 0.8, 0], layers=['church', 'pub_bar']))
 
-    # Other layers clipped by stage 3 on jul2
-    interventions.append(cv.clip_edges(days=[jul2], changes=[0.85], layers=['church', 'pub_bar', 'cafe_restaurant', 'cSport', 'S']))
+    # cafe/restaurant, community sport and school layer, clipped by stages 3 and 4
+    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.85, 0.8, 0.15], layers=['cafe_restaurant', 'cSport', 'S']))
 
-    # Other layers clipped by stage 3 on jul4
-    interventions.append(cv.clip_edges(days=[jul4], changes=[0.8], layers=['church', 'pub_bar', 'cafe_restaurant', 'cSport', 'S']))
-
-    # Other layers clipped by stage 3 on jul9
-    interventions.append(cv.clip_edges(days=[jul9], changes=[0.15], layers=['cafe_restaurant', 'cSport', 'S']))
-    interventions.append(cv.clip_edges(days=[jul9], changes=[0], layers=['church', 'pub_bar']))
 
 
     # Add tracing intervention for households
