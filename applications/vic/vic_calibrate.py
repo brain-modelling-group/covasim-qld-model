@@ -25,14 +25,14 @@ if __name__ == '__main__':
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
     n_days = 100 # Total simulation duration (days)
-    n_imports = 5  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
+    n_imports = 6  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:0}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
     beta = 0.038 # Overall beta
-    extra_tests = 100  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
-    symp_test = 100  # People with symptoms are this many times more likely to be tested
+    extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
+    symp_test = 150  # People with symptoms are this many times more likely to be tested
     n_runs = 8  # Number of simulations to run
     pop_size = 1e5  # Number of agents
-    tracing_capacity = 200  # People per day that can be traced. Household contacts are always all immediately notified
+    tracing_capacity = 300  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
     scale_tests = 8 # Multiplicative factor for scaling tests by population proportion
 
@@ -128,6 +128,7 @@ if __name__ == '__main__':
 
     # Stage 3 from 9th July
     jul2 = sim.day('20200702')
+    jul4 = sim.day('20200704')
     jul9 = sim.day('20200709')
     jul23 = sim.day('20200723')
     aug6 = sim.day('20200806')
@@ -150,13 +151,21 @@ if __name__ == '__main__':
     # Add clipping policies
 
     # NE work, switch to stage 4 on aug6
-    interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.2], layers='W'))
+    interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='W'))
 
     # Social layer, clipped by stages 3 and 4
-    #interventions.append(cv.clip_edges(days=[jul2,aug6], changes=[0.5,0.2], layers='social'))
+    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.85, 0.8, 0.25, 0.05], layers='social'))
+
+
+    # Other layers clipped by stage 3 on jul2
+    interventions.append(cv.clip_edges(days=[jul2], changes=[0.85], layers=['church', 'pub_bar', 'cafe_restaurant', 'cSport', 'S']))
+
+    # Other layers clipped by stage 3 on jul4
+    interventions.append(cv.clip_edges(days=[jul4], changes=[0.8], layers=['church', 'pub_bar', 'cafe_restaurant', 'cSport', 'S']))
 
     # Other layers clipped by stage 3 on jul9
-    #interventions.append(cv.clip_edges(days=[jul2], changes=[0.5], layers=['church', 'pub_bar', 'cafe_restaurant', 'cSports', 'S']))
+    interventions.append(cv.clip_edges(days=[jul9], changes=[0.15], layers=['cafe_restaurant', 'cSport', 'S']))
+    interventions.append(cv.clip_edges(days=[jul9], changes=[0], layers=['church', 'pub_bar']))
 
 
     # Add tracing intervention for households
@@ -347,11 +356,6 @@ if __name__ == '__main__':
         ax.fill_between(s.base_sim.tvec, s.results['n_infectious'].low, s.results['n_infectious'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['n_infectious'].values[:], color='b', alpha=0.1)
         ax.set_title('Active cases')
-        cases = pd.read_csv('active_cases.csv')
-        cases['day'] = cases['Date'].map(sim.day)
-        cases.set_index('day', inplace=True)
-        cases = cases.loc[cases.index >= 0]['vic'].astype(int)
-        ax.scatter(cases.index, cases.values, color='k')
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
         ax.locator_params('x', nbins=3)
 
