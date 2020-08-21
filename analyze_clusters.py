@@ -231,7 +231,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import sciris as sc
 
-    packages = outbreak.load_packages()
+    packages = outbreak.load_packages()[0]
     params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=5, n_days=30)
 
     # The commands below artifically increase clustering for development purposes
