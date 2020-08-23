@@ -25,8 +25,8 @@ parser.add_argument('--randompop', default=True, type=bool, help='If True, gener
 args = parser.parse_args()
 
 # Load inputs
-packages = outbreak.load_packages('packages.csv')
-scenarios = outbreak.load_scenarios('scenarios.csv')
+packages = outbreak.load_packages('packages.csv')[0]
+scenarios = outbreak.load_scenarios('scenarios.csv')[0]
 params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=1, n_days=31)
 
 if args.randompop:
@@ -35,7 +35,7 @@ else:
     people, popdict = co.make_people(params)
     population = {'people': people, 'popdict': popdict}
 
-run_scenarios = {'relax_3', 'relax_3_nomasks'} # Packages to run full scenario analysis for
+# run_scenarios = {'relax_3', 'relax_3_nomasks', 'relax_4', 'relax_4_nomasks'} # Packages to run full scenario analysis for
 
 for scen_name, scenario in scenarios.items():
 
@@ -47,12 +47,12 @@ for scen_name, scenario in scenarios.items():
     for package_name, policies in packages.items():
         savefile = resultdir / f'{package_name}.stats'
 
-        if scen_name != 'baseline' and package_name not in run_scenarios:
-            continue
+        # if scen_name != 'baseline' and package_name not in run_scenarios:
+        #     continue
 
-        if savefile.exists():
-            print(f'{scen_name}-{package_name} exists, skipping')
-            continue
+        # if savefile.exists():
+        #     print(f'{scen_name}-{package_name} exists, skipping')
+        #     continue
 
         if args.celery:
             # Run simulations using celery

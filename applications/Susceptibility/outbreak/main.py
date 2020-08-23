@@ -7,7 +7,7 @@ import data
 import parameters
 import policy_updates
 import utils
-
+import numpy as np
 
 def load_packages(fname) -> dict:
     """
@@ -24,9 +24,11 @@ def load_packages(fname) -> dict:
     """
 
     packages = pd.read_csv(fname, index_col=0)
+    full_names = packages['full_name'].to_dict()
+    del packages['full_name']
     packages = packages.to_dict(orient='index')
     packages = {name: [policy for policy, active in package.items() if not pd.isnull(active)] for name, package in packages.items()}
-    return packages
+    return packages, full_names
 
 def load_scenarios(fname) -> dict:
     """
@@ -41,9 +43,11 @@ def load_scenarios(fname) -> dict:
     """
 
     scenarios = pd.read_csv(fname, index_col=0)
+    full_names = scenarios['full_name'].to_dict()
+    del scenarios['full_name']
     scenarios.fillna(value=scenarios.loc['baseline'], inplace=True)
     scenarios = scenarios.to_dict(orient='index')
-    return scenarios
+    return scenarios, full_names
 
 def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, n_infected: int = 1, n_days: int = 31) -> parameters.Parameters:
     """
@@ -71,7 +75,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                             'pop_infected': 0,
                             'pop_scale': 1,
                             'rescale': 0,
-                            'beta': 0.038,
+                            'beta': 0.057,
                             'n_days': n_days,
                             'calibration_end': None,
                             'verbose': 0}}
@@ -111,7 +115,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
     }
 
     params.seed_infections = {1: n_infected}
-    params.extrapars['trace_capacity'] = 200
+    params.extrapars['trace_capacity'] = 250
 
     return params
 
@@ -174,17 +178,26 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     ))
 
     # SET TRACING
+    sim.pars['interventions'].append(utils.limited_contact_tracing(trace_probs={'H': 1},
+                                                                   trace_time={'H': 0},
+                                                                   start_day=0,
+                                                                   capacity=np.inf,
+                                                                   ))
+
+    # Add tracing intervention for other layers
+    # Remove the household layer from trace_probs because they will be traced separately
+    del params.extrapars['trace_probs']['H']
+    del params.extrapars['trace_time']['H']
     sim.pars['interventions'].append(utils.limited_contact_tracing_2(trace_probs=params.extrapars['trace_probs'],
                                                                    trace_time=params.extrapars['trace_time'],
                                                                    start_day=0,
                                                                    capacity=params.extrapars['trace_capacity'],
                                                                    dynamic_layers=params.dynamic_lkeys))
 
-    tracing_app, id_checks = policy_updates.make_tracing(trace_policies=params.policies["tracing_policies"])
-    if tracing_app is not None:
-        sim.pars['interventions'].append(tracing_app)
-    if id_checks is not None:
-        sim.pars['interventions'].append(id_checks)
+    sim.pars['interventions'].append(policy_updates.AppBasedTracing(name='tracing_app',
+                                                                    layers=['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social'],
+                                                                    coverage=[0.2],
+                                                                    days=[0]))
 
     # SET CLIPPING POLICIES
     for policy, clip_attributes in params.policies['clip_policies'].items():
