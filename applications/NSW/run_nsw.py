@@ -162,7 +162,7 @@ if domulti:
         layer_remap = {'H': 0, 'S': 1, 'W': 2, 'church': 3, 'pSport': 3, 'cSport': 3, 'social': 3, 'C': 4,
                        'entertainment': 4,
                        'cafe_restaurant': 4, 'pub_bar': 4, 'transport': 4, 'public_parks': 4, 'large_events': 4,
-                       'importation': 4}
+                       'importation': 4, 'seed_infection': 4}
         n_new_layers = 5  # H, S, W, DC, SC
 
         for jb in mask_beta_change:
