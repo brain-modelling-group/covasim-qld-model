@@ -116,7 +116,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
 T = sc.tic()
 
 # Settings
-whattorun = ['calibration', 'scenarios'][0]
+whattorun = ['calibration', 'scenarios'][1]
 domulti = True
 doplot = False
 dosave = True
