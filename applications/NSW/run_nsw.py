@@ -9,7 +9,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
     layers = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'social']
 
     if whattorun == 'calibration':
-        end_day = '2020-08-19'
+        end_day = '2020-08-23'
     elif whattorun == 'scenarios':
         end_day = '2020-09-30'
         mask_beta_change = mask_beta_change
@@ -120,6 +120,7 @@ whattorun = ['calibration', 'scenarios'][0]
 domulti = True
 doplot = False
 dosave = True
+n_runs = 1000
 
 # Filepaths
 inputsfolder = 'inputs'
@@ -142,7 +143,7 @@ if domulti:
     if whattorun == 'calibration':
         sim = make_sim(whattorun, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
         msim = cv.MultiSim(base_sim=sim)
-        msim.run(n_runs=100, reseed=True, noise=0)
+        msim.run(n_runs=n_runs, reseed=True, noise=0)
         if dosave: msim.save(f'{resultsfolder}/nsw_{whattorun}.obj')
         if doplot:
             msim.plot(to_plot=to_plot, do_save=True, do_show=False, fig_path=f'nsw_{whattorun}.png',
@@ -167,9 +168,9 @@ if domulti:
         for jb in mask_beta_change:
             sim = make_sim(whattorun, mask_beta_change=jb, load_pop=True, popfile='nswppl.pop', datafile=datafile, agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)
-            msim.run(n_runs=100, reseed=True, noise=0, keep_people=True)
+            msim.run(n_runs=n_runs, reseed=True, noise=0, keep_people=True)
 
-            all_layer_counts[jb] = np.zeros((100, sim.npts, n_new_layers))
+            all_layer_counts[jb] = np.zeros((n_runs, sim.npts, n_new_layers))
 
             for sn, sim in enumerate(msim.sims):
                 tt = sim.make_transtree()
