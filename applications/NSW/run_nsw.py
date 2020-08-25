@@ -20,7 +20,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
             'rescale': True,
             'rand_seed': 1,
 #            'rel_death_prob': 0.8,
-            'beta': 0.028, # Overall beta to use for calibration
+            'beta': 0.0275, # Overall beta to use for calibration
                                     # H     S       W       C       church  psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4,    21,     5,      1,      20,     40,     30,     25,     19,     30,     25,     10,     50,     6], index=layers).to_dict(),
             'beta_layer':  pd.Series([1,    0.25,   0.3,    0.1,    0.04,   0.2,    0.1,    0.01,   0.04,   0.06,   0.16,   0.03,   0.01,   0.3], index=layers).to_dict(),
@@ -78,9 +78,9 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing
-    symp_prob_prelockdown = 0.05  # Limited testing pre lockdown
-    symp_prob_lockdown = 0.07  # Increased testing during lockdown
-    symp_prob_postlockdown = 0.15  # Testing since lockdown
+    symp_prob_prelockdown = 0.04  # Limited testing pre lockdown
+    symp_prob_lockdown = 0.06  # Increased testing during lockdown
+    symp_prob_postlockdown = 0.18  # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, end_day=lockdown, symp_prob=symp_prob_prelockdown, asymp_quar_prob=0.01, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown, end_day=reopen2, symp_prob=symp_prob_lockdown, asymp_quar_prob=0.01,do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=reopen2, symp_prob=symp_prob_postlockdown, asymp_quar_prob=0.02,do_plot=True))
@@ -90,8 +90,8 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
                      'entertainment': 0.01, 'cafe_restaurant': 0.01, 'pub_bar': 0.01, 'transport': 0.01,
                      'public_parks': 0.01, 'large_events': 0.01, 'social': 0.9}
     trace_probs_2 = {'H': 1, 'S': 0.95, 'W': 0.8, 'C': 0.01, 'church': 0.5, 'pSport': 0.8, 'cSport': 0.5,
-                 'entertainment': 0.25, 'cafe_restaurant': 0.25, 'pub_bar': 0.25, 'transport': 0.01,
-                 'public_parks': 0.01, 'large_events': 0.25, 'social': 0.9}
+                 'entertainment': 0.3, 'cafe_restaurant': 0.3, 'pub_bar': 0.3, 'transport': 0.01,
+                 'public_parks': 0.01, 'large_events': 0.3, 'social': 0.9}
 #    trace_probs = {'H': 1, 'S': 0.95, 'W': 0.8, 'C': 0.3, 'church': 0.3, 'pSport': 0.8, 'cSport': 0.5,
 #                     'entertainment': 0.3, 'cafe_restaurant': 0.3, 'pub_bar': 0.3, 'transport': 0.01,
 #                     'public_parks': 0.01, 'large_events': 0.01, 'social': 0.8}
