@@ -61,39 +61,32 @@ def bootstrap_quantity(df, quantity, n_bootstrap=1000):
     mean_samples = [calc_prob(group,level,quantity, sample=True) for _ in range(n_bootstrap)]  # Bootstrap samples of the mean
     stds = pd.concat(mean_samples).groupby(['scenario_name', 'package_name']).std()
     stds.name = 'std'
-    return pd.concat([means, stds], axis=1)
+    return pd.concat([means, stds], axis=1), mean_samples
 
-bootstrap_cum_infections = bootstrap_quantity(df, 'cum_infections')
-bootstrap_undiagnosed = bootstrap_quantity(df, 'undiagnosed')
+bootstrap_infections,bootstrap_infections_samples  = bootstrap_quantity(df, 'cum_infections')
+bootstrap_undiagnosed, bootstrap_undiagnosed_samples = bootstrap_quantity(df, 'undiagnosed')
 
 raise Exception('Manual stop')
 
-### FIG 1 Boxplot
+### FIG 1 CALIBRATION
+# see vic_calibrate.py
 
-# grouped = df.loc[scenario_names['baseline']].groupby(['package_name'])
-# df2 = pd.DataFrame({col:vals['cum_infections'].values for col,vals in grouped})
-# means = df2.mean()
-# means.sort_values(ascending=True, inplace=True)
-# df2 = df2[means.index]
-# fig, ax = plt.subplots()
-# df2.boxplot()
-# fig.set_size_inches(16, 7)
-# plt.ylabel('Number of infections')
-# plt.title('Number of infections after 30 days')
-# plt.yscale('log')
-# plt.savefig(scendir / f'fig3.png', bbox_inches='tight', dpi=300, transparent=False)
-# plt.close()
+### FIG 2 BOXPLOT
 
 fig, ax = plt.subplots()
-sns.boxplot(order=list(package_names.values()),x='package_name',y='cum_infections',data=df.loc['Baseline'].reset_index())
+sns.boxplot(order=list(package_names.values()),x='package_name',y='cum_infections',data=df.loc['Baseline'].reset_index(), color='#c90000')
 plt.ylabel('Number of infections')
-plt.title('Number of infections after 30 days')
+# plt.title('Number of infections after 30 days')
 plt.xlabel('')
 plt.yscale('log')
+plt.ylim(0.95)
 fig.set_size_inches(14, 7)
-plt.savefig(scendir / f'fig1a.png', bbox_inches='tight', dpi=300, transparent=False)
+sns.despine(offset=10, bottom=True)
+ax.tick_params(axis='x', which='both',length=0)
+
+plt.savefig(scendir / f'fig2.png', bbox_inches='tight', dpi=300, transparent=False)
 plt.close()
-#
+
 # fig, ax = plt.subplots()
 # sns.boxplot(order=list(package_names.values()),x='package_name',y='peak_diagnoses',data=df.loc['Baseline'].reset_index())
 # plt.ylabel('Number of diagnoses per day')
@@ -114,30 +107,123 @@ plt.close()
 # plt.close()
 
 
-## FIG 2 BARS
+## FIG 3 BARS
 
-px = bootstrap_cum_infections.loc['Baseline','mean']
-sx = bootstrap_cum_infections.loc['Baseline','std']
-order = px.argsort()
+labels = list(package_names.values())
+tick_labels = [labels[-1]]
+for i in range(1,len(labels)):
+    a = labels[-i]
+    b = labels[-i-1]
+    z = [x.loc[('Baseline', a)] - x.loc[(scenario, b)] for x in bootstrap_infections_samples]
+    null_hypothesis = np.percentile(z, 2.5) < 0 and np.percentile(z, 100 - 2.5) > 0
+    significant = ~null_hypothesis
+    if significant:
+        b = '*'+b
+    tick_labels.append(b)
+tick_labels.reverse()
+
+px = bootstrap_infections.loc['Baseline','mean'].loc[labels]
+sx = bootstrap_infections.loc['Baseline','std'].loc[labels]
 fig, ax = plt.subplots()
 idx = np.arange(len(px))
-plt.barh(idx,px.values[order], xerr=sx.values[order], color='#c90000',label=f'> {level}')
-plt.yticks(idx, px.index[order])
+plt.barh(idx,px, xerr=sx, color='#c90000',label=f'> {level}')
+plt.yticks(idx, tick_labels)
 plt.xlabel('Probability')
-plt.title('Probability of outbreak >50 people')
-plt.savefig(scendir / f'fig2.png', bbox_inches='tight', dpi=300, transparent=False)
+# plt.title('Probability of outbreak >50 people')
+fig.set_size_inches(10, 6)
+
+sns.despine(offset=10, trim=True, left=True)
+ax.tick_params(axis='y', which='both',length=0)
+
+plt.savefig(scendir / f'fig3.png', bbox_inches='tight', dpi=300, transparent=False)
+plt.close()
+
+# px = bootstrap_undiagnosed.loc['Baseline','mean']
+# sx = bootstrap_undiagnosed.loc['Baseline','std']
+# order = px.argsort()
+# fig, ax = plt.subplots()
+# idx = np.arange(len(px))
+# plt.barh(idx,px.values[order], xerr=sx.values[order], color='#c90000',label=f'> {level}')
+# plt.yticks(idx, px.index[order])
+# plt.xlabel('Probability')
+# plt.title('Probability of >50 undiagnosed people')
+# plt.savefig(scendir / f'fig2.png', bbox_inches='tight', dpi=300, transparent=False)
+
+## FIG 4 SCENARIO HEATMAP
+
+# Proportion diagnosed
+
+level = 50
+group = df.reset_index().groupby(['scenario_name','package_name'])
+p = group['cum_infections'].agg(lambda x: sum(x > level)) / group['cum_infections'].count()
+p = p.unstack()
+p = p[package_names.values()]
+p = p.loc[scenario_names.values()]
+
+annot = p.applymap('{:,.2f}'.format)
+for scenario in annot.index:
+    for package in annot.columns:
+        z = [x.loc[('Baseline', package)] - x.loc[(scenario, package)] for x in bootstrap_infections_samples]
+        null_hypothesis = np.percentile(z, 2.5) < 0 and np.percentile(z, 100 - 2.5) > 0
+        significant = ~null_hypothesis
+        if significant and scenario != 'Baseline':
+            annot.loc[scenario, package] = '*' + annot.loc[scenario, package]
+
+fig, ax = plt.subplots()
+sns.heatmap(p, annot=annot.values, linewidths=.5, ax=ax, cmap='Reds',cbar_kws={'label': 'Probability'}, fmt='s')
+ax.tick_params(axis='both', which='both',length=0)
+plt.xlabel('')
+plt.ylabel('')
+fig.set_size_inches(6, 5)
+
+plt.savefig(scendir / f'fig4.png', bbox_inches='tight', dpi=300, transparent=False)
+plt.close()
 
 
-px = bootstrap_undiagnosed.loc['Baseline','mean']
-sx = bootstrap_undiagnosed.loc['Baseline','std']
-order = px.argsort()
+
+
+
+px = means.reorder_levels(['package_name', 'scenario_name']).loc[package]
+sx = stds.reorder_levels(['package_name', 'scenario_name']).loc[package]
 fig, ax = plt.subplots()
 idx = np.arange(len(px))
-plt.barh(idx,px.values[order], xerr=sx.values[order], color='#c90000',label=f'> {level}')
-plt.yticks(idx, px.index[order])
+plt.barh(idx, px.values, xerr=sx.values, color=color, label=f'> {level}')
+plt.legend()
+
+# Check significance
+labels = []
+for scenario in px.index.values:
+    z = [x.loc[('baseline', package)] - x.loc[(scenario, package)] for x in bootstrap_infections_samples]
+    null_hypothesis = np.percentile(z, 2.5) < 0 and np.percentile(z, 100 - 2.5) > 0
+    significant = ~null_hypothesis
+
+
+plt.yticks(idx, labels)
+
+plt.ylabel(None)
 plt.xlabel('Probability')
-plt.title('Probability of >50 undiagnosed people')
-plt.savefig(scendir / f'fig2.png', bbox_inches='tight', dpi=300, transparent=False)
+ax.invert_yaxis()
+plt.title('Probability of outbreak size')
+fig.set_size_inches(16, 7)
+fig.savefig(scendir / f'probability_errorbars_{package}.png', bbox_inches='tight', dpi=300, transparent=False)
+plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## FIG 2a PROBABILITY CURVES

@@ -49,7 +49,6 @@ def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=Non
     sim_stats['test_delay'] = params.test_prob['test_delay']
     sim_stats['swab_delay'] = params.test_prob['swab_delay']
     sim_stats['test_isolation_compliance'] = params.test_prob['test_isolation_compliance']
-
     sim_stats['cum_tests'] = sim.results['cum_tests'][-1]
 
     new_infections = np.where(sim.results['new_infections'])[0]

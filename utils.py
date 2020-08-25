@@ -541,7 +541,7 @@ class test_prob_with_quarantine(cv.test_prob):
         if self.test_isolation_compliance:
             # If people are meant to quarantine while waiting for their test, then quarantine some/all of the people waiting for tests
             quar_inds = cvu.binomial_filter(self.test_isolation_compliance,test_inds)
-            sim.people.quarantine(quar_inds, self.test_delay)
+            sim.people.quarantine(quar_inds, period=self.test_delay)
 
 
 class limited_contact_tracing(cv.contact_tracing):

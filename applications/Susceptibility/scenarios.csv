@@ -1,10 +1,9 @@
-﻿scenario_name,full_name,symp_prob,symp_quar_prob,test_delay,swab_delay,test_isolation_compliance,leaving_quar_prob
-baseline,Baseline,0.5,0.9,1,1,0.75,0
-less_testing,Less testing,0.25,0.8,,,,
-more_testing,More testing,0.75,1,,,,
-faster_swabs,Faster swabs,,,,0,,
-slower_results,Slower results,,,2,,,
-slower_swabs,Slower swabs,,,,2,,
-less_iso,Lower isolation compliance,,,,,0.5,
-more_iso,Higher isolation compliance,,,,,1,
-best_case,Best case,0.75,1,,0,1,
+﻿scenario_name,full_name,symp_prob,symp_quar_prob,swab_delay,test_isolation_compliance
+baseline,Baseline,0.5,0.9,2,0.75
+less_testing,Less testing,0.25,0.8,,
+more_testing,More testing,0.75,1,,
+faster_swabs,Faster swabs,,,1,
+slower_swabs,Slower swabs,,,3,
+less_iso,Lower isolation compliance,,,,0.5
+more_iso,Higher isolation compliance,,,,1
+best_case,Best case,0.75,1,1,1

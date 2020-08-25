@@ -103,14 +103,13 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                                      sim_pars=loc_pars)
 
     params.test_prob = {
-        'symp_prob': 0.1,  # Someone who has symptoms has this probability of testing on any given day
-        'asymp_prob': 0.00,  # Someone who is asymptomatic has this probability of testing on any given day
+        'symp_prob': 0.1,  # Overall probability of being tested if symptomatic
+        'asymp_prob': 0.00,  # Probability
         'symp_quar_prob': 1.0,  # Someone who is quarantining and has symptoms has this probability of testing on any given day
         'asymp_quar_prob': 0.0,
         'test_delay': 1, # Number of days for test results to be processed
         'swab_delay': 2, # Number of days people wait after symptoms before being tested
         'test_isolation_compliance': 0,
-        'isolation_threshold': 0,
         'leaving_quar_prob': 0,
     }
 

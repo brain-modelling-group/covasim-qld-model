@@ -244,7 +244,6 @@ if __name__ == '__main__':
         'asymp_quar_prob': 1.0,
         'test_delay': 2,  # Number of days for test results to be processed
         'swab_delay': 2,  # Number of days people wait after symptoms before being tested
-        'isolation_threshold': 0,
         'leaving_quar_prob': 0.0,
     }
 
