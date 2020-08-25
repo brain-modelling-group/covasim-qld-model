@@ -27,7 +27,7 @@ if __name__ == '__main__':
     n_days = 100 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:10}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.057 # Overall beta
+    beta = 0.065 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
     n_runs = 8  # Number of simulations to run
@@ -133,9 +133,9 @@ if __name__ == '__main__':
     jul23 = sim.day('20200723')
     aug6 = sim.day('20200806')
 
-    beta_schedule.end('cafe_restaurant_4sqm', jul2)
-    beta_schedule.end('pub_bar_4sqm', jul2)
-    beta_schedule.end('outdoor200', jul2)
+    #beta_schedule.end('cafe_restaurant_4sqm', jul2)
+    #beta_schedule.end('pub_bar_4sqm', jul2)
+    #beta_schedule.end('outdoor200', jul2)
     #beta_schedule.add('cafe_restaurant0', jul2)
     #beta_schedule.add('pub_bar0', jul2)
     #beta_schedule.add('church0', jul2)
@@ -154,13 +154,13 @@ if __name__ == '__main__':
     interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='W'))
 
     # Social layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.8, 0.7, 0.27, 0.05], layers='social'))
+    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.9, 0.85, 0.3, 0.05], layers='social'))
 
     # church and pub/bar layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.75, 0.65, 0], layers=['church', 'pub_bar']))
+    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0], layers=['church', 'pub_bar']))
 
     # cafe/restaurant, community sport and school layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.75, 0.65, 0.15], layers=['cafe_restaurant', 'cSport', 'S']))
+    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0.15], layers=['cafe_restaurant', 'cSport', 'S']))
 
 
 
@@ -245,7 +245,7 @@ if __name__ == '__main__':
     else:
         s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=True, par_args={'ncpus': 4})
         s.run()
-        s.reduce()
+        s.reduce(quantiles={'low': 0.2, 'high': 0.8})
 
 
     ####### ANALYZE RESULTS
@@ -387,7 +387,7 @@ if __name__ == '__main__':
     plot_active_cases(ax[1][1])
     plot_severe_infections(ax[2][1])
 
-    plt.savefig('vic_calibrate_2108.png')
+    plt.savefig('vic_calibrate_2508.png')
     plt.show()
 
 
