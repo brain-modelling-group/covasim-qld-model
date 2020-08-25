@@ -238,14 +238,10 @@ if __name__ == '__main__':
     # results = run_multi_sim(sim,n_runs, analyzer=analyzer, celery=True)
 
     # Run using MultiSim
-    if n_runs == 1:
-        sim.run()
-        s = sim
-        results = [sim.results]
-    else:
-        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=True, par_args={'ncpus': 4})
-        s.run()
-        s.reduce(quantiles={'low': 0.2, 'high': 0.8})
+    s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
+    s.run()
+    sc.saveobj('multisim_test.obj',s)
+    s.reduce(quantiles={'low': 0.2, 'high': 0.8})
 
 
     ####### ANALYZE RESULTS
