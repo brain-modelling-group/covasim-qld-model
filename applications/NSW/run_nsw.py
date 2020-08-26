@@ -120,7 +120,7 @@ whattorun = ['calibration', 'scenarios'][1]
 domulti = True
 doplot = False
 dosave = True
-n_runs = 1000
+n_runs = 500
 
 # Filepaths
 inputsfolder = 'inputs'
