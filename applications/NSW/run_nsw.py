@@ -9,7 +9,7 @@ def make_sim(whattorun, mask_beta_change=None, load_pop=True, popfile='nswppl.po
     layers = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'social']
 
     if whattorun == 'calibration':
-        end_day = '2020-08-23'
+        end_day = '2020-08-25'
     elif whattorun == 'scenarios':
         end_day = '2020-09-30'
         mask_beta_change = mask_beta_change
@@ -120,7 +120,7 @@ whattorun = ['calibration', 'scenarios'][0]
 domulti = True
 doplot = False
 dosave = True
-n_runs = 400
+n_runs = 100
 
 # Filepaths
 inputsfolder = 'inputs'

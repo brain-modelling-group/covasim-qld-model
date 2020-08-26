@@ -8,7 +8,7 @@ import datetime as dt
 import matplotlib.patches as patches
 
 # Filepaths
-resultsfolder = 'results08192'
+resultsfolder = 'resultsaug26'
 figsfolder = 'figs'
 simsfilepath = f'{resultsfolder}/nsw_calibration.obj'
 addhist = False
