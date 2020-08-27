@@ -238,23 +238,15 @@ if __name__ == '__main__':
     # results = run_multi_sim(sim,n_runs, analyzer=analyzer, celery=True)
 
     # Run using MultiSim
-    # s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
-    # s.run()
-    # sc.saveobj('multisim_test.obj',s)
-    s = sc.loadobj('multisim_test.obj')
-    s.reduce(quantiles={'low': 0.25, 'high': 0.75})
+    s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
+    s.run()
+    sc.saveobj('multisim_test.obj',s)
+    s.reduce(quantiles={'low': 0.2, 'high': 0.8})
 
 
     ####### ANALYZE RESULTS
 
-    def common_format(ax):
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
-        ax.locator_params('x', nbins=5, prune='both')
-        ax.set_xlim(0,100)
-        plt.setp(ax.get_xticklabels(), ha="right", rotation=30)
-
     def plot_cum_diagnosed(ax):
-
         fill_args = {'alpha': 0.3}
         ax.fill_between(s.base_sim.tvec, s.results['cum_diagnoses'].low, s.results['cum_diagnoses'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['cum_diagnoses'].values[:], color='b', alpha=0.1)
@@ -263,12 +255,12 @@ if __name__ == '__main__':
         cases['day'] = cases['Date'].map(sim.day)
         cases.set_index('day', inplace=True)
         cases = cases.loc[cases.index >= 0]['vic'].astype(int).cumsum()
-        ax.scatter(cases.index, cases.values, s=10, color='k', alpha=1.0)
-        # after_lockdown = cases.index.values > 0
-        # ax.scatter(cases.index.values[after_lockdown], cases.values[after_lockdown], s=5, color='r', alpha=1.0)
-        # ax.axvline(x=jul2, color='grey', linestyle='--')
-        # ax.axvline(x=jul23, color='grey', linestyle='--')
-        # ax.axvline(x=aug6, color='grey', linestyle='--')
+        ax.scatter(cases.index, cases.values, s=5, color='k')
+        after_lockdown = cases.index.values > 0
+        ax.scatter(cases.index.values[after_lockdown], cases.values[after_lockdown], s=5, color='r')
+        ax.axvline(x=jul2, color='grey', linestyle='--')
+        ax.axvline(x=jul23, color='grey', linestyle='--')
+        ax.axvline(x=aug6, color='grey', linestyle='--')
 
         ax.set_title('Cumulative diagnosed cases')
 
@@ -292,10 +284,10 @@ if __name__ == '__main__':
         coeffs = np.polyfit(x[n_window], np.log(y[n_window]), 1, w=np.sqrt(y[n_window]))
         # ax.plot(np.exp(coeffs[1])*np.exp(coeffs[0]*x),'k--', linewidth=1)
 
-        # ax.text(0.05, 0.9, f'Data exponent = {coeffs[0]:.4f}', transform=ax.transAxes)
-        # ax.text(0.05, 0.80, f'Average model exponent = {np.mean(exponent):.4f}', transform=ax.transAxes)
-        common_format(ax)
-
+        ax.text(0.05, 0.9, f'Data exponent = {coeffs[0]:.4f}', transform=ax.transAxes)
+        ax.text(0.05, 0.80, f'Average model exponent = {np.mean(exponent):.4f}', transform=ax.transAxes)
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
+        ax.locator_params('x', nbins=3)
 
 
     def plot_cum_infections(ax):
@@ -304,37 +296,26 @@ if __name__ == '__main__':
         ax.plot(s.base_sim.tvec, s.results['cum_infections'].values[:], color='b', alpha=0.1)
         ax.set_title('Cumulative infections')
         #ax.hlines(params.pars['pop_size'], 0, s.base_sim.tvec[-1])
-        common_format(ax)
-
-
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
+        ax.locator_params('x', nbins=3)
 
 
     def plot_new_diagnoses(ax):
-        # fig, ax = plt.subplots()
-
         fill_args = {'alpha': 0.3}
         ax.fill_between(s.base_sim.tvec, s.results['new_diagnoses'].low, s.results['new_diagnoses'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['new_diagnoses'].values[:], color='b', alpha=0.1)
         ax.set_title('New diagnoses')
 
         cases = pd.read_csv('new_cases.csv')
-        cases['day'] = cases['Date'].map(s.base_sim.day)
+        cases['day'] = cases['Date'].map(sim.day)
         cases.set_index('day', inplace=True)
         cases = cases.loc[cases.index >= 0]['vic'].astype(int)
-        ax.scatter(cases.index, cases.values, color='k', s=10, alpha=1.0)
-        common_format(ax)
-
-
-
-        ax.set_ylabel('Number of cases')
-        # ax.axvline(x=jul9, color='grey', linestyle='--')
-        # ax.axvline(x=jul23, color='grey', linestyle='--')
-        # ax.axvline(x=aug6, color='grey', linestyle='--')
-        #
-        # ax.text(jul9+0.1, 875, 'Stage 3', fontsize=9, horizontalalignment='left')
-        # ax.text(jul23+0.1, 875, 'Masks', fontsize=9, horizontalalignment='left')
-        # ax.text(aug6+0.1, 875, 'Stage 4', fontsize=9, horizontalalignment='left')
-
+        ax.scatter(cases.index, cases.values, color='k')
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
+        ax.locator_params('x', nbins=3)
+        ax.axvline(x=jul2, color='grey', linestyle='--')
+        ax.axvline(x=jul23, color='grey', linestyle='--')
+        ax.axvline(x=aug6, color='grey', linestyle='--')
 
 
     def plot_daily_tests(ax):
@@ -347,11 +328,10 @@ if __name__ == '__main__':
         tests.set_index('day', inplace=True)
         tests = tests.loc[tests.index >= 0]['vic'].astype(float)
         tests = tests * scale_tests * (sim.n / 4.9e6)  # Approximately scale to number of simulation agents
-        ax.scatter(tests.index, tests.values, color='k', alpha=1.0)
+        ax.scatter(tests.index, tests.values, color='k')
         ax.set_title('Daily tests')
-        common_format(ax)
-
-
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
+        ax.locator_params('x', nbins=3)
 
 
     def plot_test_yield(ax):
@@ -359,9 +339,8 @@ if __name__ == '__main__':
         ax.fill_between(s.base_sim.tvec, s.results['test_yield'].low, s.results['test_yield'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['test_yield'].values[:], color='b', alpha=0.1)
         ax.set_title('Test yield*')
-        common_format(ax)
-
-
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
+        ax.locator_params('x', nbins=3)
 
 
     def plot_active_cases(ax):
@@ -369,9 +348,8 @@ if __name__ == '__main__':
         ax.fill_between(s.base_sim.tvec, s.results['n_infectious'].low, s.results['n_infectious'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['n_infectious'].values[:], color='b', alpha=0.1)
         ax.set_title('Active cases')
-        common_format(ax)
-
-
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
+        ax.locator_params('x', nbins=3)
 
 
     def plot_severe_infections(ax):
@@ -385,40 +363,28 @@ if __name__ == '__main__':
         hosp.set_index('day', inplace=True)
 
         hosp = hosp.loc[hosp.index >= 0]['vic'].astype(int)
-        ax.scatter(hosp.index, hosp.values, color='k', s=10, alpha=1.0)
-        common_format(ax)
+        ax.scatter(hosp.index, hosp.values, color='k')
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
+        ax.locator_params('x', nbins=3)
 
 
+    fig, ax = plt.subplots(3, 2)
+    fig.set_size_inches(8, 11)
 
-    '''
-    # fig, ax = plt.subplots(3, 2)
-    # fig.set_size_inches(8, 11)
-    # 
-    # titlestr = f'{n_imports} imported cases per day, seeded {seeded_cases}'
-    # 
-    # fig.suptitle(titlestr)
-    # 
-    # plot_new_diagnoses(ax[0][0])
-    # plot_cum_diagnosed(ax[0][1])
-    # plot_cum_infections(ax[2][0])
-    # 
-    # plot_daily_tests(ax[1][0])
-    # plot_active_cases(ax[1][1])
-    # plot_severe_infections(ax[2][1])
-    # 
-    # plt.savefig('vic_calibrate_2508.png')
-    # plt.show()
-    
-    '''
+    titlestr = f'{n_imports} imported cases per day, seeded {seeded_cases}'
 
-    fig, ax = plt.subplots(1,3)
-    fig.set_size_inches(12, 3)
+    fig.suptitle(titlestr)
 
-    plot_new_diagnoses(ax[0])
-    plot_cum_diagnosed(ax[1])
-    plot_severe_infections(ax[2])
+    plot_new_diagnoses(ax[0][0])
+    plot_cum_diagnosed(ax[0][1])
+    plot_cum_infections(ax[2][0])
 
+    plot_daily_tests(ax[1][0])
+    plot_active_cases(ax[1][1])
+    plot_severe_infections(ax[2][1])
+
+    plt.savefig('vic_calibrate_2508.png')
     plt.show()
-    plt.savefig('fig1.png', bbox_inches='tight', dpi=300, transparent=False)
+
 
 

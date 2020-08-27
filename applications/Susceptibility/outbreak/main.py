@@ -67,7 +67,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
     epi_name = 'epi_data_Australia'
 
     all_lkeys = ['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
-                 'transport', 'public_parks', 'large_events', 'child_care', 'social','aged_care']
+                 'transport', 'public_parks', 'large_events', 'child_care', 'social']
     dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
                      'transport', 'public_parks', 'large_events']
 
@@ -75,7 +75,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                             'pop_infected': 0,
                             'pop_scale': 1,
                             'rescale': 0,
-                            'beta': 0.065,
+                            'beta': 0.057,
                             'n_days': n_days,
                             'calibration_end': None,
                             'verbose': 1}}
@@ -194,7 +194,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
                                                                    dynamic_layers=params.dynamic_lkeys))
 
     sim.pars['interventions'].append(policy_updates.AppBasedTracing(name='tracing_app',
-                                                                    layers=['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social', 'aged_care'],
+                                                                    layers=['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social'],
                                                                     coverage=[0.2],
                                                                     days=[0]))
 
