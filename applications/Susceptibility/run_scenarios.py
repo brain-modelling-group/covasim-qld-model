@@ -45,9 +45,6 @@ for scen_name, scenario in scenarios.items():
     for package_name, policies in packages.items():
         savefile = resultdir / f'{package_name}.stats'
 
-        if scen_name != 'baseline' or package_name != 'relax_3':
-            continue
-
         if savefile.exists():
             print(f'{scen_name}-{package_name} exists, skipping')
             continue

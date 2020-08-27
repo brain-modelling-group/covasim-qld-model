@@ -437,3 +437,37 @@ for scenario in scenarios:
     fig.set_size_inches(16, 7)
     fig.savefig(scendir / f'probability_bars_{scenario}.png', bbox_inches='tight', dpi=300, transparent=False)
     plt.close()
+
+
+# Time to first diagnosis
+relax3 = df.reorder_levels(['package_name', 'scenario_name']).loc['Relax 3 + masks']
+
+
+fig, ax = plt.subplots()
+sns.boxplot(order=list(scenario_names.values()),x='scenario_name',y='cum_infections_at_first_diagnosis',data=relax3.reset_index(), fliersize=2,color='#c90000', width=0.5)
+plt.ylabel('Number of infections at first diagnosis',fontsize=12)
+# plt.title('Number of infections after 30 days')
+plt.xlabel('')
+# plt.yscale('log')
+plt.ylim(0.95)
+fig.set_size_inches(7, 4)
+sns.despine(offset=10, bottom=True)
+ax.tick_params(axis='x', which='both',length=0)
+labels = [x.get_text() for x in ax.get_xticklabels()]
+ax.set_xticklabels(x.replace(' (','\n(') for x in labels)
+
+
+
+fig, ax = plt.subplots()
+sns.boxplot(order=list(scenario_names.values()),x='scenario_name',y='time_to_first_diagnosis',data=relax3.reset_index(), fliersize=2,color='#c90000', width=0.5)
+plt.ylabel('Time to first diagnosis',fontsize=12)
+# plt.title('Number of infections after 30 days')
+plt.xlabel('')
+# plt.yscale('log')
+plt.ylim(0.95)
+fig.set_size_inches(7, 4)
+sns.despine(offset=10, bottom=True)
+ax.tick_params(axis='x', which='both',length=0)
+labels = [x.get_text() for x in ax.get_xticklabels()]
+ax.set_xticklabels(x.replace(' (','\n(') for x in labels)
+

@@ -54,9 +54,9 @@ def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=Non
     new_infections = np.where(sim.results['new_infections'])[0]
     new_diagnoses = np.where(sim.results['new_diagnoses'])[0]
     if len(new_diagnoses) and len(new_infections):
-        sim.results['time_to_first_diagnosis'] = new_diagnoses[0]-new_infections[0] # Time to first diagnosis
+        sim_stats['time_to_first_diagnosis'] = new_diagnoses[0]-new_infections[0] # Time to first diagnosis
     else:
-        sim.results['time_to_first_diagnosis'] = None
+        sim_stats['time_to_first_diagnosis'] = None
 
     if len(new_diagnoses):
         # If there was at least one diagnosis
