@@ -35,32 +35,6 @@ else:
     people, popdict = co.make_people(params)
     population = {'people': people, 'popdict': popdict}
 
-results = {}
-
-
-def execute_celery(scen_name, package_name, offset=0):
-    scenario = scenarios[scen_name]
-    policies = packages[package_name]
-
-    job = group([run_australia_outbreak.s(i, params, policies, **population) for i in range(args.nruns)])
-    result = job.apply_async()
-
-    pbar = tqdm(total=args.nruns, desc=f'{scen_name}-{package_name}', position=offset)
-    while result.completed_count < args.nruns:
-        pbar.n = result.completed_count()
-        if pbar.n == 0:
-            pbar.reset() # Keep resetting the timer until the job starts
-        pbar.refresh()
-        time.sleep(1)
-
-    sim_stats = result.join()
-    savefile = Path(__file__).parent / 'scenarios' / scen_name / f'{package_name}.stats'
-    sc.saveobj(savefile, sim_stats)
-    result.forget()
-
-
-
-
 for scen_name, scenario in scenarios.items():
 
     resultdir = Path(__file__).parent /'scenarios'/f'{scen_name}'
@@ -71,8 +45,8 @@ for scen_name, scenario in scenarios.items():
     for package_name, policies in packages.items():
         savefile = resultdir / f'{package_name}.stats'
 
-        # if scen_name != 'baseline' or package_name != 'relax_3':
-        #     continue
+        if scen_name != 'baseline' or package_name != 'relax_3':
+            continue
 
         if savefile.exists():
             print(f'{scen_name}-{package_name} exists, skipping')
@@ -81,34 +55,21 @@ for scen_name, scenario in scenarios.items():
         if args.celery:
             # Run simulations using celery
             job = group([run_australia_outbreak.s(i, params, policies, **population) for i in range(args.nruns)])
-            results[(scen_name, package_name)] = job.apply_async()
+            result = job.apply_async()
+
+            with tqdm(total=args.nruns, desc=f'{scen_name}-{package_name}') as pbar:
+                while result.completed_count() < args.nruns:
+                    time.sleep(1)
+                    pbar.n = result.completed_count()
+                    pbar.refresh()
+                pbar.n = result.completed_count()
+                pbar.refresh()
+            sim_stats = result.join()
+            result.forget()
+
         else:
             sim_stats = []
             for i in tqdm(range(args.nruns), desc=f'{scen_name}-{package_name}'):
                 sim_stats.append(run_australia_outbreak(i, sc.dcp(params), sc.dcp(policies), **population))
-            sc.saveobj(savefile, sim_stats)
 
-if args.celery:
-    pbars = {}
-    for i,k in enumerate(results.keys()):
-        pbars[k] = tqdm(total=args.nruns, desc=f'{k[0]}-{k[1]}', position=i)
-
-    all_complete = False
-    while not all_complete:
-        all_complete = True
-
-        for k, result in results.items():
-            if result is None:
-                continue
-            pbars[k].n = result.completed_count()
-            pbars[k].refresh()
-
-            if result.completed_count() == args.nruns:
-                sim_stats = result.join()
-                resultdir = Path(__file__).parent / 'scenarios' / f'{k[0]}'
-                savefile = resultdir / f'{k[1]}.stats'
-                sc.saveobj(savefile, sim_stats)
-                result.forget()
-                results[k] = None
-            else:
-                all_complete = False
+        sc.saveobj(savefile, sim_stats)
