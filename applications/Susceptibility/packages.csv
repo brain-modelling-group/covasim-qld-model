@@ -1,8 +1,8 @@
-﻿package_name,full_name,church0,church_4sqm,cafe_restaurant0,cafe_restaurant_4sqm,pub_bar0,pub_bar_4sqm,outdoor2,outdoor10,outdoor200,cSports,child_care,schools,entertainment,large_events,NE_work,social,masks,
+﻿package_name,full_name,church0,church_4sqm,cafe_restaurant0,cafe_restaurant_4sqm,pub_bar0,pub_bar_4sqm,outdoor2,outdoor10,outdoor200,cSports,child_care,schools,entertainment,large_events,NE_work,social,masks,dynamic_masks
 stage_3,Stage 3,Y,,Y,,Y,,Y,,,Y,,Y,Y,Y,Y,Y,Y,
 relax_1,Relax 1,Y,,Y,,Y,,,Y,,Y,,,Y,Y,Y,,Y,
 relax_2,Relax 2,Y,,,Y,,Y,,Y,,Y,,,Y,Y,Y,,Y,
-relax_3,Relax 3,,Y,,Y,,Y,,,Y,,,,,Y,Y,,Y,
-relax_3_nomasks,Relax 3 (no masks),,Y,,Y,,Y,,,Y,,,,,Y,Y,,,
-relax_4,Relax 4,,,,,,,,,Y,,,,,Y,Y,,Y,
-relax_4_nomasks,Relax 4 (no masks),,,,,,,,,Y,,,,,Y,Y,,,
+relax_3,Relax 3 + masks,,Y,,Y,,Y,,,Y,,,,,Y,Y,,Y,Y
+relax_3_nomasks,Relax 3,,Y,,Y,,Y,,,Y,,,,,Y,Y,,,
+relax_4,Relax 4 + masks,,,,,,,,,Y,,,,,Y,Y,,Y,Y
+relax_4_nomasks,Relax 4,,,,,,,,,Y,,,,,Y,Y,,,

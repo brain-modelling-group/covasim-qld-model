@@ -443,6 +443,32 @@ class SeedInfection(cv.Intervention):
             sim.people.infect(inds=target_inds)
 
 
+class DynamicTrigger(cv.Intervention):
+    """
+    Execute callback during simulation execution
+    """
+    def __init__(self, condition, action, once_only=False):
+        """
+        Args:
+            condition: A function `condition(sim)` function that returns True or False
+            action: A function `action(sim)` that runs if the condition was true
+            once_only: If True, the action will only execute once
+        """
+        super().__init__()
+        self.condition = condition #: Function that
+        self.action = action
+        self.once_only = once_only
+        self._ran = False
+
+    def apply(self, sim):
+        """
+        Check condition and execute callback
+        """
+        if not (self.once_only and self._ran) and self.condition(sim):
+            self.action(sim)
+            self._ran = True
+
+
 class test_prob_with_quarantine(cv.test_prob):
     """
     Testing based on probability with quarantine during tests

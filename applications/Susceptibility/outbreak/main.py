@@ -78,10 +78,10 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                             'beta': 0.065,
                             'n_days': n_days,
                             'calibration_end': None,
-                            'verbose': 0}}
+                            'verbose': 1}}
 
     metapars = {'noise': 0.0,
-                'verbose': 0}
+                'verbose': 1}
 
     user_pars, calibration_end = utils.clean_pars(user_pars, [location])
 
@@ -207,4 +207,20 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
                                                            layers=clip_attributes['layers'],
                                                            changes=clip_attributes['change']))
 
+    if 'dynamic_masks' in scen_policies:
+        print('Converting masks to dynamic policy')
+        beta_schedule.remove('masks') # Remove masks from day 0
+        dynamic_trigger = utils.DynamicTrigger(condition=mask_condition, action=mask_action, once_only=True)
+        sim.pars['interventions'].insert(0, dynamic_trigger) # Make sure it runs before beta schedule
+
     return sim
+
+
+def mask_condition(sim):
+    return np.any(sim.people.diagnosed)
+
+def mask_action(sim):
+    for intervention in sim.pars['interventions']:
+        if isinstance(intervention, policy_updates.PolicySchedule):
+            print('Triggered masks on day %d' % (sim.t))
+            intervention.start('masks', sim.t)

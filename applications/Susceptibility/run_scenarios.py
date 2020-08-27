@@ -35,8 +35,6 @@ else:
     people, popdict = co.make_people(params)
     population = {'people': people, 'popdict': popdict}
 
-# run_scenarios = {'relax_3', 'relax_3_nomasks', 'relax_4', 'relax_4_nomasks'} # Packages to run full scenario analysis for
-
 for scen_name, scenario in scenarios.items():
 
     resultdir = Path(__file__).parent /'scenarios'/f'{scen_name}'
@@ -47,12 +45,12 @@ for scen_name, scenario in scenarios.items():
     for package_name, policies in packages.items():
         savefile = resultdir / f'{package_name}.stats'
 
-        # if scen_name != 'baseline' and package_name not in run_scenarios:
-        #     continue
+        if scen_name != 'baseline' or package_name != 'relax_3':
+            continue
 
-        # if savefile.exists():
-        #     print(f'{scen_name}-{package_name} exists, skipping')
-        #     continue
+        if savefile.exists():
+            print(f'{scen_name}-{package_name} exists, skipping')
+            continue
 
         if args.celery:
             # Run simulations using celery
@@ -72,6 +70,6 @@ for scen_name, scenario in scenarios.items():
         else:
             sim_stats = []
             for i in tqdm(range(args.nruns), desc=f'{scen_name}-{package_name}'):
-                sim_stats.append(run_australia_outbreak(i, params, policies, **population))
+                sim_stats.append(run_australia_outbreak(i, sc.dcp(params), sc.dcp(policies), **population))
 
         sc.saveobj(savefile, sim_stats)
