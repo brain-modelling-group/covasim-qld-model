@@ -1,0 +1,6 @@
+﻿package_name,full_name,church0,church_4sqm,cafe_restaurant0,cafe_restaurant_4sqm,pub_bar0,pub_bar_4sqm,outdoor2,outdoor10,outdoor200,cSports,child_care,schools,entertainment,large_events,NE_work,social,masks
+stage_3,Stage 3,Y,,Y,,Y,,Y,,,Y,,Y,Y,Y,Y,Y,Y
+relax_1,Relax A,Y,,Y,,Y,,,Y,,Y,,,Y,Y,Y,,Y
+relax_2,Relax B,Y,,,Y,,Y,,Y,,Y,,,Y,Y,Y,,Y
+relax_3,Relax C,,Y,,Y,,Y,,,Y,,,,,Y,Y,,Y
+relax_4,Relax D,,,,,,,,,Y,,,,,Y,Y,,Y

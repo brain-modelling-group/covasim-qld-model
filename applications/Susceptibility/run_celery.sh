@@ -7,10 +7,10 @@ export PYTHONPATH="${PYTHONPATH}:${COVADIR}"
 
 if [ "$HOSTNAME" = athena ]; then
   export COVID_REDIS_URL="redis://apollo:6379"
-  CONCURRENCY=24
+  CONCURRENCY=50
 elif [ "$HOSTNAME" = apollo ]; then
   export COVID_REDIS_URL="redis://apollo:6379"
-  CONCURRENCY=20
+  CONCURRENCY=40
 else
   export COVID_REDIS_URL="redis://localhost:6379"
   CONCURRENCY=4

@@ -27,9 +27,12 @@ celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case
 @celery.task()
 def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=None):
 
+    sc.tic()
     sim = outbreak.get_australia_outbreak(seed, params, scen_policies, people, popdict)
+    sc.toc()
+    sc.tic()
     sim.run()
-
+    sc.toc()
     # Returning the entire Sim results in too much disk space being consumed by the Redis backend
     # e.g. when running 1000 simulations. So instead, just keep summary statistics
     sim_stats = {}
@@ -40,6 +43,7 @@ def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=Non
 
     active_infections = sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values
     sim_stats['active_infections'] = active_infections[-1]
+    sim_stats['active_diagnosed'] = sum(sim.people.diagnosed & ~sim.people.recovered) # WARNING - this will not be correct if rescaling was used
     sim_stats['peak_infections'] = max(sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values)
     sim_stats['peak_incidence'] = max(sim.results['new_infections'])
     sim_stats['peak_diagnoses'] = max(sim.results['new_diagnoses'])

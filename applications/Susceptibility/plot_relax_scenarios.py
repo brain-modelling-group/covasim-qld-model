@@ -9,15 +9,17 @@ import outbreak
 import sciris as sc
 import seaborn as sns
 
-scendir = Path(__file__).parent/'scenarios'
+scendir = Path(__file__).parent/'relax'
 
 # Load records in
 records = []
 for statsfile in scendir.rglob('*.stats'):
     stats = sc.loadobj(statsfile)
+    n_initial = int(statsfile.stem.split('_')[-1])
     for d in stats:
         d['scenario_name'] = statsfile.parent.name
         d['package_name'] = statsfile.stem
+        d['n_initial'] = n_initial
     records += stats
 df = pd.DataFrame.from_records(records)
 
@@ -30,12 +32,14 @@ df.set_index(['scenario_name','package_name'],inplace=True)
 scenarios = list(df.index.get_level_values(0).unique())
 packages = list(df.index.get_level_values(1).unique())
 
+raise Exception('Stop')
+
 # PERFORM BOOTSTRAP ANALYSIS
 risk_levels = {50: '#ffbfbf', 100: '#ff8585', 250: '#c90000'}
 
-level = 100
+level = 50
 color = risk_levels[level]
-
+#
 def calc_prob(group, level, quantity, sample:bool=False):
     """
     Calculate probability of >level cumulative infections
@@ -65,61 +69,50 @@ def bootstrap_quantity(df, quantity, n_bootstrap=1000):
 
 import covasim.utils as cvu
 cvu.set_seed(1)
-bootstrap_infections,bootstrap_infections_samples  = bootstrap_quantity(df, 'cum_infections')
-bootstrap_undiagnosed, bootstrap_undiagnosed_samples = bootstrap_quantity(df, 'undiagnosed')
+bootstrap_peak_diagnoses,bootstrap_peak_diagnoses_samples  = bootstrap_quantity(df, 'peak_diagnoses')
 
-to_save = {
-    'bootstrap_infections': bootstrap_infections,
-    'bootstrap_infections_samples': bootstrap_infections_samples,
-    'bootstrap_undiagnosed': bootstrap_undiagnosed,
-    'bootstrap_undiagnosed_samples': bootstrap_undiagnosed_samples,
-}
-sc.saveobj(scendir/'bootstrap_samples.obj', to_save)
+# bootstrap_undiagnosed, bootstrap_undiagnosed_samples = bootstrap_quantity(df, 'undiagnosed')
+raise Exception('Stop')
+
+### COMPARE ACTIVE INFECTIONS AND PEAK DIAGNOSES
+plt.scatter(df['active_infections'],df['peak_diagnoses'])
+
+dx = pd.read_csv('../vic/new_cases1.csv')
+data_active_cases = pd.read_csv('../vic/active_cases1.csv')
+dx['vic_active'] = data_active_cases['vic']
+dx = dx[['Date','vic','vic_active']]
+dx.dropna(inplace=True,how='any')
+plt.scatter(dx['vic_active'],dx['vic'],color='r')
+
+
+group = df.reset_index().groupby(['scenario_name', 'package_name'])
+group.median()['peak_diagnoses']
+group.mean()['peak_diagnoses']
+
+group['peak_diagnoses'].agg(lambda x: sum(x > 50)) / group['peak_diagnoses'].count()
+
+group['cum_infections'].agg(lambda x: sum(x > 50)) / group['cum_infections'].count()
+
+
+
+# to_save = {
+#     'bootstrap_infections': bootstrap_infections,
+#     'bootstrap_infections_samples': bootstrap_infections_samples,
+#     'bootstrap_undiagnosed': bootstrap_undiagnosed,
+#     'bootstrap_undiagnosed_samples': bootstrap_undiagnosed_samples,
+# }
+# sc.saveobj(scendir/'bootstrap_samples.obj', to_save)
 
 # raise Exception('Manual stop')
 
 ### FIG 1 CALIBRATION
 # see vic_calibrate.py
 
-### FIG 2 BOXPLOT
-
-fig, ax = plt.subplots()
-sns.boxplot(order=list(package_names.values()),x='package_name',y='cum_infections',data=df.loc['Baseline'].reset_index(), fliersize=2,color='#c90000', width=0.5)
-
-medians = df.loc['Baseline'].reset_index().groupby('package_name').median()['cum_infections']
-for i, package in enumerate(package_names.values()):
-    ax.text(i, medians.loc[package], f'{medians.loc[package]:.0f}', ha='center', va='bottom', color='w')
-
-plt.ylabel('Number of infections after 30 days',fontsize=12)
-# plt.title('Number of infections after 30 days')
-plt.xlabel('')
-plt.yscale('log')
-plt.ylim(0.95)
-fig.set_size_inches(7, 4)
-sns.despine(offset=10, bottom=True)
-ax.tick_params(axis='x', which='both',length=0)
-labels = [x.get_text() for x in ax.get_xticklabels()]
-ax.set_xticklabels(x.replace(' (','\n(') for x in labels)
-plt.savefig(scendir / f'fig2.png', bbox_inches='tight', dpi=300, transparent=False)
-plt.close()
-
 ## FIG 3 BARS
 
-labels = list(package_names.values())
-tick_labels = [labels[-1]]
-for i in range(1,len(labels)):
-    a = labels[-i]
-    b = labels[-i-1]
-    z = [x.loc[('Baseline', a)] - x.loc[('Baseline', b)] for x in bootstrap_infections_samples]
-    null_hypothesis = np.percentile(z, 2.5) < 0 and np.percentile(z, 100 - 2.5) > 0
-    significant = ~null_hypothesis
-    if significant:
-        b = '*'+b
-    tick_labels.append(b)
-tick_labels.reverse()
 
-px = bootstrap_infections.loc['Baseline','mean'].loc[labels]
-sx = bootstrap_infections.loc['Baseline','std'].loc[labels]
+px = bootstrap_peak_diagnoses.loc['Baseline','mean'].loc[labels]
+sx = bootstrap_peak_diagnoses.loc['Baseline','std'].loc[labels]
 fig, ax = plt.subplots()
 idx = np.arange(len(px))
 plt.barh(idx,px, xerr=sx, color='#c90000',label=f'> {level}')
