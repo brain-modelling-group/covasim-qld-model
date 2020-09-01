@@ -6,7 +6,7 @@ if __name__ == "__main__":
 
     dirname = os.path.dirname(__file__)
     locations = ['Victoria'] # the list of locations for this analysis
-    db_name = 'input_data_Australia2' # the name of the databook
+    db_name = 'input_data_Australia' # the name of the databook
     epi_name = 'epi_data_Australia'
 
     # specify layer keys to use

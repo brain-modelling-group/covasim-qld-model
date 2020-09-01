@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
 
     # 2 - LOAD DATA AND CREATE SIM
-    db_name = 'input_data_Australia2'  # the name of the databook
+    db_name = 'input_data_Australia'  # the name of the databook
     epi_name = 'epi_data_Australia'
 
     all_lkeys = ['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
@@ -252,6 +252,13 @@ if __name__ == '__main__':
         ax.locator_params('x', nbins=5, prune='both')
         ax.set_xlim(0,100)
         plt.setp(ax.get_xticklabels(), ha="right", rotation=30)
+        ax.axvline(x=jul9, color='grey', linestyle='--')
+        ax.axvline(x=jul23, color='grey', linestyle='--')
+        ax.axvline(x=aug6, color='grey', linestyle='--')
+
+        # ax.text(jul9+0.1, 875, 'Stage 3', fontsize=9, horizontalalignment='left')
+        # ax.text(jul23+0.1, 875, 'Masks', fontsize=9, horizontalalignment='left')
+        # ax.text(aug6+0.1, 875, 'Stage 4', fontsize=9, horizontalalignment='left')
 
     def plot_cum_diagnosed(ax):
 
@@ -323,19 +330,7 @@ if __name__ == '__main__':
         cases = cases.loc[cases.index >= 0]['vic'].astype(int)
         ax.scatter(cases.index, cases.values, color='k', s=10, alpha=1.0)
         common_format(ax)
-
-
-
         ax.set_ylabel('Number of cases')
-        # ax.axvline(x=jul9, color='grey', linestyle='--')
-        # ax.axvline(x=jul23, color='grey', linestyle='--')
-        # ax.axvline(x=aug6, color='grey', linestyle='--')
-        #
-        # ax.text(jul9+0.1, 875, 'Stage 3', fontsize=9, horizontalalignment='left')
-        # ax.text(jul23+0.1, 875, 'Masks', fontsize=9, horizontalalignment='left')
-        # ax.text(aug6+0.1, 875, 'Stage 4', fontsize=9, horizontalalignment='left')
-
-
 
     def plot_daily_tests(ax):
         fill_args = {'alpha': 0.3}
@@ -412,13 +407,12 @@ if __name__ == '__main__':
     '''
 
     fig, ax = plt.subplots(1,3)
-    fig.set_size_inches(12, 3)
-
+    fig.set_size_inches(12, 4)
     plot_new_diagnoses(ax[0])
     plot_cum_diagnosed(ax[1])
     plot_severe_infections(ax[2])
-
+    fig.tight_layout()
     plt.show()
-    plt.savefig('fig1.png', bbox_inches='tight', dpi=300, transparent=False)
+    plt.savefig('../Susceptibility/fig1.png', bbox_inches='tight', dpi=300, transparent=False)
 
 

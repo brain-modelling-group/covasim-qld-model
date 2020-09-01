@@ -63,7 +63,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
 
     """
 
-    db_name = 'input_data_Australia2'  # the name of the databook
+    db_name = 'input_data_Australia'  # the name of the databook
     epi_name = 'epi_data_Australia'
 
     all_lkeys = ['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
