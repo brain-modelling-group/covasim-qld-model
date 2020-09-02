@@ -32,8 +32,7 @@ params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infecte
 if args.randompop:
     population = {'people': None, 'popdict': None}
 else:
-    people, popdict = co.make_people(params)
-    population = {'people': people, 'popdict': popdict}
+    raise Exception('Not supported')
 
 for scen_name, scenario in scenarios.items():
 
