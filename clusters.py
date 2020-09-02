@@ -1,6 +1,6 @@
 import covasim.utils as cvu
 import numpy as np
-
+import numba as nb
 
 def create_clustering(people_to_cluster, mean_cluster_size):
     """
