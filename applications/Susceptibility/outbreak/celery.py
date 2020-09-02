@@ -6,6 +6,7 @@ import dill
 import time
 import sciris as sc
 import numpy as np
+import covasim as cv
 
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
 
@@ -27,15 +28,25 @@ celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case
 @celery.task()
 def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=None):
 
-    sc.tic()
-    sim = outbreak.get_australia_outbreak(seed, params, scen_policies, people, popdict)
-    sc.toc()
-    sc.tic()
-    sim.run()
-    sc.toc()
+    with sc.Timer(label='Create simulation') as t:
+        sim = outbreak.get_australia_outbreak(seed, params, scen_policies, people, popdict)
+
+    with sc.Timer(label='Run simulation') as t:
+        sim.run()
+
+    if not sim.results_ready:
+        sim.finalize()
+        for k, result in sim.results.items():
+            if isinstance(result, cv.Result):
+                result.values = result.values[0:sim.t+1]
+            else:
+                sim.results[k] = sim.results[k][0:sim.t+1]
+
     # Returning the entire Sim results in too much disk space being consumed by the Redis backend
     # e.g. when running 1000 simulations. So instead, just keep summary statistics
     sim_stats = {}
+    sim_stats['end_day'] = sim.t
+
     sim_stats['cum_infections'] = sim.results['cum_infections'][-1]
     sim_stats['cum_diagnoses'] = sim.results['cum_diagnoses'][-1]
     sim_stats['cum_deaths'] = sim.results['cum_deaths'][-1]
