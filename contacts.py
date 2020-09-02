@@ -23,8 +23,7 @@ def clusters_to_contacts(clusters):
                 if j <= i:
                     pass
                 else:
-                    contacts[i].add(j)
-                    contacts[j].add(i)
+                    contacts[i].add(j) # nb. Covasim automatically treats all contacts as bidirectional
 
     return {x: np.array(list(y)) for x, y in contacts.items()}
 
