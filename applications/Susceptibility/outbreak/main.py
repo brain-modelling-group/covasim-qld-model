@@ -137,7 +137,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     params.pars['rand_seed'] = seed  # Covasim resets the seed again internally during initialization...
 
     if people is None:
-        people, popdict = co.make_people(params)
+        people, layer_members = co.make_people(params)
     else:
         assert popdict is not None, 'If specifying people, popdict must be provided as well'
 
@@ -150,7 +150,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
                  save_pop=False)
 
     # ADD DYNAMIC LAYERS INTERVENTION
-    sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys, contact_numbers=params.pars['contacts'], popdict=popdict, dispersion=params.layerchars['dispersion']))
+    sim.pars['interventions'].append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys, contact_numbers=params.pars['contacts'], include_inds=layer_members, dispersion=params.layerchars['dispersion']))
 
     # SET TRACING
     sim.pars['interventions'].append(utils.SeedInfection(params.seed_infections))

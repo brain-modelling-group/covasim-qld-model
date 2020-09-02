@@ -4,6 +4,7 @@ import covasim as cv
 import covasim.defaults as cvd
 import covasim.utils as cvu
 import numpy as np
+import itertools
 
 
 def clusters_to_contacts(clusters):
@@ -28,7 +29,7 @@ def clusters_to_contacts(clusters):
     return {x: np.array(list(y)) for x, y in contacts.items()}
 
 
-def make_random_contacts(include, mean_number_of_contacts, dispersion=None, array_output=False):
+def make_random_contacts(include, mean_number_of_contacts, dispersion=None, array_output=False, include_inds=None):
     """
     Makes the random contacts either by sampling the number of contacts per person from a Poisson or Negative Binomial distribution
 
@@ -39,6 +40,7 @@ def make_random_contacts(include, mean_number_of_contacts, dispersion=None, arra
     mean_number_of_contacts (int) representing the mean number of contacts for each person
     dispersion (float) if not None, use a negative binomial distribution with this dispersion parameter instead of Poisson to make the contacts
     array_output (boolean) return contacts as arrays or as dicts
+    include_inds: Can optionally specify the actual indices to use. In this case, include should be set to None
 
     Returns
     -------
@@ -49,7 +51,8 @@ def make_random_contacts(include, mean_number_of_contacts, dispersion=None, arra
         representation of the edges
 
     """
-    include_inds = np.nonzero(include)[0].astype(cvd.default_int)
+    if include is not None:
+        include_inds = np.nonzero(include)[0].astype(cvd.default_int)
     n_people = len(include_inds)
 
     # sample the number of edges from a given distribution
@@ -245,21 +248,33 @@ def make_contacts(params):
                                            age_ub)
     contacts.update(custom_contacts)
 
-    contacts_list = convert_contacts(contacts, uids, all_lkeys)
 
-    return contacts_list, ages, uids
+    # Initialize the new contacts
+    cv_contacts = cv.Contacts(layer_keys=all_lkeys)
+    layer_members = {}
+    for lkey in contacts.keys():
+        p1 = []
+        p2 = []
+        for a1, b1 in contacts[lkey].items():
+            p1.extend([a1]*len(b1))
+            p2.extend(b1)
+        cv_contacts[lkey]['p1'] = np.array(p1,dtype=cvd.default_int)
+        cv_contacts[lkey]['p2'] = np.array(p2,dtype=cvd.default_int)
+        layer_members[lkey] = list(set(p1).union(set(p2)))
+
+    return cv_contacts, ages, uids, layer_members
 
 
 def make_people(params):
 
-    contacts, ages, uids = make_contacts(params)
+    contacts, ages, uids, layer_members = make_contacts(params)
 
     # create the popdict object
-    popdict = {}
-    popdict['contacts'] = contacts
-    popdict['age'] = ages
-    popdict['uid'] = uids
+    args = {}
+    args['contacts'] = contacts
+    args['age'] = ages
+    args['uid'] = uids
 
-    people = cv.People(pars=params.pars, **popdict)
+    people = cv.People(pars=params.pars, **args)
 
-    return people, popdict
+    return people, layer_members

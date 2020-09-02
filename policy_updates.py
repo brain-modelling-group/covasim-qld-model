@@ -253,7 +253,7 @@ class AppBasedTracing(cv.Intervention):
 
 
 class UpdateNetworks(cv.Intervention):
-    def __init__(self, layers, contact_numbers, popdict, start_day=0, end_day=None, dispersion=None):
+    def __init__(self, layers, contact_numbers, include_inds, start_day=0, end_day=None, dispersion=None):
         """
         Update random networks at each time step
         Args:
@@ -261,6 +261,7 @@ class UpdateNetworks(cv.Intervention):
             start_day (int): intervention start day.
             end_day (int): intervention end day
             contact_numbers: dictionary of average contacts for each layer
+            include_inds: {lkey: [person uids]} specifying the UIDs of people within each layer
         """
         super().__init__()
         self.layers = layers
@@ -268,9 +269,7 @@ class UpdateNetworks(cv.Intervention):
         self.end_day = end_day
         self.contact_numbers = contact_numbers
         self.dispersion = dispersion
-        self._include = {}  # For each layer, store a boolean array capturing whether that person is in the layer or not
-        for lkey in self.layers:  # get indices for people in each layer
-            self._include[lkey] = [len(x[lkey]) > 0 for x in popdict['contacts']]
+        self._include_inds = include_inds  # For each layer, store the indices of people in that layer
         return
 
     def initialize(self, sim):
@@ -294,10 +293,11 @@ class UpdateNetworks(cv.Intervention):
 
             # Sample new contacts
             new_contacts = {}
-            new_contacts['p1'], new_contacts['p2'] = co.make_random_contacts(include=self._include[lkey],
+            new_contacts['p1'], new_contacts['p2'] = co.make_random_contacts(include=None,
                                                                              mean_number_of_contacts=self.contact_numbers[lkey],
                                                                              dispersion=self.dispersion[lkey],
-                                                                             array_output=True)
+                                                                             array_output=True,
+                                                                             include_inds=self._include_inds[lkey])
             new_contacts['beta'] = np.ones(new_contacts['p1'].shape, dtype=cvd.default_float)
 
             # Add new contacts

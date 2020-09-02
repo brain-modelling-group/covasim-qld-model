@@ -53,10 +53,10 @@ if __name__ == '__main__':
                             'beta': beta,
                             'n_days': n_days,
                             'calibration_end': None,
-                            'verbose': 0}}
+                            'verbose': 1}}
 
     metapars = {'noise': 0.0,
-                'verbose': 0}
+                'verbose': 1}
 
     user_pars, calibration_end = utils.clean_pars(user_pars, [location])
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     params.pars["n_imports"] = n_imports # Number of imports per day
     params.pars['beta'] = beta
     params.pars['start_day'] = start_day
-    params.pars['verbose'] = 0
+    params.pars['verbose'] = 1
     params.pars['rand_seed'] = 1
 
     params.extrapars['symp_test'] = symp_test
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     # Make people
     cv.set_seed(1) # Seed for population generation
-    people, popdict = co.make_people(params)
+    people, layer_members = co.make_people(params)
 
     # Make the base sim
     sim = cv.Sim(pars=params.pars,
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     # Add dynamic layers intervention
     interventions.append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys,
                                                        contact_numbers=params.pars['contacts'],
-                                                       popdict=popdict,
+                                                       include_inds=layer_members,
                                                        dispersion=params.layerchars['dispersion']
                                                        ))
 
@@ -238,10 +238,10 @@ if __name__ == '__main__':
     # results = run_multi_sim(sim,n_runs, analyzer=analyzer, celery=True)
 
     # Run using MultiSim
-    # s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
-    # s.run()
+    s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
+    s.run()
     # sc.saveobj('multisim_test.obj',s)
-    s = sc.loadobj('multisim_test.obj')
+    # s = sc.loadobj('multisim_test.obj')
     s.reduce(quantiles={'low': 0.25, 'high': 0.75})
 
 
