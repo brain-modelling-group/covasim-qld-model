@@ -18,13 +18,14 @@ for statsfile in scendir.rglob('*.stats'):
     n_initial = int(statsfile.stem.split('_')[-1])
     for d in stats:
         d['scenario_name'] = statsfile.parent.name
-        d['package_name'] = statsfile.stem
+        d['package_name'] = '_'.join(statsfile.stem.split('_')[:-1])
         d['n_initial'] = n_initial
     records += stats
 df = pd.DataFrame.from_records(records)
 
-package_names = outbreak.load_packages('packages.csv')[1]
-scenario_names = outbreak.load_scenarios('scenarios.csv')[1]
+
+package_names = outbreak.load_packages('relax_packages.csv')[1]
+scenario_names = outbreak.load_scenarios('relax_scenarios.csv')[1]
 df['scenario_name'] = df['scenario_name'].replace(scenario_names)
 df['package_name'] = df['package_name'].replace(package_names)
 df['undiagnosed'] = df['cum_infections']-df['cum_diagnoses']
@@ -32,13 +33,12 @@ df.set_index(['scenario_name','package_name'],inplace=True)
 scenarios = list(df.index.get_level_values(0).unique())
 packages = list(df.index.get_level_values(1).unique())
 
-raise Exception('Stop')
-
 # PERFORM BOOTSTRAP ANALYSIS
 risk_levels = {50: '#ffbfbf', 100: '#ff8585', 250: '#c90000'}
 
 level = 50
 color = risk_levels[level]
+
 #
 def calc_prob(group, level, quantity, sample:bool=False):
     """
@@ -55,15 +55,15 @@ def calc_prob(group, level, quantity, sample:bool=False):
     if sample:
         n_samples = max(group[quantity].count())  # Number of simulation samples
         sampled_df = group.sample(n_samples,replace=True)
-        group = sampled_df.reset_index().groupby(['scenario_name', 'package_name'])
+        group = sampled_df.reset_index().groupby(['scenario_name', 'package_name', 'n_initial'])
     return group[quantity].agg(lambda x: sum(x > level)) / group[quantity].count()
 
 def bootstrap_quantity(df, quantity, n_bootstrap=1000):
-    group = df.reset_index().groupby(['scenario_name', 'package_name'])
+    group = df.reset_index().groupby(['scenario_name', 'package_name', 'n_initial'])
     means = calc_prob(group,level, quantity)
     means.name = 'mean'
     mean_samples = [calc_prob(group,level,quantity, sample=True) for _ in range(n_bootstrap)]  # Bootstrap samples of the mean
-    stds = pd.concat(mean_samples).groupby(['scenario_name', 'package_name']).std()
+    stds = pd.concat(mean_samples).groupby(['scenario_name', 'package_name', 'n_initial']).std()
     stds.name = 'std'
     return pd.concat([means, stds], axis=1), mean_samples
 
@@ -85,13 +85,11 @@ dx.dropna(inplace=True,how='any')
 plt.scatter(dx['vic_active'],dx['vic'],color='r')
 
 
-group = df.reset_index().groupby(['scenario_name', 'package_name'])
-group.median()['peak_diagnoses']
+group = df.reset_index().groupby(['scenario_name', 'package_name', 'n_initial'])
+group.median()['cum_infections']
 group.mean()['peak_diagnoses']
 
 group['peak_diagnoses'].agg(lambda x: sum(x > 50)) / group['peak_diagnoses'].count()
-
-group['cum_infections'].agg(lambda x: sum(x > 50)) / group['cum_infections'].count()
 
 
 
@@ -111,87 +109,68 @@ group['cum_infections'].agg(lambda x: sum(x > 50)) / group['cum_infections'].cou
 ## FIG 3 BARS
 
 
-px = bootstrap_peak_diagnoses.loc['Baseline','mean'].loc[labels]
-sx = bootstrap_peak_diagnoses.loc['Baseline','std'].loc[labels]
-fig, ax = plt.subplots()
-idx = np.arange(len(px))
-plt.barh(idx,px, xerr=sx, color='#c90000',label=f'> {level}')
-plt.yticks(idx, tick_labels)
-
-for i, v in enumerate(px):
-    ax.text(v/2, i, '%0.0f%%' % (100*v), color='white', fontweight='normal', horizontalalignment='center', verticalalignment='center')
-
-plt.xlabel(f'Probability of >{level} infections within 30 days')
-fig.set_size_inches(8, 4)
-sns.despine(offset=10, trim=True, left=True)
-ax.tick_params(axis='y', which='both',length=0)
-plt.savefig(scendir / f'fig3.png', bbox_inches='tight', dpi=300, transparent=False)
-plt.close()
-
-
-## FIG 4 SIZE AT FIRST DIAGNOSIS
-
-fig, ax = plt.subplots()
-sns.boxplot(order=list(package_names.values()),x='package_name',y='cum_infections_at_first_diagnosis',data=df.loc['Baseline'].reset_index(), fliersize=2,color='#c90000', width=0.5)
-
-medians = df.loc['Baseline'].reset_index().groupby('package_name').median()['cum_infections_at_first_diagnosis']
-for i, package in enumerate(package_names.values()):
-    ax.text(i, medians.loc[package], f'{medians.loc[package]:.0f}', ha='center', va='bottom', color='w')
-
-plt.ylabel('Number of infections at first diagnosis')
-# plt.title('Number of infections after 30 days')
-plt.xlabel('')
-plt.yscale('log')
-plt.ylim(0.95)
-fig.set_size_inches(7, 4)
-sns.despine(offset=10, bottom=True)
-ax.tick_params(axis='x', which='both',length=0)
-labels = [x.get_text() for x in ax.get_xticklabels()]
-ax.set_xticklabels(x.replace(' (','\n(') for x in labels)
-plt.savefig(scendir / f'fig4.png', bbox_inches='tight', dpi=300, transparent=False)
-plt.close()
+# px = bootstrap_peak_diagnoses.loc['Baseline','mean'].loc[labels]
+# sx = bootstrap_peak_diagnoses.loc['Baseline','std'].loc[labels]
+# fig, ax = plt.subplots()
+# idx = np.arange(len(px))
+# plt.barh(idx,px, xerr=sx, color='#c90000',label=f'> {level}')
+# plt.yticks(idx, tick_labels)
+#
+# for i, v in enumerate(px):
+#     ax.text(v/2, i, '%0.0f%%' % (100*v), color='white', fontweight='normal', horizontalalignment='center', verticalalignment='center')
+#
+# plt.xlabel(f'Probability of >{level} infections within 30 days')
+# fig.set_size_inches(8, 4)
+# sns.despine(offset=10, trim=True, left=True)
+# ax.tick_params(axis='y', which='both',length=0)
+# plt.savefig(scendir / f'fig3.png', bbox_inches='tight', dpi=300, transparent=False)
+# plt.close()
+#
+#
+# ## FIG 4 SIZE AT FIRST DIAGNOSIS
+#
+# fig, ax = plt.subplots()
+# sns.boxplot(order=list(package_names.values()),x='package_name',y='cum_infections_at_first_diagnosis',data=df.loc['Baseline'].reset_index(), fliersize=2,color='#c90000', width=0.5)
+#
+# medians = df.loc['Baseline'].reset_index().groupby('package_name').median()['cum_infections_at_first_diagnosis']
+# for i, package in enumerate(package_names.values()):
+#     ax.text(i, medians.loc[package], f'{medians.loc[package]:.0f}', ha='center', va='bottom', color='w')
+#
+# plt.ylabel('Number of infections at first diagnosis')
+# # plt.title('Number of infections after 30 days')
+# plt.xlabel('')
+# plt.yscale('log')
+# plt.ylim(0.95)
+# fig.set_size_inches(7, 4)
+# sns.despine(offset=10, bottom=True)
+# ax.tick_params(axis='x', which='both',length=0)
+# labels = [x.get_text() for x in ax.get_xticklabels()]
+# ax.set_xticklabels(x.replace(' (','\n(') for x in labels)
+# plt.savefig(scendir / f'fig4.png', bbox_inches='tight', dpi=300, transparent=False)
+# plt.close()
 
 
 ## FIG 5 SCENARIO HEATMAP
 
 # Proportion diagnosed
-group = df.reset_index().groupby(['scenario_name','package_name'])
-p = group['cum_infections'].agg(lambda x: sum(x > level)) / group['cum_infections'].count()
+
+group = df.loc['Baseline'].reset_index().groupby(['package_name', 'n_initial'])
+p = group['peak_diagnoses'].agg(lambda x: sum(x > level)) / group['peak_diagnoses'].count() # Greater than 50 cases per day
 p = p.unstack()
-p = p[package_names.values()]
-p = p.loc[scenario_names.values()]
+p = p.loc[package_names.values()]
+p = p[sorted(p.columns)]
 
 
-annot_absolute = (100*p).applymap('{:,.0f}%'.format)
-annot_relative = (100*(p-p.loc['Baseline'])).applymap('{:+.0f}%'.format)
-
-for scenario in p.index:
-    for package in p.columns:
-        z = [x.loc[('Baseline', package)] - x.loc[(scenario, package)] for x in bootstrap_infections_samples]
-        null_hypothesis = np.percentile(z, 2.5) < 0 and np.percentile(z, 100 - 2.5) > 0
-        significant = ~null_hypothesis
-        if significant and scenario != 'Baseline':
-            annot_absolute.loc[scenario, package] = annot_absolute.loc[scenario, package] + '*'
-            annot_relative.loc[scenario, package] = annot_relative.loc[scenario, package] + '*'
-
-        # elif scenario != 'Baseline':
-        #     annot.loc[scenario, package] = ''
-
-annot = np.vstack([annot_absolute.values[0,:],annot_relative.values[1:,:]])
+annot = (100*p).applymap('{:,.0f}%'.format)
 fig, ax = plt.subplots()
-sns.heatmap(p, annot=annot, linewidths=.5, ax=ax, cmap='Reds',cbar_kws={'label': f'Probability of >{level} infections within 30 days'}, fmt='s')
+sns.heatmap(p, annot=annot, linewidths=.5, ax=ax, cmap='Reds',cbar_kws={'label': f'Probability of >{level} new diagnoses/day within 30 days'}, fmt='s')
 ax.tick_params(axis='both', which='both',length=0)
-plt.xlabel('')
-plt.ylabel('')
+plt.xlabel('Number of undiagnosed infections at time of policy relaxation')
+plt.ylabel('Restriction level')
 fig.set_size_inches(6, 5)
+ax.set_yticklabels(p.index.values,rotation=0)
 
-labels = [x.get_text() for x in ax.get_xticklabels()]
-ax.set_xticklabels(x.replace(' (','\n(') for x in labels)
-
-labels = [x.get_text() for x in ax.get_yticklabels()]
-ax.set_yticklabels(x.replace('compliance','\ncompliance') for x in labels)
-
-plt.savefig(scendir / f'fig5.png', bbox_inches='tight', dpi=300, transparent=False)
+plt.savefig(scendir / f'fig1.png', bbox_inches='tight', dpi=300, transparent=False)
 plt.close()
 
 
