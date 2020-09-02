@@ -45,7 +45,7 @@ def load_scenarios(fname) -> dict:
     scenarios = pd.read_csv(fname, index_col=0)
     full_names = scenarios['full_name'].to_dict()
     del scenarios['full_name']
-    scenarios.fillna(value=scenarios.loc['baseline'], inplace=True)
+    scenarios.fillna(value=scenarios.iloc[0,:], inplace=True)
     scenarios = scenarios.to_dict(orient='index')
     return scenarios, full_names
 
