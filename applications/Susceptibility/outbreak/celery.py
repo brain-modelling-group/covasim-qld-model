@@ -25,6 +25,10 @@ celery.conf.result_serializer = 'pickle'
 celery.conf.worker_prefetch_multiplier = 1
 celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case they are faster
 
+def stop_sim_scenarios(sim):
+    # Stop a scenarios-type simulation after it exceeds 100 infections
+    return (sim.t > 7 and sim.results['cum_infections'][sim.t-1] > 100)
+
 @celery.task()
 def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=None):
 
@@ -36,6 +40,7 @@ def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=Non
 
     if not sim.results_ready:
         sim.finalize()
+        # Truncate the arrays
         for k, result in sim.results.items():
             if isinstance(result, cv.Result):
                 result.values = result.values[0:sim.t+1]
@@ -80,24 +85,6 @@ def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=Non
         sim_stats['cum_infections_at_first_diagnosis'] = None
 
     sim_stats['r_eff7'] = np.average(sim.results['r_eff'][-7:]) # R_eff over last 7 days
-
-    return sim_stats
-
-
-@celery.task()
-def run_australia_test_prob(seed, params, scen_policies, symp_prob, asymp_prob, symp_quar_prob, asymp_quar_prob):
-    sim = outbreak.run_australia_test_prob(seed, params, scen_policies, symp_prob, asymp_prob, symp_quar_prob, asymp_quar_prob)
-
-    sim_stats = {}
-    sim_stats['cum_infections'] = sim.results['cum_infections'][-1]
-    sim_stats['cum_diagnoses'] = sim.results['cum_diagnoses'][-1]
-    sim_stats['cum_deaths'] = sim.results['cum_deaths'][-1]
-    sim_stats['cum_quarantined'] = sim.results['cum_quarantined'][-1]
-
-    active_infections = sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values
-    sim_stats['active_infections'] = active_infections[-1]
-    sim_stats['peak_infections'] = max(sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values)
-    sim_stats['peak_incidence'] = max(sim.results['new_infections'])
 
     return sim_stats
 

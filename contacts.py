@@ -4,7 +4,6 @@ import covasim as cv
 import covasim.defaults as cvd
 import covasim.utils as cvu
 import numpy as np
-import itertools
 
 
 def clusters_to_contacts(clusters):

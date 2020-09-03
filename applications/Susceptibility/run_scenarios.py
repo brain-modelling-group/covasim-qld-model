@@ -11,8 +11,9 @@ from celery import group
 import sciris as sc
 from tqdm import tqdm
 import time
-import contacts as co
-import numpy as np
+import concurrent.futures
+import threading
+
 
 # Add argument for number of runs
 import argparse
@@ -20,52 +21,92 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--nruns', default=4, type=int, help='Number of seeds to run per scenario')
 parser.add_argument('--celery', default=False, type=bool, help='If True, use Celery for parallization')
-parser.add_argument('--randompop', default=True, type=bool, help='If True, generate a new population of people for each seed')  #
 
 args = parser.parse_args()
 
 # Load inputs
 packages = outbreak.load_packages('packages.csv')[0]
 scenarios = outbreak.load_scenarios('scenarios.csv')[0]
+
+
+print('Loading parameters...', end='')
+sc.tic()
 params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=1, n_days=31)
+print(f'done (took {sc.toc(output=True):.0f} s)')
 
-if args.randompop:
-    population = {'people': None, 'popdict': None}
-else:
-    raise Exception('Not supported')
 
-for scen_name, scenario in scenarios.items():
+params.pars['stopping_func'] = stop_sim
 
-    resultdir = Path(__file__).parent /'scenarios'/f'{scen_name}'
-    resultdir.mkdir(parents=True, exist_ok=True)
+thread_local = threading.local()
 
-    params.test_prob = sc.mergedicts(params.test_prob, scenario)
+def run_scenario(scen_name, package_name):
+    savefile = Path(__file__).parent / 'scenarios' / f'{scen_name}' / f'{package_name}.stats'
+    savefile.parent.mkdir(parents=True, exist_ok=True)
 
-    for package_name, policies in packages.items():
-        savefile = resultdir / f'{package_name}.stats'
+    scenario = scenarios[scen_name]
+    policies = packages[package_name]
+
+    local_params = sc.dcp(params)
+    local_params.test_prob = sc.mergedicts(local_params.test_prob, scenario)
+
+    if args.celery:
+        if not hasattr(thread_local,'pbar'):
+            thread_local.pbar = tqdm(total=args.nruns)
+        pbar = thread_local.pbar
+        pbar.set_description(f'{scen_name}-{package_name}')
+        pbar.n = 0
+        pbar.refresh()
 
         if savefile.exists():
-            print(f'{scen_name}-{package_name} exists, skipping')
-            continue
+            return
 
-        if args.celery:
-            # Run simulations using celery
-            job = group([run_australia_outbreak.s(i, params, policies, **population) for i in range(args.nruns)])
-            result = job.apply_async()
+        # Run simulations using celery
+        job = group([run_australia_outbreak.s(i, local_params, policies) for i in range(args.nruns)])
+        result = job.apply_async()
+        while result.completed_count() < args.nruns:
+            time.sleep(1)
+            pbar.n = result.completed_count()
+            pbar.refresh()
+        pbar.n = result.completed_count()
+        pbar.refresh()
+        sim_stats = result.join()
+        result.forget()
+    else:
+        sim_stats = []
+        for i in tqdm(range(args.nruns), desc=f'{scen_name}-{package_name}'):
+            sim_stats.append(run_australia_outbreak(i, sc.dcp(local_params), sc.dcp(policies)))
 
-            with tqdm(total=args.nruns, desc=f'{scen_name}-{package_name}') as pbar:
-                while result.completed_count() < args.nruns:
+    sc.saveobj(savefile, sim_stats)
+
+
+if args.celery:
+    futures = []
+
+    with tqdm(total=len(scenarios)*len(packages), desc=f'Total progress') as pbar:
+        pbar.n = 0
+        pbar.refresh()
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            for scen_name, scenario in scenarios.items():
+                for package_name, policies in packages.items():
+                    futures.append(executor.submit(run_scenario, scen_name, package_name))
                     time.sleep(1)
-                    pbar.n = result.completed_count()
-                    pbar.refresh()
-                pbar.n = result.completed_count()
+
+            while True:
+                states = [x.done() for x in futures]
+                pbar.n = sum(states)
                 pbar.refresh()
-            sim_stats = result.join()
-            result.forget()
+                if all(states):
+                    break
+                time.sleep(1)
 
-        else:
-            sim_stats = []
-            for i in tqdm(range(args.nruns), desc=f'{scen_name}-{package_name}'):
-                sim_stats.append(run_australia_outbreak(i, sc.dcp(params), sc.dcp(policies), **population))
+            for res in futures:
+                exception = res.exception()
+                if exception:
+                    print(exception)
 
-        sc.saveobj(savefile, sim_stats)
+else:
+    for scen_name, scenario in scenarios.items():
+        for package_name, policies in packages.items():
+            run_scenario(scen_name, package_name)
+
