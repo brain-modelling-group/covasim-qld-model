@@ -238,10 +238,10 @@ if __name__ == '__main__':
     # results = run_multi_sim(sim,n_runs, analyzer=analyzer, celery=True)
 
     # Run using MultiSim
-    # s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
-    # s.run()
+    s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
+    s.run()
     # sc.saveobj('multisim_test.obj',s)
-    s = sc.loadobj('multisim_test.obj')
+    # s = sc.loadobj('multisim_test.obj')
     s.reduce(quantiles={'low': 0.25, 'high': 0.75})
 
 
