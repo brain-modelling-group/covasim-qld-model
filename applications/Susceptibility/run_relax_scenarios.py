@@ -68,7 +68,10 @@ def run_scenario(n_infections, scen_name, package_name):
         while result.completed_count() < args.nruns:
             time.sleep(1)
             pbar.n = result.completed_count()
-            pbar.refresh()
+            if pbar.n == 0:
+                pbar.reset(0)
+            else:
+                pbar.refresh()
         pbar.n = result.completed_count()
         pbar.refresh()
         sim_stats = result.join()

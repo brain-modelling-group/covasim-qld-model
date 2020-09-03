@@ -27,7 +27,7 @@ celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case
 
 def stop_sim_scenarios(sim):
     # Stop a scenarios-type simulation after it exceeds 100 infections
-    return (sim.t > 7 and sim.results['cum_infections'][sim.t-1] > 100)
+    return (sim.t > 7 and np.sum(sim.results['new_infections'][sim.t-1]) > 100)
 
 @celery.task()
 def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=None):

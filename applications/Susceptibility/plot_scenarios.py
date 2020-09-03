@@ -530,3 +530,61 @@ for scenario in scenarios:
     fig.set_size_inches(16, 7)
     fig.savefig(scendir / f'probability_bars_{scenario}.png', bbox_inches='tight', dpi=300, transparent=False)
     plt.close()
+
+
+
+### SLIDES
+
+
+tick_labels = list(package_names.values())
+
+
+px = bootstrap_infections.loc['Baseline','mean'].loc[labels]
+sx = bootstrap_infections.loc['Baseline','std'].loc[labels]
+fig, ax = plt.subplots()
+idx = np.arange(len(px))
+h1 = plt.barh(idx,px, color='#c90000',label=f'> {level}')
+plt.yticks(idx, tick_labels)
+plt.xlim(0,0.55)
+
+
+
+
+texts = []
+for i, v in enumerate(px):
+    txt = ax.text(v/2, i, '%0.0f%%' % (100*v), color='white', fontweight='normal', horizontalalignment='center', verticalalignment='center')
+    texts.append(txt)
+
+plt.xlabel(f'Probability of >{level} infections within 30 days')
+fig.set_size_inches(8, 4)
+sns.despine(offset=10, trim=True, left=True)
+ax.tick_params(axis='y', which='both',length=0)
+plt.savefig(scendir / f'fig3_s1.png', bbox_inches='tight', dpi=300, transparent=False)
+
+
+
+px_more = bootstrap_infections.loc['More testing','mean'].loc[labels]
+v = px_more['Relax C']
+h=plt.barh(3,v, color='#2b8cbe',label=f'> {level}')
+texts[3].set_text('%0.0f%%' % (100*v))
+texts[3].set_x(v/2)
+plt.savefig(scendir / f'fig3_s2.png', bbox_inches='tight', dpi=300, transparent=False)
+
+h.remove()
+px_more = bootstrap_infections.loc['Faster testing','mean'].loc[labels]
+v = px_more['Relax C']
+h=plt.barh(3,v, color='#2b8cbe',label=f'> {level}')
+texts[3].set_text('%0.0f%%' % (100*v))
+texts[3].set_x(v/2)
+plt.savefig(scendir / f'fig3_s3.png', bbox_inches='tight', dpi=300, transparent=False)
+
+h.remove()
+px_more = bootstrap_infections.loc['Best case','mean'].loc[labels]
+v = px_more['Relax C']
+h=plt.barh(3,v, color='#2b8cbe',label=f'> {level}')
+texts[3].set_text('%0.0f%%' % (100*v))
+plt.savefig(scendir / f'fig3_s4.png', bbox_inches='tight', dpi=300, transparent=False)
+
+
+plt.close()
+

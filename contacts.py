@@ -15,6 +15,10 @@ def clusters_to_contacts(clusters):
         2: [1,3]
         3: [1,2]
 
+    Note that contacts are double-counted with regard to Covasim, which already handles
+    transmission in both directions for a single edge. However, the double counting in
+    this function matches the statistical double counting in `make_random_contacts()`
+
     """
     contacts = collections.defaultdict(set)
     for cluster in clusters:
@@ -41,6 +45,14 @@ def make_random_contacts(include, mean_number_of_contacts, dispersion=None, arra
     dispersion (float) if not None, use a negative binomial distribution with this dispersion parameter instead of Poisson to make the contacts
     array_output (boolean) return contacts as arrays or as dicts
     include_inds: Can optionally specify the actual indices to use. In this case, include should be set to None
+
+    Note that make_random_contacts double-counts individuals, because for a given mean number of contacts (n)
+
+    - The source person appears approximately n times in the array of source people
+    - Due to permutation, those same records appear in the array of target people
+
+    Therefore a person has n outgoing edges and n incoming edges, thus appearing in 2n interactions.
+    Because people are double counted here, it's important they also get double counted in `cluster_to_contacts`.
 
     Returns
     -------

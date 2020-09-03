@@ -6,7 +6,7 @@ sys.path.append('../../')
 
 from pathlib import Path
 import outbreak
-from outbreak.celery import run_australia_outbreak
+from outbreak.celery import run_australia_outbreak, stop_sim_scenarios
 from celery import group
 import sciris as sc
 from tqdm import tqdm
@@ -34,8 +34,7 @@ sc.tic()
 params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=1, n_days=31)
 print(f'done (took {sc.toc(output=True):.0f} s)')
 
-
-params.pars['stopping_func'] = stop_sim
+params.pars['stopping_func'] = stop_sim_scenarios
 
 thread_local = threading.local()
 
@@ -66,7 +65,10 @@ def run_scenario(scen_name, package_name):
         while result.completed_count() < args.nruns:
             time.sleep(1)
             pbar.n = result.completed_count()
-            pbar.refresh()
+            if pbar.n == 0:
+                pbar.reset(0)
+            else:
+                pbar.refresh()
         pbar.n = result.completed_count()
         pbar.refresh()
         sim_stats = result.join()
