@@ -165,8 +165,8 @@ if __name__ == '__main__':
 
 
     # Add tracing intervention for households
-    interventions.append(utils.limited_contact_tracing(trace_probs={'H': 1},
-                                                       trace_time={'H': 0},
+    interventions.append(utils.limited_contact_tracing(trace_probs={'H': params.extrapars['trace_probs']['H']},
+                                                       trace_time={'H': params.extrapars['trace_time']['H']},
                                                        start_day=0,
                                                        capacity=np.inf,
                                                        ))
