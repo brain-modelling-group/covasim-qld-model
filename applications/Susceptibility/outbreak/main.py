@@ -75,7 +75,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
                             'pop_infected': 0,
                             'pop_scale': 1,
                             'rescale': 0,
-                            'beta': 0.065,
+                            'beta': 0.0525,
                             'n_days': n_days,
                             'calibration_end': None,
                             'verbose': 0}}
@@ -177,8 +177,8 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     ))
 
     # SET TRACING
-    sim.pars['interventions'].append(utils.limited_contact_tracing(trace_probs={'H': 1},
-                                                                   trace_time={'H': 0},
+    sim.pars['interventions'].append(utils.limited_contact_tracing(trace_probs={'H': params.extrapars['trace_probs']['H']},
+                                                                   trace_time={'H': params.extrapars['trace_time']['H']},
                                                                    start_day=0,
                                                                    capacity=np.inf,
                                                                    ))
@@ -187,7 +187,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     # Remove the household layer from trace_probs because they will be traced separately
     del params.extrapars['trace_probs']['H']
     del params.extrapars['trace_time']['H']
-    sim.pars['interventions'].append(utils.limited_contact_tracing_2(trace_probs=params.extrapars['trace_probs'],
+    sim.pars['interventions'].append(utils.limited_contact_tracing(trace_probs=params.extrapars['trace_probs'],
                                                                    trace_time=params.extrapars['trace_time'],
                                                                    start_day=0,
                                                                    capacity=params.extrapars['trace_capacity'],
