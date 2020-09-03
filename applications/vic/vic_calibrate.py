@@ -27,7 +27,7 @@ if __name__ == '__main__':
     n_days = 100 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:10}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.065 # Overall beta
+    beta = 0.0525 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
     n_runs = 8  # Number of simulations to run
@@ -89,6 +89,7 @@ if __name__ == '__main__':
     params.pars['pop_scale'] = int(4.9e6 / params.pars['pop_size'])
     params.pars['rescale'] = True
     params.pars['rescale_threshold'] = 0.05
+    params.pars['rescale_factor'] = 1.1
 
     # Make people
     cv.set_seed(1) # Seed for population generation
@@ -412,7 +413,8 @@ if __name__ == '__main__':
     plot_cum_diagnosed(ax[1])
     plot_severe_infections(ax[2])
     fig.tight_layout()
-    plt.show()
     plt.savefig('../Susceptibility/fig1.png', bbox_inches='tight', dpi=300, transparent=False)
+    plt.show()
+
 
 
