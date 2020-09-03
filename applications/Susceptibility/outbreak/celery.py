@@ -59,10 +59,11 @@ def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=Non
 
     active_infections = sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values
     sim_stats['active_infections'] = active_infections[-1]
-    sim_stats['active_diagnosed'] = sum(sim.people.diagnosed & ~sim.people.recovered) # WARNING - this will not be correct if rescaling was used
-    sim_stats['peak_infections'] = max(sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values)
-    sim_stats['peak_incidence'] = max(sim.results['new_infections'])
-    sim_stats['peak_diagnoses'] = max(sim.results['new_diagnoses'])
+    sim_stats['active_diagnosed'] = np.sum(sim.people.diagnosed & ~sim.people.recovered) # WARNING - this will not be correct if rescaling was used
+    sim_stats['active_undiagnosed'] = np.sum(~sim.people.susceptible & ~sim.people.recovered & ~sim.people.diagnosed) # WARNING - this will not be correct if rescaling was used
+    sim_stats['peak_infections'] = np.nanmax(sim.results['cum_infections'].values - sim.results['cum_recoveries'].values - sim.results['cum_deaths'].values)
+    sim_stats['peak_incidence'] = np.nanmax(sim.results['new_infections'])
+    sim_stats['peak_diagnoses'] = np.nanmax(sim.results['new_diagnoses'])
 
     sim_stats['symp_prob'] = params.test_prob['symp_prob']
     sim_stats['symp_quar_prob'] = params.test_prob['symp_quar_prob']

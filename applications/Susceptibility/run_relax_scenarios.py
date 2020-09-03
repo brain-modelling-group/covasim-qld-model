@@ -69,7 +69,7 @@ def run_scenario(n_infections, scen_name, package_name):
             time.sleep(1)
             pbar.n = result.completed_count()
             if pbar.n == 0:
-                pbar.reset(0)
+                pbar.reset(total=args.nruns)
             else:
                 pbar.refresh()
         pbar.n = result.completed_count()
