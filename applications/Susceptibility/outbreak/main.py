@@ -119,7 +119,7 @@ def load_australian_parameters(location: str = 'Victoria', pop_size: int = 1e4, 
     return params
 
 
-def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_policies: list, people=None, popdict=None) -> cv.Sim:
+def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_policies: list, people=None, layer_members=None) -> cv.Sim:
     """
     Produce outbreak simulation but don't run it
 
@@ -127,7 +127,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
         seed: Integer seed
         params: `Parameters` object (e.g. returned by `load_australian_parameters()`
         scen_policies: List of policies to use e.g. `['outdoor2','schools'] (should appear on the 'policies' sheet in the input data Excel file)
-        people: Optionally call `co.make_people()` externally and pass in the people and popdict
+        people: Optionally call `co.make_people()` externally and pass in the people and layer_members
 
     Returns: A `cv.Sim` instance, before execution
 
@@ -139,7 +139,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
     if people is None:
         people, layer_members = co.make_people(params)
     else:
-        assert popdict is not None, 'If specifying people, popdict must be provided as well'
+        assert layer_members is not None, 'If specifying people, popdict must be provided as well'
 
     # setup simulation for this location
     sim = cv.Sim(pars=params.pars,

@@ -1,4 +1,4 @@
-from celery import Celery
+from celery import Celery, Task
 from covasim import misc
 import outbreak
 import tqdm
@@ -7,6 +7,10 @@ import time
 import sciris as sc
 import numpy as np
 import covasim as cv
+import covasim.utils as cvu
+import contacts as co
+from celery.signals import after_setup_task_logger
+import logging
 
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
 
@@ -25,15 +29,36 @@ celery.conf.result_serializer = 'pickle'
 celery.conf.worker_prefetch_multiplier = 1
 celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case they are faster
 
+# Quieter tasks
+@after_setup_task_logger.connect
+def setup_task_logger(logger, *args, **kwargs):
+    logger.setLevel(logging.WARNING)
+
+
 def stop_sim_scenarios(sim):
     # Stop a scenarios-type simulation after it exceeds 100 infections
-    return (sim.t > 7 and np.sum(sim.results['new_infections'][sim.t-1]) > 100)
+    return (sim.t > 7 and np.sum(sim.results['new_infections'][:(sim.t-1)]) > 100)
 
-@celery.task()
-def run_australia_outbreak(seed, params, scen_policies, people=None, popdict=None):
+class CachePeopleTask(Task):
+    people = None
+    layer_members = None
+
+@celery.task(base=CachePeopleTask)
+def run_australia_outbreak(seed, params, scen_policies, people_seed=None):
+
+    if people_seed is not None:
+        if run_australia_outbreak.people is None:
+            cvu.set_seed(people_seed)
+            params.pars['rand_seed'] = people_seed
+            run_australia_outbreak.people, run_australia_outbreak.layer_members = co.make_people(params)
+        people = run_australia_outbreak.people
+        layer_members = run_australia_outbreak.layer_members
+    else:
+        people = None
+        layer_members = None
 
     with sc.Timer(label='Create simulation') as t:
-        sim = outbreak.get_australia_outbreak(seed, params, scen_policies, people, popdict)
+        sim = outbreak.get_australia_outbreak(seed, params, scen_policies, sc.dcp(people), sc.dcp(layer_members))
 
     with sc.Timer(label='Run simulation') as t:
         sim.run()

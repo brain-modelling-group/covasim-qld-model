@@ -31,12 +31,14 @@ scenarios = outbreak.load_scenarios('scenarios.csv')[0]
 
 print('Loading parameters...', end='')
 sc.tic()
-params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=1, n_days=31)
+params = outbreak.load_australian_parameters('Victoria', pop_size=1e5, n_infected=1, n_days=31)
 print(f'done (took {sc.toc(output=True):.0f} s)')
 
 params.pars['stopping_func'] = stop_sim_scenarios
 
 thread_local = threading.local()
+
+people_seed = 1
 
 def run_scenario(scen_name, package_name):
     savefile = Path(__file__).parent / 'scenarios' / f'{scen_name}' / f'{package_name}.stats'
@@ -60,7 +62,7 @@ def run_scenario(scen_name, package_name):
             return
 
         # Run simulations using celery
-        job = group([run_australia_outbreak.s(i, local_params, policies) for i in range(args.nruns)])
+        job = group([run_australia_outbreak.s(i, local_params, policies, people_seed=people_seed) for i in range(args.nruns)])
         result = job.apply_async()
         while result.completed_count() < args.nruns:
             time.sleep(1)
@@ -76,7 +78,7 @@ def run_scenario(scen_name, package_name):
     else:
         sim_stats = []
         for i in tqdm(range(args.nruns), desc=f'{scen_name}-{package_name}'):
-            sim_stats.append(run_australia_outbreak(i, sc.dcp(local_params), sc.dcp(policies)))
+            sim_stats.append(run_australia_outbreak(i, sc.dcp(local_params), sc.dcp(policies), people_seed=people_seed))
 
     sc.saveobj(savefile, sim_stats)
 
