@@ -1,6 +1,6 @@
 import covasim.utils as cvu
 import numpy as np
-
+import numba as nb
 
 def create_clustering(people_to_cluster, mean_cluster_size):
     """
@@ -27,8 +27,50 @@ def create_clustering(people_to_cluster, mean_cluster_size):
 
     return clusters
 
+## Fast choice implementation
+# From https://gist.github.com/jph00/30cfed589a8008325eae8f36e2c5b087
+# by Jeremy Howard https://twitter.com/jeremyphoward/status/955136770806444032
+@nb.njit
+def sample(n, q, J, r1, r2):
+    res = np.zeros(n, dtype=np.int32)
+    lj = len(J)
+    for i in range(n):
+        kk = int(np.floor(r1[i]*lj))
+        if r2[i] < q[kk]: res[i] = kk
+        else: res[i] = J[kk]
+    return res
 
-def sample_household_cluster(mixing_matrix, bin_lower, bin_upper, reference_age, n):
+class AliasSample():
+    def __init__(self, probs):
+        self.K=K= len(probs)
+        self.q=q= np.zeros(K)
+        self.J=J= np.zeros(K, dtype=np.int)
+
+        smaller,larger  = [],[]
+        for kk, prob in enumerate(probs):
+            q[kk] = K*prob
+            if q[kk] < 1.0: smaller.append(kk)
+            else: larger.append(kk)
+
+        while len(smaller) > 0 and len(larger) > 0:
+            small,large = smaller.pop(),larger.pop()
+            J[small] = large
+            q[large] = q[large] - (1.0 - q[small])
+            if q[large] < 1.0: smaller.append(large)
+            else: larger.append(large)
+
+    def draw_one(self):
+        K,q,J = self.K,self.q,self.J
+        kk = int(np.floor(np.random.rand()*len(J)))
+        if np.random.rand() < q[kk]: return kk
+        else: return J[kk]
+
+    def draw_n(self, n):
+        r1,r2 = np.random.rand(n),np.random.rand(n)
+        return sample(n,self.q,self.J,r1,r2)
+
+
+def sample_household_cluster(sampler, bin_lower, bin_upper, reference_age, n):
     """
     Return list of ages in a household/location based on mixing matrix and reference person age
     """
@@ -37,8 +79,7 @@ def sample_household_cluster(mixing_matrix, bin_lower, bin_upper, reference_age,
 
     if n > 1:
         idx = np.digitize(reference_age, bin_lower) - 1  # First, find the index of the bin that the reference person belongs to
-        p = mixing_matrix.iloc[idx, :]
-        sampled_bins = np.random.choice(len(bin_lower), n - 1, replace=True, p=p / sum(p))
+        sampled_bins = sampler[idx].draw_n(n-1)
 
         for bin in sampled_bins:
             ages.append(int(round(np.random.uniform(bin_lower[bin]-0.5, bin_upper[bin]+0.5))))
@@ -58,6 +99,9 @@ def make_household_clusters(n_households, pop_size, household_heads, uids, conta
         ages: flattened array of ages, corresponding to the UID positions
     """
     mixing_matrix = contact_matrix['matrix']
+    mixing_matrix = mixing_matrix.div(mixing_matrix.sum(axis=1), axis=0)
+    samplers = [AliasSample(mixing_matrix.iloc[i,:].values) for i in range(mixing_matrix.shape[0])] # Precompute samplers for each reference age bin
+
     age_lb = contact_matrix['age_lb']
     age_ub = contact_matrix['age_ub']
 
@@ -70,7 +114,7 @@ def make_household_clusters(n_households, pop_size, household_heads, uids, conta
         for household in range(h_num):
             head = household_heads[h_added]
             # get ages of people in household
-            household_ages = sample_household_cluster(mixing_matrix,
+            household_ages = sample_household_cluster(samplers,
                                                       age_lb,
                                                       age_ub,
                                                       head,
