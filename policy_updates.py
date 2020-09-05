@@ -253,7 +253,7 @@ class AppBasedTracing(cv.Intervention):
 
 
 class UpdateNetworks(cv.Intervention):
-    def __init__(self, layers, contact_numbers, include_inds, start_day=0, end_day=None, dispersion=None):
+    def __init__(self, layers, contact_numbers, layer_members, start_day=0, end_day=None, dispersion=None):
         """
         Update random networks at each time step
         Args:
@@ -261,7 +261,6 @@ class UpdateNetworks(cv.Intervention):
             start_day (int): intervention start day.
             end_day (int): intervention end day
             contact_numbers: dictionary of average contacts for each layer
-            include_inds: {lkey: [person uids]} specifying the UIDs of people within each layer
         """
         super().__init__()
         self.layers = layers
@@ -269,7 +268,7 @@ class UpdateNetworks(cv.Intervention):
         self.end_day = end_day
         self.contact_numbers = contact_numbers
         self.dispersion = dispersion
-        self._include_inds = include_inds  # For each layer, store the indices of people in that layer
+        self.layer_members = layer_members  # {lkey: [uids]}
         return
 
     def initialize(self, sim):
@@ -288,20 +287,14 @@ class UpdateNetworks(cv.Intervention):
         # Loop over dynamic keys
         for lkey in self.layers:
 
-            # Remove existing contacts
-            del sim.people.contacts[lkey]
-
-            # Sample new contacts
-            new_contacts = {}
-            new_contacts['p1'], new_contacts['p2'] = co.make_random_contacts(include=None,
+            # Sample new contacts, overwriting the existing ones
+            sim.people.contacts[lkey]['p1'], sim.people.contacts[lkey]['p2'] = co.make_random_contacts(include_inds=self.layer_members[lkey],
                                                                              mean_number_of_contacts=self.contact_numbers[lkey],
                                                                              dispersion=self.dispersion[lkey],
                                                                              array_output=True,
-                                                                             include_inds=self._include_inds[lkey])
-            new_contacts['beta'] = np.ones(new_contacts['p1'].shape, dtype=cvd.default_float)
-
-            # Add new contacts
-            sim.people.add_contacts(new_contacts, lkey=lkey)
+                                                                             )
+            # Update beta shape and check validity
+            sim.people.contacts[lkey]['beta'] = np.ones(sim.people.contacts[lkey]['p1'].shape, dtype=cvd.default_float)
             sim.people.contacts[lkey].validate()
 
         return
