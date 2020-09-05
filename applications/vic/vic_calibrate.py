@@ -1,4 +1,6 @@
 # Main script to run Victoria calibration
+import sys
+sys.path.append('../../')
 
 import contacts as co
 import covasim as cv
@@ -30,7 +32,7 @@ if __name__ == '__main__':
     beta = 0.0525 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 8  # Number of simulations to run
+    n_runs = 40  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -239,8 +241,13 @@ if __name__ == '__main__':
     # results = run_multi_sim(sim,n_runs, analyzer=analyzer, celery=True)
 
     # Run using MultiSim
-    s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
-    s.run()
+    if n_runs > 1:
+        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 40})
+        s.run()
+    else:
+        sim.run()
+        raise Exception('Must use a MultiSim for analysis')
+
     # sc.saveobj('multisim_test.obj',s)
     # s = sc.loadobj('multisim_test.obj')
     s.reduce(quantiles={'low': 0.25, 'high': 0.75})
