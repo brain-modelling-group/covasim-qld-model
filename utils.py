@@ -570,13 +570,28 @@ class test_prob_with_quarantine(cv.test_prob):
             sim.people.quarantine(quar_inds, period=self.test_delay)
 
 
+import numba as nb
+
+@nb.njit
+def get_inds_set(p1, p2, trace_from_inds):
+    # Return entries from p1 or p2 if one of the people is in trace_from_inds
+    # i.e. return a set of pairing partners for the indices in trace_from_inds
+    # Numba gets confused if we pass in the set, so constructing it inside this function
+    # actually ends up being faster
+    inds_list = set()
+    x = set(trace_from_inds)
+    for i in range(len(p1)):
+        if p1[i] in x:
+            inds_list.add(p2[i])
+        if p2[i] in x:
+            inds_list.add(p1[i])
+    return inds_list
+
+
 class limited_contact_tracing(cv.contact_tracing):
     """
     Contact tracing with capacity limit
 
-    Each timestep, this intervention will trace contacts for newly diagnosed
-    people (or newly tested people, if the `presumptive` flag is set). The number of
-    people
     """
 
 
@@ -589,6 +604,7 @@ class limited_contact_tracing(cv.contact_tracing):
         super().__init__(**kwargs) # Initialize the Intervention object
         self.capacity = capacity  #: Dict with capacity by layer e.g. {'H': 100, 'W': 50}
         self.dynamic_layers = dynamic_layers or [] #: List of layers to trace via infection log (if their contacts are regenerated each timestep)
+        assert not self.presumptive, 'Presumptive tracing not supported by this class' # Disable for simplicity (reduce execution paths here until needed)
 
     def apply(self, sim):
         t = sim.t
@@ -597,58 +613,60 @@ class limited_contact_tracing(cv.contact_tracing):
         elif self.end_day is not None and t > self.end_day:
             return
 
-        # Figure out whom to test and trace
-        if not self.presumptive:
-            trace_from_inds = cvu.true(sim.people.date_diagnosed == t) # Diagnosed this time step, time to trace
-        else:
-            just_tested = cvu.true(sim.people.date_tested == t) # Tested this time step, time to trace
-            trace_from_inds = cvu.itruei(sim.people.exposed, just_tested) # This is necessary to avoid infinite chains of asymptomatic testing
+        # Everyone that was diagnosed today could potentially be traced
+        trace_from_inds = cvu.true(sim.people.date_diagnosed == t) # Diagnosed this time step, time to trace
+        if not len(trace_from_inds):
+            return
 
-        if len(trace_from_inds):
+        capacity = np.floor(self.capacity / sim.rescale_vec[t])  # Scale capacity based on dynamic rescaling factor
+        if len(trace_from_inds) > capacity:
+            trace_from_inds = trace_from_inds[cvu.choose(len(trace_from_inds),capacity)]
 
-            capacity = np.floor(self.capacity / sim.rescale_vec[t])  # Scale capacity based on dynamic rescaling factor
-            if len(trace_from_inds) > capacity:
-                trace_from_inds = trace_from_inds[cvu.choose(len(trace_from_inds),capacity)]
+        traceable_layers = {k: v for k, v in self.trace_probs.items() if v != 0.}  # Only trace if there's a non-zero tracing probability
+        dynamic_traceable = {k: v for k, v in traceable_layers.items() if k in self.dynamic_layers} # Dynamic layers get traced via the infection log
 
-            traceable_layers = {k: v for k, v in self.trace_probs.items() if v != 0.}  # Only trace if there's a non-zero tracing probability
-            dynamic_traceable = {k: v for k, v in traceable_layers.items() if k in self.dynamic_layers}
+        ind_set = set(trace_from_inds)
 
-            if dynamic_traceable:
-                ind_set = set(trace_from_inds)
-                dynamic_infections = [x for x in sim.people.infection_log if (x['source'] in ind_set or x['target'] in ind_set) and x['layer'] in dynamic_traceable]
+        if dynamic_traceable:
+            # If we are tracing person A, we want to find all of the infection interactions involving person A. An edge case would be if person B was asymptomatic and undiagnosed, and
+            # infected person A, then person A gets diagnosed. Would B be identified as a contact? If the incubation time was very short, then it's possible, but relatively unlikely
+            # since contact tracing would typically only consider contacts in the 2 days prior to becoming symptomatic which would exclude person B. But what's more likely is that
+            # person B interacted with person A more than 2 days before person A became symptomatic, which means that they wouldn't be identified. Since this is more likely, we only
+            # check for outgoing infections from person A
+            dynamic_infections = [x for x in sim.people.infection_log if ((x['source'] in ind_set or x['target'] in ind_set) and (x['layer'] in dynamic_traceable))] # People who were infected in a traceable layer involving the person being traced
 
-            # Extract the indices of the people who'll be contacted
-            for lkey, this_trace_prob in traceable_layers.items():
+        # Extract the indices of the people who'll be contacted
+        for lkey, this_trace_prob in traceable_layers.items():
+
+            # Find all the contacts of these people - these are the people that we might need to notify (all people that are currently
+            # pairing partners in the contact layer)
+            notification_set = get_inds_set(sim.people.contacts[lkey]['p1'], sim.people.contacts[lkey]['p2'], trace_from_inds.astype('int32'))
+
+            if lkey in dynamic_traceable and dynamic_infections:
+                # If it's a dynamic layer, then look through the infection log and see who was infected via this layer.
+                # Note that `dynamic_infections` is already the subset of the infection log where the source was one of the
+                # people being traced (these sources are the same indexes for layer, so it's computed before the loop
+                # over layers)
+                notification_set.update([x['target'] for x in dynamic_infections if x['layer'] == lkey])
+
+            # Check contacts
+            edge_inds = np.array(list(notification_set.difference(ind_set))) # Can't be a known contact of oneself
+            contact_inds = cvu.binomial_filter(this_trace_prob, edge_inds)  # Filter the indices according to the probability of being able to trace this layer
+            if len(contact_inds):
                 this_trace_time = self.trace_time[lkey]
-
-                # Find all the contacts of these people
-                inds_list = []
-                for k1, k2 in [['p1', 'p2'], ['p2', 'p1']]:  # Loop over the contact network in both directions -- k1,k2 are the keys
-                    in_k1 = np.isin(sim.people.contacts[lkey][k1], trace_from_inds).nonzero()[0]  # Get all the indices of the pairs that each person is in
-                    inds_list.append(sim.people.contacts[lkey][k2][in_k1])  # Find their pairing partner
-
-                if lkey in dynamic_traceable and dynamic_infections:
-                    # If it's a dynamic layer, then extract contacts from the infection log as well
-                    # This is done before np.unique() so that people don't get double counted
-                    dynamic_inds = np.array([x['target'] for x in dynamic_infections if x['layer'] == lkey], dtype=np.int32)
-                    inds_list.append(dynamic_inds)
-
-                # Check contacts
-                edge_inds = np.unique(np.concatenate(inds_list))  # Find all edges
-                contact_inds = cvu.binomial_filter(this_trace_prob, edge_inds)  # Filter the indices according to the probability of being able to trace this layer
-                if len(contact_inds):
-                    sim.people.known_contact[contact_inds] = True
-                    sim.people.date_known_contact[contact_inds] = np.fmin(sim.people.date_known_contact[contact_inds], sim.t + this_trace_time)
-                    sim.people.quarantine(contact_inds, start_date=sim.t + this_trace_time) # Schedule quarantine for the notified people to start on the date they will be notified
+                sim.people.known_contact[contact_inds] = True
+                sim.people.date_known_contact[contact_inds] = np.fmin(sim.people.date_known_contact[contact_inds], sim.t + this_trace_time)
+                sim.people.quarantine(contact_inds, start_date=sim.t + this_trace_time) # Schedule quarantine for the notified people to start on the date they will be notified
 
 
 class limited_contact_tracing_2(cv.contact_tracing):
     """
     Contact tracing with capacity limit
 
-    Each timestep, this intervention will trace contacts for newly diagnosed
-    people (or newly tested people, if the `presumptive` flag is set). The number of
-    people
+    This implementation actually tracks who the contact was, for the purpose of tracking clusters.
+    Although the tracing should be basically the same as `limited_contact_tracing`, this function
+    is much slower as a result.
+
     """
 
     def __init__(self, capacity=np.inf, dynamic_layers=None, **kwargs):

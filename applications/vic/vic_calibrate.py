@@ -111,9 +111,11 @@ if __name__ == '__main__':
     interventions = []
 
     # Add dynamic layers intervention
-    interventions.append(policy_updates.UpdateNetworks(layers=params.dynamic_lkeys,
+    interventions.append(policy_updates.UpdateNetworks(
+                                                       layers=params.dynamic_lkeys,
                                                        contact_numbers=params.pars['contacts'],
                                                        include_inds=layer_members,
+                                                       layer_members=layer_members,
                                                        dispersion=params.layerchars['dispersion']
                                                        ))
 
@@ -233,12 +235,6 @@ if __name__ == '__main__':
                                      )
 
     sim.pars['interventions'] = interventions # Add the interventions to the scenario
-
-    # Run using Celery
-    # def analyzer(s):
-    #     return s.results
-    # from outbreak.celery import run_multi_sim
-    # results = run_multi_sim(sim,n_runs, analyzer=analyzer, celery=True)
 
     # Run using MultiSim
     if n_runs > 1:
