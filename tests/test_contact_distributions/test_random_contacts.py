@@ -9,8 +9,10 @@ import sciris as sc
 
 def make_contacts(size=1000, mean_number_contacts=3, dispersion=None, array_output=False):
     include = np.random.choice([0, 1], size=size)
+    include_inds = np.nonzero(include)[0].astype(int)
 
-    contacts = co.make_random_contacts(include, mean_number_contacts, dispersion, array_output)
+    contacts = co.make_random_contacts(include_inds, mean_number_contacts, dispersion, array_output)
+
     return contacts
 
 

@@ -4,7 +4,8 @@ import covasim as cv
 import covasim.defaults as cvd
 import covasim.utils as cvu
 import numpy as np
-
+import sciris as sc
+import numba as nb
 
 def clusters_to_contacts(clusters):
     """
@@ -29,14 +30,29 @@ def clusters_to_contacts(clusters):
     return {x: np.array(list(y)) for x, y in contacts.items()}
 
 
-def make_random_contacts(include, mean_number_of_contacts, dispersion=None, array_output=False):
+@nb.njit
+def _get_contacts(include_inds, number_of_contacts):
+    total_number_of_half_edges = np.sum(number_of_contacts)
+
+    count = 0
+    source = np.zeros((total_number_of_half_edges,), dtype=cvd.default_int)
+    for i, person_id in enumerate(include_inds):
+        n_contacts = number_of_contacts[i]
+        source[count:count+n_contacts] = person_id
+        count += n_contacts
+    target = np.random.permutation(source)
+
+    return source, target
+
+
+def make_random_contacts(include_inds, mean_number_of_contacts, dispersion=None, array_output=False):
     """
     Makes the random contacts either by sampling the number of contacts per person from a Poisson or Negative Binomial distribution
 
 
     Parameters
     ----------
-    include (boolean array) length equal to the population size, containing True/1 if that person is eligible for contacts
+    include (array) array of person indexes (IDs) of everyone eligible for contacts in this layer
     mean_number_of_contacts (int) representing the mean number of contacts for each person
     dispersion (float) if not None, use a negative binomial distribution with this dispersion parameter instead of Poisson to make the contacts
     array_output (boolean) return contacts as arrays or as dicts
@@ -50,7 +66,7 @@ def make_random_contacts(include, mean_number_of_contacts, dispersion=None, arra
         representation of the edges
 
     """
-    include_inds = np.nonzero(include)[0].astype(cvd.default_int)
+
     n_people = len(include_inds)
 
     # sample the number of edges from a given distribution
@@ -59,28 +75,18 @@ def make_random_contacts(include, mean_number_of_contacts, dispersion=None, arra
     else:
         number_of_contacts = cvu.n_neg_binomial(rate=mean_number_of_contacts, dispersion=dispersion, n=n_people)
 
-    total_number_of_half_edges = sum(number_of_contacts)
+    source, target = _get_contacts(include_inds, number_of_contacts)
 
     if array_output:
+        return source, target
+    else:
+        contacts = {}
         count = 0
-        source = np.zeros(total_number_of_half_edges).astype(dtype=cvd.default_int)
         for i, person_id in enumerate(include_inds):
             n_contacts = number_of_contacts[i]
-            source[count:count+n_contacts] = person_id
+            contacts[person_id] = target[count:count+n_contacts]
             count += n_contacts
-        target = np.random.permutation(source)
-
-        return source, target
-
-    contacts = {}
-    count = 0
-    target = include_inds[cvu.choose_r(max_n=n_people, n=total_number_of_half_edges)]
-    for i, person_id in enumerate(include_inds):
-        n_contacts = number_of_contacts[i]
-        contacts[person_id] = target[count:count+n_contacts]
-        count += n_contacts
-
-    return contacts
+        return contacts
 
 
 def make_hcontacts(n_households, pop_size, household_heads, uids, contact_matrix):
@@ -111,6 +117,7 @@ def make_wcontacts(uids, ages, w_contacts):
 
 def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, dispersion, pop_proportion, age_lb, age_ub):
     contacts = {}
+    layer_members = {}
     for layer_key in custom_lkeys:
         cl_type = cluster_types[layer_key]
         num_contacts = n_contacts[layer_key]
@@ -120,15 +127,13 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
         agel = age_lb[layer_key]
         ageu = age_ub[layer_key]
         inds = np.random.choice(uids[(ages > agel) & (ages < ageu)], n_people)
-        # 1 if in layer, else 0
-        in_layer = np.zeros_like(ages)
-        in_layer[inds] = 1
+        layer_members[layer_key] = inds
 
         # handle the cluster types differently
         if cl_type == 'complete':   # number of contacts not used for complete clusters
             contacts[layer_key] = clusters_to_contacts([inds])
         elif cl_type == 'random':
-            contacts[layer_key] = make_random_contacts(include=in_layer, mean_number_of_contacts=num_contacts, dispersion=dispersion[layer_key])
+            contacts[layer_key] = make_random_contacts(include_inds=inds, mean_number_of_contacts=num_contacts, dispersion=dispersion[layer_key])
             # contacts[layer_key] = random_contacts(in_layer, num_contacts)
         elif cl_type == 'cluster':
             miniclusters = []
@@ -137,7 +142,7 @@ def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster
         else:
             raise Exception(f'Error: Unknown network structure: {cl_type}')
 
-    return contacts
+    return contacts, layer_members
 
 
 def convert_contacts(contacts, uids, all_lkeys):
@@ -202,6 +207,8 @@ def make_contacts(params):
     age_lb = params.layerchars['age_lb'] # todo: potentially confusing with the age_up in the contact matrix
     age_ub = params.layerchars['age_ub']
 
+    layer_members = {}
+
     uids = get_uids(pop_size)
 
     # household contacts
@@ -213,28 +220,32 @@ def make_contacts(params):
                                       uids,
                                       contact_matrix)
     contacts['H'] = h_contacts
+    layer_members['H'] = uids # All people exist in the household layer
 
     # school contacts
     key = 'S'
     social_no = n_contacts[key]
     s_contacts = make_scontacts(uids, ages, social_no)
     contacts[key] = s_contacts
+    layer_members['S'] = np.array(list(s_contacts.keys())) # All people exist in the household layer
 
     # workplace contacts
     key = 'W'
     work_no = n_contacts[key]
     w_contacts = make_wcontacts(uids, ages, work_no)
     contacts[key] = w_contacts
+    layer_members['S'] = np.array(list(w_contacts.keys()))
 
     # random community contacts
     key = 'C'
     com_no = n_contacts[key]
-    include = np.ones(len(ages))
-    c_contacts = make_random_contacts(include=include, mean_number_of_contacts=com_no, dispersion=dispersion['C'])
+    include = uids
+    c_contacts = make_random_contacts(include_inds=include, mean_number_of_contacts=com_no, dispersion=dispersion['C'])
     contacts[key] = c_contacts
+    layer_members['C'] = uids
 
     # Custom layers: those that are not households, work, school or community
-    custom_contacts = make_custom_contacts(uids,
+    custom_contacts, custom_layer_members = make_custom_contacts(uids,
                                            n_contacts,
                                            pop_size,
                                            ages,
@@ -246,21 +257,37 @@ def make_contacts(params):
                                            age_ub)
     contacts.update(custom_contacts)
 
-    contacts_list = convert_contacts(contacts, uids, all_lkeys)
+    layer_members = sc.mergedicts(layer_members, custom_layer_members)
 
-    return contacts_list, ages, uids
+    # Initialize the new contacts
+    cv_contacts = cv.Contacts(layer_keys=all_lkeys)
+    for lkey in contacts.keys():
+        p1 = []
+        p2 = []
+        for a1, b1 in contacts[lkey].items():
+            p1.extend([a1]*len(b1))
+            p2.extend(b1)
+
+        cv_contacts[lkey]['p1'] = np.array(p1,dtype=cvd.default_int)
+        cv_contacts[lkey]['p2'] = np.array(p2,dtype=cvd.default_int)
+        cv_contacts[lkey]['beta'] = np.ones(len(p1),dtype=cvd.default_float)
+        cv_contacts[lkey].validate()
+
+    return cv_contacts, ages, uids, layer_members
 
 
-def make_people(params):
+def make_people(params) -> cv.People:
+    """
+    Construct a cv.People object
 
-    contacts, ages, uids = make_contacts(params)
+    Uses a Parameters() object to construct a Covasim People object
 
-    # create the popdict object
-    popdict = {}
-    popdict['contacts'] = contacts
-    popdict['age'] = ages
-    popdict['uid'] = uids
+    Args:
+        params:
 
-    people = cv.People(pars=params.pars, **popdict)
-
-    return people, popdict
+    Returns: - People object
+             - A dictionary of layer members, {lkey: [indexes]}
+    """
+    cv_contacts, ages, uids, layer_members = make_contacts(params)
+    people = cv.People(pars=params.pars, contacts=cv_contacts, age=ages, uid=uids)
+    return people, layer_members

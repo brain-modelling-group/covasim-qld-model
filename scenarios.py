@@ -9,7 +9,7 @@ import utils
 import warnings
 
 
-def set_baseline(params, popdict, trace_policies):
+def set_baseline(params, layer_members, trace_policies):
 
     # unpack
     policies = params.policies
@@ -44,7 +44,7 @@ def set_baseline(params, popdict, trace_policies):
 
     base_scenario = create_scen(scenarios=base_scenario,
                                 name='baseline',
-                                popdict=popdict,
+                                layer_members=layer_members,
                                 contacts=pars['contacts'],
                                 beta_policies=baseline_policies,
                                 imports_dict=imports_dict,
@@ -60,7 +60,7 @@ def set_baseline(params, popdict, trace_policies):
 
 def create_scen(scenarios,
                 name,
-                popdict,
+                layer_members,
                 contacts,
                 beta_policies,
                 imports_dict,
@@ -84,7 +84,7 @@ def create_scen(scenarios,
                                         start_day=0),
                      policy_updates.UpdateNetworks(layers=dynamic_lkeys,
                                                    contact_numbers=contacts,
-                                                   popdict=popdict,
+                                                   layer_members=layer_members,
                                                    dispersion=dispersion)]
 
     # add in tracing policies
@@ -113,7 +113,7 @@ def create_scens(scen_opts,
                  altered_pols,
                  baseline_policies,
                  base_scenarios,
-                 popdict,
+                 layer_members,
                  params):
 
     scenarios = base_scenarios
@@ -183,7 +183,7 @@ def create_scens(scen_opts,
 
             scenarios = create_scen(scenarios=scenarios,
                                     name=name,
-                                    popdict=popdict,
+                                    layer_members=layer_members,
                                     contacts=contacts,
                                     beta_policies=beta_schedule,
                                     imports_dict=imports_dict,
@@ -197,7 +197,7 @@ def create_scens(scen_opts,
     return scenarios
 
 
-def define_scenarios(loc_opts, params, popdict):
+def define_scenarios(loc_opts, params, layer_members):
     """
 
     :param scen_opts: Dict with the following structure
@@ -218,7 +218,7 @@ def define_scenarios(loc_opts, params, popdict):
     all_lkeys = params.all_lkeys
 
     # create baseline
-    base_scenarios, base_policies = set_baseline(params, popdict, policies['tracing_policies'])
+    base_scenarios, base_policies = set_baseline(params, layer_members, policies['tracing_policies'])
 
     if loc_opts is None:
         return base_scenarios
@@ -312,7 +312,7 @@ def define_scenarios(loc_opts, params, popdict):
                              altered_pols=altered_pols,
                              baseline_policies=base_policies,
                              base_scenarios=base_scenarios,
-                             popdict=popdict,
+                             layer_members=layer_members,
                              params=params)
 
     return scenarios
@@ -362,7 +362,7 @@ def setup_scens(locations,
                                          metapars=metapars,
                                          sim_pars=loc_pars)
 
-        people, popdict = co.make_people(params)
+        people, layer_members = co.make_people(params)
 
         # setup simulation for this location
         sim = cv.Sim(pars=params.pars,
@@ -376,7 +376,7 @@ def setup_scens(locations,
         # setup scenarios for this location
         scens = define_scenarios(loc_opts=loc_opts,
                                  params=params,
-                                 popdict=popdict)
+                                 layer_members=layer_members)
         scens = cv.Scenarios(sim=sim,
                              metapars=metapars,
                              scenarios=scens)
