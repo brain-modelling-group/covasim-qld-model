@@ -31,7 +31,7 @@ scenarios = outbreak.load_scenarios('scenarios.csv')[0]
 
 print('Loading parameters...', end='')
 sc.tic()
-params = outbreak.load_australian_parameters('Victoria', pop_size=1e5, n_infected=1, n_days=31)
+params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=1, n_days=31)
 print(f'done (took {sc.toc(output=True):.0f} s)')
 
 params.pars['stopping_func'] = stop_sim_scenarios

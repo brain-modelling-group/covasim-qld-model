@@ -569,23 +569,28 @@ class test_prob_with_quarantine(cv.test_prob):
             quar_inds = cvu.binomial_filter(self.test_isolation_compliance,test_inds)
             sim.people.quarantine(quar_inds, period=self.test_delay)
 
+        return test_probs
 
 import numba as nb
 
-@nb.njit
-def get_inds_set(p1, p2, trace_from_inds):
-    # Return entries from p1 or p2 if one of the people is in trace_from_inds
-    # i.e. return a set of pairing partners for the indices in trace_from_inds
-    # Numba gets confused if we pass in the set, so constructing it inside this function
-    # actually ends up being faster
-    inds_list = set()
-    x = set(trace_from_inds)
+@nb.njit(cache=True)
+def _get_partners(p1,p2,inds):
+    """
+    Numba for Layer.get_partners()
+
+    A set is returned here rather than a sorted array so that custom tracing interventions can efficiently
+    add extra people. There doesn't appear to be a meaningful performance benefit from incorporating
+    the sorting into the Numba function apart from it making JIT compilation slower.
+
+    """
+    pairing_partners = set()
+    inds = set(inds)
     for i in range(len(p1)):
-        if p1[i] in x:
-            inds_list.add(p2[i])
-        if p2[i] in x:
-            inds_list.add(p1[i])
-    return inds_list
+        if p1[i] in inds:
+            pairing_partners.add(p2[i])
+        if p2[i] in inds:
+            pairing_partners.add(p1[i])
+    return pairing_partners
 
 
 class limited_contact_tracing(cv.contact_tracing):
@@ -640,7 +645,7 @@ class limited_contact_tracing(cv.contact_tracing):
 
             # Find all the contacts of these people - these are the people that we might need to notify (all people that are currently
             # pairing partners in the contact layer)
-            notification_set = get_inds_set(sim.people.contacts[lkey]['p1'], sim.people.contacts[lkey]['p2'], trace_from_inds.astype('int32'))
+            notification_set = _get_partners(sim.people.contacts[lkey]['p1'], sim.people.contacts[lkey]['p2'], trace_from_inds)
 
             if lkey in dynamic_traceable and dynamic_infections:
                 # If it's a dynamic layer, then look through the infection log and see who was infected via this layer.
@@ -650,7 +655,7 @@ class limited_contact_tracing(cv.contact_tracing):
                 notification_set.update([x['target'] for x in dynamic_infections if x['layer'] == lkey])
 
             # Check contacts
-            edge_inds = np.array(list(notification_set.difference(ind_set))) # Can't be a known contact of oneself
+            edge_inds = np.fromiter(notification_set.difference(ind_set), dtype=cvd.default_int)
             contact_inds = cvu.binomial_filter(this_trace_prob, edge_inds)  # Filter the indices according to the probability of being able to trace this layer
             if len(contact_inds):
                 this_trace_time = self.trace_time[lkey]

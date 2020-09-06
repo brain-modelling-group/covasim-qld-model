@@ -42,15 +42,17 @@ def stop_sim_scenarios(sim):
 class CachePeopleTask(Task):
     people = None
     layer_members = None
+    people_seed = None
 
 @celery.task(base=CachePeopleTask)
 def run_australia_outbreak(seed, params, scen_policies, people_seed=None):
 
     if people_seed is not None:
-        if run_australia_outbreak.people is None:
+        if run_australia_outbreak.people is None or run_australia_outbreak.people_seed != people_seed:
             cvu.set_seed(people_seed)
             params.pars['rand_seed'] = people_seed
             run_australia_outbreak.people, run_australia_outbreak.layer_members = co.make_people(params)
+            run_australia_outbreak.people_seed = people_seed
         people = run_australia_outbreak.people
         layer_members = run_australia_outbreak.layer_members
     else:
