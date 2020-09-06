@@ -1,5 +1,5 @@
-name: Covasim CI workflow
-on: [pull_request]
+name: Covasim-Australia CI workflow
+on: [push, pull_request]
 
 jobs:
   install_and_test:
