@@ -1,2 +1,3 @@
 ﻿scenario_name,full_name,symp_prob,symp_quar_prob,swab_delay,test_isolation_compliance
-baseline,Baseline,0.75,0.9,1,0.8
+optimistic,Optimistic,0.75,0.9,1,0.8
+pessimistic,Pessimistic,0.4,0.8,2,0.6

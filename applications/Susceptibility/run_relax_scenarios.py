@@ -1,4 +1,4 @@
-# Main script to run scenarios
+# Main script to run relax scenarios
 
 import sys
 
@@ -6,7 +6,7 @@ sys.path.append('../../')
 
 from pathlib import Path
 import outbreak
-from outbreak.celery import run_australia_outbreak, stop_sim_scenarios
+from outbreak.celery import run_australia_outbreak, stop_sim_relax
 from celery import group
 import sciris as sc
 from tqdm import tqdm
@@ -29,19 +29,17 @@ scenarios = outbreak.load_scenarios('relax_scenarios.csv')[0]
 
 print('Loading parameters...', end='')
 sc.tic()
-params = outbreak.load_australian_parameters('Victoria', pop_size=1e5, n_infected=1, n_days=31)
+params = outbreak.load_australian_parameters('Victoria', pop_size=5e4, n_infected=1, n_days=31)
 print(f'done (took {sc.toc(output=True):.0f} s)')
 
-# def stop_sim(sim):
-#     return (sim.t > 7)
-#     return (sim.t > 7 and sim.results['new_diagnoses'][sim.t-1] > 50)
-#
-params.pars['stopping_func'] = stop_sim_scenarios
+params.pars['stopping_func'] = stop_sim_relax
 
 thread_local = threading.local()
 
+people_seed = 1
+
 def run_scenario(n_infections, scen_name, package_name):
-    savefile = Path(__file__).parent / 'relax' / f'{scen_name}' / f'{package_name}_{n_infections}.stats'
+    savefile = Path(__file__).parent / 'scenarios' / f'{scen_name}' / f'{package_name}.stats'
     savefile.parent.mkdir(parents=True, exist_ok=True)
 
     scenario = scenarios[scen_name]
@@ -63,7 +61,7 @@ def run_scenario(n_infections, scen_name, package_name):
             return
 
         # Run simulations using celery
-        job = group([run_australia_outbreak.s(i, local_params, policies) for i in range(args.nruns)])
+        job = group([run_australia_outbreak.s(i, local_params, policies, people_seed=people_seed) for i in range(args.nruns)])
         result = job.apply_async()
         while result.completed_count() < args.nruns:
             time.sleep(1)
@@ -83,7 +81,7 @@ def run_scenario(n_infections, scen_name, package_name):
     sc.saveobj(savefile, sim_stats)
 
 
-to_check = [1, 5, 10, 25, 50]
+to_check = [1, 2, 5, 10, 15, 20, 25, 50]
 
 if args.celery:
     futures = []

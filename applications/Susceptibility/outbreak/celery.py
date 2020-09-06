@@ -34,10 +34,13 @@ celery.conf.task_acks_late = True # Allow other servers to pick up tasks in case
 def setup_task_logger(logger, *args, **kwargs):
     logger.setLevel(logging.WARNING)
 
-
 def stop_sim_scenarios(sim):
     # Stop a scenarios-type simulation after it exceeds 100 infections
     return (sim.t > 7 and np.sum(sim.results['new_infections'][:(sim.t-1)]) > 100)
+
+def stop_sim_relax(sim):
+    # Stop a relax-type scenario if more than 30 diagnoses are made in 1 day
+    return (sim.t > 7 and sim.results['new_diagnoses'][sim.t] > 30)
 
 class CachePeopleTask(Task):
     people = None

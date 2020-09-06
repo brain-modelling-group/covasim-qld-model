@@ -14,7 +14,6 @@ import time
 import concurrent.futures
 import threading
 
-
 # Add argument for number of runs
 import argparse
 

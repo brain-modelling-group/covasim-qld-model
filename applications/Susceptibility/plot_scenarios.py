@@ -9,7 +9,7 @@ import outbreak
 import sciris as sc
 import seaborn as sns
 
-scendir = Path(__file__).parent/'scenarios_1e5_seed1'
+scendir = Path(__file__).parent/'scenarios_1e5_seed2'
 
 # Load records in
 records = []
