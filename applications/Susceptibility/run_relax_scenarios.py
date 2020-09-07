@@ -39,7 +39,7 @@ thread_local = threading.local()
 people_seed = 1
 
 def run_scenario(n_infections, scen_name, package_name):
-    savefile = Path(__file__).parent / 'scenarios' / f'{scen_name}' / f'{package_name}.stats'
+    savefile = Path(__file__).parent / 'relax' / f'{scen_name}' / f'{package_name}_{n_infections}.stats'
     savefile.parent.mkdir(parents=True, exist_ok=True)
 
     scenario = scenarios[scen_name]
@@ -93,6 +93,10 @@ if args.celery:
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
             for n_infections in to_check:
                 for scen_name, scenario in scenarios.items():
+
+                    if scenario != 'optimistic':
+                        continue
+
                     for package_name, policies in packages.items():
                         futures.append(executor.submit(run_scenario, n_infections, scen_name, package_name))
                         time.sleep(1)
