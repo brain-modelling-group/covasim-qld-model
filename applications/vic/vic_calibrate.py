@@ -32,7 +32,7 @@ if __name__ == '__main__':
     beta = 0.0525 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 8  # Number of simulations to run
+    n_runs = 6  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     params.pars['beta'] = beta
     params.pars['start_day'] = start_day
     params.pars['verbose'] = 1
-    params.pars['rand_seed'] = 1
+    params.pars['rand_seed'] = 3
 
     params.extrapars['symp_test'] = symp_test
 
@@ -183,7 +183,6 @@ if __name__ == '__main__':
                                                        trace_time=params.extrapars['trace_time'],
                                                        start_day=0,
                                                        capacity=tracing_capacity,
-                                                       dynamic_layers=params.dynamic_lkeys,
                                                        ))
 
     # Add COVIDSafe app based tracing

@@ -578,7 +578,7 @@ class limited_contact_tracing(cv.contact_tracing):
 
     """
 
-    def __init__(self, capacity=np.inf, dynamic_layers=None, **kwargs):
+    def __init__(self, capacity=np.inf, **kwargs):
         """
 
         Args:
@@ -586,7 +586,6 @@ class limited_contact_tracing(cv.contact_tracing):
         """
         super().__init__(**kwargs) # Initialize the Intervention object
         self.capacity = capacity  #: Dict with capacity by layer e.g. {'H': 100, 'W': 50}
-        self.dynamic_layers = dynamic_layers or [] #: List of layers to trace via infection log (if their contacts are regenerated each timestep)
         assert not self.presumptive, 'Presumptive tracing not supported by this class' # Disable for simplicity (reduce execution paths here until needed)
 
     def apply(self, sim):
@@ -605,34 +604,29 @@ class limited_contact_tracing(cv.contact_tracing):
         if len(trace_from_inds) > capacity:
             trace_from_inds = trace_from_inds[cvu.choose(len(trace_from_inds),capacity)]
 
-        traceable_layers = {k: v for k, v in self.trace_probs.items() if v != 0.}  # Only trace if there's a non-zero tracing probability
-        dynamic_traceable = {k: v for k, v in traceable_layers.items() if k in self.dynamic_layers} # Dynamic layers get traced via the infection log
-
         ind_set = set(trace_from_inds)
 
-        if dynamic_traceable:
-            # If we are tracing person A, we want to find all of the infection interactions involving person A. An edge case would be if person B was asymptomatic and undiagnosed, and
-            # infected person A, then person A gets diagnosed. Would B be identified as a contact? If the incubation time was very short, then it's possible, but relatively unlikely
-            # since contact tracing would typically only consider contacts in the 2 days prior to becoming symptomatic which would exclude person B. But what's more likely is that
-            # person B interacted with person A more than 2 days before person A became symptomatic, which means that they wouldn't be identified. Since this is more likely, we only
-            # check for outgoing infections from person A
-            dynamic_infections = [x for x in sim.people.infection_log if ((x['source'] in ind_set or x['target'] in ind_set) and (x['layer'] in dynamic_traceable))] # People who were infected in a traceable layer involving the person being traced
+        dynamic_infections = [x for x in sim.people.infection_log if (x['source'] in ind_set or x['target'] in ind_set)] # People who were infected in a traceable layer involving the person being traced
 
         # Extract the indices of the people who'll be contacted
-        for lkey, this_trace_prob in traceable_layers.items():
+        for lkey, this_trace_prob in self.trace_probs.items():
+
+            if this_trace_prob == 0:
+                continue
 
             # Find all the contacts of these people - these are the people that we might need to notify (all people that are currently
             # pairing partners in the contact layer)
             notification_set = cvu.find_contacts(sim.people.contacts[lkey]['p1'], sim.people.contacts[lkey]['p2'], trace_from_inds)
 
-            if lkey in dynamic_traceable and dynamic_infections:
-                for infection in dynamic_infections:
-                    if infection['layer'] == lkey:
-                        notification_set.add(infection['source'])
-                        notification_set.add(infection['target'])
+            # if lkey in dynamic_traceable and dynamic_infections:
+            for infection in dynamic_infections:
+                if infection['layer'] == lkey:
+                    notification_set.add(infection['source'])
+                    notification_set.add(infection['target'])
 
             # Check contacts
             edge_inds = np.fromiter(notification_set.difference(ind_set), dtype=cvd.default_int)
+            edge_inds.sort()
             contact_inds = cvu.binomial_filter(this_trace_prob, edge_inds)  # Filter the indices according to the probability of being able to trace this layer
             if len(contact_inds):
                 this_trace_time = self.trace_time[lkey]
