@@ -237,7 +237,7 @@ if __name__ == '__main__':
 
     # Run using MultiSim
     if n_runs > 1:
-        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 40})
+        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 3})
         s.run()
     else:
         sim.run()

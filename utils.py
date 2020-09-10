@@ -571,34 +571,12 @@ class test_prob_with_quarantine(cv.test_prob):
 
         return test_probs
 
-import numba as nb
-
-@nb.njit(cache=True)
-def _get_partners(p1,p2,inds):
-    """
-    Numba for Layer.get_partners()
-
-    A set is returned here rather than a sorted array so that custom tracing interventions can efficiently
-    add extra people. There doesn't appear to be a meaningful performance benefit from incorporating
-    the sorting into the Numba function apart from it making JIT compilation slower.
-
-    """
-    pairing_partners = set()
-    inds = set(inds)
-    for i in range(len(p1)):
-        if p1[i] in inds:
-            pairing_partners.add(p2[i])
-        if p2[i] in inds:
-            pairing_partners.add(p1[i])
-    return pairing_partners
-
 
 class limited_contact_tracing(cv.contact_tracing):
     """
     Contact tracing with capacity limit
 
     """
-
 
     def __init__(self, capacity=np.inf, dynamic_layers=None, **kwargs):
         """
@@ -645,14 +623,13 @@ class limited_contact_tracing(cv.contact_tracing):
 
             # Find all the contacts of these people - these are the people that we might need to notify (all people that are currently
             # pairing partners in the contact layer)
-            notification_set = _get_partners(sim.people.contacts[lkey]['p1'], sim.people.contacts[lkey]['p2'], trace_from_inds)
+            notification_set = cvu.find_contacts(sim.people.contacts[lkey]['p1'], sim.people.contacts[lkey]['p2'], trace_from_inds)
 
             if lkey in dynamic_traceable and dynamic_infections:
-                # If it's a dynamic layer, then look through the infection log and see who was infected via this layer.
-                # Note that `dynamic_infections` is already the subset of the infection log where the source was one of the
-                # people being traced (these sources are the same indexes for layer, so it's computed before the loop
-                # over layers)
-                notification_set.update([x['target'] for x in dynamic_infections if x['layer'] == lkey])
+                for infection in dynamic_infections:
+                    if infection['layer'] == lkey:
+                        notification_set.add(infection['source'])
+                        notification_set.add(infection['target'])
 
             # Check contacts
             edge_inds = np.fromiter(notification_set.difference(ind_set), dtype=cvd.default_int)
