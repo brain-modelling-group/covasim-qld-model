@@ -32,22 +32,29 @@ sc.tic()
 params = outbreak.load_australian_parameters('Victoria', pop_size=5e4, n_infected=1, n_days=31)
 print(f'done (took {sc.toc(output=True):.0f} s)')
 
-params.pars['stopping_func'] = stop_sim_relax
+# params.pars['stopping_func'] = stop_sim_relax
 
 thread_local = threading.local()
 
-people_seed = 1
+people_seed = None
 
 def run_scenario(n_infections, scen_name, package_name):
-    savefile = Path(__file__).parent / 'scenarios' / f'{scen_name}' / f'{package_name}.stats'
+    savefile = Path(__file__).parent / 'relax' / f'{scen_name}' / f'{package_name}_{n_infections}.stats'
     savefile.parent.mkdir(parents=True, exist_ok=True)
 
     scenario = scenarios[scen_name]
     policies = packages[package_name]
 
+    # Extract tracing
+    testing = {k.replace('testing_','',1):v for k,v in scenario.items() if k.startswith('testing_')}
+    trace_probs = {k.replace('trace_prob_','',1):v for k,v in scenario.items() if k.startswith('trace_prob_')}
+    trace_time = {k.replace('trace_time_','',1):v for k,v in scenario.items() if k.startswith('trace_time_')}
+
     local_params = sc.dcp(params)
-    local_params.test_prob = sc.mergedicts(local_params.test_prob, scenario)
-    local_params.seed_infections = {1: n_infections}
+    local_params.test_prob = sc.mergedicts(local_params.test_prob, testing)
+    local_params.extrapars['trace_probs'] = sc.mergedicts(local_params.extrapars['trace_probs'], trace_probs)
+    local_params.extrapars['trace_time'] = sc.mergedicts(local_params.extrapars['trace_time'], trace_time)
+
 
     if args.celery:
         if not hasattr(thread_local,'pbar'):
@@ -93,6 +100,10 @@ if args.celery:
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
             for n_infections in to_check:
                 for scen_name, scenario in scenarios.items():
+
+                    if scenario != 'optimistic':
+                        continue
+
                     for package_name, policies in packages.items():
                         futures.append(executor.submit(run_scenario, n_infections, scen_name, package_name))
                         time.sleep(1)

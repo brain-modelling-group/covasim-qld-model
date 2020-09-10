@@ -33,7 +33,7 @@ sc.tic()
 params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=1, n_days=31)
 print(f'done (took {sc.toc(output=True):.0f} s)')
 
-params.pars['stopping_func'] = stop_sim_scenarios
+# params.pars['stopping_func'] = stop_sim_scenarios
 
 thread_local = threading.local()
 
@@ -46,8 +46,15 @@ def run_scenario(scen_name, package_name):
     scenario = scenarios[scen_name]
     policies = packages[package_name]
 
+    # Extract tracing
+    testing = {k.replace('testing_','',1):v for k,v in scenario.items() if k.startswith('testing_')}
+    trace_probs = {k.replace('trace_prob_','',1):v for k,v in scenario.items() if k.startswith('trace_prob_')}
+    trace_time = {k.replace('trace_time_','',1):v for k,v in scenario.items() if k.startswith('trace_time_')}
+
     local_params = sc.dcp(params)
-    local_params.test_prob = sc.mergedicts(local_params.test_prob, scenario)
+    local_params.test_prob = sc.mergedicts(local_params.test_prob, testing)
+    local_params.extrapars['trace_probs'] = sc.mergedicts(local_params.extrapars['trace_probs'], trace_probs)
+    local_params.extrapars['trace_time'] = sc.mergedicts(local_params.extrapars['trace_time'], trace_time)
 
     if args.celery:
         if not hasattr(thread_local,'pbar'):
@@ -93,7 +100,7 @@ if args.celery:
             for scen_name, scenario in scenarios.items():
                 for package_name, policies in packages.items():
                     futures.append(executor.submit(run_scenario, scen_name, package_name))
-                    time.sleep(1)
+                    # time.sleep(1)
 
             while True:
                 states = [x.done() for x in futures]

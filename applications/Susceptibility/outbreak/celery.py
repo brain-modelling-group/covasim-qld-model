@@ -40,7 +40,7 @@ def stop_sim_scenarios(sim):
 
 def stop_sim_relax(sim):
     # Stop a relax-type scenario if more than 30 diagnoses are made in 1 day
-    return (sim.t > 7 and sim.results['new_diagnoses'][sim.t] > 30)
+    return (sim.t > 7 and sim.results['new_diagnoses'][sim.t-1] > 30)
 
 class CachePeopleTask(Task):
     people = None
@@ -81,6 +81,7 @@ def run_australia_outbreak(seed, params, scen_policies, people_seed=None):
     # e.g. when running 1000 simulations. So instead, just keep summary statistics
     sim_stats = {}
     sim_stats['end_day'] = sim.t
+    sim_stats['n_seeded'] = sum(params.seed_infections.values())
 
     sim_stats['cum_infections'] = sim.results['cum_infections'][-1]
     sim_stats['cum_diagnoses'] = sim.results['cum_diagnoses'][-1]

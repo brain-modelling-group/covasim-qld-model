@@ -58,7 +58,7 @@ def calc_prob(group, level, quantity, sample:bool=False):
         group = sampled_df.reset_index().groupby(['scenario_name', 'package_name', 'n_initial'])
     return group[quantity].agg(lambda x: sum(x > level)) / group[quantity].count()
 
-def bootstrap_quantity(df, quantity, n_bootstrap=1000):
+def bootstrap_quantity(df, quantity, n_bootstrap=1):
     group = df.reset_index().groupby(['scenario_name', 'package_name', 'n_initial'])
     means = calc_prob(group,level, quantity)
     means.name = 'mean'
@@ -153,26 +153,27 @@ group['peak_diagnoses'].agg(lambda x: sum(x > 50)) / group['peak_diagnoses'].cou
 ## FIG 5 SCENARIO HEATMAP
 
 # Proportion diagnosed
+level = 10
+for scenario in scenarios:
+    group = df.loc[scenario].reset_index().groupby(['package_name', 'n_seeded'])
+    p = group['peak_diagnoses'].agg(lambda x: sum(x > level)) / group['peak_diagnoses'].count() # Greater than 50 cases per day
+    p = p.unstack()
+    p = p.loc[package_names.values()]
+    p = p[sorted(p.columns)]
 
-group = df.loc['Baseline'].reset_index().groupby(['package_name', 'n_initial'])
-p = group['peak_diagnoses'].agg(lambda x: sum(x > level)) / group['peak_diagnoses'].count() # Greater than 50 cases per day
-p = p.unstack()
-p = p.loc[package_names.values()]
-p = p[sorted(p.columns)]
-
-
-annot = (100*p).applymap('{:,.0f}%'.format)
-fig, ax = plt.subplots()
-sns.heatmap(p, annot=annot, linewidths=.5, ax=ax, cmap='Reds',cbar_kws={'label': f'Probability of >{level} new diagnoses/day within 30 days'}, fmt='s')
-ax.tick_params(axis='both', which='both',length=0)
-plt.xlabel('Number of undiagnosed infections at time of policy relaxation')
-plt.ylabel('Restriction level')
-fig.set_size_inches(6, 5)
-ax.set_yticklabels(p.index.values,rotation=0)
-
-plt.savefig(scendir / f'fig1.png', bbox_inches='tight', dpi=300, transparent=False)
-plt.close()
-
+    annot = (100*p).applymap('{:,.0f}%'.format)
+    fig, ax = plt.subplots()
+    sns.heatmap(p, annot=annot, linewidths=.5, ax=ax, cmap='Reds',cbar_kws={'label': f'Probability of >{level} new diagnoses/day within 30 days ({scenario})'}, fmt='s')
+    ax.tick_params(axis='both', which='both',length=0)
+    plt.xlabel('Number of undiagnosed infections at time of policy relaxation')
+    plt.ylabel('Restriction level')
+    plt.title(f'{scenario} - {level} diagnoses per day')
+    fig.set_size_inches(8, 5)
+    ax.set_yticklabels(p.index.values,rotation=0)
+#
+# plt.savefig(scendir / f'fig1.png', bbox_inches='tight', dpi=300, transparent=False)
+# plt.close()
+#
 
 raise Exception('End finalized figures')
 
