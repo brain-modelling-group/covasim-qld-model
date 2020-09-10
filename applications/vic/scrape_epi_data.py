@@ -12,10 +12,10 @@ def scrape_data(metric, column, fname):
         dfs.append(df)
     pd.concat(dfs, axis=1).to_csv(fname)
 
-scrape_data('daily-cases','NET','new_cases1.csv')
-scrape_data('daily-tests','NET','new_tests1.csv')
-scrape_data('daily-active-cases','ACTIVE','active_cases1.csv')
-scrape_data('daily-hospitalised','HOSP','hospitalised1.csv')
-scrape_data('daily-hospitalised','ICU','icu1.csv')
+scrape_data('daily-cases','NET','new_cases.csv')
+scrape_data('daily-tests','NET','new_tests.csv')
+scrape_data('daily-active-cases','ACTIVE','active_cases.csv')
+scrape_data('daily-hospitalised','HOSP','hospitalised.csv')
+scrape_data('daily-hospitalised','ICU','icu.csv')
 
 
