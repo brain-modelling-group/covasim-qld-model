@@ -153,7 +153,7 @@ group['peak_diagnoses'].agg(lambda x: sum(x > 50)) / group['peak_diagnoses'].cou
 ## FIG 5 SCENARIO HEATMAP
 
 # Proportion diagnosed
-level = 3
+level = 10
 for scenario in scenarios:
     group = df.loc[scenario].reset_index().groupby(['package_name', 'n_seeded'])
     p = group['peak_diagnoses'].agg(lambda x: sum(x > level)) / group['peak_diagnoses'].count() # Greater than 50 cases per day
@@ -168,7 +168,7 @@ for scenario in scenarios:
     plt.xlabel('Number of undiagnosed infections at time of policy relaxation')
     plt.ylabel('Restriction level')
     plt.title(f'{scenario} - {level} diagnoses per day')
-    fig.set_size_inches(6, 5)
+    fig.set_size_inches(8, 5)
     ax.set_yticklabels(p.index.values,rotation=0)
 #
 # plt.savefig(scendir / f'fig1.png', bbox_inches='tight', dpi=300, transparent=False)

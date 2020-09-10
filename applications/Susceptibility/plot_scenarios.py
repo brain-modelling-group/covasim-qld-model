@@ -9,7 +9,7 @@ import outbreak
 import sciris as sc
 import seaborn as sns
 
-scendir = Path(__file__).parent/'scenarios_1e5_seed2'
+scendir = Path(__file__).parent/'scenarios'
 
 # Load records in
 records = []
@@ -54,7 +54,7 @@ def calc_prob(group, level, quantity, sample:bool=False):
         group = sampled_df.reset_index().groupby(['scenario_name', 'package_name'])
     return group[quantity].agg(lambda x: sum(x > level)) / group[quantity].count()
 
-def bootstrap_quantity(df, quantity, n_bootstrap=1000):
+def bootstrap_quantity(df, quantity, n_bootstrap=10):
     group = df.reset_index().groupby(['scenario_name', 'package_name'])
     means = calc_prob(group,level, quantity)
     means.name = 'mean'

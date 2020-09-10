@@ -42,9 +42,10 @@ def load_scenarios(fname) -> dict:
 
     """
 
-    scenarios = pd.read_csv(fname, index_col=0)
+    scenarios = pd.read_csv(fname, index_col=0).T
     full_names = scenarios['full_name'].to_dict()
     del scenarios['full_name']
+    scenarios = scenarios.astype(float)
     scenarios.fillna(value=scenarios.iloc[0,:], inplace=True)
     scenarios = scenarios.to_dict(orient='index')
     return scenarios, full_names
@@ -193,10 +194,10 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
                                                                    capacity=params.extrapars['trace_capacity'],
                                                                    dynamic_layers=params.dynamic_lkeys))
 
-    sim.pars['interventions'].append(policy_updates.AppBasedTracing(name='tracing_app',
-                                                                    layers=['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social', 'aged_care'],
-                                                                    coverage=[0.2],
-                                                                    days=[0]))
+    # sim.pars['interventions'].append(policy_updates.AppBasedTracing(name='tracing_app',
+    #                                                                 layers=['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social', 'aged_care'],
+    #                                                                 coverage=[0.2],
+    #                                                                 days=[0]))
 
     # SET CLIPPING POLICIES
     for policy, clip_attributes in params.policies['clip_policies'].items():
