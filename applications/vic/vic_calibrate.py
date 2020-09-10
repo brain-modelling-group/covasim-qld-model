@@ -271,6 +271,7 @@ if __name__ == '__main__':
         cases = pd.read_csv('new_cases.csv')
         cases['day'] = cases['Date'].map(sim.day)
         cases.set_index('day', inplace=True)
+        cases.sort_index(inplace=True)
         cases = cases.loc[cases.index >= 0]['vic'].astype(int).cumsum()
         ax.scatter(cases.index, cases.values, s=10, color='k', alpha=1.0)
         # after_lockdown = cases.index.values > 0

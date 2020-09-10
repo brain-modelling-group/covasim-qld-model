@@ -606,7 +606,7 @@ class limited_contact_tracing(cv.contact_tracing):
 
         ind_set = set(trace_from_inds)
 
-        dynamic_infections = [x for x in sim.people.infection_log if (x['source'] in ind_set or x['target'] in ind_set)] # People who were infected in a traceable layer involving the person being traced
+        actual_infections = [x for x in sim.people.infection_log if (x['source'] in ind_set or x['target'] in ind_set)] # People who were infected in a traceable layer involving the person being traced
 
         # Extract the indices of the people who'll be contacted
         for lkey, this_trace_prob in self.trace_probs.items():
@@ -614,12 +614,13 @@ class limited_contact_tracing(cv.contact_tracing):
             if this_trace_prob == 0:
                 continue
 
-            # Find all the contacts of these people - these are the people that we might need to notify (all people that are currently
-            # pairing partners in the contact layer)
+            # Find current layer contacts
             notification_set = cvu.find_contacts(sim.people.contacts[lkey]['p1'], sim.people.contacts[lkey]['p2'], trace_from_inds)
 
-            # if lkey in dynamic_traceable and dynamic_infections:
-            for infection in dynamic_infections:
+            # Add interactions at previous timesteps that resulted in transmission. It's bi-directional because if the source
+            # interacts with the target, the target would be able to name the source as a known contact with the same probability
+            # as in the reverse direction.
+            for infection in actual_infections:
                 if infection['layer'] == lkey:
                     notification_set.add(infection['source'])
                     notification_set.add(infection['target'])
