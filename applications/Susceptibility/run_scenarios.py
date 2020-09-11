@@ -18,7 +18,7 @@ import threading
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--nruns', default=4, type=int, help='Number of seeds to run per scenario')
+parser.add_argument('--nruns', default=100, type=int, help='Number of seeds to run per scenario')
 parser.add_argument('--celery', default=False, type=bool, help='If True, use Celery for parallization')
 
 args = parser.parse_args()
@@ -33,15 +33,13 @@ sc.tic()
 params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=1, n_days=31)
 print(f'done (took {sc.toc(output=True):.0f} s)')
 
-# params.pars['stopping_func'] = stop_sim_scenarios
+params.pars['stopping_func'] = stop_sim_scenarios
 
 thread_local = threading.local()
 
 people_seed = 1
 
 def run_scenario(scen_name, package_name):
-    savefile = Path(__file__).parent / 'scenarios' / f'{scen_name}' / f'{package_name}.stats'
-    savefile.parent.mkdir(parents=True, exist_ok=True)
 
     scenario = scenarios[scen_name]
     policies = packages[package_name]
@@ -64,6 +62,8 @@ def run_scenario(scen_name, package_name):
         pbar.n = 0
         pbar.refresh()
 
+        savefile = Path(__file__).parent / 'scenarios' / f'{scen_name}' / f'{package_name}.stats'
+        savefile.parent.mkdir(parents=True, exist_ok=True)
         if savefile.exists():
             return
 
@@ -80,13 +80,12 @@ def run_scenario(scen_name, package_name):
         pbar.n = result.completed_count()
         pbar.refresh()
         sim_stats = result.join()
+        sc.saveobj(savefile, sim_stats)
         result.forget()
     else:
         sim_stats = []
         for i in tqdm(range(args.nruns), desc=f'{scen_name}-{package_name}'):
             sim_stats.append(run_australia_outbreak(i, sc.dcp(local_params), sc.dcp(policies), people_seed=people_seed))
-
-    sc.saveobj(savefile, sim_stats)
 
 
 if args.celery:
@@ -116,7 +115,7 @@ if args.celery:
                     print(exception)
 
 else:
-    for scen_name, scenario in scenarios.items():
-        for package_name, policies in packages.items():
-            run_scenario(scen_name, package_name)
+    # for scen_name, scenario in scenarios.items():
+    #     for package_name, policies in packages.items():
+    run_scenario('best_case_tracing', 'relax_4_nomasks')
 

@@ -15,6 +15,7 @@ import logging
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
 
 import os
+import networkx as nx
 
 broker = os.getenv('COVID_REDIS_URL', 'redis://127.0.0.1:6379')
 
@@ -83,6 +84,7 @@ def run_australia_outbreak(seed, params, scen_policies, people_seed=None):
     sim_stats['end_day'] = sim.t
     sim_stats['n_seeded'] = sum(params.seed_infections.values())
 
+    print(sim.results['cum_infections'][-1])
     sim_stats['cum_infections'] = sim.results['cum_infections'][-1]
     sim_stats['cum_diagnoses'] = sim.results['cum_diagnoses'][-1]
     sim_stats['cum_deaths'] = sim.results['cum_deaths'][-1]

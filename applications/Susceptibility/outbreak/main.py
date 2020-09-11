@@ -192,7 +192,7 @@ def get_australia_outbreak(seed: int, params: parameters.Parameters, scen_polici
                                                                    trace_time=params.extrapars['trace_time'],
                                                                    start_day=0,
                                                                    capacity=params.extrapars['trace_capacity'],
-                                                                   dynamic_layers=params.dynamic_lkeys))
+                                                                   ))
 
     # sim.pars['interventions'].append(policy_updates.AppBasedTracing(name='tracing_app',
     #                                                                 layers=['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social', 'aged_care'],
