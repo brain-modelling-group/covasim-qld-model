@@ -93,7 +93,7 @@ def extrapar_keys():
     keys = ['trace_probs', 'trace_time', 'restart_imports',
             'restart_imports_length', 'relax_day', 'future_daily_tests',
             'undiag', 'av_daily_tests', 'symp_test', 'quar_test',
-            'sensitivity', 'test_delay', 'loss_prob']
+            'sensitivity', 'test_delay', 'loss_prob', 'prop_high_risk_work']
     return keys
 
 
@@ -116,7 +116,7 @@ def get_dynamic_lkeys(all_lkeys=None):
 
 def get_default_lkeys(all_lkeys=None):
     """
-    These are the standard layer keys: household (H), school (S), workplace (W) and community (C)
+    These are the standard layer keys: household (H), school (S), low risk work, high risk work, and community (C)
     :return:
     """
     defaults = ['H', 'S', 'W', 'C']
@@ -738,7 +738,7 @@ def story(sim, uid):
     if len(p.contacts['W']):
         print(f'{uid} works with {len(p.contacts["W"])} people')
     else:
-        print(f'{uid} lives alone')
+        print(f'{uid} works alone')
 
     events = []
 
