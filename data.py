@@ -82,13 +82,14 @@ def _get_extrapars(locations, databook, all_lkeys):
 
 
 def get_dispersion_parameter(value):
-    if value.startswith('random_'):
+    if pd.isna(value):
+        return None, None
+    elif value.startswith('random_'):
         cluster_type, dispersion = value.split('_')
         dispersion = float(dispersion)
     else:
         cluster_type = value
         dispersion = None
-
     return cluster_type, dispersion
 
 

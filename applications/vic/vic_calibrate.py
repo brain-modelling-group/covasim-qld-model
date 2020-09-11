@@ -32,7 +32,7 @@ if __name__ == '__main__':
     beta = 0.0525 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 6  # Number of simulations to run
+    n_runs = 8  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     db_name = 'input_data_Australia'  # the name of the databook
     epi_name = 'epi_data_Australia'
 
-    all_lkeys = ['H', 'S', 'W', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
+    all_lkeys = ['H', 'S', 'low_risk_work','high_risk_work', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
                  'transport', 'public_parks', 'large_events', 'child_care', 'social','aged_care']
     dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
                      'transport', 'public_parks', 'large_events']
@@ -155,7 +155,8 @@ if __name__ == '__main__':
     # Add clipping policies
 
     # NE work, switch to stage 4 on aug6
-    interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='W'))
+    interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='low_risk_work'))
+    # interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='high_risk_work'))
 
     # Social layer, clipped by stages 3 and 4
     interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.9, 0.85, 0.3, 0.05], layers='social'))
@@ -236,7 +237,7 @@ if __name__ == '__main__':
 
     # Run using MultiSim
     if n_runs > 1:
-        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 3})
+        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
         s.run()
     else:
         sim.run()

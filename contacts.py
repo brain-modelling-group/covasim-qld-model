@@ -109,10 +109,27 @@ def make_scontacts(uids, ages, s_contacts):
     return class_co
 
 
-def make_wcontacts(uids, ages, w_contacts):
+def make_wcontacts(uids, ages, w_contacts, prop_high_risk):
     work_cl = cl.make_wclusters(uids, ages, w_contacts)
-    work_co = clusters_to_contacts(work_cl)
-    return work_co
+
+    is_high_risk = np.random.random(len(work_cl)) < prop_high_risk
+    low_risk_cl = []
+    high_risk_cl = []
+    n_high_risk = 0
+    n_low_risk = 0
+    for cluster, high_risk in zip(work_cl, is_high_risk):
+        if high_risk:
+            high_risk_cl.append(cluster)
+            n_high_risk += len(cluster)
+        else:
+            low_risk_cl.append(cluster)
+            n_low_risk += len(cluster)
+
+    print(f'Input high risk proportion = {prop_high_risk}')
+    print(f'Assigned proportion high risk workplaces = {len(high_risk_cl)/len(work_cl):.4f}')
+    print(f'Assigned proportion high risk workers = {n_high_risk/(n_low_risk+n_high_risk):.4f}')
+
+    return clusters_to_contacts(low_risk_cl), clusters_to_contacts(high_risk_cl)
 
 
 def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, dispersion, pop_proportion, age_lb, age_ub):
@@ -227,14 +244,17 @@ def make_contacts(params):
     social_no = n_contacts[key]
     s_contacts = make_scontacts(uids, ages, social_no)
     contacts[key] = s_contacts
-    layer_members['S'] = np.array(list(s_contacts.keys())) # All people exist in the household layer
+    layer_members['S'] = np.array(list(s_contacts.keys()))
 
     # workplace contacts
-    key = 'W'
+    key = 'low_risk_work'
     work_no = n_contacts[key]
-    w_contacts = make_wcontacts(uids, ages, work_no)
-    contacts[key] = w_contacts
-    layer_members['S'] = np.array(list(w_contacts.keys()))
+    proportion_high_risk = params.extrapars["prop_high_risk_work"]
+    low_risk_contacts, high_risk_contacts = make_wcontacts(uids, ages, work_no, proportion_high_risk)
+    contacts['low_risk_work'] = low_risk_contacts
+    contacts['high_risk_work'] = high_risk_contacts
+    layer_members['low_risk_work'] = np.array(list(low_risk_contacts.keys()))
+    layer_members['high_risk_work'] = np.array(list(high_risk_contacts.keys()))
 
     # random community contacts
     key = 'C'
