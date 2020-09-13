@@ -39,11 +39,11 @@ if __name__ == '__main__':
         raise Exception('Run mode must be "calibrate" or "projection"')
 
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
-    seeded_cases = {3:10}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
+    seeded_cases = {4:8}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
     beta = 0.0525 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 8  # Number of simulations to run
+    n_runs = 1  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -171,17 +171,17 @@ if __name__ == '__main__':
     # Add clipping policies
 
     # NE work, switch to stage 4 on aug6
-    interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='low_risk_work'))
+    #interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='low_risk_work'))
     # interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='high_risk_work'))
 
     # Social layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.9, 0.85, 0.3, 0.05], layers='social'))
+    #interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.9, 0.85, 0.3, 0.05], layers='social'))
 
     # church and pub/bar layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0], layers=['church', 'pub_bar']))
+    #interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0], layers=['church', 'pub_bar']))
 
     # cafe/restaurant, community sport and school layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0.15], layers=['cafe_restaurant', 'cSport', 'S']))
+    #interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0.15], layers=['cafe_restaurant', 'cSport', 'S']))
 
 
 

@@ -1,5 +1,5 @@
 import covasim_australia.plot as plot
-import scenarios
+import covasim_australia.scenarios as scenarios
 import os
 
 
