@@ -23,9 +23,18 @@ import matplotlib.ticker as ticker
 
 if __name__ == '__main__':
 
+    run_mode = 'calibrate' # 'calibrate' or 'projection'
+
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
-    n_days = 120 # Total simulation duration (days)
+
+    if run_mode == 'calibrate':
+        n_days = 100 # Total simulation duration (days)
+    elif run_mode == 'projection':
+        n_days = 200
+    else:
+        raise Exception('Run mode must be "calibrate" or "projection"')
+
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:10}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
     beta = 0.0525 # Overall beta
@@ -82,7 +91,7 @@ if __name__ == '__main__':
     params.pars['beta'] = beta
     params.pars['start_day'] = start_day
     params.pars['verbose'] = 1
-    params.pars['rand_seed'] = 3
+    params.pars['rand_seed'] = 0
 
     params.extrapars['symp_test'] = symp_test
 
@@ -93,7 +102,7 @@ if __name__ == '__main__':
     params.pars['rescale_factor'] = 1.1
 
     # Make people
-    cv.set_seed(1) # Seed for population generation
+    cv.set_seed(0) # Seed for population generation
     people, layer_members = co.make_people(params)
 
     # Make the base sim
@@ -189,7 +198,7 @@ if __name__ == '__main__':
                                                        ))
 
     # Add COVIDSafe app based tracing
-    #interventions.append(policy_updates.AppBasedTracing(name='tracing_app',**params.policies["tracing_policies"]["tracing_app"]))
+    interventions.append(policy_updates.AppBasedTracing(name='tracing_app',**params.policies["tracing_policies"]["tracing_app"]))
 
 
     # Now when we run the model, the major free parameters are the overall beta
