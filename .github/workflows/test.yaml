@@ -27,7 +27,7 @@ jobs:
           architecture: x64
       - name: Install Covasim
         run: |
-          pip install covasim networkx
+          python setup.py install
           pip install pytest
       - name: Run tests
         working-directory: ./tests
