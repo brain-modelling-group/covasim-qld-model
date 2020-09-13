@@ -1,5 +1,5 @@
 import covasim as cv
-import utils
+import covasim_australia.utils as utils
 import pytest
 import sciris as sc
 import numpy as np

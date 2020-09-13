@@ -602,6 +602,7 @@ class limited_contact_tracing(cv.contact_tracing):
         trace_from_inds = cvu.true(sim.people.date_diagnosed == t) # Diagnosed this time step, time to trace
         if not len(trace_from_inds):
             return
+        trace_from_inds = trace_from_inds.astype(np.int64)
 
         capacity = np.floor(self.capacity / sim.rescale_vec[t])  # Scale capacity based on dynamic rescaling factor
         if len(trace_from_inds) > capacity:
