@@ -25,6 +25,9 @@ if __name__ == '__main__':
     run_mode = 'calibrate' # 'calibrate' or 'projection'
     release_day = '2020-09-14'
 
+    resultsdir =  Path('.')/'results'
+    resultsdir.mkdir(exist_ok=True) # Make folder if it doesn't exist
+
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
 
@@ -40,7 +43,7 @@ if __name__ == '__main__':
     beta = 0.0525 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 8  # Number of simulations to run
+    n_runs = 40  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -250,19 +253,16 @@ if __name__ == '__main__':
 
     # Run using MultiSim
     if n_runs > 1:
-        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 3})
+        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 40})
         s.run()
     else:
         sim.run()
         raise Exception('Must use a MultiSim for analysis')
 
     for i, x in enumerate(s.sims):
-        fname = Path('.')/'results'/f'{run_mode}_{i}.csv'
-        fname.parent.mkdir(parents=True, exist_ok=True)  # Make folder if it doesn't exist
+        fname = resultsdir/f'{run_mode}_{i}.csv'
         cva.save_csv(x,fname)
 
-    # sc.saveobj('multisim_test.obj',s)
-    # s = sc.loadobj('multisim_test.obj')
     s.reduce(quantiles={'low': 0.25, 'high': 0.75})
 
 
@@ -409,19 +409,16 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(3, 2)
     fig.set_size_inches(8, 11)
-
     titlestr = f'{n_imports} imported cases per day, seeded {seeded_cases}'
-
     fig.suptitle(titlestr)
-
     plot_new_diagnoses(ax[0][0])
     plot_cum_diagnosed(ax[0][1])
     plot_cum_infections(ax[2][0])
-
     plot_daily_tests(ax[1][0])
     plot_active_cases(ax[1][1])
     plot_severe_infections(ax[2][1])
-
+    fig.tight_layout()
+    plt.savefig(resultsdir/'calibration_diagnostic.png', bbox_inches='tight', dpi=300, transparent=False)
 
 
     fig, ax = plt.subplots(1,3)
@@ -430,7 +427,7 @@ if __name__ == '__main__':
     plot_cum_diagnosed(ax[1])
     plot_severe_infections(ax[2])
     fig.tight_layout()
-    plt.savefig('../Susceptibility/fig1.png', bbox_inches='tight', dpi=300, transparent=False)
+    plt.savefig(resultsdir/'fig1.png', bbox_inches='tight', dpi=300, transparent=False)
     plt.show()
 
 
