@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
-    n_days = 100 # Total simulation duration (days)
+    n_days = 120 # Total simulation duration (days)
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:10}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
     beta = 0.0525 # Overall beta
@@ -197,43 +197,44 @@ if __name__ == '__main__':
 
     interventions.append(utils.SeedInfection(seeded_cases))
 
-    # Add probability-based testing interventions
-    '''
-    interventions.append(cv.test_prob(
-        symp_prob=0.1,
-        asymp_prob=0.01,
-        symp_quar_prob=0.2,
-        asymp_quar_prob=0.01,
-        start_day=0,
-        end_day=20,
-    ))
-    interventions.append(cv.test_prob(
-        symp_prob=0.1,
-        asymp_prob=0.01,
-        symp_quar_prob=0.2,
-        asymp_quar_prob=0.01,
-        start_day=21,
-    ))
-    '''
-
 
     # Add number-based testing interventions
-    tests = pd.read_csv(cva.datadir/'victoria'/'new_tests.csv')
+    tests = pd.read_csv(cva.datadir / 'victoria' / 'new_tests.csv')
     tests['day'] = tests['Date'].map(sim.day)
-    tests.set_index('day',inplace=True)
-    tests = tests.loc[tests.index >= 0]['vic'].dropna().astype(int)
-    tests = tests*scale_tests*(sim.n/4.9e6)  # Approximately scale to number of simulation agents - this might need to be changed!
-    coeffs = np.polyfit(tests.index, tests.values, 1)
-    tests_per_day = np.arange(params.pars["n_days"]+1)*coeffs[0]+coeffs[1]
-    #tests_per_day = tests.values
+    tests.set_index('day', inplace=True)
+    tests = tests.loc[(tests.index >= 0)  & (tests['vic'] > 0)]['vic'].dropna().astype(int)
+    tests = tests * scale_tests * (sim.n / 4.9e6)  # Approximately scale to number of simulation agents - this might need to be changed!
 
-    interventions.append(cv.test_num(daily_tests=extra_tests+tests_per_day,
-                                                 symp_test=params.extrapars['symp_test'],
-                                                 quar_test=params.extrapars['quar_test'],
-                                                 sensitivity=params.extrapars['sensitivity'],
-                                                 test_delay=params.extrapars['test_delay'],
-                                                 loss_prob=params.extrapars['loss_prob'])
-                                     )
+    def moving_average(x, npts):
+        window = np.ones(npts)/npts
+        avg = np.convolve(np.pad(x,npts,'edge'), window, 'same')
+        return avg[npts:-npts]
+
+    smoothed_tests = moving_average(tests.values,7)
+    tests_per_day = np.interp(np.arange(params.pars["n_days"]+1), tests.index, smoothed_tests, left=smoothed_tests[0], right=smoothed_tests[-1])
+
+    # plt.figure()
+    # plt.plot(tests.values)
+    # plt.plot(tests_per_day)
+
+    calibration_test_num = cv.test_num(daily_tests=extra_tests + tests_per_day,
+                                       symp_test=params.extrapars['symp_test'],
+                                       quar_test=params.extrapars['quar_test'],
+                                       sensitivity=params.extrapars['sensitivity'],
+                                       test_delay=params.extrapars['test_delay'],
+                                       loss_prob=params.extrapars['loss_prob'])
+
+
+    projection_test_prob = cva.test_prob_with_quarantine(
+        symp_prob = 0.5,
+        symp_quar_prob = 0.9,
+        test_delay=1,
+        swab_delay=2,
+        test_isolation_compliance=0.75,
+        leaving_quar_prob=0.0
+    )
+
+    interventions.append(cv.sequence([0,50], [calibration_test_num, projection_test_prob]))
 
     sim.pars['interventions'] = interventions # Add the interventions to the scenario
 
@@ -391,26 +392,22 @@ if __name__ == '__main__':
 
 
 
-    '''
-    # fig, ax = plt.subplots(3, 2)
-    # fig.set_size_inches(8, 11)
-    # 
-    # titlestr = f'{n_imports} imported cases per day, seeded {seeded_cases}'
-    # 
-    # fig.suptitle(titlestr)
-    # 
-    # plot_new_diagnoses(ax[0][0])
-    # plot_cum_diagnosed(ax[0][1])
-    # plot_cum_infections(ax[2][0])
-    # 
-    # plot_daily_tests(ax[1][0])
-    # plot_active_cases(ax[1][1])
-    # plot_severe_infections(ax[2][1])
-    # 
-    # plt.savefig('vic_calibrate_2508.png')
-    # plt.show()
-    
-    '''
+    fig, ax = plt.subplots(3, 2)
+    fig.set_size_inches(8, 11)
+
+    titlestr = f'{n_imports} imported cases per day, seeded {seeded_cases}'
+
+    fig.suptitle(titlestr)
+
+    plot_new_diagnoses(ax[0][0])
+    plot_cum_diagnosed(ax[0][1])
+    plot_cum_infections(ax[2][0])
+
+    plot_daily_tests(ax[1][0])
+    plot_active_cases(ax[1][1])
+    plot_severe_infections(ax[2][1])
+
+
 
     fig, ax = plt.subplots(1,3)
     fig.set_size_inches(12, 4)
