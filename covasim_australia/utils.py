@@ -7,7 +7,7 @@ import covasim.utils as cvu
 import covasim.defaults as cvd
 import covasim.base as cvb
 import networkx as nx
-
+import pandas as pd
 
 def get_ndays(start_day, end_day):
     """Calculates the number of days for simulation"""
@@ -776,3 +776,10 @@ def story(sim, uid):
 
     for day, event in sorted(events, key=lambda x: x[0]):
         print(f'On Day {day:.0f}, {uid} {event}')
+
+def save_csv(sim, fname):
+    resdict = sim.export_results(for_json=False)
+    result_df = pd.DataFrame.from_dict(resdict)
+    result_df.index = sim.datevec
+    result_df.index.name = 'date'
+    result_df.to_csv(fname)

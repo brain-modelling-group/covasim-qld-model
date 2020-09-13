@@ -8,7 +8,7 @@ import numpy as np
 import pylab as pl
 import sciris as sc
 import covasim.misc as cvm
-
+from covasim.interventions import process_days
 from covasim import utils as cvu
 
 
@@ -235,6 +235,7 @@ class AppBasedTracing(cv.Intervention):
         super().initialize(sim)
         self.start_day = sim.day(self.start_day)
         self.end_day = sim.day(self.end_day)
+        self.days = process_days(sim, self.days)
         return
 
     def apply(self, sim):

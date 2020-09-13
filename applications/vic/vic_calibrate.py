@@ -1,6 +1,4 @@
 # Main script to run Victoria calibration
-import sys
-sys.path.append('../../')
 
 import covasim_australia as cva
 import covasim_australia.contacts as co
@@ -13,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import covasim_australia.parameters as parameters
 import matplotlib.ticker as ticker
+from pathlib import Path
 
 # Overall strategy
 # 1. Set key parameters for simulation and calibration
@@ -24,6 +23,7 @@ import matplotlib.ticker as ticker
 if __name__ == '__main__':
 
     run_mode = 'calibrate' # 'calibrate' or 'projection'
+    release_day = '2020-09-14'
 
     # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     params.pars['beta'] = beta
     params.pars['start_day'] = start_day
     params.pars['verbose'] = 1
-    params.pars['rand_seed'] = 0
+    params.pars['rand_seed'] = 3
 
     params.extrapars['symp_test'] = symp_test
 
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     params.pars['rescale_factor'] = 1.1
 
     # Make people
-    cv.set_seed(0) # Seed for population generation
+    cv.set_seed(1) # Seed for population generation
     people, layer_members = co.make_people(params)
 
     # Make the base sim
@@ -144,6 +144,8 @@ if __name__ == '__main__':
     jul9 = sim.day('20200709')
     jul23 = sim.day('20200723')
     aug6 = sim.day('20200806')
+    sep14 = sim.day('20200914')
+    sep28 = sim.day('20200928')
 
     #beta_schedule.end('cafe_restaurant_4sqm', jul2)
     #beta_schedule.end('pub_bar_4sqm', jul2)
@@ -198,8 +200,8 @@ if __name__ == '__main__':
                                                        ))
 
     # Add COVIDSafe app based tracing
-    interventions.append(policy_updates.AppBasedTracing(name='tracing_app',**params.policies["tracing_policies"]["tracing_app"]))
-
+    # app_layers = ['H', 'S', 'low_risk_work', 'high_risk_work', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social']
+    # interventions.append(policy_updates.AppBasedTracing(name='tracing_app',start_day='2020-09-13',days=['2020-09-13'],coverage=[0.2],layers=app_layers, trace_time=1))
 
     # Now when we run the model, the major free parameters are the overall beta
     # And the date of the seed infection
@@ -207,7 +209,7 @@ if __name__ == '__main__':
     interventions.append(utils.SeedInfection(seeded_cases))
 
 
-    # Add number-based testing interventions
+    # Add testing interventions
     tests = pd.read_csv(cva.datadir / 'victoria' / 'new_tests.csv')
     tests['day'] = tests['Date'].map(sim.day)
     tests.set_index('day', inplace=True)
@@ -226,24 +228,23 @@ if __name__ == '__main__':
     # plt.plot(tests.values)
     # plt.plot(tests_per_day)
 
-    calibration_test_num = cv.test_num(daily_tests=extra_tests + tests_per_day,
+    interventions.append(cv.test_num(daily_tests=extra_tests + tests_per_day,
                                        symp_test=params.extrapars['symp_test'],
                                        quar_test=params.extrapars['quar_test'],
                                        sensitivity=params.extrapars['sensitivity'],
                                        test_delay=params.extrapars['test_delay'],
-                                       loss_prob=params.extrapars['loss_prob'])
+                                       loss_prob=params.extrapars['loss_prob']))
 
-
-    projection_test_prob = cva.test_prob_with_quarantine(
-        symp_prob = 0.5,
-        symp_quar_prob = 0.9,
-        test_delay=1,
-        swab_delay=2,
-        test_isolation_compliance=0.75,
-        leaving_quar_prob=0.0
-    )
-
-    interventions.append(cv.sequence([0,50], [calibration_test_num, projection_test_prob]))
+    # Try switching from test_num to test_prob for projections
+    # projection_test_prob = cva.test_prob_with_quarantine(
+    #     symp_prob = 0.5,
+    #     symp_quar_prob = 0.9,
+    #     test_delay=1,
+    #     swab_delay=2,
+    #     test_isolation_compliance=0.75,
+    #     leaving_quar_prob=0.0
+    # )
+    # interventions.append(cv.sequence([0,50], [calibration_test_num, projection_test_prob]))
 
     sim.pars['interventions'] = interventions # Add the interventions to the scenario
 
@@ -254,6 +255,11 @@ if __name__ == '__main__':
     else:
         sim.run()
         raise Exception('Must use a MultiSim for analysis')
+
+    for i, x in enumerate(s.sims):
+        fname = Path('.')/'results'/f'{run_mode}_{i}.csv'
+        fname.parent.mkdir(parents=True, exist_ok=True)  # Make folder if it doesn't exist
+        cva.save_csv(x,fname)
 
     # sc.saveobj('multisim_test.obj',s)
     # s = sc.loadobj('multisim_test.obj')
