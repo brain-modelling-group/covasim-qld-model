@@ -1,6 +1,5 @@
 import covasim_australia.plot as plot
-import scenarios
-import os
+import covasim_australia.scenarios as scenarios
 
 
 def setup_scens(locations,
