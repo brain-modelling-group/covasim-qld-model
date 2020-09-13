@@ -1,4 +1,4 @@
-import contacts as co
+import covasim_australia.contacts as co
 import covasim as cv
 import covasim.defaults as cvd
 import datetime as dt

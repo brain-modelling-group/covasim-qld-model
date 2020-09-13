@@ -1,8 +1,8 @@
 import covasim as cv
 import numpy as np
 from functools import partial
-import outbreak
-import utils
+# import outbreak
+import covasim_australia.utils as utils
 import networkx as nx
 
 def get_clusters(sim: cv.Sim, t: int) -> dict:
@@ -224,38 +224,38 @@ def plot_clusters_2(sim: cv.Sim, max_clusters=200):
     return fig
 
 
-if __name__ == '__main__':
-    # Running this file directly produces an example Sim with contact tracing enabled
-    # and uses it to plot clusters
-    import covasim.utils as cvu
-    import matplotlib.pyplot as plt
-    import sciris as sc
-
-    packages = outbreak.load_packages()[0]
-    params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=5, n_days=30)
-
-    # The commands below artifically increase clustering for development purposes
-    params.extrapars['trace_probs'] = {k: 1 for k in params.extrapars['trace_probs']}  # Perfect contact tracing
-    params.extrapars['trace_time'] = {k: 1 for k in params.extrapars['trace_time']} # Instant contact tracing
-    params.test_prob = {
-        'symp_prob': 1.0,  # Someone who has symptoms has this probability of testing on any given day
-        'asymp_prob': 0.00,  # Someone who is asymptomatic has this probability of testing on any given day
-        'symp_quar_prob': 1.0,  # Someone who is quarantining and has symptoms has this probability of testing on any given day
-        'asymp_quar_prob': 1.0,
-        'test_delay': 2,  # Number of days for test results to be processed
-        'swab_delay': 2,  # Number of days people wait after symptoms before being tested
-        'leaving_quar_prob': 0.0,
-    }
-
-    sim = outbreak.get_australia_outbreak(1, params, packages['Large events only'])
-    # sim.pars['interventions'].insert(0,cv.test_prob(1,1,1,1))
-    sim.pars['verbose'] = True
-    sim.run(restore_pars=False) # If restore_pars is True then the intervention is unable to record any values...
-
-    #
-    plot_clusters(sim, max_clusters=np.inf)
-    #
-    plot_clusters_2(sim, max_clusters=np.inf)
-
+# if __name__ == '__main__':
+#     # Running this file directly produces an example Sim with contact tracing enabled
+#     # and uses it to plot clusters
+#     import covasim.utils as cvu
+#     import matplotlib.pyplot as plt
+#     import sciris as sc
+#
+#     packages = outbreak.load_packages()[0]
+#     params = outbreak.load_australian_parameters('Victoria', pop_size=1e4, n_infected=5, n_days=30)
+#
+#     # The commands below artifically increase clustering for development purposes
+#     params.extrapars['trace_probs'] = {k: 1 for k in params.extrapars['trace_probs']}  # Perfect contact tracing
+#     params.extrapars['trace_time'] = {k: 1 for k in params.extrapars['trace_time']} # Instant contact tracing
+#     params.test_prob = {
+#         'symp_prob': 1.0,  # Someone who has symptoms has this probability of testing on any given day
+#         'asymp_prob': 0.00,  # Someone who is asymptomatic has this probability of testing on any given day
+#         'symp_quar_prob': 1.0,  # Someone who is quarantining and has symptoms has this probability of testing on any given day
+#         'asymp_quar_prob': 1.0,
+#         'test_delay': 2,  # Number of days for test results to be processed
+#         'swab_delay': 2,  # Number of days people wait after symptoms before being tested
+#         'leaving_quar_prob': 0.0,
+#     }
+#
+#     sim = outbreak.get_australia_outbreak(1, params, packages['Large events only'])
+#     # sim.pars['interventions'].insert(0,cv.test_prob(1,1,1,1))
+#     sim.pars['verbose'] = True
+#     sim.run(restore_pars=False) # If restore_pars is True then the intervention is unable to record any values...
+#
+#     #
+#     plot_clusters(sim, max_clusters=np.inf)
+#     #
+#     plot_clusters_2(sim, max_clusters=np.inf)
+#
 
 

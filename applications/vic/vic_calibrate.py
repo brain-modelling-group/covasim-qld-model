@@ -2,16 +2,16 @@
 import sys
 sys.path.append('../../')
 
-import contacts as co
+import covasim_australia as cva
+import covasim_australia.contacts as co
 import covasim as cv
-import policy_updates
-import utils
+import covasim_australia.policy_updates as policy_updates
+import covasim_australia.utils as utils
 import sciris as sc
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import parameters
-import data
+import covasim_australia.parameters as parameters
 import matplotlib.ticker as ticker
 
 # Overall strategy
@@ -20,7 +20,6 @@ import matplotlib.ticker as ticker
 # 3. Add interventions to the Sim
 # 4. Run the Sim, optionally with multiple seeds
 # 5. Make plots
-
 
 if __name__ == '__main__':
 
@@ -32,7 +31,7 @@ if __name__ == '__main__':
     beta = 0.0525 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 8  # Number of simulations to run
+    n_runs = 3  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -63,7 +62,7 @@ if __name__ == '__main__':
     user_pars, calibration_end = utils.clean_pars(user_pars, [location])
 
     # return data relevant to each specified location in "locations"
-    all_data = data.read_data(locations=[location],
+    all_data = cva.read_data(locations=[location],
                               db_name=db_name,
                               epi_name=epi_name,
                               all_lkeys=all_lkeys,
@@ -219,7 +218,7 @@ if __name__ == '__main__':
 
 
     # Add number-based testing interventions
-    tests = pd.read_csv('new_tests.csv')
+    tests = pd.read_csv(cva.datadir/'victoria'/'new_tests.csv')
     tests['day'] = tests['Date'].map(sim.day)
     tests.set_index('day',inplace=True)
     tests = tests.loc[tests.index >= 0]['vic'].dropna().astype(int)
@@ -240,7 +239,7 @@ if __name__ == '__main__':
 
     # Run using MultiSim
     if n_runs > 1:
-        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 4})
+        s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 3})
         s.run()
     else:
         sim.run()
@@ -272,7 +271,7 @@ if __name__ == '__main__':
         ax.fill_between(s.base_sim.tvec, s.results['cum_diagnoses'].low, s.results['cum_diagnoses'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['cum_diagnoses'].values[:], color='b', alpha=0.1)
 
-        cases = pd.read_csv('new_cases.csv')
+        cases = pd.read_csv(cva.datadir/'victoria'/'new_cases.csv')
         cases['day'] = cases['Date'].map(sim.day)
         cases.set_index('day', inplace=True)
         cases.sort_index(inplace=True)
@@ -331,7 +330,7 @@ if __name__ == '__main__':
         ax.plot(s.base_sim.tvec, s.results['new_diagnoses'].values[:], color='b', alpha=0.1)
         ax.set_title('New diagnoses')
 
-        cases = pd.read_csv('new_cases.csv')
+        cases = pd.read_csv(cva.datadir/'victoria'/'new_cases.csv')
         cases['day'] = cases['Date'].map(s.base_sim.day)
         cases.set_index('day', inplace=True)
         cases = cases.loc[cases.index >= 0]['vic'].astype(int)
@@ -344,7 +343,7 @@ if __name__ == '__main__':
         ax.fill_between(s.base_sim.tvec, s.results['new_tests'].low, s.results['new_tests'].high, **fill_args)
         ax.plot(s.base_sim.tvec, s.results['new_tests'].values[:], color='b', alpha=0.1)
 
-        tests = pd.read_csv('new_tests.csv')
+        tests = pd.read_csv(cva.datadir/'victoria'/'new_tests.csv')
         tests['day'] = tests['Date'].map(sim.day)
         tests.set_index('day', inplace=True)
         tests = tests.loc[tests.index >= 0]['vic'].astype(float)
@@ -382,7 +381,7 @@ if __name__ == '__main__':
         ax.plot(s.base_sim.tvec, s.results['n_severe'].values[:], color='b', alpha=0.1)
         ax.set_title('Severe infections')
 
-        hosp = pd.read_csv('hospitalised.csv')
+        hosp = pd.read_csv(cva.datadir/'victoria'/'hospitalised.csv')
         hosp['day'] = hosp['Date'].map(sim.day)
         hosp.set_index('day', inplace=True)
 

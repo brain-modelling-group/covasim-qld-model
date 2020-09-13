@@ -1,4 +1,4 @@
-import clusters as cl
+import covasim_australia.clusters as cl
 import collections
 import covasim as cv
 import covasim.defaults as cvd

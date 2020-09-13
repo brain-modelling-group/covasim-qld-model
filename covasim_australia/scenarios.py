@@ -1,11 +1,11 @@
-import contacts as co
+import covasim_australia.contacts as co
 import covasim as cv
 import data
 import numpy as np
-import parameters
-import policy_updates
+import covasim_australia.parameters as parameters
+import covasim_australia.policy_updates as policy_updates
 import sciris as sc
-import utils
+import covasim_australia.utils as utils
 import warnings
 
 

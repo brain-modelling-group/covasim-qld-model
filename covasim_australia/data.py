@@ -2,7 +2,7 @@ import math
 import numpy as np
 import pandas as pd
 import sciris as sc
-import utils
+import covasim_australia.utils as utils
 import warnings
 from collections import defaultdict
 

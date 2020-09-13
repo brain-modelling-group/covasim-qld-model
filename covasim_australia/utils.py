@@ -2,7 +2,7 @@ import covasim as cv
 import numpy as np
 import os
 import sciris as sc
-import utils, policy_updates
+# import utils, policy_updates
 import covasim.utils as cvu
 import covasim.defaults as cvd
 import covasim.base as cvb
@@ -57,7 +57,8 @@ def _format_paths(db_name, epi_name, root):
 
 def get_file_paths(db_name, epi_name, root=None):
     if root is None:
-        root = os.path.dirname(__file__)
+        from covasim_australia import datadir
+        root = str(datadir.parent)
 
     db_path, epi_path = _format_paths(db_name=db_name,
                                       epi_name=epi_name,

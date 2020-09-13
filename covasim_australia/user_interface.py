@@ -1,4 +1,4 @@
-import plot
+import covasim_australia.plot as plot
 import scenarios
 import os
 

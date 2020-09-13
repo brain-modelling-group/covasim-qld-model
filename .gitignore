@@ -145,3 +145,6 @@ dmypy.json
 node_modules
 docs/covasim.*
 docs/modules.rst
+
+# images (by default)
+*.png
