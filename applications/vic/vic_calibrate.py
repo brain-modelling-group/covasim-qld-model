@@ -43,7 +43,7 @@ if __name__ == '__main__':
     beta = 0.0525 # Overall beta
     extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 40  # Number of simulations to run
+    n_runs = 8  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
