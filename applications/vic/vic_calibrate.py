@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     # 2 - LOAD DATA AND CREATE SIM
     db_name = 'input_data_Australia'  # the name of the databook
-    epi_name = 'epi_data_Australia'
+    epi_name = None
 
     all_lkeys = ['H', 'S', 'low_risk_work','high_risk_work', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
                  'transport', 'public_parks', 'large_events', 'child_care', 'social','aged_care']

@@ -46,6 +46,8 @@ def _format_paths(db_name, epi_name, root):
 
     if epi_name == 'url':
         epidata_path = 'url'
+    elif epi_name is None:
+        epidata_path = None
     else:
         # must be stored elsewhere
         epidata_path = os.path.join(root, 'data', epi_name)

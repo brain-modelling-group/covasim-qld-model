@@ -481,7 +481,13 @@ def read_data(locations=None, db_name=None, epi_name=None, all_lkeys=None, dynam
     pars, extrapars, layerchars = read_params(locations, db, all_lkeys)
     policies = read_policies(locations, db, all_lkeys)
     contact_matrix = read_contact_matrix(locations, db)
-    complete_epidata, calibration_epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars, extrapars, calibration_end)
+    if epi_path is not None:
+        complete_epidata, calibration_epidata, imported_cases, daily_tests = get_epi_data(locations, epi_path, pars, extrapars, calibration_end)
+    else:
+        complete_epidata = defaultdict(lambda: None)
+        calibration_epidata = defaultdict(lambda: None)
+        imported_cases = defaultdict(lambda: None)
+        daily_tests = defaultdict(lambda: None)
     age_dist, household_dist = read_popdata(locations, db)
 
     # convert so that outer key is the location
