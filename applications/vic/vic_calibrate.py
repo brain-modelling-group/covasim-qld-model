@@ -34,18 +34,18 @@ if __name__ == '__main__':
     improve_day = '2020-09-14' # The day on which app based tracing turns on and contact tracing performance is improved
 
     if run_mode == 'calibrate':
-        n_days = 100 # Total simulation duration (days)
+        n_days = 110 # Total simulation duration (days)
     elif run_mode == 'projection':
         n_days = 200 # TODO - set this to the appropriate number of days for the projection
     else:
         raise Exception('Run mode must be "calibrate" or "projection"')
 
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
-    seeded_cases = {3:10}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
+    seeded_cases = {4:7}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
     beta = 0.0525 # Overall beta
     extra_tests = 0  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 40  # Number of simulations to run
+    n_runs = 8  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -166,7 +166,8 @@ if __name__ == '__main__':
 
     interventions.append(beta_schedule)
 
-    # Add clipping policies
+    # ADD CLIPPING POLICIES
+    # These have been deprecated in favour of using beta policies only
 
     # # NE work, switch to stage 4 on aug6
     # interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='low_risk_work'))
@@ -182,7 +183,7 @@ if __name__ == '__main__':
     # interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0.15], layers=['cafe_restaurant', 'cSport', 'S']))
 
 
-    # Add contact tracing
+    # ADD CONTACT TRACING
     # - A household intervention with no capacity limit
     # - A lower-performance contact tracing intervention for Jun-Sept
     # - A high-performance intervention for Sept onwards
@@ -226,13 +227,11 @@ if __name__ == '__main__':
     app_layers = ['H', 'S', 'low_risk_work', 'high_risk_work', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social']
     interventions.append(policy_updates.AppBasedTracing(name='tracing_app',start_day=sim.day(improve_day),days=[sim.day(improve_day)],coverage=[0.25],layers=app_layers, trace_time=1))
 
-    # Now when we run the model, the major free parameters are the overall beta
-    # And the date of the seed infection
-
+    # ADD SEED INFECTIONS
     interventions.append(utils.SeedInfection(seeded_cases))
 
 
-    # Add testing interventions
+    # ADD TESTING INTERVENTIONS
     tests = pd.read_csv(cva.datadir / 'victoria' / 'new_tests.csv')
     tests['day'] = tests['Date'].map(sim.day)
     tests.set_index('day', inplace=True)
@@ -251,6 +250,7 @@ if __name__ == '__main__':
 
     smoothed_tests = moving_average(tests.values,7)
     tests_per_day = np.interp(np.arange(params.pars["n_days"]+1), tests.index, smoothed_tests, left=smoothed_tests[0], right=smoothed_tests[-1])
+    # Note how the extrapolation `right` argument above preserves the number of tests for the duration of the simulation
 
     # plt.figure()
     # plt.plot(tests.values)
