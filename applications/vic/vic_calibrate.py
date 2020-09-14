@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {4:7}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.0602 # Overall beta
+    beta = 0.061 # Overall beta
     extra_tests = 0  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
     n_runs = 40  # Number of simulations to run
