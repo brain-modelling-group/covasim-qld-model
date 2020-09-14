@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import covasim_australia.parameters as parameters
 import matplotlib.ticker as ticker
 from pathlib import Path
+from scipy import stats
 
 # Overall strategy
 # 1. Set key parameters for simulation and calibration
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     params.pars['beta'] = beta
     params.pars['start_day'] = start_day
     params.pars['verbose'] = 1
-    params.pars['rand_seed'] = 3
+    params.pars['rand_seed'] = 0
 
     params.extrapars['symp_test'] = symp_test
 
@@ -105,7 +106,7 @@ if __name__ == '__main__':
     params.pars['rescale_factor'] = 1.1
 
     # Make people
-    cv.set_seed(1) # Seed for population generation
+    cv.set_seed(0) # Seed for population generation
     people, layer_members = co.make_people(params)
 
     # Make the base sim
@@ -217,6 +218,11 @@ if __name__ == '__main__':
     tests['day'] = tests['Date'].map(sim.day)
     tests.set_index('day', inplace=True)
     tests = tests.loc[(tests.index >= 0)  & (tests['vic'] > 0)]['vic'].dropna().astype(int)
+    # Remove outliers more than 3 SD from the mean. These are likely data entry irregularities e.g. 3x as many tests reported on one isolated day
+    zscore = np.abs(stats.zscore(tests))
+    tests = tests.loc[zscore<=3]
+
+    # Scale tests
     tests = tests * scale_tests * (sim.n / 4.9e6)  # Approximately scale to number of simulation agents - this might need to be changed!
 
     def moving_average(x, npts):
