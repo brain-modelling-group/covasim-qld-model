@@ -290,7 +290,7 @@ if __name__ == '__main__':
         fname = resultsdir/f'{run_mode}_{i}.csv'
         cva.save_csv(x,fname)
 
-    s.reduce(quantiles={'low': 0.45, 'high': 0.55})
+    s.reduce(quantiles={'low': 0.4, 'high': 0.6})
 
 
     ####### ANALYZE RESULTS
