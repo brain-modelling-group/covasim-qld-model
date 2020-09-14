@@ -153,6 +153,11 @@ class PolicySchedule(cv.Intervention):
             sim['beta_layer'] = self._compute_beta_layer(sim.t)
             if sim['verbose']:
                 print(f"PolicySchedule: Changing beta_layer values to {sim['beta_layer']}")
+                for entry in self.policy_schedule:
+                    if sim.t == entry[0]:
+                        print(f'PolicySchedule: Turning on {entry[2]}')
+                    elif sim.t == entry[1]:
+                        print(f'PolicySchedule: Turning off {entry[2]}')
 
     def plot_gantt(self, max_time=None, start_date=None, interval=None, pretty_labels=None):
         """

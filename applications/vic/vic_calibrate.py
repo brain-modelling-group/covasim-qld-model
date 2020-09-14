@@ -24,25 +24,26 @@ from scipy import stats
 if __name__ == '__main__':
 
     run_mode = 'calibrate' # 'calibrate' or 'projection'
-    release_day = '2020-09-14'
+    release_day = '2020-09-14' # The day that stage 4 is relaxed (only used if the run_mode is 'projection')
 
+    # 1 - KEY PARAMETERS
     resultsdir =  Path('.')/'results'
     resultsdir.mkdir(exist_ok=True) # Make folder if it doesn't exist
 
-    # 1 - KEY PARAMETERS
     start_day = '2020-06-01'
+    improve_day = '2020-09-14' # The day on which app based tracing turns on and contact tracing performance is improved
 
     if run_mode == 'calibrate':
         n_days = 100 # Total simulation duration (days)
     elif run_mode == 'projection':
-        n_days = 200
+        n_days = 200 # TODO - set this to the appropriate number of days for the projection
     else:
         raise Exception('Run mode must be "calibrate" or "projection"')
 
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {3:10}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
     beta = 0.0525 # Overall beta
-    extra_tests = 200  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
+    extra_tests = 0  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
     n_runs = 40  # Number of simulations to run
     pop_size = 1e5  # Number of agents
@@ -151,61 +152,79 @@ if __name__ == '__main__':
     sep14 = sim.day('20200914')
     sep28 = sim.day('20200928')
 
-    #beta_schedule.end('cafe_restaurant_4sqm', jul2)
-    #beta_schedule.end('pub_bar_4sqm', jul2)
-    #beta_schedule.end('outdoor200', jul2)
-    #beta_schedule.add('cafe_restaurant0', jul2)
-    #beta_schedule.add('pub_bar0', jul2)
-    #beta_schedule.add('church0', jul2)
-    #beta_schedule.add('outdoor2', jul2)
-    #beta_schedule.add('cSports', jul2)
-
     beta_schedule.add('stage3_10PC', jul2, jul4)
     beta_schedule.add('stage3_12PC_towers', jul4, jul9)
     beta_schedule.add('stage3_melb', jul9, aug6)
+    beta_schedule.add('stage4', aug6)
+
     beta_schedule.add('masks', jul23)
 
-    beta_schedule.add('stage4', aug6)
+    if run_mode == 'projection':
+        day = sim.day(release_day)
+        beta_schedule.end('stage4', day)
+        beta_schedule.end('entertainment', day)
 
     interventions.append(beta_schedule)
 
     # Add clipping policies
 
-    # NE work, switch to stage 4 on aug6
-    interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='low_risk_work'))
-    # interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='high_risk_work'))
+    # # NE work, switch to stage 4 on aug6
+    # interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='low_risk_work'))
+    # # interventions.append(cv.clip_edges(days=[0,aug6], changes=[0.8,0.1], layers='high_risk_work'))
+    #
+    # # Social layer, clipped by stages 3 and 4
+    # interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.9, 0.85, 0.3, 0.05], layers='social'))
+    #
+    # # church and pub/bar layer, clipped by stages 3 and 4
+    # interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0], layers=['church', 'pub_bar']))
+    #
+    # # cafe/restaurant, community sport and school layer, clipped by stages 3 and 4
+    # interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0.15], layers=['cafe_restaurant', 'cSport', 'S']))
 
-    # Social layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9, aug6], changes=[0.9, 0.85, 0.3, 0.05], layers='social'))
 
-    # church and pub/bar layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0], layers=['church', 'pub_bar']))
+    # Add contact tracing
+    # - A household intervention with no capacity limit
+    # - A lower-performance contact tracing intervention for Jun-Sept
+    # - A high-performance intervention for Sept onwards
 
-    # cafe/restaurant, community sport and school layer, clipped by stages 3 and 4
-    interventions.append(cv.clip_edges(days=[jul2, jul4, jul9], changes=[0.9, 0.85, 0.15], layers=['cafe_restaurant', 'cSport', 'S']))
+    trace_probs = params.extrapars['trace_probs']
+    trace_time = params.extrapars['trace_time']
 
-
-
-    # Add tracing intervention for households
-    interventions.append(utils.limited_contact_tracing(trace_probs={'H': params.extrapars['trace_probs']['H']},
-                                                       trace_time={'H': params.extrapars['trace_time']['H']},
-                                                       start_day=0,
+    # Add household tracing
+    interventions.append(utils.limited_contact_tracing(trace_probs={'H': trace_probs['H']},
+                                                       trace_time={'H': trace_time['H']},
                                                        capacity=np.inf,
                                                        ))
 
-    # Add tracing intervention for other layers
-    # Remove the household layer from trace_probs because they will be traced separately
-    del params.extrapars['trace_probs']['H']
-    del params.extrapars['trace_time']['H']
-    interventions.append(utils.limited_contact_tracing(trace_probs=params.extrapars['trace_probs'],
-                                                       trace_time=params.extrapars['trace_time'],
-                                                       start_day=0,
-                                                       capacity=tracing_capacity,
-                                                       ))
+    # Remove the household layer from the other tracing interventions
+    del trace_probs['H']
+    del trace_time['H']
+    original_tracing = utils.limited_contact_tracing(trace_probs=sc.dcp(trace_probs),
+                                                     trace_time=sc.dcp(trace_time),
+                                                     capacity=tracing_capacity,
+                                                     )
 
-    # Add COVIDSafe app based tracing
-    # app_layers = ['H', 'S', 'low_risk_work', 'high_risk_work', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social']
-    # interventions.append(policy_updates.AppBasedTracing(name='tracing_app',start_day='2020-09-13',days=['2020-09-13'],coverage=[0.2],layers=app_layers, trace_time=1))
+    # Improve performance in terms of trace time and proportion reached in some layers, particularly
+    # where ID checks will be more widely used
+    for k in trace_probs:
+        trace_time[k] = 1
+    trace_probs['cSport'] = 0.5
+    trace_probs['entertainment'] = 0.5
+    trace_probs['cafe_restaurant'] = 0.5
+    trace_probs['pub_bar'] = 0.5
+
+    improved_tracing = utils.limited_contact_tracing(trace_probs=sc.dcp(trace_probs),
+                                                     trace_time=sc.dcp(trace_time),
+                                                     capacity=tracing_capacity,
+                                                     )
+
+    # Switch from the original tracing to improved tracing on the improve day (regardless of when release is)
+    interventions.append(cv.sequence([0,improve_day], [original_tracing, improved_tracing]))
+
+
+    # Add COVIDSafe app based tracing on the improve day (regardless of when release is)
+    app_layers = ['H', 'S', 'low_risk_work', 'high_risk_work', 'C', 'church', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar', 'transport', 'public_parks', 'large_events', 'child_care', 'social']
+    interventions.append(policy_updates.AppBasedTracing(name='tracing_app',start_day=sim.day(improve_day),days=[sim.day(improve_day)],coverage=[0.25],layers=app_layers, trace_time=1))
 
     # Now when we run the model, the major free parameters are the overall beta
     # And the date of the seed infection
@@ -260,7 +279,6 @@ if __name__ == '__main__':
     # Run using MultiSim
     if n_runs > 1:
         s = cv.MultiSim(sc.dcp(sim), n_runs=n_runs, keep_people=False, par_args={'ncpus': 40})
-        s.run()
     else:
         sim.run()
         raise Exception('Must use a MultiSim for analysis')

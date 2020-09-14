@@ -598,6 +598,9 @@ class limited_contact_tracing(cv.contact_tracing):
         elif self.end_day is not None and t > self.end_day:
             return
 
+        if 'pub_bar' in self.trace_probs:
+            print(self.trace_probs['pub_bar'])
+
         # Everyone that was diagnosed today could potentially be traced
         trace_from_inds = cvu.true(sim.people.date_diagnosed == t) # Diagnosed this time step, time to trace
         if not len(trace_from_inds):
