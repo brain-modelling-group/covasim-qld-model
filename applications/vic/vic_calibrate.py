@@ -138,7 +138,7 @@ if __name__ == '__main__':
     beta_schedule.add('church_4sqm', start_day=0)
     beta_schedule.add('cafe_restaurant_4sqm', start_day=0)
     beta_schedule.add('pub_bar_4sqm', start_day=0)
-    beta_schedule.add('outdoor200', start_day=0)
+    beta_schedule.add('outdoor10', start_day=0)
     beta_schedule.add('large_events', start_day=0)
     beta_schedule.add('entertainment', start_day=0)
     beta_schedule.add('NE_work', start_day=0)
@@ -163,6 +163,8 @@ if __name__ == '__main__':
         day = sim.day(release_day)
         beta_schedule.end('stage4', day)
         beta_schedule.end('entertainment', day)
+        beta_schedule.end('outdoor10', day)
+        beta_schedule.add('outdoor200', start_day=day)
 
     interventions.append(beta_schedule)
 
