@@ -163,6 +163,8 @@ if __name__ == '__main__':
         day = sim.day(release_day)
         beta_schedule.end('stage4', day)
         beta_schedule.end('entertainment', day)
+        beta_schedule.end('outdoor10', day)
+        beta_schedule.add('outdoor200', start_day=day)
 
     interventions.append(beta_schedule)
 
