@@ -783,6 +783,6 @@ def story(sim, uid):
 def save_csv(sim, fname):
     resdict = sim.export_results(for_json=False)
     result_df = pd.DataFrame.from_dict(resdict)
-    result_df.index = sim.datevec
+    result_df.index = sim.datevec[0:len(result_df)]
     result_df.index.name = 'date'
     result_df.to_csv(fname)

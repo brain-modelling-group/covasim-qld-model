@@ -24,14 +24,12 @@ from scipy import stats
 if __name__ == '__main__':
 
     run_mode = 'calibrate' # 'calibrate' or 'projection'
-    release_day = '2020-09-14' # The day that stage 4 is relaxed (only used if the run_mode is 'projection')
 
     # 1 - KEY PARAMETERS
     resultsdir =  Path('.')/'results'
     resultsdir.mkdir(exist_ok=True) # Make folder if it doesn't exist
 
     start_day = '2020-06-01'
-    improve_day = '2020-09-14' # The day on which app based tracing turns on and contact tracing performance is improved
 
     if run_mode == 'calibrate':
         n_days = 110 # Total simulation duration (days)
@@ -289,6 +287,7 @@ if __name__ == '__main__':
     for i, x in enumerate(s.sims):
         fname = resultsdir/f'{run_mode}_{i}.csv'
         cva.save_csv(x,fname)
+        sc.saveobj(resultsdir/f'{run_mode}_{i}.sim', x)
 
     s.reduce(quantiles={'low': 0.4, 'high': 0.6})
 
@@ -311,8 +310,12 @@ if __name__ == '__main__':
     def plot_cum_diagnosed(ax):
 
         fill_args = {'alpha': 0.3}
-        ax.fill_between(s.base_sim.tvec, s.results['cum_diagnoses'].low, s.results['cum_diagnoses'].high, **fill_args)
-        ax.plot(s.base_sim.tvec, s.results['cum_diagnoses'].values[:], color='b', alpha=0.1)
+
+        for x in s.sims:
+            ax.plot(x.tvec, x.results['cum_diagnoses'].values[:], color='b', alpha=0.1)
+
+        # ax.fill_between(s.base_sim.tvec, s.results['cum_diagnoses'].low, s.results['cum_diagnoses'].high, **fill_args)
+        # ax.plot(s.base_sim.tvec, s.results['cum_diagnoses'].values[:], color='b', alpha=0.1)
 
         cases = pd.read_csv(cva.datadir/'victoria'/'new_cases.csv')
         cases['day'] = cases['Date'].map(sim.day)
@@ -369,8 +372,13 @@ if __name__ == '__main__':
         # fig, ax = plt.subplots()
 
         fill_args = {'alpha': 0.3}
-        ax.fill_between(s.base_sim.tvec, s.results['new_diagnoses'].low, s.results['new_diagnoses'].high, **fill_args)
-        ax.plot(s.base_sim.tvec, s.results['new_diagnoses'].values[:], color='b', alpha=0.1)
+
+        for x in s.sims:
+            ax.plot(x.tvec, x.results['new_diagnoses'].values[:], color='b', alpha=0.1)
+
+        # ax.fill_between(s.base_sim.tvec, s.results['new_diagnoses'].low, s.results['new_diagnoses'].high, **fill_args)
+        # ax.plot(s.base_sim.tvec, s.results['new_diagnoses'].values[:], color='b', alpha=0.1)
+
         ax.set_title('New diagnoses')
 
         cases = pd.read_csv(cva.datadir/'victoria'/'new_cases.csv')
@@ -420,8 +428,12 @@ if __name__ == '__main__':
 
     def plot_severe_infections(ax):
         fill_args = {'alpha': 0.3}
-        ax.fill_between(s.base_sim.tvec, s.results['n_severe'].low, s.results['n_severe'].high, **fill_args)
-        ax.plot(s.base_sim.tvec, s.results['n_severe'].values[:], color='b', alpha=0.1)
+
+        for x in s.sims:
+            ax.plot(x.tvec, x.results['n_severe'].values[:], color='b', alpha=0.1)
+
+        # ax.fill_between(s.base_sim.tvec, s.results['n_severe'].low, s.results['n_severe'].high, **fill_args)
+        # ax.plot(s.base_sim.tvec, s.results['n_severe'].values[:], color='b', alpha=0.1)
         ax.set_title('Severe infections')
 
         hosp = pd.read_csv(cva.datadir/'victoria'/'hospitalised.csv')
