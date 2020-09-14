@@ -42,10 +42,10 @@ if __name__ == '__main__':
 
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
     seeded_cases = {4:7}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.0525 # Overall beta
+    beta = 0.0602 # Overall beta
     extra_tests = 0  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 8  # Number of simulations to run
+    n_runs = 40  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     beta_schedule.add('church_4sqm', start_day=0)
     beta_schedule.add('cafe_restaurant_4sqm', start_day=0)
     beta_schedule.add('pub_bar_4sqm', start_day=0)
-    beta_schedule.add('outdoor200', start_day=0)
+    beta_schedule.add('outdoor10', start_day=0)
     beta_schedule.add('large_events', start_day=0)
     beta_schedule.add('entertainment', start_day=0)
     beta_schedule.add('NE_work', start_day=0)
@@ -288,7 +288,7 @@ if __name__ == '__main__':
         fname = resultsdir/f'{run_mode}_{i}.csv'
         cva.save_csv(x,fname)
 
-    s.reduce(quantiles={'low': 0.25, 'high': 0.75})
+    s.reduce(quantiles={'low': 0.45, 'high': 0.55})
 
 
     ####### ANALYZE RESULTS
@@ -296,7 +296,7 @@ if __name__ == '__main__':
     def common_format(ax):
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
         ax.locator_params('x', nbins=5, prune='both')
-        ax.set_xlim(0,100)
+        ax.set_xlim(0,n_days)
         plt.setp(ax.get_xticklabels(), ha="right", rotation=30)
         ax.axvline(x=jul9, color='grey', linestyle='--')
         ax.axvline(x=jul23, color='grey', linestyle='--')
