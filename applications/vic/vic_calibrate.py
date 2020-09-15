@@ -24,26 +24,28 @@ from scipy import stats
 if __name__ == '__main__':
 
     run_mode = 'calibrate' # 'calibrate' or 'projection'
+    release_day = '2020-09-14' # The day that stage 4 is relaxed (only used if the run_mode is 'projection')
 
     # 1 - KEY PARAMETERS
     resultsdir =  Path('.')/'results'
     resultsdir.mkdir(exist_ok=True) # Make folder if it doesn't exist
 
-    start_day = '2020-06-01'
+    start_day = '2020-06-21'
+    improve_day = '2020-09-14' # The day on which app based tracing turns on and contact tracing performance is improved
 
     if run_mode == 'calibrate':
-        n_days = 110 # Total simulation duration (days)
+        n_days = 90 # Total simulation duration (days)
     elif run_mode == 'projection':
         n_days = 200 # TODO - set this to the appropriate number of days for the projection
     else:
         raise Exception('Run mode must be "calibrate" or "projection"')
 
     n_imports = 0  # Number of daily imported cases. This would influence the early growth rate of the outbreak. Ideally would set to 0 and use seeded infections only?
-    seeded_cases = {4:7}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
-    beta = 0.061 # Overall beta
+    seeded_cases = {0:0}  # Seed cases {seed_day: number_seeded} e.g. {2:100} means infect 100 people on day 2. Could be used to kick off an outbreak at a particular time
+    beta = 0.0590 # Overall beta
     extra_tests = 0  # Add this many tests per day on top of the linear fit. Alternatively, modify test intervention directly further down
     symp_test = 160  # People with symptoms are this many times more likely to be tested
-    n_runs = 40  # Number of simulations to run
+    n_runs = 100  # Number of simulations to run
     pop_size = 1e5  # Number of agents
     tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
     location = 'Victoria' # Location to use when reading input spreadsheets
@@ -60,7 +62,7 @@ if __name__ == '__main__':
                      'transport', 'public_parks', 'large_events']
 
     user_pars = {location: {'pop_size': int(pop_size),
-                            'pop_infected': 0, # Start with zero infections
+                            'pop_infected': 100, # Start with zero infections
                             'pop_scale': 1,
                             'rescale': 1,
                             'beta': beta,
@@ -289,10 +291,23 @@ if __name__ == '__main__':
         cva.save_csv(x,fname)
         sc.saveobj(resultsdir/f'{run_mode}_{i}.sim', x)
 
-    s.reduce(quantiles={'low': 0.4, 'high': 0.6})
+    s.reduce(quantiles={'low': 0.25, 'high': 0.75})
 
 
     ####### ANALYZE RESULTS
+
+    cases = pd.read_csv(cva.datadir / 'victoria' / 'new_cases.csv')
+    cases['day'] = cases['Date'].map(sim.day)
+    cases.set_index('day', inplace=True)
+    cases.sort_index(inplace=True)
+    cases = cases.loc[cases.index >= 0]['vic'].astype(int).cumsum()
+    matches_diagnoses = []
+    data_end_t = cases.index[-1]
+    data_end_value = cases.iloc[-1]
+    for i, x in enumerate(s.sims):
+        model_end_value = x.results['cum_diagnoses'][data_end_t]
+        if abs(model_end_value - data_end_value) / data_end_value < 0.2:
+            matches_diagnoses.append(i)
 
     def common_format(ax):
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: sim.date(x)))
@@ -309,20 +324,24 @@ if __name__ == '__main__':
 
     def plot_cum_diagnosed(ax):
 
-        fill_args = {'alpha': 0.3}
-
-        for x in s.sims:
-            ax.plot(x.tvec, x.results['cum_diagnoses'].values[:], color='b', alpha=0.1)
-
-        # ax.fill_between(s.base_sim.tvec, s.results['cum_diagnoses'].low, s.results['cum_diagnoses'].high, **fill_args)
-        # ax.plot(s.base_sim.tvec, s.results['cum_diagnoses'].values[:], color='b', alpha=0.1)
-
         cases = pd.read_csv(cva.datadir/'victoria'/'new_cases.csv')
         cases['day'] = cases['Date'].map(sim.day)
         cases.set_index('day', inplace=True)
         cases.sort_index(inplace=True)
         cases = cases.loc[cases.index >= 0]['vic'].astype(int).cumsum()
         ax.scatter(cases.index, cases.values, s=10, color='k', alpha=1.0)
+        ax.plot(cases.index, cases.values*1.2, linestyle='dashed', color='k', alpha=1.0)
+        ax.plot(cases.index, cases.values*0.8, linestyle='dashed', color='k', alpha=1.0)
+
+
+        for i, x in enumerate(s.sims):
+            if i in matches_diagnoses:
+                ax.plot(x.tvec, x.results['cum_diagnoses'].values[:], color='r', alpha=0.4)
+            else:
+                ax.plot(x.tvec, x.results['cum_diagnoses'].values[:], color='b', alpha=0.025)
+        ax.fill_between(s.base_sim.tvec, s.results['cum_diagnoses'].low, s.results['cum_diagnoses'].high, alpha=0.1)
+        ax.plot(s.base_sim.tvec, s.results['cum_diagnoses'].values[:], linestyle='dashed', color='b', alpha=0.1)
+
         # after_lockdown = cases.index.values > 0
         # ax.scatter(cases.index.values[after_lockdown], cases.values[after_lockdown], s=5, color='r', alpha=1.0)
         # ax.axvline(x=jul2, color='grey', linestyle='--')
@@ -371,10 +390,13 @@ if __name__ == '__main__':
     def plot_new_diagnoses(ax):
         # fig, ax = plt.subplots()
 
-        fill_args = {'alpha': 0.3}
-
-        for x in s.sims:
-            ax.plot(x.tvec, x.results['new_diagnoses'].values[:], color='b', alpha=0.1)
+        for i, x in enumerate(s.sims):
+            if i in matches_diagnoses:
+                ax.plot(x.tvec, x.results['new_diagnoses'].values[:], color='r', alpha=0.4)
+            else:
+                ax.plot(x.tvec, x.results['new_diagnoses'].values[:], color='b', alpha=0.025)
+        ax.fill_between(s.base_sim.tvec, s.results['new_diagnoses'].low, s.results['new_diagnoses'].high, alpha=0.1)
+        ax.plot(s.base_sim.tvec, s.results['new_diagnoses'].values[:], linestyle='dashed', color='b', alpha=0.1)
 
         # ax.fill_between(s.base_sim.tvec, s.results['new_diagnoses'].low, s.results['new_diagnoses'].high, **fill_args)
         # ax.plot(s.base_sim.tvec, s.results['new_diagnoses'].values[:], color='b', alpha=0.1)
@@ -427,13 +449,15 @@ if __name__ == '__main__':
 
 
     def plot_severe_infections(ax):
-        fill_args = {'alpha': 0.3}
 
-        for x in s.sims:
-            ax.plot(x.tvec, x.results['n_severe'].values[:], color='b', alpha=0.1)
+        for i, x in enumerate(s.sims):
+            if i in matches_diagnoses:
+                ax.plot(x.tvec, x.results['n_severe'].values[:], color='r', alpha=0.4)
+            else:
+                ax.plot(x.tvec, x.results['n_severe'].values[:], color='b', alpha=0.025)
+        ax.fill_between(s.base_sim.tvec, s.results['n_severe'].low, s.results['n_severe'].high, alpha=0.1)
+        ax.plot(s.base_sim.tvec, s.results['n_severe'].values[:], linestyle='dashed', color='b', alpha=0.1)
 
-        # ax.fill_between(s.base_sim.tvec, s.results['n_severe'].low, s.results['n_severe'].high, **fill_args)
-        # ax.plot(s.base_sim.tvec, s.results['n_severe'].values[:], color='b', alpha=0.1)
         ax.set_title('Severe infections')
 
         hosp = pd.read_csv(cva.datadir/'victoria'/'hospitalised.csv')
@@ -467,7 +491,10 @@ if __name__ == '__main__':
     plot_severe_infections(ax[2])
     fig.tight_layout()
     plt.savefig(resultsdir/'fig1.png', bbox_inches='tight', dpi=300, transparent=False)
+
+
+
+    fig, ax = plt.subplots()
+    plot_cum_diagnosed(ax)
+    fig.tight_layout()
     plt.show()
-
-
-
