@@ -136,7 +136,8 @@ def resurgence_projection(params, beta, calibration_seed, projection_seed, peopl
     layer_members = resurgence_projection.layer_members
 
     if (beta, calibration_seed, release_day) in resurgence_projection.projection_sims:
-        sim = sc.dcp(resurgence_projection.projection_sims[(beta, calibration_seed, release_day)])
+        with sc.Timer(label='Copy calibration simulation') as _:
+            sim = sc.dcp(resurgence_projection.projection_sims[(beta, calibration_seed, release_day)])
     else:
         with sc.Timer(label='Create calibration simulation') as _:
             sim = resurgence.get_victoria_sim(params, beta, calibration_seed, sc.dcp(people), sc.dcp(layer_members), release_day=release_day)
