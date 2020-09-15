@@ -15,7 +15,7 @@ import utils
 import functools
 import numpy as np
 
-def make_people(seed=None, pop_size=200000, pop_infected=50, 
+def make_qld_people(seed=None, pop_size=200000, pop_infected=50, 
                 savepeople=True, popfile='qldppl.pop', 
                 savepopdict=False, popdictfile='qdlpopdict.pop'):
     """
@@ -25,7 +25,9 @@ def make_people(seed=None, pop_size=200000, pop_infected=50,
     db_name  = 'input_data_Australia'
     epi_name = 'epi_data_Australia' # Not sure why epi datafile needs to be passed in here, but difficult to remove this dependency
 
-    all_lkeys = ['H', 'S', 'W', 'C', 'church', 'pSport', 'cSport', 'entertainment', 'cafe_restaurant', 'pub_bar',
+    all_lkeys = ['H', 'S', 'W', 'C', 
+                 'church', 'pSport', 'cSport', 
+                 'entertainment', 'cafe_restaurant', 'pub_bar',
                  'transport', 'public_parks', 'large_events', 'social']
     dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
                      'transport', 'public_parks', 'large_events']
@@ -41,7 +43,7 @@ def make_people(seed=None, pop_size=200000, pop_infected=50,
                               epi_name=epi_name,
                               all_lkeys=all_lkeys,
                               dynamic_lkeys=dynamic_lkeys,
-                              calibration_end={'QLD':'2020-07-13'})
+                              calibration_end={'QLD':'2020-09-15'})
 
     # setup parameters object for this simulation
     params = parameters.setup_params(location='QLD',
@@ -61,6 +63,6 @@ def make_people(seed=None, pop_size=200000, pop_infected=50,
 if __name__ == '__main__':
   
   T = sc.tic()
-  people, popdict = make_people(seed=42)
+  people, popdict = make_qld_people(seed=42)
   sc.toc(T)
   
