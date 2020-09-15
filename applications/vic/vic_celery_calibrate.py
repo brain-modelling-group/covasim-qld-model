@@ -71,10 +71,7 @@ if args.celery:
         while result.completed_count() < args.nruns:
             time.sleep(1)
             pbar.n = result.completed_count()
-            if pbar.n == 0:
-                pbar.reset(total=args.nruns)
-            else:
-                pbar.refresh()
+            pbar.refresh()
         pbar.n = result.completed_count()
         pbar.refresh()
 

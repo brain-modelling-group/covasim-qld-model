@@ -54,6 +54,7 @@ if args.celery:
     projection_seeds = range(1, args.nruns+1)
 
     for release_day in release_days:
+        (resultsdir / release_day).mkdir(parents=True, exist_ok=True)
 
         with tqdm(total=len(projection_seeds), desc=f'Release on {release_day}') as pbar:
             pbar.n = 0
@@ -64,10 +65,7 @@ if args.celery:
             while result.completed_count() < args.nruns:
                 time.sleep(1)
                 pbar.n = result.completed_count()
-                if pbar.n == 0:
-                    pbar.reset(total=args.nruns)
-                else:
-                    pbar.refresh()
+                pbar.refresh()
             pbar.n = result.completed_count()
             pbar.refresh()
 
@@ -77,10 +75,10 @@ if args.celery:
         summary_rows = []
         for df, beta, calibration_seed, projection_seed, release_day in tqdm(outputs, desc="Saving CSV outputs"):
             summary_rows.append((beta, calibration_seed, projection_seed, release_day))
-            df.to_csv(resultsdir/release_day/f'projection_{calibration_seed}_{projection_seed}_{release_day}.csv')
+            df.to_csv(resultsdir/release_day /f'projection_{calibration_seed}_{projection_seed}_{release_day}.csv')
 
         df = pd.DataFrame(summary_rows,columns=['beta','calibration_seed','projection_seed','release_day'])
-        df.set_index('seed', inplace=True)
+        df.to_csv(resultsdir / release_day /f'summary.csv')
 
 else:
     resurgence_projection(params, 0.05891, calibration_seed=1, projection_seed=2, people_seed=people_seed, release_day=release_days[0])

@@ -150,23 +150,7 @@ def resurgence_projection(params, beta, calibration_seed, projection_seed, peopl
     with sc.Timer(label='Run projection') as _:
         sim.run(reset_seed=True)
 
-
-    if not sim.results_ready:
-        accepted_calibration = False # Calibration was rejected if execution ended early
-        sim.finalize()
-        # Truncate the arrays
-        for k, result in sim.results.items():
-            if isinstance(result, cv.Result):
-                result.values = result.values[0:sim.t+1]
-            else:
-                sim.results[k] = sim.results[k][0:sim.t+1]
-
-    df = cva.result_df(sim)
-
-    # Note that saving the sim like this will serve as a full backup of the run but it will need to be copied over from
-    # all remote machines
-    resultsdir = rootdir.parent/'projection_results'
-    resultsdir.mkdir(exist_ok=True, parents=True)
-    sc.saveobj(resultsdir/f'projection_{calibration_seed}_{projection_seed}_{release_day}.sim',sim)
+    with sc.Timer(label='Compile dataframe') as _:
+        df = cva.result_df(sim)
 
     return df, beta, calibration_seed, projection_seed, release_day

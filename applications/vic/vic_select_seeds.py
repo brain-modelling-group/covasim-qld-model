@@ -41,14 +41,20 @@ cases.sort_index(inplace=True)
 #     else:
 #         summary.loc[seed, 'accepted'] = False
 
-
+def common_format(ax):
+    # ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: to_date(x)))
+    ax.locator_params('x', nbins=5, prune='both')
+    # ax.set_xlim(0,to_day(end_date))
+    plt.setp(ax.get_xticklabels(), ha="right", rotation=30)
+    ax.axvline(x=to_day('2020-07-09'), color='grey', linestyle='--')
+    ax.axvline(x=to_day('2020-07-23'), color='grey', linestyle='--')
+    ax.axvline(x=to_day('2020-08-06'), color='grey', linestyle='--')
 
 fig, ax = plt.subplots()
 data = cases.loc[cases.index >= 0]['vic'].astype(int).cumsum()
 ax.scatter(data.index, data.values, s=10, color='k', alpha=1.0)
 ax.plot(data.index, data.values*1.1, linestyle='dashed', color='k', alpha=1.0)
 ax.plot(data.index, data.values*0.9, linestyle='dashed', color='k', alpha=1.0)
-
 
 for seed, accepted in summary['accepted'].iteritems():
     if accepted:
@@ -60,13 +66,46 @@ for seed, accepted in summary['accepted'].iteritems():
     # ax.plot(s.base_sim.tvec, s.results['cum_diagnoses'].values[:], linestyle='dashed', color='b', alpha=0.1)
 
 ax.set_title('Cumulative diagnosed cases')
-# ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: to_date(x)))
-ax.locator_params('x', nbins=5, prune='both')
-# ax.set_xlim(0,to_day(end_date))
-plt.setp(ax.get_xticklabels(), ha="right", rotation=30)
-ax.axvline(x=to_day('2020-07-09'), color='grey', linestyle='--')
-ax.axvline(x=to_day('2020-07-23'), color='grey', linestyle='--')
-ax.axvline(x=to_day('2020-08-06'), color='grey', linestyle='--')
+common_format(ax)
+
+
+
+fig, ax = plt.subplots()
+for seed, accepted in summary['accepted'].iteritems():
+    if accepted:
+        ax.plot(results[seed]['t'], results[seed]['new_diagnoses'], color='r', alpha=0.4)
+    else:
+        ax.plot(results[seed]['t'], results[seed]['new_diagnoses'], color='b', alpha=0.025)
+ax.set_title('New diagnoses')
+cases = pd.read_csv(cva.datadir / 'victoria' / 'new_cases.csv')
+cases['day'] = cases['Date'].map(to_day)
+cases.set_index('day', inplace=True)
+cases = cases.loc[cases.index >= 0]['vic'].astype(int)
+ax.scatter(cases.index, cases.values, color='k', s=10, alpha=1.0)
+common_format(ax)
+ax.set_ylabel('Number of cases')
+
+
+# SEVERE
+
+fig, ax = plt.subplots()
+for seed, accepted in summary['accepted'].iteritems():
+    if accepted:
+        ax.plot(results[seed]['t'], results[seed]['n_severe'], color='r', alpha=0.4)
+    else:
+        ax.plot(results[seed]['t'], results[seed]['n_severe'], color='b', alpha=0.025)
+ax.set_title('Severe infections')
+hosp = pd.read_csv(cva.datadir / 'victoria' / 'hospitalised.csv')
+hosp['day'] = hosp['Date'].map(to_day)
+hosp.set_index('day', inplace=True)
+
+hosp = hosp.loc[hosp.index >= 0]['vic'].astype(int)
+ax.scatter(hosp.index, hosp.values, color='k', s=10, alpha=1.0)
+common_format(ax)
+
+
+
+
 
 plt.figure()
 plt.hist(summary['beta'])
