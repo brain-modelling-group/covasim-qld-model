@@ -43,10 +43,10 @@ def stop_calibration(sim, cases):
     cases.index = cases['Date'].map(sim.day)
     data_cases = cases.loc[(cases.index>0) & (cases.index < sim.t),'vic'].sum() # use `< sim.t` to exclude `sim.t` as noted below
 
-    model_cases = sim.results['new_diagnoses'][:sim.t].sum()
+    model_cases = (sim.rescale_vec[:sim.t]*sim.results['new_diagnoses'][:sim.t]).sum()
 
-    if abs(model_cases-data_cases)/data_cases > 0.2:
-        # If the model differs from data by more than 20%
+    if abs(model_cases-data_cases)/data_cases > 0.1:
+        # If the model differs from data by more than 10%
         print(f'{sim.pars["rand_seed"]=} {sim.t=} {model_cases=}, {data_cases=}, calibration rejected')
         return True
 
@@ -56,6 +56,13 @@ class CachePeopleTask(Task):
     people = None
     layer_members = None
     people_seed = None
+
+class CacheProjectionTask(Task):
+    people = None
+    layer_members = None
+    people_seed = None
+    projection_sims = {}
+
 
 @celery.task(base=CachePeopleTask)
 def resurgence_calibration(params, beta, seed, people_seed):
@@ -93,9 +100,72 @@ def resurgence_calibration(params, beta, seed, people_seed):
             else:
                 sim.results[k] = sim.results[k][0:sim.t+1]
 
-    if accepted_calibration:
-        cva.save_csv(sim,resultsdir/f'calibration_seed_accepted_{seed}.csv')
-    else:
-        cva.save_csv(sim,resultsdir/f'calibration_seed_rejected_{seed}.csv')
+    df = cva.result_df(sim)
 
-    return beta, seed, accepted_calibration
+    return df, beta, seed, accepted_calibration
+
+
+@celery.task(base=CacheProjectionTask)
+def resurgence_projection(params, beta, calibration_seed, projection_seed, people_seed, release_day):
+    """
+
+    Args:
+        params:
+        beta: Beta value used from calibration for this run
+        calibration_seed: Calibration seed
+        projection_seed:
+        people_seed:
+        release_day:
+
+    Returns:
+
+    """
+
+    from resurgence import rootdir
+
+
+    if resurgence_projection.people is None or resurgence_projection.people_seed != people_seed:
+        # Create and cache cv.People if required
+        # If people haven't been generated, or if the people seed has changed. If the number of people has changed
+        # then a hard error should occur later. In general, it's better to restart Celery entirely where possible
+        cvu.set_seed(people_seed)
+        params.pars['rand_seed'] = people_seed
+        resurgence_projection.people, resurgence_projection.layer_members = cva.make_people(params)
+        resurgence_projection.people_seed = people_seed
+    people = resurgence_projection.people
+    layer_members = resurgence_projection.layer_members
+
+    if (beta, calibration_seed, release_day) in resurgence_projection.projection_sims:
+        sim = sc.dcp(resurgence_projection.projection_sims[(beta, calibration_seed, release_day)])
+    else:
+        with sc.Timer(label='Create calibration simulation') as _:
+            sim = resurgence.get_victoria_sim(params, beta, calibration_seed, sc.dcp(people), sc.dcp(layer_members), release_day=release_day)
+
+        with sc.Timer(label='Run to release day') as _:
+            sim.run(until=release_day) # Run it up to the release day
+            resurgence_projection.projection_sims[(beta, calibration_seed, release_day)] = sc.dcp(sim)
+
+    sim['rand_seed'] = projection_seed
+    with sc.Timer(label='Run projection') as _:
+        sim.run(reset_seed=True)
+
+
+    if not sim.results_ready:
+        accepted_calibration = False # Calibration was rejected if execution ended early
+        sim.finalize()
+        # Truncate the arrays
+        for k, result in sim.results.items():
+            if isinstance(result, cv.Result):
+                result.values = result.values[0:sim.t+1]
+            else:
+                sim.results[k] = sim.results[k][0:sim.t+1]
+
+    df = cva.result_df(sim)
+
+    # Note that saving the sim like this will serve as a full backup of the run but it will need to be copied over from
+    # all remote machines
+    resultsdir = rootdir.parent/'projection_results'
+    resultsdir.mkdir(exist_ok=True, parents=True)
+    sc.saveobj(resultsdir/f'projection_{calibration_seed}_{projection_seed}_{release_day}.sim',sim)
+
+    return df, beta, calibration_seed, projection_seed, release_day

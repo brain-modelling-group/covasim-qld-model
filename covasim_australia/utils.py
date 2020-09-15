@@ -780,9 +780,13 @@ def story(sim, uid):
     for day, event in sorted(events, key=lambda x: x[0]):
         print(f'On Day {day:.0f}, {uid} {event}')
 
-def save_csv(sim, fname):
+def result_df(sim):
     resdict = sim.export_results(for_json=False)
     result_df = pd.DataFrame.from_dict(resdict)
     result_df.index = sim.datevec[0:len(result_df)]
     result_df.index.name = 'date'
+    return result_df
+
+def save_csv(sim, fname):
+    df = result_df(sim)
     result_df.to_csv(fname)

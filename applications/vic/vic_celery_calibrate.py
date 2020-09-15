@@ -36,11 +36,11 @@ params.pars['stopping_func'] = functools.partial(stop_calibration, cases=cases)
 
 
 cv.set_seed(0)  # Set seed for beta generation
-get_beta = lambda: np.around(np.random.normal(loc=0.006, scale=0.001), decimals=5) # Round to 5dp to facilitate reproducing results
+get_beta = lambda: np.around(np.random.uniform(low=0.050, high=0.070), decimals=5) # Round to 5dp to facilitate reproducing results
 
 if args.celery:
 
-    resultsdir = Path('results')
+    resultsdir = Path('calibration_results')
     resultsdir.mkdir(parents=True, exist_ok=True)
 
     # If interrupted, start with a nonzero seed. However, we need to also discard any beta values
@@ -78,10 +78,15 @@ if args.celery:
         pbar.n = result.completed_count()
         pbar.refresh()
 
-    summary = result.join()
+    outputs = result.join()
     result.forget()
 
-    df = pd.DataFrame(summary,columns=['beta','seed','accepted'])
+    summary_rows = []
+    for df, beta, seed, accepted in tqdm(outputs, desc="Saving CSV outputs"):
+        summary_rows.append((beta, seed, accepted))
+        df.to_csv(resultsdir/f'calibration_seed_{seed}.csv')
+
+    df = pd.DataFrame(summary_rows,columns=['beta','seed','accepted'])
     df.set_index('seed', inplace=True)
 
     # Try to get previous
@@ -92,6 +97,11 @@ if args.celery:
     df.sort_index(inplace=True)
     df.to_csv(resultsdir/'summary.csv')
 
+    # Save binary output so that we can reload the beta values with no change in precision
+    if (resultsdir/'summary_values.obj').exists():
+        summary_rows = sc.loadobj(resultsdir/'summary_values.obj') + summary_rows
+    sc.saveobj(resultsdir/'summary_values.obj', summary_rows)
+
 else:
-    resurgence_calibration(params, 0.006, 0, people_seed=people_seed)
+    resurgence_calibration(params, 0.05891, 20, people_seed=people_seed)
 

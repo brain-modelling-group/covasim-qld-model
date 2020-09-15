@@ -4,20 +4,20 @@ import covasim_australia as cva
 import pandas as pd
 import sciris as sc
 from scipy import stats
-
+import covasim.misc as cvm
 
 import numpy as np
 
 # Calibrated parameters
-start_day = '2020-06-01' # Simulation start day (at the start of the second wave)
+start_day = '2020-06-21' # Simulation start day (at the start of the second wave)
 improve_day = '2020-09-14'  # The day on which app based tracing turns on and contact tracing performance is improved
-pop_infected = 10  #: Number of seed infections on day 0
+pop_infected = 100  #: Number of seed infections on day 0
 symp_test = 160  # People with symptoms are this many times more likely to be tested
 scale_tests = 8  # Multiplicative factor for scaling tests by population proportion
 tracing_capacity = 250  # People per day that can be traced. Household contacts are always all immediately notified
 
-calibration_n_days = 110
-projection_n_days = 200
+calibration_n_days = cvm.day('2020-09-14',start_day=start_day)
+projection_n_days = cvm.day('2020-12-31',start_day=start_day)
 
 
 def get_victoria_params(pop_size):
