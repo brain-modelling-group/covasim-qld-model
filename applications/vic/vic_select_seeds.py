@@ -108,5 +108,10 @@ common_format(ax)
 
 
 plt.figure()
-plt.hist(summary['beta'])
-plt.hist(summary.loc[summary.accepted]['beta'])
+binwidth = 0.002
+bins = np.arange(0.05, 0.07+binwidth, binwidth)
+plt.hist(summary['beta'],bins,label='Tested')
+plt.hist(summary.loc[summary.accepted]['beta'],bins,label='Accepted')
+plt.legend()
+plt.xlabel('Beta')
+plt.ylabel('Counts')

@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Run celery worker processes
+# Clear the cache file directory locally
+rm -rf _projection_cache
+mkdir _projection_cache
 
+# Run celery worker processes
 COVADIR="$(dirname $(dirname $(dirname $(realpath $0))))"
 export PYTHONPATH="${PYTHONPATH}:${COVADIR}"
 

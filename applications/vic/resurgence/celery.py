@@ -9,6 +9,7 @@ from celery.signals import after_setup_task_logger
 import logging
 import covasim_australia as cva
 import pandas as pd
+from pathlib import Path
 
 misc.git_info = lambda: None  # Disable this function to increase performance slightly
 
@@ -57,13 +58,6 @@ class CachePeopleTask(Task):
     layer_members = None
     people_seed = None
 
-class CacheProjectionTask(Task):
-    people = None
-    layer_members = None
-    people_seed = None
-    projection_sims = {}
-
-
 @celery.task(base=CachePeopleTask)
 def resurgence_calibration(params, beta, seed, people_seed):
 
@@ -105,7 +99,7 @@ def resurgence_calibration(params, beta, seed, people_seed):
     return df, beta, seed, accepted_calibration
 
 
-@celery.task(base=CacheProjectionTask)
+@celery.task(base=CachePeopleTask)
 def resurgence_projection(params, beta, calibration_seed, projection_seed, people_seed, release_day):
     """
 
@@ -121,9 +115,6 @@ def resurgence_projection(params, beta, calibration_seed, projection_seed, peopl
 
     """
 
-    from resurgence import rootdir
-
-
     if resurgence_projection.people is None or resurgence_projection.people_seed != people_seed:
         # Create and cache cv.People if required
         # If people haven't been generated, or if the people seed has changed. If the number of people has changed
@@ -135,16 +126,21 @@ def resurgence_projection(params, beta, calibration_seed, projection_seed, peopl
     people = resurgence_projection.people
     layer_members = resurgence_projection.layer_members
 
-    if (beta, calibration_seed, release_day) in resurgence_projection.projection_sims:
-        with sc.Timer(label='Copy calibration simulation') as _:
-            sim = sc.dcp(resurgence_projection.projection_sims[(beta, calibration_seed, release_day)])
+    pid = os.getpid()
+    cachefile = Path('.')/'_projection_cache'/f'{pid}_{beta}_{calibration_seed}_{release_day}.sim'
+
+    if cachefile.exists():
+        with sc.Timer(label='Load cached simulation') as _:
+            sim = sc.loadobj(cachefile)
     else:
         with sc.Timer(label='Create calibration simulation') as _:
             sim = resurgence.get_victoria_sim(params, beta, calibration_seed, sc.dcp(people), sc.dcp(layer_members), release_day=release_day)
 
         with sc.Timer(label='Run to release day') as _:
             sim.run(until=release_day) # Run it up to the release day
-            resurgence_projection.projection_sims[(beta, calibration_seed, release_day)] = sc.dcp(sim)
+
+        with sc.Timer(label='Save cached sim') as _:
+            sc.saveobj(cachefile, sim)
 
     sim['rand_seed'] = projection_seed
     with sc.Timer(label='Run projection') as _:

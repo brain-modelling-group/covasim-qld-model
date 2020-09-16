@@ -12,6 +12,10 @@ import pandas as pd
 import covasim_australia as cva
 import functools
 import covasim as cv
+import shutil
+
+# Clear the cache
+
 
 # Add argument for number of runs
 import argparse
@@ -23,7 +27,6 @@ parser.add_argument('--celery', default=False, type=bool, help='If True, use Cel
 args = parser.parse_args()
 
 # Load inputs
-
 people_seed = 0
 
 print('Loading parameters...', end='')
@@ -37,7 +40,7 @@ print(f'done (took {sc.toc(output=True):.0f} s)')
 summary_values = sc.loadobj(Path('calibration_results')/'summary_values.obj')
 calibration_seeds = [(beta, seed) for beta, seed, accepted in summary_values if accepted]
 
-release_days = ['2020-09-14','2020-09-28']
+release_days = ['2020-09-14','2020-09-28', '2020-10-14']
 
 if args.celery:
 
