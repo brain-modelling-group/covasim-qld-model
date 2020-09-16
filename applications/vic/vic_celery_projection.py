@@ -27,7 +27,7 @@ parser.add_argument('--celery', default=False, type=bool, help='If True, use Cel
 args = parser.parse_args()
 
 # Load inputs
-people_seed = 0
+people_seed = 1
 
 print('Loading parameters...', end='')
 sc.tic()

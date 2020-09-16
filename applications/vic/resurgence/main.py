@@ -132,6 +132,8 @@ def get_victoria_sim(params, beta, seed, people, layer_members, release_day=None
     sep14 = sim.day('20200914')
     sep28 = sim.day('20200928')
 
+    # Stage 3 is brought on incrementally as it was implemented starting with hotspots before
+    # expanding to the entire city
     beta_schedule.add('stage3_10PC', jul2, jul4)
     beta_schedule.add('stage3_12PC_towers', jul4, jul9)
     beta_schedule.add('stage3_melb', jul9, aug6)

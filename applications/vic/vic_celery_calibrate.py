@@ -24,7 +24,7 @@ args = parser.parse_args()
 
 # Load inputs
 
-people_seed = 0
+people_seed = 1
 
 print('Loading parameters...', end='')
 sc.tic()
