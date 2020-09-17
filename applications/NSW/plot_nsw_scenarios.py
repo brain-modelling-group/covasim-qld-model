@@ -6,122 +6,74 @@ import numpy as np
 from matplotlib import ticker
 import datetime as dt
 import matplotlib.patches as patches
+import matplotlib.dates as mdates
 
 # Filepaths
 resultsfolder = 'results'
 figsfolder = 'figs'
-simsfilepath = f'{resultsfolder}/nsw_calibration.obj'
+which = 'main' # Set to main or sens to produce figures for main scenarios or sensitivity analyis
 
-julybetas = [0.5, 0.6, 0.7] # Values used in the scenarios
+if resultsfolder=='results':
+    # Main scenarios are with maskeff = 0.23, corresponding to [0.59, 0.62, 0.7]
+    # Sensitivity analyses with maskeff = 0.3 corresponds to [0.55, 0.6, 0.7]
+    maskbetas_main = [0.59, 0.62, 0.7] # Values used in the scenarios
+    maskbetas_sens = [0.55, 0.60, 0.7] # Values used in the scenarios
+    maskbetas = maskbetas_main if which == 'main' else maskbetas_sens
+
+elif resultsfolder=='oldresults':
+    maskbetas = [0.6, 0.65, 0.7]
 
 T = sc.tic()
 
-# Load in scenario multisims
+# Set up lists for storing results to be plotting
 diagprobs = []
 infprobs = []
-diagvals = []
-infvals = []
-for jb in julybetas:
+inf_med = []
+inf_low = []
+inf_high = []
+
+# Load objects
+for i,jb in enumerate(maskbetas):
+
+    # Load in scenario multisims
     msim = sc.loadobj(f'{resultsfolder}/nsw_scenarios_{int(jb*100)}.obj')
-    diagprobs.append([len([i for i in range(100) if msim.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(500)])
-    infprobs.append([len([i for i in range(100) if msim.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(6000)])
-    diagvals.append(msim.sims[0].results['new_diagnoses'].values[-60:])
-    infvals.append(msim.sims[0].results['n_exposed'].values[-60:])
+
+    # Calculate probabilities
+    diagprobs.append([len([i for i in range(100) if msim.sims[i].results['new_diagnoses'].values[-1]>j])/100 for j in range(100)])
+    infprobs.append([len([i for i in range(100) if msim.sims[i].results['n_exposed'].values[-1]>j])/100 for j in range(3000)])
+
+    # Extract a sim for getting time vectors and so on
+    sims = msim.sims
+    sim = sims[0]
+
+    # Reduce sim and extract weekly values
     msim.reduce()
-    if jb == 0.7: # Save these as the main scenario
-        sims = msim.sims
-        sim = sims[0]
+    w0, w1, w2, w3, w4, w5, w6 = cv.date('2020-08-19'), cv.date('2020-08-26'), cv.date('2020-09-02'), cv.date('2020-09-09'), cv.date('2020-09-16'), cv.date('2020-09-23'), cv.date('2020-09-30')
+    wd = [sim.day(w0), sim.day(w1), sim.day(w2), sim.day(w3), sim.day(w4), sim.day(w5), sim.day(w6)]
+    inf_med.append(msim.results['new_infections'].values[wd])
+    inf_low.append(msim.results['new_infections'].low[wd])
+    inf_high.append(msim.results['new_infections'].high[wd])
 
+# Now load the transmission tree data
+tlc = sc.loadobj(f'{resultsfolder}/nsw_layer_counts.obj')
+layer_counts = {}
+for jb in maskbetas: layer_counts[jb] = tlc[jb].sum(axis=0)/100 # Get mean
 
-# Define plotting functions
-#%% Helper functions
+# Sum transmission by layer over the relevant date ranges
+jun01 = cv.date('2020-06-01')
+aug15 = cv.date('2020-08-19')
+jun01d = sim.day(jun01)
+aug15d = sim.day(aug15)
 
-def format_ax(ax, sim, key=None):
-    @ticker.FuncFormatter
-    def date_formatter(x, pos):
-        return (sim['start_day'] + dt.timedelta(days=x)).strftime('%b-%d')
-    ax.xaxis.set_major_formatter(date_formatter)
-    if key != 'r_eff':
-        sc.commaticks()
-    pl.xlim([0, sim['n_days']])
-    sc.boxoff()
-    return
-
-def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=0):
-
-    which = key.split('_')[1]
-    try:
-        color = cv.get_colors()[which]
-    except:
-        color = [0.5,0.5,0.5]
-    if which == 'diagnoses':
-        color = [0.03137255, 0.37401   , 0.63813918, 1.        ]
-    elif which == '':
-        color = [0.82400815, 0.        , 0.        , 1.        ]
-
-    if ys is None:
-        ys = []
-        for s in sims:
-            ys.append(s.results[key].values)
-
-    yarr = np.array(ys)
-    if chooseseed is not None:
-        best = sims[chooseseed].results[key].values
-    low  = pl.quantile(yarr, q=low_q, axis=0)
-    high = pl.quantile(yarr, q=high_q, axis=0)
-
-    sim = sims[0] # For having a sim to refer to
-
-    tvec = np.arange(len(best))
-    if key in sim.data:
-        data_t = np.array((sim.data.index-sim['start_day'])/np.timedelta64(1,'D'))
-        inds = np.arange(0, len(data_t), subsample)
-        pl.plot(data_t[inds], sim.data[key][inds], 'd', c=color, markersize=10, alpha=0.5, label='Data')
-
-    start = None
-    if startday is not None:
-        start = sim.day(startday)
-    end = None
-    if flabel:
-        if which == 'infections':
-            fill_label = '95% projec-\nted interval'
-        else:
-            fill_label = '95% projected\ninterval'
-    else:
-        fill_label = None
-    pl.fill_between(tvec[startday:end], low[startday:end], high[startday:end], facecolor=color, alpha=0.2, label=fill_label)
-    pl.plot(tvec[startday:end], best[startday:end], c=color, label=label, lw=4, alpha=1.0)
-
-    sc.setylim()
-
-    xmin,xmax = ax.get_xlim()
-    if calib:
-        ax.set_xticks(pl.arange(xmin+2, xmax, 21))
-    else:
-        ax.set_xticks(pl.arange(xmin+2, xmax, 21))
-
-    pl.ylabel(ylabel)
-
-    return
-
-
-def plot_intervs(sim, labels=True):
-
-    color = [0, 0, 0]
-    mar23 = sim.day('2020-03-23')
-    may01 = sim.day('2020-05-01')
-    jul07 = sim.day('2020-07-07')
-    for day in [mar23, may01, jul07]:
-        pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
-
-    if labels:
-        yl = pl.ylim()
-        labely = yl[1]*0.95
-        pl.text(mar23-20, labely, 'Lockdown', color=color, alpha=0.9, style='italic')
-        pl.text(may01+1,  labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul07+1,  labely, 'NSW/Victoria \nborder closed', color=color, alpha=0.9, style='italic')
-    return
-
+low_q = 0.1
+high_q = 0.9
+layer_counts_pre_med  = pl.median(tlc[0.7][:, jun01d:aug15d, :].sum(axis=1), axis=0)
+layer_counts_pre_low  = pl.quantile(tlc[jb][:, jun01d:aug15d, :].sum(axis=1), q=low_q, axis=0)
+layer_counts_pre_high = pl.quantile(tlc[jb][:, jun01d:aug15d, :].sum(axis=1), q=high_q, axis=0)
+for jb in maskbetas:
+    layer_counts_med  = [pl.median(tlc[jb][:, aug15d:, :].sum(axis=1), axis=0) for jb in maskbetas]
+    layer_counts_low  = [pl.quantile(tlc[jb][:, aug15d:, :].sum(axis=1), q=low_q, axis=0) for jb in maskbetas]
+    layer_counts_high = [pl.quantile(tlc[jb][:, aug15d:, :].sum(axis=1), q=high_q, axis=0) for jb in maskbetas]
 
 # Fonts and sizes
 font_size = 22
@@ -130,99 +82,96 @@ pl.rcParams['font.size'] = font_size
 pl.rcParams['font.family'] = font_family
 pl.figure(figsize=(24,15))
 
-# Plot locations
-ygaps = 0.03
-xgaps = 0.06
+ygaps = 0.06
+xgaps = 0.065
 remainingy = 1-3*ygaps
 remainingx = 1-3*xgaps
 mainplotheight = remainingy/2
-mainplotwidth = 0.5
-subplotheight = (mainplotheight-ygaps)/2
-subplotwidth = 1-mainplotwidth-2.5*xgaps
+mainplotwidth = remainingx/2
 
-# Plot diagnoses
-x0, y0, dx, dy = xgaps, ygaps*2+1*mainplotheight, mainplotwidth, mainplotheight
+# A. Probabilities of exceeding N daily diagnoses
+pl.figtext(xgaps*0.2, ygaps*2+mainplotheight*2, 'A', fontsize=40)
+x0, y0, dx, dy = xgaps, ygaps*2+mainplotheight, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
-format_ax(ax1, sim)
-plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='Daily diagnoses')
-plot_intervs(sim)
-
-#Plot diagnoses scenarios
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*3+1*mainplotheight+subplotheight, subplotwidth, subplotheight
-ax2 = pl.axes([x0, y0, dx, dy])
-#format_ax(ax2, sim)
-@ticker.FuncFormatter
-def date_formatter(x, pos):
-    return (dt.date(2020,7,1) + dt.timedelta(days=x)).strftime('%b-%d')
-ax2.xaxis.set_major_formatter(date_formatter)
-sc.commaticks()
-pl.xlim([0, 60])
-sc.boxoff()
-tvec = np.arange(60)
-#v70 = msim70.base_sim.results['new_diagnoses'].values[-60:]
-#v60 = msim60.base_sim.results['new_diagnoses'].values[-60:]
-#v50 = msim50.base_sim.results['new_diagnoses'].values[-60:]
 colors = pl.cm.GnBu([0.9,0.6,0.3])
-pl.plot(tvec, diagvals[0], c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, diagvals[1], c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, diagvals[2], c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
-pl.ylabel('Daily diagnoses')
-sc.setylim()
-xmin, xmax = ax2.get_xlim()
-ax2.set_xticks(pl.arange(xmin + 2, xmax, 7))
-pl.legend(loc='upper left', frameon=False)
+ax1.plot(range(len(diagprobs[0])), diagprobs[0], '-', lw=4, c=colors[0], alpha=1.0)
+ax1.plot(range(len(diagprobs[0])), diagprobs[1], '-', lw=4, c=colors[1], alpha=1.0)
+ax1.plot(range(len(diagprobs[0])), diagprobs[2], '-', lw=4, c=colors[2], alpha=1.0)
+#ax1.minorticks_on()
+#pl.grid(which='minor', c=[0, 0, 0], linestyle='--', alpha=0.3, lw=1)
+#pl.grid(which='major', c=[0, 0, 0], linestyle='--', alpha=0.3, lw=1)
+ax1.set_ylim(0,1)
+pl.ylabel('Probability of more than n\ndaily cases within 4 weeks')
+sc.boxoff(ax=ax1)
 
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, subplotheight
-ax3 = pl.axes([x0, y0, dx, dy])
-ax3.plot(range(300), diagprobs[0][:300], '-', lw=4, c=colors[0], alpha=1.0)
-ax3.plot(range(300), diagprobs[1][:300], '-', lw=4, c=colors[1], alpha=1.0)
-ax3.plot(range(300), diagprobs[2][:300], '-', lw=4, c=colors[2], alpha=1.0)
-ax3.set_ylim(0,1)
-pl.ylabel('Probability of more\nthan n daily cases')
-sc.boxoff(ax=ax3)
+# B. Probabilities of exceeding N active cases
+pl.figtext(xgaps*1.2+mainplotwidth, ygaps*2+mainplotheight*2, 'B', fontsize=40)
+x0, y0, dx, dy = xgaps*2+mainplotwidth, ygaps*2+mainplotheight, mainplotwidth, mainplotheight
+ax2 = pl.axes([x0, y0, dx, dy])
+colors = pl.cm.GnBu([0.9,0.6,0.3]) #pl.cm.hot([0.3,0.5,0.7])
+ax2 = pl.axes([x0, y0, dx, dy])
+ax2.plot(range(len(infprobs[0])), infprobs[0], '-', lw=4, c=colors[0], label="High masks", alpha=1.0)
+ax2.plot(range(len(infprobs[0])), infprobs[1], '-', lw=4, c=colors[1], label="Moderate masks", alpha=1.0)
+ax2.plot(range(len(infprobs[0])), infprobs[2], '-', lw=4, c=colors[2], label="No masks", alpha=1.0)
+ax2.set_ylim(0,1)
+#ax2.minorticks_on()
+#pl.grid(which='minor', c=[0, 0, 0], linestyle='--', alpha=0.3, lw=1)
+#pl.grid(which='major', c=[0, 0, 0], linestyle='--', alpha=0.3, lw=1)
+pl.ylabel('Probability of more than n active\ninfections within 4 weeks')
+pl.legend(loc='upper right', frameon=False)
+sc.boxoff(ax=ax2)
 
-# Plot active cases
-x0, y0, dx, dy = xgaps, ygaps*1+0*mainplotheight, mainplotwidth, mainplotheight
-ax4 = pl.axes([x0, y0, dx, dy])
-format_ax(ax4, sim)
-plotter('n_exposed', sims, ax4, calib=False, label='Model', ylabel='Active infections')
-#pl.legend(loc='upper center', frameon=False)
+# C. bar chart
+pl.figtext(xgaps*0.2, ygaps*1+mainplotheight, 'C', fontsize=40)
+x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
+bar_ax = pl.axes([x0, y0, dx, dy])
+colors = sc.gridcolors(5)
 
-#Plot active cases scenarios
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+0*mainplotheight+subplotheight, subplotwidth, subplotheight
-ax5 = pl.axes([x0, y0, dx, dy])
-#format_ax(ax2, sim)
+x = np.arange(5)
+colors = [(0.5,0.5,0.5), pl.cm.GnBu(0.3), pl.cm.GnBu(0.6), pl.cm.GnBu(0.9)]
+layers_to_plot_med = [layer_counts_med[2], layer_counts_med[1], layer_counts_med[0]]
+layers_to_plot_low = [layer_counts_low[2], layer_counts_low[1], layer_counts_low[0]]
+layers_to_plot_high = [layer_counts_high[2], layer_counts_high[1], layer_counts_high[0]]
+labels = ['Household', 'School', 'Workplace', 'Known\ncommunity', 'Unknown\ncommunity']
+scenlabels = ['No masks', 'Moderate masks', 'High masks']
+
+for ltp in range(3):
+    bar_ax.bar(x+0.1*ltp-0.3, layers_to_plot_med[ltp], color=colors[ltp+1], width=0.1, label = scenlabels[ltp])
+    pl.plot([x+0.1*ltp-0.3,x+0.1*ltp-0.3], [layers_to_plot_low[ltp], layers_to_plot_high[ltp]], c='k')
+
+bar_ax.set_xticks(x-0.15)
+bar_ax.set_xticklabels(labels)
+#bar_ax.legend(frameon=False)
+pl.ylabel('Cumulative infections by layer\nAug 19 - Sep 30')
+sc.boxoff(ax=bar_ax)
+
+# D. box plot chart
+pl.figtext(xgaps*1.2+mainplotwidth, ygaps*1+mainplotheight, 'D', fontsize=40)
+x0, y0, dx, dy = xgaps*2+mainplotwidth, ygaps, mainplotwidth, mainplotheight
+box_ax = pl.axes([x0, y0, dx, dy])
+x = np.arange(7)
+for ltp in range(3):
+    box_ax.errorbar(x+0.1*ltp-0.3, inf_med[2-ltp], yerr=[inf_low[2-ltp], inf_high[2-ltp]], fmt='o', color=colors[ltp+1], ecolor=colors[ltp+1], ms=20, elinewidth=3, capsize=0)
+
+box_ax.set_xticks(x-0.15)
+#box_ax.set_xticklabels(labels)
+
 @ticker.FuncFormatter
 def date_formatter(x, pos):
-    return (dt.date(2020,7,1) + dt.timedelta(days=x)).strftime('%b-%d')
-ax5.xaxis.set_major_formatter(date_formatter)
-sc.commaticks()
-pl.xlim([0, 60])
-sc.boxoff()
-tvec = np.arange(60)
-#v70 = msim70.base_sim.results['n_exposed'].values[-60:]
-#v60 = msim60.base_sim.results['n_exposed'].values[-60:]
-#v50 = msim50.base_sim.results['n_exposed'].values[-60:]
-colors = pl.cm.hot([0.3,0.5,0.7])
-pl.plot(tvec, infvals[0], c=colors[0], label="Without masks", lw=4, alpha=1.0)
-pl.plot(tvec, infvals[1], c=colors[1], label="50% mask uptake", lw=4, alpha=1.0)
-pl.plot(tvec, infvals[2], c=colors[2], label="70% mask uptake", lw=4, alpha=1.0)
-pl.ylabel('Active infections')
-sc.setylim()
-xmin, xmax = ax5.get_xlim()
-ax5.set_xticks(pl.arange(xmin + 2, xmax, 7))
-pl.legend(loc='upper left', frameon=False)
+    return (cv.date('2020-08-21') + dt.timedelta(days=x*7)).strftime('%b-%d')
 
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*1+0*mainplotheight, subplotwidth, subplotheight
-ax6 = pl.axes([x0, y0, dx, dy])
-ax6.plot(range(6000), infprobs[0], '-', lw=4, c=colors[0], alpha=1.0)
-ax6.plot(range(6000), infprobs[1], '-', lw=4, c=colors[1], alpha=1.0)
-ax6.plot(range(6000), infprobs[2], '-', lw=4, c=colors[2], alpha=1.0)
-ax6.set_ylim(0,1)
-pl.ylabel('Probability of more\nthan n active infections')
-sc.boxoff(ax=ax6)
+box_ax.xaxis.set_major_formatter(date_formatter)
+pl.ylabel('Estimated daily infections')
+sc.boxoff(ax=box_ax)
+
+#pl.xlim([0, sim['n_days']])
+#box_ax.legend(frameon=False)
 
 
-cv.savefig(f'{figsfolder}/nsw_scenarios.png', dpi=100)
+cv.savefig(f'{figsfolder}/nsw_scenarios_{which}.png', dpi=100)
 
+# Percentage reductions (for text_
+totinfs = [layer_counts_med[i].sum() for i in range(3)]
+pct_red_tot = (totinfs[2]-totinfs[0])/totinfs[2]
+pct_red_comm = (layer_counts_med[2][4]-layer_counts_med[0][4])/layer_counts_med[2][4]
 sc.toc(T)

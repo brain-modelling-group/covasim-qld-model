@@ -11,7 +11,7 @@ library(pBrackets)
 
 policies <- read_excel("/Users/robynstuart/Documents/git/covasim-australia/applications/NSW/policy-schedule.xlsx")
 policies$` ` = rep(NA,140)
-policies.long <- melt(policies, variable.name = "Layer", value.name = "Beta", id.vars = c("Date", "Policy name"))
+policies.long <- melt(policies, variable.name = "Layer", value.name = "Relative transmission risk", id.vars = c("Date", "Policy name"))
 
 
 # Calculate where to put the dotted lines that show up every three entries
@@ -25,7 +25,7 @@ fontfamily = 'Proxima Nova'
 
 library(grid)
 # Build plot
-timeline <- ggplot(subset(policies.long, !(Layer %in% c("Overall beta", "Households"))), aes(x=Layer, y=date(Date), colour=Beta)) + 
+timeline <- ggplot(subset(policies.long, !(Layer %in% c("Overall beta", "Households"))), aes(x=Layer, y=date(Date), colour=`Relative transmission risk`)) + 
   geom_line(size=10) + 
   geom_hline(yintercept=date("2020-03-23 UTC"), colour="black", linetype="dotted") + 
   annotate("text", x=" ", y = date("2020-03-25 UTC"), label="Lockdown", hjust=0, family=fontfamily) +
@@ -46,11 +46,11 @@ timeline <- ggplot(subset(policies.long, !(Layer %in% c("Overall beta", "Househo
   labs(x=NULL, y=NULL) + 
   theme(axis.ticks.x = element_blank()) +
   coord_flip() +
-  scale_colour_gradient(low = "white", high = "blue", na.value = NA) +
-  theme(legend.position="right") +
-  theme(text=element_text(size=16,  family=fontfamily, color="black")) + 
-  scale_y_date(date_breaks="2 weeks", labels=date_format("%d %b")) +
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
+  scale_colour_gradient(low = "white", high = "blue", na.value = NA, guide = guide_colorbar(barwidth=10)) +
+  theme(legend.position="bottom",) +
+  theme(text=element_text(size=14,  family=fontfamily, color="black")) + 
+  scale_y_date(date_breaks="2 weeks", labels=date_format("%d %b")) #+
+  #theme(axis.text.x=element_text(angle=45, hjust=1)) 
 timeline
 
 fn <- "policy-timelines.png"

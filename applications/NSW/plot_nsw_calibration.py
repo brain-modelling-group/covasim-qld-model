@@ -8,10 +8,10 @@ import datetime as dt
 import matplotlib.patches as patches
 
 # Filepaths
-resultsfolder = 'results'
+resultsfolder = 'resultsaug26'
 figsfolder = 'figs'
 simsfilepath = f'{resultsfolder}/nsw_calibration.obj'
-
+addhist = False
 
 T = sc.tic()
 
@@ -32,7 +32,7 @@ def format_ax(ax, sim, key=None):
     sc.boxoff()
     return
 
-def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=0):
+def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, startday=None, subsample=2, chooseseed=None):
 
     which = key.split('_')[1]
     try:
@@ -52,6 +52,8 @@ def plotter(key, sims, ax, ys=None, calib=False, label='', ylabel='', low_q=0.02
     yarr = np.array(ys)
     if chooseseed is not None:
         best = sims[chooseseed].results[key].values
+    else:
+        best = pl.mean(yarr, axis=0)
     low  = pl.quantile(yarr, q=low_q, axis=0)
     high = pl.quantile(yarr, q=high_q, axis=0)
 
@@ -95,8 +97,8 @@ def plot_intervs(sim, labels=True):
     color = [0, 0, 0]
     mar23 = sim.day('2020-03-23')
     may01 = sim.day('2020-05-01')
-#    jul07 = sim.day('2020-07-07')
-    for day in [mar23, may01]:
+    jul07 = sim.day('2020-07-07')
+    for day in [mar23, may01, jul07]:
         pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
 
     if labels:
@@ -104,7 +106,7 @@ def plot_intervs(sim, labels=True):
         labely = yl[1]*0.95
         pl.text(mar23-20, labely, 'Lockdown', color=color, alpha=0.9, style='italic')
         pl.text(may01+1,  labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-#        pl.text(jul07+1,  labely, 'NSW/Victoria \nborder closed', color=color, alpha=0.9, style='italic')
+        pl.text(jul07+1,  labely, 'NSW/Victoria \nborder closed', color=color, alpha=0.9, style='italic')
     return
 
 
@@ -113,105 +115,94 @@ font_size = 22
 font_family = 'Proxima Nova'
 pl.rcParams['font.size'] = font_size
 pl.rcParams['font.family'] = font_family
-pl.figure(figsize=(24,15))
+pl.figure(figsize=(24,8))
 
 # Extract a sim to refer to
 sims = simsfile.sims
 sim = sims[0]
 
 # Plot locations
-ygaps = 0.03
-xgaps = 0.06
-remainingy = 1-3*ygaps
+ygaps = 0.05
+xgaps = 0.05
+remainingy = 1-2*ygaps
 remainingx = 1-3*xgaps
-mainplotheight = remainingy/2
+mainplotheight = remainingy
 mainplotwidth = 0.5
 subplotheight = (mainplotheight-ygaps)/2
 subplotwidth = 1-mainplotwidth-2.5*xgaps
 
 # a: daily diagnoses
-x0, y0, dx, dy = xgaps, ygaps*2+1*mainplotheight, mainplotwidth, mainplotheight
+x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 format_ax(ax1, sim)
-plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='Daily diagnoses')
+plotter('new_diagnoses', sims, ax1, calib=True, label='Model', ylabel='Daily diagnoses (locally acquired)')
+#plotter('new_infections', sims, ax1, calib=True, label='Active infections (modeled)', ylabel='', flabel=False)
 plot_intervs(sim)
 
 # b. cumulative diagnoses
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*2+1*mainplotheight, subplotwidth, mainplotheight
+x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps, subplotwidth, mainplotheight
 ax2 = pl.axes([x0, y0, dx, dy])
 format_ax(ax2, sim)
-plotter('cum_diagnoses', sims, ax2, calib=True, label='Model', ylabel='Cumulative diagnoses')
-pl.legend(loc='lower right', frameon=False)
-
-# c. deaths
-x0, y0, dx, dy = xgaps, ygaps*1+0*mainplotheight, mainplotwidth, mainplotheight
-ax3 = pl.axes([x0, y0, dx, dy])
-format_ax(ax3, sim)
-plotter('cum_deaths', sims, ax3, calib=True, label='Model', ylabel='Cumulative deaths')
-pl.legend(loc='lower right', frameon=False)
-
-# d. active and cumulative infections
-x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*1+0*mainplotheight, subplotwidth, mainplotheight
-ax4 = pl.axes([x0, y0, dx, dy])
-format_ax(ax4, sim)
-plotter('cum_infections', sims, ax4, calib=True, label='Cumulative infections (modeled)', ylabel='Infections')
-plotter('n_infectious', sims, ax4, calib=True, label='Active infections (modeled)', ylabel='Infections', flabel=False)
+plotter('cum_infections', sims, ax2, calib=True, label='Infections (modelled)', ylabel='', flabel=False)
+#plotter('n_infectious', sims, ax2, calib=True, label='Active infections (modeled)', ylabel='', flabel=False)
+plotter('cum_diagnoses', sims, ax2, calib=True, label='Diagnoses (modelled)', ylabel='Cumulative locally acquired infections & diagnoses', flabel=False)
 pl.legend(loc='upper left', frameon=False)
 #pl.ylim([0, 10e3])
 
 # Add histogram
-agehists = []
+if addhist:
+    agehists = []
 
-for s,sim in enumerate(sims):
-    agehist = sim['analyzers'][0]
-    if s == 0:
-        age_data = agehist.data
-    agehists.append(agehist.hists[-1])
-raw_x = age_data['age'].values
-raw_pos = age_data['cum_diagnoses'].values
+    for s,sim in enumerate(sims):
+        agehist = sim['analyzers'][0]
+        if s == 0:
+            age_data = agehist.data
+        agehists.append(agehist.hists[-1])
+    raw_x = age_data['age'].values
+    raw_pos = age_data['cum_diagnoses'].values
 
-x = ["0-29", "30-54", "55+"]
-pos = [raw_pos[0:6].sum(), raw_pos[6:11].sum(), raw_pos[11:].sum()]
+    x = ["0-29", "30-54", "55+"]
+    pos = [raw_pos[0:6].sum(), raw_pos[6:11].sum(), raw_pos[11:].sum()]
 
-# From the model
-mposlist = []
-for hists in agehists:
-    mposlist.append(hists['diagnosed'])
-mposarr = np.array(mposlist)
-low_q = 0.1
-high_q = 0.9
-raw_mpbest = pl.median(mposarr, axis=0)
-raw_mplow  = pl.quantile(mposarr, q=low_q, axis=0)
-raw_mphigh = pl.quantile(mposarr, q=high_q, axis=0)
+    # From the model
+    mposlist = []
+    for hists in agehists:
+        mposlist.append(hists['diagnosed'])
+    mposarr = np.array(mposlist)
+    low_q = 0.1
+    high_q = 0.9
+    raw_mpbest = pl.median(mposarr, axis=0)
+    raw_mplow  = pl.quantile(mposarr, q=low_q, axis=0)
+    raw_mphigh = pl.quantile(mposarr, q=high_q, axis=0)
 
-mpbest = [raw_mpbest[0:6].sum(), raw_mpbest[6:11].sum(), raw_mpbest[11:].sum()]
-mplow = [raw_mplow[0:6].sum(), raw_mplow[6:11].sum(), raw_mplow[11:].sum()]
-mphigh = [raw_mphigh[0:6].sum(), raw_mphigh[6:11].sum(), raw_mphigh[11:].sum()]
+    mpbest = [raw_mpbest[0:6].sum(), raw_mpbest[6:11].sum(), raw_mpbest[11:].sum()]
+    mplow = [raw_mplow[0:6].sum(), raw_mplow[6:11].sum(), raw_mplow[11:].sum()]
+    mphigh = [raw_mphigh[0:6].sum(), raw_mphigh[6:11].sum(), raw_mphigh[11:].sum()]
 
-# Plotting
-w = 0.4
-off = .8
-#bins = x.tolist()
+    # Plotting
+    w = 0.4
+    off = .8
+    #bins = x.tolist()
 
-x0s, y0s, dxs, dys = xgaps+0.6*mainplotwidth, ygaps*2+1.5*mainplotheight, 0.1, 0.15
-ax1s = pl.axes([x0s, y0s, dxs, dys])
-# ax = pl.subplot(4,2,7)
-c1 = [0.3,0.3,0.6]
-c2 = [0.6,0.7,0.9]
-X = np.arange(len(x))
-XX = X+w-off
-pl.bar(X,pos, width=w, label='Data', facecolor=c1)
-pl.bar(XX, mpbest, width=w, label='Model', facecolor=c2)
-#pl.bar(x-off,pos, width=w, label='Data', facecolor=c1)
-#pl.bar(xx, mpbest, width=w, label='Model', facecolor=c2)
-for i,ix in enumerate(XX):
-    pl.plot([ix,ix], [mplow[i], mphigh[i]], c='k')
-ax1s.set_xticks((X+XX)/2)
-ax1s.set_xticklabels(x)
-pl.xlabel('Age')
-pl.ylabel('Cases 9 Mar–24 Apr')
-sc.boxoff(ax1s)
-pl.legend(frameon=False, bbox_to_anchor=(0.7,1.1))
+    x0s, y0s, dxs, dys = xgaps+0.6*mainplotwidth, ygaps*2+1.5*mainplotheight, 0.1, 0.15
+    ax1s = pl.axes([x0s, y0s, dxs, dys])
+    # ax = pl.subplot(4,2,7)
+    c1 = [0.3,0.3,0.6]
+    c2 = [0.6,0.7,0.9]
+    X = np.arange(len(x))
+    XX = X+w-off
+    pl.bar(X,pos, width=w, label='Data', facecolor=c1)
+    pl.bar(XX, mpbest, width=w, label='Model', facecolor=c2)
+    #pl.bar(x-off,pos, width=w, label='Data', facecolor=c1)
+    #pl.bar(xx, mpbest, width=w, label='Model', facecolor=c2)
+    for i,ix in enumerate(XX):
+        pl.plot([ix,ix], [mplow[i], mphigh[i]], c='k')
+    ax1s.set_xticks((X+XX)/2)
+    ax1s.set_xticklabels(x)
+    pl.xlabel('Age')
+    pl.ylabel('Cases 9 Mar–24 Apr')
+    sc.boxoff(ax1s)
+    pl.legend(frameon=False, bbox_to_anchor=(0.7,1.1))
 
 
 cv.savefig(f'{figsfolder}/nsw_calibration.png', dpi=100)
