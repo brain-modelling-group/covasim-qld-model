@@ -230,7 +230,7 @@ if __name__ == '__main__':
     domulti = True
     doplot = False
     dosave = True
-    number_of_runs = 100
+    number_of_runs = 10
 
     # Filepaths
     inputsfolder = 'inputs'
