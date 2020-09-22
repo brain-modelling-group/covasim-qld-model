@@ -11,7 +11,7 @@ Branch `qld-resurgence` originated on 2020-09-17.
 2. Create a new environment to have all the covid related libraries (Python >= 3.6).
 3. Activate your environment.
 4. Go to directory `covasim-australia-qld/`
-5. Run `pip install covasim`  -- this command installs covasim: https://github.com/institutefordiseasemodeling/covasim
+5. Run `pip install covasim`  -- this command installs covasim. Version used to develop and test is [covasim 1.6.1](https://github.com/InstituteforDiseaseModeling/covasim/releases/tag/v1.6.1).
 6. Run `python setup.py install` -- this command installs the classed and funs in `covasim_australia/`
 7. Set up `PYTHONPATH` as `export PYTHONPATH=/home/user/you/path/to/covasim-australia-qld:$PYTHONPATH`
 
