@@ -4,5 +4,7 @@ This branch `qld-calibration` is a copy of optima/covasim-australia repository, 
 
 The code here was used to produce the first batch of simulations to calibrate the agent-based model and to reproduce the epidemiological data in Queensland, from March 2020 until the first week of August 2020. 
 
-This branch is deprecated, though functional, as of 2020-09-15. Use branch `qld-resurgence` for the latest version of all covasim QLD models.  
+This branch is deprecated as of 2020-09-15, though functional with [covasim 1.5.0](https://github.com/InstituteforDiseaseModeling/covasim/releases/tag/v1.5.0). 
+
+Use branch `qld-resurgence` for the latest version of all covasim QLD models.  
 
