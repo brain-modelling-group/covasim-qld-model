@@ -1,6 +1,6 @@
 # Modelling COVID-19 in  Queensland Australia with covasim
 
-The main code is in `covasim-australia/applications/qld-aus/`
+The main QLD-specific code is in `covasim-australia/applications/qld-aus/`
 
 ## Usage
 
@@ -13,5 +13,6 @@ The main code is in `covasim-australia/applications/qld-aus/`
 4. `python run_qld_wave_01.py`, running this command will: launch 10 runs for three different values of global transmissibility.
                                                            create `results/` directory where results are stored in `.obj` files
 
+5. create `figs` directory if it does not exist.
 
-5. 
+6. run  `python_qld_report_figure.py`
