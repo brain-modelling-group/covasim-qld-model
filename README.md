@@ -13,5 +13,6 @@ Branch `qld-resurgence` originated on 2020-09-17.
 4. Go to directory `covasim-australia-qld/`
 5. Run `pip install covasim`  -- this command installs covasim: https://github.com/institutefordiseasemodeling/covasim
 6. Run `python setup.py install` -- this command installs the classed and funs in `covasim_australia/`
+7. Set up `PYTHONPATH` as `export PYTHONPATH=/home/user/you/path/to/covasim-australia-qld:$PYTHONPATH`
 
-That's it. Stuff sould run now. 
+That's it. Scripts sould run now. 
