@@ -34,6 +34,7 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
 
     if whattorun == 'calibration':
         end_day = '2020-08-15'
+        #end_day = '2020-09-15'
     elif whattorun == 'scenarios':
         end_day = '2020-10-31'
         julybetas = julybetas
@@ -89,6 +90,9 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     schools   = ['2020-03-30', '2020-05-25']
     # shut borders again
     borders02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
+    borders03 ='2020-09-11'  # borders open to ACT
+    borders04 ='2020-09-22'  # borders open to some parts of NSW
+
 
     beta_ints = [cv.clip_edges(days=[response00, response01]+schools, 
                                changes=[0.95, 0.85, 0.05, 0.9], 
@@ -169,13 +173,26 @@ def make_sim(whattorun, julybetas=None, load_pop=True, popfile='qldppl.pop', dat
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing
-    symp_prob_prelockdown = 0.05   # Limited testing pre lockdown
+    symp_prob_prelockdown = 0.05    # Limited testing pre lockdown
+    symp_prob_prelockdown_01 = 0.08 # 
+    symp_prob_prelockdown_02 = 0.15 #
     symp_prob_lockdown = 0.3       # Increased testing during lockdown
     symp_prob_postlockdown = 0.5   # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, 
-                                                  end_day=lockdown00, 
+                                                  end_day=response00, 
                                                   symp_prob=symp_prob_prelockdown, 
                                                   asymp_quar_prob=0.001, do_plot=False))
+    
+    sim.pars['interventions'].append(cv.test_prob(start_day=response00, 
+                                                  end_day=response01, 
+                                                  symp_prob=symp_prob_prelockdown_01, 
+                                                  asymp_quar_prob=0.001, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day=response01, 
+                                                  end_day=lockdown00, 
+                                                  symp_prob=symp_prob_prelockdown_02, 
+                                                  asymp_quar_prob=0.001, do_plot=False))
+
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown00, 
                                                   end_day=reopen01, 
                                                   symp_prob=symp_prob_lockdown, 
