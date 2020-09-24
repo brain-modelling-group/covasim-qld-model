@@ -17,9 +17,16 @@ import numpy as np
 import covasim as cv
 import sciris as sc
 
+# Add argument parser
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--nruns', default=100, type=int, help='Number of seeds to run per scenario')
+
+args = parser.parse_args()
+
 
 def make_sim(case_to_run, global_betas=None, load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None):
-    start_day = '2020-03-01'
     layers = ['H', 'S', 'W', 'C', 
               'church', 
               'pSport', 
@@ -31,7 +38,8 @@ def make_sim(case_to_run, global_betas=None, load_pop=True, popfile='qldppl.pop'
               'public_parks', 
               'large_events', 
               'social']
-
+    # Dates
+    start_day = '2020-03-01'
     if case_to_run == 'calibration':
         end_day = '2020-09-15'
     elif case_to_run == 'scenarios':
@@ -228,7 +236,6 @@ if __name__ == '__main__':
     # Settings
     case_to_run = ['calibration', 'scenarios'][1]
     domulti = True
-    dosave = True
     number_of_runs = 100
 
     # Filepaths
@@ -244,23 +251,22 @@ if __name__ == '__main__':
                             popfile='qldppl.pop', 
                             datafile=datafile, 
                             agedatafile=agedatafile)
+
             msim = cv.MultiSim(base_sim=sim)
             msim.run(n_runs=number_of_runs, reseed=True, noise=0)
-            if dosave: 
-              msim.save(f'{resultsfolder}/qld_{case_to_run}.obj')
+            msim.save(f'{resultsfolder}/qld_{case_to_run}.obj')
             
         elif case_to_run == 'scenarios':
             global_betas = [0.15, 0.2, 1.0]
 
             for this_beta in global_betas:
-                sim  = make_sim(case_to_run, julybetas=jb, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
+                sim  = make_sim(case_to_run, global_betas=this_beta, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
                 msim = cv.MultiSim(base_sim=sim)
                 msim.run(n_runs=number_of_runs, reseed=True, noise=0)
-                if dosave: 
-                  msim.save(f'{resultsfolder}/qld_{case_to_run}_{int(jb*100)}.obj')
+                msim.save(f'{resultsfolder}/qld_{case_to_run}_{int(this_beta*100)}.obj')
     else:
         sim = make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
         sim.run()
-        if dosave: sim.save(f'{resultsfolder}/qld_{case_to_run}.obj')
+        sim.save(f'{resultsfolder}/qld_{case_to_run}.obj')
 
     sc.toc(T)
