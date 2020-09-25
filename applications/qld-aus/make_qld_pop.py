@@ -22,7 +22,7 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
     """
     Generate  popdict() and People() for Queensland population
     """
-
+    location = 'QLD'
     db_name  = 'input_data_Australia'
     epi_name = 'epi_data_Australia' # Not sure why epi datafile needs to be passed in here, but difficult to remove this dependency
 
@@ -30,34 +30,46 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
                  'church', 'pSport', 'cSport', 
                  'entertainment', 'cafe_restaurant', 'pub_bar',
                  'transport', 'public_parks', 'large_events', 'social']
+
     dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
                      'transport', 'public_parks', 'large_events']
 
-    sim_pars = {'pop_size': pop_size,
+    user_pars = {'pop_size': pop_size,
                 'pop_infected': pop_infected,
                 'pop_scale': 10,
-                'rescale': 1} # Pass in a minimal set of sim pars
+                'rescale': 1,
+                'calibration_end': None
+                } # Pass in a minimal set of sim pars
+
+    #user_pars, _ = utils.clean_pars(user_pars, [location])
 
     # return data relevant to each specified location in "locations"
-    loc_data = data.read_data(locations=['QLD'],
+    all_data = data.read_data(locations=[location],
                               db_name=db_name,
                               epi_name=epi_name,
                               all_lkeys=all_lkeys,
                               dynamic_lkeys=dynamic_lkeys,
                               calibration_end={'QLD':'2020-09-15'})
 
+
+    loc_data = all_data
+    loc_pars = user_pars[location]
+
     # setup parameters object for this simulation
-    params = parameters.setup_params(location='QLD',
+    params = parameters.setup_params(location=location,
                                      loc_data=loc_data,
-                                     sim_pars=sim_pars)
+                                     sim_pars=loc_pars)
+
 
 
     utils.set_rand_seed({'seed': seed})
     params.pars['rand_seed'] = seed
 
     people, popdict = co.make_people(params)
-    if savepeople: sc.saveobj(popfile, people)
-    if savepopdict: sc.saveobj(popdictfile, popdict)
+    if savepeople: 
+        sc.saveobj(popfile, people)
+    if savepopdict: 
+        sc.saveobj(popdictfile, popdict)
     return people, popdict
 
 

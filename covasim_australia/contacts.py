@@ -211,7 +211,7 @@ def get_household_heads(age_dist, n_households):
     return household_heads
 
 
-def make_contacts(params):
+def make_lo_hi_contacts(params):
     contacts = {}
 
     pop_size = params.pars['pop_size']
@@ -300,6 +300,93 @@ def make_contacts(params):
 
     return cv_contacts, ages, uids, layer_members
 
+
+def make_contacts(params):
+    ccontacts = {}
+
+    pop_size = params.pars['pop_size']
+    household_dist = params.household_dist
+    age_dist = params.age_dist
+    contact_matrix = params.contact_matrix
+    n_contacts = params.pars['contacts']
+    all_lkeys = params.all_lkeys
+
+    # for custom layers
+    custom_lkeys = params.custom_lkeys
+    cluster_types = params.layerchars['cluster_type']
+    dispersion = params.layerchars['dispersion']
+    pop_proportion = params.layerchars['proportion']
+    age_lb = params.layerchars['age_lb'] # todo: potentially confusing with the age_up in the contact matrix
+    age_ub = params.layerchars['age_ub']
+
+    layer_members = {}
+
+    uids = get_uids(pop_size)
+
+    # household contacts
+    n_households = get_numhouseholds(household_dist, pop_size)
+    household_heads = get_household_heads(age_dist, n_households)
+    h_contacts, ages = make_hcontacts(n_households,
+                                      pop_size,
+                                      household_heads,
+                                      uids,
+                                      contact_matrix)
+    contacts['H'] = h_contacts
+    layer_members['H'] = uids # All people exist in the household layer
+
+    # school contacts
+    key = 'S'
+    social_no = n_contacts[key]
+    s_contacts = make_scontacts(uids, ages, social_no)
+    contacts[key] = s_contacts
+    layer_members['S'] = np.array(list(s_contacts.keys()))
+
+    # workplace contacts
+    key = 'W'
+    work_no = n_contacts[key]
+    w_contacts = make_wcontacts(uids, ages, work_no)
+    contacts[key] = w_contacts
+    layer_members['W'] = np.array(list(w_contacts.keys()))
+
+
+    # random community contacts
+    key = 'C'
+    com_no = n_contacts[key]
+    include = uids
+    c_contacts = make_random_contacts(include_inds=include, mean_number_of_contacts=com_no, dispersion=dispersion['C'])
+    contacts[key] = c_contacts
+    layer_members['C'] = uids
+
+    # Custom layers: those that are not households, work, school or community
+    custom_contacts, custom_layer_members = make_custom_contacts(uids,
+                                           n_contacts,
+                                           pop_size,
+                                           ages,
+                                           custom_lkeys,
+                                           cluster_types,
+                                           dispersion,
+                                           pop_proportion,
+                                           age_lb,
+                                           age_ub)
+    contacts.update(custom_contacts)
+
+    layer_members = sc.mergedicts(layer_members, custom_layer_members)
+
+    # Initialize the new contacts
+    cv_contacts = cv.Contacts(layer_keys=all_lkeys)
+    for lkey in contacts.keys():
+        p1 = []
+        p2 = []
+        for a1, b1 in contacts[lkey].items():
+            p1.extend([a1]*len(b1))
+            p2.extend(b1)
+
+        cv_contacts[lkey]['p1'] = np.array(p1,dtype=cvd.default_int)
+        cv_contacts[lkey]['p2'] = np.array(p2,dtype=cvd.default_int)
+        cv_contacts[lkey]['beta'] = np.ones(len(p1),dtype=cvd.default_float)
+        cv_contacts[lkey].validate()
+
+    return cv_contacts, ages, uids, layer_members
 
 def make_people(params) -> cv.People:
     """
