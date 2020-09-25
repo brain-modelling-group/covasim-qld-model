@@ -1,6 +1,6 @@
 import covasim_australia.contacts as co
 import covasim as cv
-import data
+import covasim_australia.data as data
 import numpy as np
 import covasim_australia.parameters as parameters
 import covasim_australia.policy_updates as policy_updates
