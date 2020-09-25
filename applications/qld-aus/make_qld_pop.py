@@ -23,7 +23,7 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
     Generate  popdict() and People() for Queensland population
     """
 
-    db_name  = 'input_data_Australia_bkup'
+    db_name  = 'input_data_Australia'
     epi_name = 'epi_data_Australia' # Not sure why epi datafile needs to be passed in here, but difficult to remove this dependency
 
     all_lkeys = ['H', 'S', 'W', 'C', 
