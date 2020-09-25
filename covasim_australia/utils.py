@@ -464,7 +464,7 @@ def generate_seed_infection_dict(sim_start_date, interv_start_day, interv_end_da
     end_date_idx = cvm.date(interv_end_date, start_date=sim_start_date, as_date=False)
     num_days = end_date_idx-start_date
     
-    seeded_infections = cvu.sample(size=, **kwargs)
+    seeded_infections = cvu.sample(size=num_days, **kwargs)
     seed_infections_dict = {start_date_idx+day_idx: num_infections for (day_idx, num_infections) in zip(range(num_days+1), seeded_infections)}
    
     return seed_infections_dict
