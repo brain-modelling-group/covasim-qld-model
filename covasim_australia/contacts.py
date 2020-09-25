@@ -109,7 +109,7 @@ def make_scontacts(uids, ages, s_contacts):
     return class_co
 
 
-def make_wcontacts(uids, ages, w_contacts, prop_high_risk):
+def make_lo_high_wcontacts(uids, ages, w_contacts, prop_high_risk):
     work_cl = cl.make_wclusters(uids, ages, w_contacts)
 
     is_high_risk = np.random.random(len(work_cl)) < prop_high_risk
@@ -131,6 +131,11 @@ def make_wcontacts(uids, ages, w_contacts, prop_high_risk):
 
     return clusters_to_contacts(low_risk_cl), clusters_to_contacts(high_risk_cl)
 
+
+def make_wcontacts(uids, ages, w_contacts):
+    work_cl = cl.make_wclusters(uids, ages, w_contacts)
+    work_co = clusters_to_contacts(work_cl)
+    return work_co    
 
 def make_custom_contacts(uids, n_contacts, pop_size, ages, custom_lkeys, cluster_types, dispersion, pop_proportion, age_lb, age_ub):
     contacts = {}
