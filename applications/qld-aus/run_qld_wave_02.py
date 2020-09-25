@@ -20,13 +20,40 @@ import sciris as sc
 # Add argument parser
 import argparse
 
+
+# Check covasim version is the one we actually need
+cv.check_version('1.6.1', die=True)
+
 parser = argparse.ArgumentParser()
-parser.add_argument('--nruns', default=100, type=int, help='Number of seeds to run per scenario')
+parser.add_argument('--nruns', default=100, 
+                               type=int, 
+                               help='''Number of simulations to run per scenario. 
+                                       Uses different PRNG seeds for each simulations.''')
+parser.add_argument('--case', default='scenarios', 
+                              type=str, 
+                              help='''Case of simulation to run. Can be either 
+                                      "calibration" or "scenarios". The former 
+                                      stops on the last day of epi data available 
+                                      (currently 2020-09-15). The latter performs 
+                                      calibration and continues simulation until 2020-10-31''')
+
+parser.add_argument('--dist', default='poisson', 
+                              type=str, 
+                              help='''Name of distribution to use to seed infections.
+                                      Can be uniform, normal, etc''')
+
+parser.add_argument('--par1', default=1.0, 
+                              type=float, 
+                              help=''' the "main" distribution parameter (e.g. mean)''')
+
+parser.add_argument('--par2', default=1.0, 
+                              type=float, 
+                              help='''the "secondary" distribution parameter (e.g. std)''')
 
 args = parser.parse_args()
 
 
-def make_sim(case_to_run, global_betas=None, load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None):
+def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None, input_args=None):
     layers = ['H', 'S', 'W', 'C', 
               'church', 
               'pSport', 
@@ -44,7 +71,6 @@ def make_sim(case_to_run, global_betas=None, load_pop=True, popfile='qldppl.pop'
         end_day = '2020-09-15'
     elif case_to_run == 'scenarios':
         end_day = '2020-10-31'
-        global_betas = global_betas
 
     pars = {'pop_size': 200e3,  # Population size
             'pop_infected': 30, # Original population infedcted
@@ -52,13 +78,13 @@ def make_sim(case_to_run, global_betas=None, load_pop=True, popfile='qldppl.pop'
             'rescale': False,   # Population dynamics rescaling
             'rand_seed': 42,    # Random seed to use
             'rel_death_prob': 0.6,
-            'beta': 0.03, # Overall beta to use for calibration
+            'beta': 0.03, # Overall beta to use for calibration portion of the simulations
                                     #   H        S       W       C   church   psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,     0.0,    0.0,    0.1,    0.00,   0.0,     0.0,     0.0,    0.00,   0.00,    0.00,    0.00,      0.00,   0.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
-            'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
+            'n_imports': 0.01, # Number of new cases per day -- can be varied over time as part of the interventions
             'start_day': start_day,
             'end_day': end_day,
             'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
@@ -160,26 +186,29 @@ def make_sim(case_to_run, global_betas=None, load_pop=True, popfile='qldppl.pop'
                                 layers=['large_events'], do_plot=False),
                  ]
 
+    
+
+    # Set 'Borders opening' interventions
     if case_to_run == 'scenarios':
-        # Approximate a mask intervention by changing beta in all layers where people would wear masks - assuming not in schools, sport, social gatherings, or home
-        beta_ints += [cv.change_beta(days=['2020-08-21']*10, changes=[julybetas]*10,
-                                     layers=['W', 
-                                             'C', 
-                                             'church',
-                                             'entertainment',
-                                             'cafe_restaurant',
-                                             'pub_bar',
-                                             'transport',
-                                             'public_parks',
-                                             'large_events'])
-                     ]
+        #SET SPECIFIC INFECTIONS
+        start_intervention_date = '2020-09-21'
+        end_intervention_date = end_date
+        dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
+        params.seed_infections  = utils.generate_seed_infections_dict(start_day, 
+                                                                      start_intervention_date,
+                                                                      end_intervention_date,
+                                                                      **dist_kwd_arguments)
 
-    sim.pars['interventions'].extend(beta_ints)
+        sim.pars['interventions'].append(utils.SeedInfection(params.seed_infections))
 
+          
+ 
     # Testing
-    symp_prob_prelockdown = 0.05   # Limited testing pre lockdown
-    symp_prob_lockdown = 0.3       # Increased testing during lockdown
-    symp_prob_postlockdown = 0.5   # Testing since lockdown
+    symp_prob_prelockdown = 0.05    # Limited testing pre lockdown
+    symp_prob_prelockdown_01 = 0.08 # Increased testing
+    symp_prob_prelockdown_02 = 0.2  # Increased testing right before lockdown
+    symp_prob_lockdown = 0.35       # Increased testing during lockdown
+    symp_prob_postlockdown = 0.5    # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=0, 
                                                   end_day=lockdown00, 
                                                   symp_prob=symp_prob_prelockdown, 
@@ -214,7 +243,7 @@ def make_sim(case_to_run, global_betas=None, load_pop=True, popfile='qldppl.pop'
                   'cafe_restaurant': 4, 
                   'pub_bar': 4, 
                   'transport': 2, 
-                  'public_parks': 14, 
+                  'public_parks': 14,  
                   'large_events': 14,
                   'social': 3}
     sim.pars['interventions'].append(cv.contact_tracing(trace_probs=trace_probs, 
@@ -234,39 +263,31 @@ if __name__ == '__main__':
     
     T = sc.tic()
     # Settings
-    case_to_run = ['calibration', 'scenarios'][1]
-    domulti = True
-    number_of_runs = 100
-
+    
+    case_to_run    = args.case
+  
     # Filepaths
     inputsfolder = 'inputs'
     resultsfolder = 'results'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
 
+
+    # Create instance of simulator
+    sim  = make_sim(case_to_run,
+                    global_betas=this_beta,  
+                    load_pop=True, 
+                    popfile='qldppl.pop', 
+                    datafile=datafile, 
+                    agedatafile=agedatafile,
+                    input_args = args)
     # Run and plot
-    if domulti:
-        if case_to_run == 'calibration':
-            sim  = make_sim(case_to_run, load_pop=True, 
-                            popfile='qldppl.pop', 
-                            datafile=datafile, 
-                            agedatafile=agedatafile)
-
+    if args.nruns > 1:
             msim = cv.MultiSim(base_sim=sim)
-            msim.run(n_runs=number_of_runs, reseed=True, noise=0)
-            msim.save(f'{resultsfolder}/qld_{case_to_run}.obj')
-            
-        elif case_to_run == 'scenarios':
-            global_betas = [0.15, 0.2, 1.0]
-
-            for this_beta in global_betas:
-                sim  = make_sim(case_to_run, global_betas=this_beta, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
-                msim = cv.MultiSim(base_sim=sim)
-                msim.run(n_runs=number_of_runs, reseed=True, noise=0)
-                msim.save(f'{resultsfolder}/qld_{case_to_run}_{int(this_beta*100)}.obj')
+            msim.run(n_runs=args.nruns, reseed=True, noise=0)
+            msim.save(f'{resultsfolder}/qld_{case_to_run}_{int(args.dist)}_{int(args.par1)}.obj')
     else:
-        sim = make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=datafile, agedatafile=agedatafile)
         sim.run()
-        sim.save(f'{resultsfolder}/qld_{case_to_run}.obj')
+        sim.save(f'{resultsfolder}/qld_{case_to_run}_{int(args.dist)}_{int(args.par1)}.obj')
 
     sc.toc(T)
