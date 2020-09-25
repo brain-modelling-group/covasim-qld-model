@@ -123,7 +123,7 @@ def get_default_lkeys(all_lkeys=None):
     These are the standard layer keys: household (H), school (S), low risk work, high risk work, and community (C)
     :return:
     """
-    defaults = ['H', 'S', 'low_risk_work', 'high_risk_work', 'C']
+    defaults = ['H', 'S', 'W', 'C']
     if all_lkeys is None:
         layers = defaults
     else:
