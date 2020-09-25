@@ -8,10 +8,11 @@ Create an instance of People() for Queensland
 import covasim as cv
 import pandas as pd
 import sciris as sc
-import contacts as co
-import data
-import parameters
-import utils
+
+import covasim_australia.contacts as co
+import covasim_australia.data as data
+import covasim_australia.parameters as parameters
+import covasim_australia.utils as utils
 import functools
 import numpy as np
 
