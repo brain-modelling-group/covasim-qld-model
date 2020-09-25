@@ -6,6 +6,7 @@ import sciris as sc
 import covasim.utils as cvu
 import covasim.defaults as cvd
 import covasim.base as cvb
+import covasim.misc as cvm
 import networkx as nx
 import pandas as pd
 
@@ -444,6 +445,29 @@ class SeedInfection(cv.Intervention):
             targets = cvu.choose(len(susceptible_inds), self.infections[sim.t])
             target_inds = susceptible_inds[targets]
             sim.people.infect(inds=target_inds)
+
+
+def generate_seed_infection_dict(sim_start_date, interv_start_day, interv_end_day, **kwargs):
+    """
+    Returns a dictionary to be passed to SeedInfection
+    Args:
+        sim_start_date (str in the following date format 'YYYY-MM-DD' ): the starting date of the simulation
+        interv_start_date (str in the following date format 'YYYY-MM-DD'): start date of the seed infection intervention
+        interv_end_date ((str in the following date format 'YYYY-MM-DD'): end date of the seed infection intervention)
+        
+    
+    Returns:
+        A dictionary of with number of infections for every day between start and end internvention dates
+    """
+
+    start_date_idx = cvm.date(interv_start_date, start_date=sim_start_date, as_date=False)
+    end_date_idx = cvm.date(interv_end_date, start_date=sim_start_date, as_date=False)
+    num_days = end_date_idx-start_date
+    
+    seeded_infections = cvu.sample(size=, **kwargs)
+    seed_infections_dict = {start_date_idx+day_idx: num_infections for (day_idx, num_infections) in zip(range(num_days+1), seeded_infections)}
+   
+    return seed_infections_dict
 
 
 class DynamicTrigger(cv.Intervention):
