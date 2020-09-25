@@ -275,7 +275,6 @@ if __name__ == '__main__':
 
     # Create instance of simulator
     sim  = make_sim(case_to_run,
-                    global_betas=this_beta,  
                     load_pop=True, 
                     popfile='qldppl.pop', 
                     datafile=datafile, 
@@ -286,7 +285,7 @@ if __name__ == '__main__':
             msim = cv.MultiSim(base_sim=sim)
             msim.run(n_runs=args.nruns, reseed=True, noise=0)
             msim.save(f'{resultsfolder}/qld_{case_to_run}_{int(args.dist)}_{int(args.par1)}.obj')
-    else:
+    else:cal
         sim.run()
         sim.save(f'{resultsfolder}/qld_{case_to_run}_{int(args.dist)}_{int(args.par1)}.obj')
 
