@@ -280,13 +280,15 @@ if __name__ == '__main__':
                     datafile=datafile, 
                     agedatafile=agedatafile,
                     input_args = args)
+
+    results_path = f'{resultsfolder}/qld_{case_to_run}_{args.dist}_{int(args.par1)}.obj'
     # Run and plot
     if args.nruns > 1:
         msim = cv.MultiSim(base_sim=sim)
         msim.run(n_runs=args.nruns, reseed=True, noise=0)
-        msim.save(f'{resultsfolder}/qld_{case_to_run}_{args.dist}_{int(args.par1)}.obj')
+        msim.save(results_path)
     else:
         sim.run()
-        sim.save(f'{resultsfolder}/qld_{case_to_run}_{args.dist}_{int(args.par1)}.obj')
+        sim.save(results_path)
 
     sc.toc(T)
