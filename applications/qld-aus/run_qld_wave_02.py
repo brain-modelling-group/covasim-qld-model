@@ -282,10 +282,10 @@ if __name__ == '__main__':
                     input_args = args)
     # Run and plot
     if args.nruns > 1:
-            msim = cv.MultiSim(base_sim=sim)
-            msim.run(n_runs=args.nruns, reseed=True, noise=0)
-            msim.save(f'{resultsfolder}/qld_{case_to_run}_{int(args.dist)}_{int(args.par1)}.obj')
-    else:cal
+        msim = cv.MultiSim(base_sim=sim)
+        msim.run(n_runs=args.nruns, reseed=True, noise=0)
+        msim.save(f'{resultsfolder}/qld_{case_to_run}_{int(args.dist)}_{int(args.par1)}.obj')
+    else:
         sim.run()
         sim.save(f'{resultsfolder}/qld_{case_to_run}_{int(args.dist)}_{int(args.par1)}.obj')
 
