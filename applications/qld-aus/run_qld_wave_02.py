@@ -111,7 +111,6 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                  load_pop=load_pop)
 
     # Create beta policies
-    # Important dates -- lockdown start dates
     response00 = '2020-03-15' # Physical distancing, handwashing -- ongoing
     response01 = '2020-03-19' # Outdoors restricted to < 200 ppl
     response02 = '2020-03-21' # Enahnced screening and distancing within age care facilities
@@ -138,6 +137,9 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     schools   = ['2020-03-30', '2020-05-25']
     # shut borders again
     borders02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
+    borders03 ='2020-09-11'  # borders open to ACT
+    borders04 ='2020-09-22'  # borders open to some parts of NSW
+
 
     beta_ints = [cv.clip_edges(days=[response00, response01]+schools, 
                                changes=[0.95, 0.85, 0.05, 0.9], 
