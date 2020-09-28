@@ -16,6 +16,7 @@ import numpy as np
 # Import IDM/Optima code
 import covasim as cv
 import sciris as sc
+import covasim_australia.utils as utils
 
 # Add argument parser
 import argparse
@@ -208,7 +209,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
         start_intervention_date = args.open_borders_date
         end_intervention_date = args.end_simulation_date
         dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
-        params.seed_infections  = utils.generate_seed_infections_dict(start_day, 
+        params.seed_infections  = utils.generate_seed_infection_dict(start_day, 
                                                                       start_intervention_date,
                                                                       end_intervention_date,
                                                                       **dist_kwd_arguments)
