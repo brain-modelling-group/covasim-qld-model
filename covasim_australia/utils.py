@@ -462,7 +462,6 @@ def generate_seed_infection_dict(sim_start_date, interv_start_date, interv_end_d
 
     start_date_idx = cvm.day(interv_start_date, start_day=sim_start_date)
     end_date_idx = cvm.day(interv_end_date, start_day=sim_start_date)
-    import pdb; pdb.set_trace()
     num_days = end_date_idx-start_date_idx
     
     seeded_infections = cvu.sample(size=num_days, **kwargs)
