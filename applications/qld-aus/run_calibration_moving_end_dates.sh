@@ -4,8 +4,8 @@
 # Paula Sanz-Leon, QIMR Berghofer September 2020
 
 
-START_DATE="$(date -d "2020-08-05" +%s)"
-END_DATE="$(date -d "2020-09-15" +%s)"
+START_DATE="$(date -d "2020-07-05" +%s)"
+END_DATE="$(date -d "2020-08-04" +%s)"
 
 while [[ "$START_DATE" -le "$END_DATE" ]]; do 
     THIS_DATE="$(date -d "@$START_DATE" +%F)"
