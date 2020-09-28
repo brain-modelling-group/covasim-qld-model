@@ -50,6 +50,20 @@ parser.add_argument('--par2', default=1.0,
                               type=float, 
                               help='''the "secondary" distribution parameter (e.g. std)''')
 
+parser.add_argument('--open_borders_date', default='2020-09-21', 
+                              type=str, 
+                              help='''The date at which borders are open.''')
+
+
+parser.add_argument('--end_calibration_date', default='2020-09-15', 
+                              type=str, 
+                              help='''The date at which calibration finishes.''')
+
+
+parser.add_argument('--end_simulation_date', default='2020-10-31', 
+                              type=str, 
+                              help='''The date at which to stop simulation.''')
+
 args = parser.parse_args()
 
 
@@ -68,9 +82,9 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     # Dates
     start_day = '2020-03-01'
     if case_to_run == 'calibration':
-        end_day = '2020-09-15'
+        end_day = args.end_calibration_date
     elif case_to_run == 'scenarios':
-        end_day = '2020-10-31'
+        end_day = args.end_simulation_date
 
     pars = {'pop_size': 200e3,  # Population size
             'pop_infected': 30, # Original population infedcted
@@ -191,8 +205,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     # Set 'Borders opening' interventions
     if case_to_run == 'scenarios':
         #SET SPECIFIC INFECTIONS
-        start_intervention_date = '2020-09-21'
-        end_intervention_date = end_date
+        start_intervention_date = args.open_borders_date
+        end_intervention_date = args.end_simulation_date
         dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
         params.seed_infections  = utils.generate_seed_infections_dict(start_day, 
                                                                       start_intervention_date,
