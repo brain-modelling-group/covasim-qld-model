@@ -447,7 +447,7 @@ class SeedInfection(cv.Intervention):
             sim.people.infect(inds=target_inds)
 
 
-def generate_seed_infection_dict(sim_start_date, interv_start_day, interv_end_day, **kwargs):
+def generate_seed_infection_dict(sim_start_date, interv_start_date, interv_end_date, **kwargs):
     """
     Returns a dictionary to be passed to SeedInfection
     Args:
