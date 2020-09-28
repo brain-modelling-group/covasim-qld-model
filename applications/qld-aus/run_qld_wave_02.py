@@ -297,7 +297,11 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-    results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.2f}_{args.end_calibration_date}.obj"
+    if args.case == 'calibration':
+        results_path = f"{resultsfolder}/qld_{case_to_run}__{args.end_calibration_date}.obj"
+    else:
+        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.2f}_{args.end_calibration_date}.obj"
+
     
     # Run and plot
     if args.nruns > 1:
