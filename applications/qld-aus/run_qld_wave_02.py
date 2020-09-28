@@ -93,7 +93,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
             'rescale': False,   # Population dynamics rescaling
             'rand_seed': 42,    # Random seed to use
             'rel_death_prob': 0.6,
-            'beta': 0.015, # Overall beta to use for calibration portion of the simulations
+            'beta': 0.03, # Overall beta to use for calibration portion of the simulations
                                     #   H        S       W       C   church   psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
@@ -264,7 +264,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                         start_day=0, do_plot=False))
 
     # Close borders, then open them again to account for Victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [150, 155, 164], 'vals': [2, 0.5, 0.1]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [30, 31, 32, 150, 155, 164], 'vals': [0.01, 0.01, 0.01, 2, 0.5, 0.1]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [30, 31, 32, 150], 'vals': [0.01, 0.01, 0.01, 0.015]}}, do_plot=False))
     sim.initialize()
 
     return sim
