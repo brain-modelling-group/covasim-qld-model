@@ -271,12 +271,12 @@ if __name__ == '__main__':
     resultsfolder = 'results'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
-
+    populationfile = f'{inputsfolder}/qldppl.pop'
 
     # Create instance of simulator
     sim  = make_sim(case_to_run,
                     load_pop=True, 
-                    popfile='qldppl.pop', 
+                    popfile='inputs/qldppl.pop', 
                     datafile=datafile, 
                     agedatafile=agedatafile,
                     input_args = args)
