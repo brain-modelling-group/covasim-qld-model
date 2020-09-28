@@ -460,9 +460,10 @@ def generate_seed_infection_dict(sim_start_date, interv_start_date, interv_end_d
         A dictionary of with number of infections for every day between start and end internvention dates
     """
 
-    start_date_idx = cvm.date(interv_start_date, start_date=sim_start_date, as_date=False)
-    end_date_idx = cvm.date(interv_end_date, start_date=sim_start_date, as_date=False)
-    num_days = end_date_idx-start_date
+    start_date_idx = cvm.day(interv_start_date, start_day=sim_start_date)
+    end_date_idx = cvm.day(interv_end_date, start_day=sim_start_date)
+    import pdb; pdb.set_trace()
+    num_days = end_date_idx-start_date_idx
     
     seeded_infections = cvu.sample(size=num_days, **kwargs)
     seed_infections_dict = {start_date_idx+day_idx: num_infections for (day_idx, num_infections) in zip(range(num_days+1), seeded_infections)}
