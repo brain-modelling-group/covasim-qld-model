@@ -296,7 +296,8 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-    results_path = f'{resultsfolder}/qld_{case_to_run}_{args.dist}_{int(args.par1)}.obj'
+    results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.2f}_{args.end_calibration_date}.obj"
+    
     # Run and plot
     if args.nruns > 1:
         msim = cv.MultiSim(base_sim=sim)
