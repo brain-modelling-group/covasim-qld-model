@@ -22,14 +22,25 @@ import matplotlib.pyplot as plt
 resultsfolder = 'results'
 figsfolder = 'figs'
 
-list_of_files = ['qld_scenarios_poisson_0.00_2020-10-31.obj',
-                 'qld_scenarios_poisson_0.10_2020-10-31.obj',
-                 'qld_scenarios_poisson_0.20_2020-10-31.obj',
-                 'qld_scenarios_poisson_0.30_2020-10-31.obj',
-                 'qld_scenarios_poisson_0.40_2020-10-31.obj',
-                 'qld_scenarios_poisson_0.50_2020-10-31.obj']
+# list_of_files = ['qld_scenarios_poisson_0.00_2020-10-31.obj',
+#                  'qld_scenarios_poisson_0.10_2020-10-31.obj',
+#                  'qld_scenarios_poisson_0.20_2020-10-31.obj',
+#                  'qld_scenarios_poisson_0.30_2020-10-31.obj',
+#                  'qld_scenarios_poisson_0.40_2020-10-31.obj',
+#                  'qld_scenarios_poisson_0.50_2020-10-31.obj']
 
 
+list_of_files = [
+'qld_scenarios_poisson_0.0000_2020-11-30.obj',
+'qld_scenarios_poisson_0.2000_2020-11-30.obj',
+'qld_scenarios_poisson_0.4000_2020-11-30.obj',
+'qld_scenarios_poisson_0.6000_2020-11-30.obj',
+'qld_scenarios_poisson_0.8000_2020-11-30.obj',
+'qld_scenarios_poisson_0.9000_2020-11-30.obj']
+
+
+
+                  
 def format_ax(ax, sim, key=None):
     @ticker.FuncFormatter
     def date_formatter(x, pos):
@@ -70,13 +81,13 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
 
     
     start_day_idx = single_sim.day(start_day)
-    end_day_idx = None
+    end_day_idx = -7
     
     
     pl.fill_between(tvec[start_day_idx:end_day_idx], 
                     low[start_day_idx:end_day_idx], 
-                    high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.008)
-    pl.plot(tvec[start_day_idx:end_day_idx], yarr[:, start_day_idx:end_day_idx].T, c=main_colour, alpha=0.01)
+                    high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.2)
+    pl.plot(tvec[start_day_idx:end_day_idx], yarr[:, start_day_idx:end_day_idx].T, c=main_colour, alpha=0.1)
     pl.plot(tvec[start_day_idx:end_day_idx], 
             halfsies[start_day_idx:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
     
@@ -133,13 +144,14 @@ def date_formatter(x, pos):
 x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 
-colours = ['#fed976', '#feb24c', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026']
+#colours = ['#fed976', '#feb24c', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026']
+colours = ['#006837', '#1a9850', '#66bd63', '#a6d96a', '#d9ef8b', '#fee08b', '#fdae61', '#f46d43', '#d73027', '#a50026']
 
 # Load the data
 for file_idx, this_file in enumerate(list_of_files):
     msim = sc.loadobj(f'{resultsfolder}/{this_file}')
     sims = msim.sims
     format_ax(ax1, sims[0])
-    plotter('new_diagnoses', sims, ax1, label='Model', ylabel='new diagnoses', start_day='2020-07-29', main_colour=colours[file_idx])
+    plotter('new_diagnoses', sims, ax1, label='Model', ylabel='new diagnoses', start_day='2020-03-01', main_colour=colours[file_idx])
 
 plt.show()
