@@ -31,12 +31,12 @@ figsfolder = 'figs'
 
 
 list_of_files = [
-'qld_scenarios_poisson_0.0000_2020-11-30.obj',
-'qld_scenarios_poisson_0.2000_2020-11-30.obj',
-'qld_scenarios_poisson_0.4000_2020-11-30.obj',
-'qld_scenarios_poisson_0.6000_2020-11-30.obj',
-'qld_scenarios_poisson_0.8000_2020-11-30.obj',
-'qld_scenarios_poisson_0.9000_2020-11-30.obj']
+'qld_scenarios_poisson_0.0000_2020-12-31.obj',
+'qld_scenarios_poisson_0.2000_2020-12-31.obj',
+'qld_scenarios_poisson_0.4000_2020-12-31.obj',
+'qld_scenarios_poisson_0.6000_2020-12-31.obj',
+'qld_scenarios_poisson_0.8000_2020-12-31.obj',
+'qld_scenarios_poisson_0.9000_2020-12-31.obj']
 
 
 
