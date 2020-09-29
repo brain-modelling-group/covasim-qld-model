@@ -22,82 +22,79 @@ import matplotlib.pyplot as plt
 resultsfolder = 'results'
 figsfolder = 'figs'
 
-list_of_files = [
-                 # 'qld_calibration_poisson_1.00_2020-07-05.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-06.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-07.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-08.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-09.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-10.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-11.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-12.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-13.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-14.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-15.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-16.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-17.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-18.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-19.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-20.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-21.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-22.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-23.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-24.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-25.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-26.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-27.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-28.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-29.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-30.obj',
-                 # 'qld_calibration_poisson_1.00_2020-07-31.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-01.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-02.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-03.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-04.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-05.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-06.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-07.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-08.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-09.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-10.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-11.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-12.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-13.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-14.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-15.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-16.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-17.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-18.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-19.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-20.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-21.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-22.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-23.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-24.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-25.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-26.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-27.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-28.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-29.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-30.obj',
-                 # 'qld_calibration_poisson_1.00_2020-08-31.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-01.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-02.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-03.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-04.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-05.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-06.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-07.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-08.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-09.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-10.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-11.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-12.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-13.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-14.obj',
-                 # 'qld_calibration_poisson_1.00_2020-09-15.obj',
-                 'qld_calibration_poisson_1.00_2020-09-16.obj']
-
+list_of_files = ['qld_calibration__2020-07-05.obj',
+                 'qld_calibration__2020-07-06.obj',
+                 'qld_calibration__2020-07-07.obj',
+                 'qld_calibration__2020-07-08.obj',
+                 'qld_calibration__2020-07-09.obj',
+                 'qld_calibration__2020-07-10.obj',
+                 'qld_calibration__2020-07-11.obj',
+                 'qld_calibration__2020-07-12.obj',
+                 'qld_calibration__2020-07-13.obj',
+                 'qld_calibration__2020-07-14.obj',
+                 'qld_calibration__2020-07-15.obj',
+                 'qld_calibration__2020-07-16.obj',
+                 'qld_calibration__2020-07-17.obj',
+                 'qld_calibration__2020-07-18.obj',
+                 'qld_calibration__2020-07-19.obj',
+                 'qld_calibration__2020-07-20.obj',
+                 'qld_calibration__2020-07-21.obj',
+                 'qld_calibration__2020-07-22.obj',
+                 'qld_calibration__2020-07-23.obj',
+                 'qld_calibration__2020-07-24.obj',
+                 'qld_calibration__2020-07-25.obj',
+                 'qld_calibration__2020-07-26.obj',
+                 'qld_calibration__2020-07-27.obj',
+                 'qld_calibration__2020-07-28.obj',
+                 'qld_calibration__2020-07-29.obj',
+                 'qld_calibration__2020-07-30.obj',
+                 'qld_calibration__2020-07-31.obj',
+                 'qld_calibration__2020-08-01.obj',
+                 'qld_calibration__2020-08-02.obj',
+                 'qld_calibration__2020-08-03.obj',
+                 'qld_calibration__2020-08-04.obj',
+                 'qld_calibration__2020-08-05.obj',
+                 'qld_calibration__2020-08-06.obj',
+                 'qld_calibration__2020-08-07.obj',
+                 'qld_calibration__2020-08-08.obj',
+                 'qld_calibration__2020-08-09.obj',
+                 'qld_calibration__2020-08-10.obj',
+                 'qld_calibration__2020-08-11.obj',
+                 'qld_calibration__2020-08-12.obj',
+                 'qld_calibration__2020-08-13.obj',
+                 'qld_calibration__2020-08-14.obj',
+                 'qld_calibration__2020-08-15.obj',
+                 'qld_calibration__2020-08-16.obj',
+                 'qld_calibration__2020-08-17.obj',
+                 'qld_calibration__2020-08-18.obj',
+                 'qld_calibration__2020-08-19.obj',
+                 'qld_calibration__2020-08-20.obj',
+                 'qld_calibration__2020-08-21.obj',
+                 'qld_calibration__2020-08-22.obj',
+                 'qld_calibration__2020-08-23.obj',
+                 'qld_calibration__2020-08-24.obj',
+                 'qld_calibration__2020-08-25.obj',
+                 'qld_calibration__2020-08-26.obj',
+                 'qld_calibration__2020-08-27.obj',
+                 'qld_calibration__2020-08-28.obj',
+                 'qld_calibration__2020-08-29.obj',
+                 'qld_calibration__2020-08-30.obj',
+                 'qld_calibration__2020-08-31.obj',
+                 'qld_calibration__2020-09-01.obj',
+                 'qld_calibration__2020-09-02.obj',
+                 'qld_calibration__2020-09-03.obj',
+                 'qld_calibration__2020-09-04.obj',
+                 'qld_calibration__2020-09-05.obj',
+                 'qld_calibration__2020-09-06.obj',
+                 'qld_calibration__2020-09-07.obj',
+                 'qld_calibration__2020-09-08.obj',
+                 'qld_calibration__2020-09-09.obj',
+                 'qld_calibration__2020-09-10.obj',
+                 'qld_calibration__2020-09-11.obj',
+                 'qld_calibration__2020-09-12.obj',
+                 'qld_calibration__2020-09-13.obj',
+                 'qld_calibration__2020-09-14.obj',
+                 'qld_calibration__2020-09-15.obj']
 
 
 def format_ax(ax, sim, key=None):
@@ -145,7 +142,7 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.025, high_q
     
     pl.fill_between(tvec[start_day_idx:end_day_idx], 
                      low[start_day_idx:end_day_idx], 
-                     high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.01)
+                     high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.008)
 
     pl.plot(tvec[start_day_idx:end_day_idx], 
             halfsies[start_day_idx:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
@@ -183,47 +180,6 @@ def plot_intervs(sim, labels=True):
         pl.text(aug05+1, labely, '\nQLD \nborder \nclosed', color=color, alpha=0.9, style='italic')
     return
 
-
-
-#plot_intervs(sim)
-
-# # Load actual data 
-# inputs_folder = 'inputs'
-# input_data = 'qld_epi_data_wave_01_basic_stats.csv'
-
-# # Load data
-# data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
-# xx = data['new_cases'][36:-1]
-
-# #import ipdb; ipdb.set_trace()
-# pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], data['new_cases'][36:-1], c=color, label='epi data', lw=4, alpha=0.5)
-# ax1.set_ylim([0, 100])
-# #Plot diagnoses scenarios
-# x0, y0, dx, dy = xgaps*2.1+mainplotwidth, ygaps*3+1*mainplotheight+subplotheight, subplotwidth, subplotheight
-# ax2 = pl.axes([x0, y0, dx, dy])
-# #format_ax(ax2, sim)
-# @ticker.FuncFormatter
-# def date_formatter(x, pos):
-#     return (dt.date(2020,7,28) + dt.timedelta(days=x)).strftime('%b-%d')
-# ax2.xaxis.set_major_formatter(date_formatter)
-# sc.commaticks()
-# pl.xlim([0, 60])
-# sc.boxoff()
-# tvec = np.arange(60)
-# colors = pl.cm.GnBu([0.9,0.6,0.3])
-# pl.plot(tvec, diagvals[0], c=colors[0],  label=str(julybetas[0]), lw=4, alpha=1.0)
-# pl.plot(tvec, diagvals[1], c=colors[1],  label=str(julybetas[1]), lw=4, alpha=1.0)
-# pl.plot(tvec, diagvals[2], c=colors[2],  label=str(julybetas[2]), lw=4, alpha=1.0)
-# pl.ylabel('Daily diagnoses')
-# sc.setylim()
-# xmin, xmax = ax2.get_xlim()
-# ax2.set_xticks(pl.arange(xmin + 2, xmax, 7))
-# pl.legend(loc='upper left', frameon=False)
-
-
-
-# cv.savefig(f'{figsfolder}/qld_moving_calibration.png', dpi=100)
-
 # Fonts and sizes
 font_size = 20
 pl.rcParams['font.size'] = font_size
@@ -253,6 +209,3 @@ for file_idx, this_file in enumerate(list_of_files):
     tvec, color = plotter('new_diagnoses', sims, ax1, label='Model', ylabel='new diagnoses')
 
 plt.show()
-
-#ax1.xaxis.set_major_formatter(date_formatter)
-#sc.commaticks()
