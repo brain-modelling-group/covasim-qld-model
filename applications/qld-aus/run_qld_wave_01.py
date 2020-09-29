@@ -252,7 +252,7 @@ if __name__ == '__main__':
     if domulti:
         if whattorun == 'calibration':
             sim  = make_sim(whattorun, load_pop=True, 
-                            popfile='qldppl.pop', 
+                            popfile='inputs/qldppl.pop', 
                             datafile=datafile, 
                             agedatafile=agedatafile)
             msim = cv.MultiSim(base_sim=sim)

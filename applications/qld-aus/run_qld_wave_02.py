@@ -281,7 +281,6 @@ if __name__ == '__main__':
     # Settings
     
     case_to_run    = args.case
-  
     # Filepaths
     inputsfolder = 'inputs'
     resultsfolder = 'results'
