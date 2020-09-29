@@ -299,7 +299,7 @@ if __name__ == '__main__':
     if args.case == 'calibration':
         results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}.obj"
     else:
-        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.2f}_{args.end_simulation_date}.obj"
+        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.4f}_{args.end_simulation_date}.obj"
 
     
     # Run and plot
