@@ -36,7 +36,9 @@ list_of_files = [
 'qld_scenarios_poisson_0.4000_2020-12-31.obj',
 'qld_scenarios_poisson_0.6000_2020-12-31.obj',
 'qld_scenarios_poisson_0.8000_2020-12-31.obj',
-'qld_scenarios_poisson_0.9000_2020-12-31.obj']
+'qld_scenarios_poisson_1.0000_2020-12-31.obj',
+'qld_scenarios_poisson_1.2000_2020-12-31.obj',
+'qld_scenarios_poisson_1.4000_2020-12-31.obj']
 
 
 
@@ -81,15 +83,18 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
 
     
     start_day_idx = single_sim.day(start_day)
+    start_day_fill = single_sim.day('2020-07-29')
     end_day_idx = -7
     
     
-    pl.fill_between(tvec[start_day_idx:end_day_idx], 
-                    low[start_day_idx:end_day_idx], 
-                    high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.2)
-    pl.plot(tvec[start_day_idx:end_day_idx], yarr[:, start_day_idx:end_day_idx].T, c=main_colour, alpha=0.1)
-    pl.plot(tvec[start_day_idx:end_day_idx], 
-            halfsies[start_day_idx:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
+    pl.fill_between(tvec[start_day_fill:end_day_idx], 
+                    low[start_day_fill:end_day_idx], 
+                    high[start_day_fill:end_day_idx], facecolor=main_colour, alpha=0.2)
+
+    pl.plot(tvec[start_day_fill:end_day_idx], yarr[:, start_day_fill:end_day_idx].T, c=main_colour, alpha=0.1)
+    pl.plot(tvec[start_day_idx:start_day_fill+1], yarr[:, start_day_idx:start_day_fill+1].T, c=[0.0, 0.0, 0.0], alpha=0.05)
+
+    pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
     
     sc.setylim()
     xmin, xmax = ax.get_xlim()
@@ -145,7 +150,7 @@ x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 
 #colours = ['#fed976', '#feb24c', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026']
-colours = ['#006837', '#1a9850', '#66bd63', '#a6d96a', '#d9ef8b', '#fee08b', '#fdae61', '#f46d43', '#d73027', '#a50026']
+colours = ['#006837', '#1a9850', '#66bd63', '#a6d96a', '#fdae61', '#f46d43', '#d73027', '#a50026']
 
 # Load the data
 for file_idx, this_file in enumerate(list_of_files):
