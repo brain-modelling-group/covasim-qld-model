@@ -5,5 +5,5 @@
 for x in {1..10}; do
     THIS_NUMBER=`bc <<< "scale=1; $x/20"`
     #echo $THIS_NUMBER
-    python run_qld_wave_02.py --nruns 100 --case scenarios --par1 $THIS_NUMBER 
+    python run_qld_wave_02.py --nruns 10 --case scenarios --par1 $THIS_NUMBER --end_simulation_date '2020-11-30'
 done
