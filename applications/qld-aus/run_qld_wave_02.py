@@ -267,7 +267,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
 
     # Close borders, then open them again to account for Victorian imports and leaky quarantine
     sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [30, 31, 32, 150, 155, 164], 'vals': [0.01, 0.01, 0.01, 2, 0.5, 0.1]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [30, 31, 32, 150], 'vals': [0.01, 0.01, 0.01, 0.03]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [30, 31, 32, 150, 170], 'vals': [0.01, 0.01, 0.01, 0.02, 0.03]}}, do_plot=False))
     sim.initialize()
 
     return sim
