@@ -36,7 +36,7 @@ parser.add_argument('--case', default='scenarios',
                                       "calibration" or "scenarios". The former 
                                       stops on the last day of epi data available 
                                       (currently 2020-09-15). The latter performs 
-                                      calibration and continues simulation until 2020-10-31''')
+                                      calibration and continues simulation until 2020-10-31.''')
 
 parser.add_argument('--dist', default='poisson', 
                               type=str, 
@@ -45,25 +45,25 @@ parser.add_argument('--dist', default='poisson',
 
 parser.add_argument('--par1', default=1.0, 
                               type=float, 
-                              help=''' the "main" distribution parameter (e.g. mean)''')
+                              help=''' The "main" distribution parameter (e.g. mean).''')
 
 parser.add_argument('--par2', default=1.0, 
                               type=float, 
-                              help='''the "secondary" distribution parameter (e.g. std)''')
+                              help='''The "secondary" distribution parameter (e.g. std).''')
 
 parser.add_argument('--open_borders_date', default='2020-09-21', 
                               type=str, 
-                              help='''The date at which borders are open.''')
+                              help='''The date at which borders are open (eg, '2020-09-21').''')
 
 
 parser.add_argument('--end_calibration_date', default='2020-09-15', 
                               type=str, 
-                              help='''The date at which calibration finishes.''')
+                              help='''The date at which calibration finishes (eg, '2020-09-15'). ''')
 
 
 parser.add_argument('--end_simulation_date', default='2020-10-31', 
                               type=str, 
-                              help='''The date at which to stop simulation.''')
+                              help='''The date at which to stop simulation (eg, 2020-12-31).''')
 
 args = parser.parse_args()
 
