@@ -56,9 +56,9 @@ parser.add_argument('--open_borders_date', default='2020-09-21',
                               help='''The date at which borders are open (eg, '2020-09-21').''')
 
 
-parser.add_argument('--end_calibration_date', default='2020-09-15', 
+parser.add_argument('--end_calibration_date', default='2020-09-30', 
                               type=str, 
-                              help='''The date at which calibration finishes (eg, '2020-09-15'). ''')
+                              help='''The date at which calibration finishes (default, '2020-09-30'). ''')
 
 
 parser.add_argument('--end_simulation_date', default='2020-10-31', 
