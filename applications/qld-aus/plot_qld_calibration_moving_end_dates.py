@@ -146,6 +146,9 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.025, high_q
 
     pl.plot(tvec[start_day_idx:end_day_idx], 
             halfsies[start_day_idx:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
+    pl.bar(tvec[start_day_idx:end_day_idx], 
+            halfsies[start_day_idx:end_day_idx], color=main_colour, label=label, alpha=0.4)
+    
     
     sc.setylim()
     xmin, xmax = ax.get_xlim()

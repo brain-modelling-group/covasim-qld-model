@@ -224,8 +224,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     symp_prob_prelockdown_02 = 0.2  # Increased testing right before lockdown
     symp_prob_lockdown = 0.35       # Increased testing during lockdown
     symp_prob_postlockdown = 0.5    # Testing since lockdown
-    sim.pars['interventions'].append(cv.test_prob(start_day=0, 
-                                                  end_day=lockdown00, 
+    sim.pars['interventions'].append(cv.test_prob(start_day=start_day, 
+                                                  end_day='2020-03-10', 
                                                   symp_prob=symp_prob_prelockdown, 
                                                   asymp_quar_prob=0.001, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown00, 
