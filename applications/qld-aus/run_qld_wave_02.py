@@ -221,11 +221,12 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     # Testing
     # Testing
     symp_prob_prelockdown = 0.05    # Limited testing pre lockdown
-    symp_prob_prelockdown_01 = 0.08 # 
-    symp_prob_prelockdown_02 = 0.15 #
-    symp_prob_prelockdown_03 = 0.2 #
+    symp_prob_prelockdown_01 = 0.1 # 
+    symp_prob_prelockdown_02 = 0.2 #
+    symp_prob_prelockdown_03 = 0.4 #
+    symp_prob_prelockdown_03 = 0.5 #
     symp_prob_lockdown = 0.3       # Increased testing during lockdown
-    symp_prob_postlockdown = 0.5   # Testing since lockdown
+    symp_prob_postlockdown = 0.35   # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=start_day, 
                                                   end_day='2020-03-10', 
                                                   symp_prob=symp_prob_prelockdown, 
@@ -247,6 +248,12 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                   asymp_quar_prob=0.001, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-24', 
+                                                  end_day= '2020-03-28', 
+                                                  symp_prob=symp_prob_prelockdown_04, 
+                                                  asymp_quar_prob=0.001, do_plot=False))
+
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-28', 
                                                   end_day=reopen01, 
                                                   symp_prob=symp_prob_lockdown, 
                                                   asymp_quar_prob=0.001,do_plot=False))
