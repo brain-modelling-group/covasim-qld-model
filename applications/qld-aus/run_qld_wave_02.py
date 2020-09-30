@@ -265,9 +265,20 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                         trace_time=trace_time, 
                                                         start_day=0, do_plot=False))
 
-    # Close borders, then open them again to account for Victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [30, 31, 32, 150, 155, 164], 'vals': [0.01, 0.01, 0.01, 2, 0.5, 0.1]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [30, 31, 32, 150, 200], 'vals': [0.01, 0.01, 0.01, 0.02, 0.03]}}, do_plot=False))
+    # Add known infections from Victoria and the cluster in the youth centre in brisbane
+    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
+
+    # Close borders, then open them again to account for victorian imports and leaky quarantine
+    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
+                                                                             sim.day('2020-07-10'), 
+                                                                             sim.day('2020-08-08'), 
+                                                                             sim.day('2020-09-23'), 
+                                                                             sim.day('2020-09-25')], 
+                                                                    'vals': [0.01, 0.5, 0.01, 0.02, 0.03]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), 
+                                                                        sim.day('2020-07-29'), 
+                                                                        sim.day('2020-09-30')], 
+                                                                'vals': [0.01, 0.02, 0.03]}}, do_plot=False))
     sim.initialize()
 
     return sim
