@@ -142,7 +142,7 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.025, high_q
     
     pl.fill_between(tvec[start_day_idx:end_day_idx], 
                      low[start_day_idx:end_day_idx], 
-                     high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.008)
+                     high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.1)
 
     pl.plot(tvec[start_day_idx:end_day_idx], 
             halfsies[start_day_idx:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
@@ -223,6 +223,8 @@ start_idx = sims[0].day('2020-01-25')
 xx = data['new_cases'][-start_idx:]
 #import pdb; pdb.set_trace()
 
-pl.bar(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, color='b', label='epi data', alpha=0.4)
+#pl.bar(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, color='b', label='epi data', alpha=0.4)
+pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, c='b', lw=4,label='epi data', alpha=0.4)
+
 ax1.set_ylim([0, 100])
 plt.show()
