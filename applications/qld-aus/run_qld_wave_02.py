@@ -87,12 +87,12 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     elif case_to_run == 'scenarios':
         end_day = args.end_simulation_date
 
-    pars = {'pop_size': 200e3,  # Population size
-            'pop_infected': 30, # Original population infedcted
-            'pop_scale': 1,     # Population scale
-            'rescale': False,   # Population dynamics rescaling
-            'rand_seed': 42,    # Random seed to use
-            'rel_death_prob': 0.6,
+    pars = {'pop_size': 200e3,    # Population size
+            'pop_infected': 30,   # Original population infedcted
+            'pop_scale': 1,       # Population scale
+            'rescale': False,     # Population dynamics rescaling
+            'rand_seed': 42,      # Random seed to use
+            'rel_death_prob': 0.6,#
             'beta': 0.03, # Overall beta to use for calibration portion of the simulations
                                     #   H        S       W       C   church   psport  csport  ent     cafe    pub     trans   park    event   soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
