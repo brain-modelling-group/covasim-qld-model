@@ -51,7 +51,7 @@ parser.add_argument('--par2', default=1.0,
                               type=float, 
                               help='''The "secondary" distribution parameter (e.g. std).''')
 
-parser.add_argument('--open_borders_date', default='2020-09-21', 
+parser.add_argument('--open_borders_date', default='2020-10-01', 
                               type=str, 
                               help='''The date at which borders are open (eg, '2020-09-21').''')
 
