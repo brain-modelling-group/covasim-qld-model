@@ -274,7 +274,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                              sim.day('2020-08-08'), 
                                                                              sim.day('2020-09-23'),  # QLD/NSW Border population
                                                                              sim.day('2020-09-25')], # ACT
-                                                                    'vals': [0.01, 0.5, 0.01, 0.02, 0.03]}}, do_plot=False))
+                                                                    'vals': [0.01, 0.5, 0.01, 0.02, 0.02]}}, do_plot=False))
     sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), 
                                                                         sim.day('2020-07-29'), 
                                                                         sim.day('2020-09-30')], 
