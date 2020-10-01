@@ -301,13 +301,12 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     # Close borders, then open them again to account for victorian imports and leaky quarantine
     sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
                                                                              sim.day('2020-07-10'), 
-                                                                             sim.day('2020-08-08'), 
+                                                                             sim.day('2020-08-08'),
                                                                              sim.day('2020-09-23'),  # QLD/NSW Border population
                                                                              sim.day('2020-09-25')], # ACT
-                                                                    'vals': [0.01, 0.5, 0.01, 0.011, 0.015]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), 
-                                                                        sim.day('2020-09-30')], 
-                                                                'vals': [0.01, 0.01]}}, do_plot=False))
+                                                                    'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30')], 
+                                                                'vals': [0.01]}}, do_plot=False))
     sim.initialize()
 
     return sim
