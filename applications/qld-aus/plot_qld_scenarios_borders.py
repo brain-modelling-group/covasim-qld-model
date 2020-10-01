@@ -29,28 +29,22 @@ figsfolder = 'figs'
 #                  'qld_scenarios_poisson_0.40_2020-10-31.obj',
 #                  'qld_scenarios_poisson_0.50_2020-10-31.obj']
 
-
 list_of_files = [
-'qld_scenarios_poisson_0.0000_2020-12-31.obj',
-'qld_scenarios_poisson_0.2000_2020-12-31.obj',
-'qld_scenarios_poisson_0.4000_2020-12-31.obj',
-'qld_scenarios_poisson_0.6000_2020-12-31.obj',
-'qld_scenarios_poisson_0.8000_2020-12-31.obj',
-'qld_scenarios_poisson_1.0000_2020-12-31.obj',
-'qld_scenarios_poisson_1.2000_2020-12-31.obj',
-'qld_scenarios_poisson_1.4000_2020-12-31.obj']
+'qld_calibration_2020-10-31_00.obj',
+'qld_calibration_2020-10-31_01.obj',
+'qld_calibration_2020-10-31_02.obj']
 
 
 
                   
-def format_ax(ax, sim, key=None):
+def format_ax(ax, sim, start_day_idx=0, key=None):
     @ticker.FuncFormatter
     def date_formatter(x, pos):
         return (sim['start_day'] + dt.timedelta(days=x)).strftime('%b-%d')
     ax.xaxis.set_major_formatter(date_formatter)
     if key != 'r_eff':
         sc.commaticks()
-    pl.xlim([0, sim['n_days']+10])
+    pl.xlim([start_day_idx, sim['n_days']+10])
     sc.boxoff()
     return
 
@@ -83,8 +77,8 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
 
     
     start_day_idx = single_sim.day(start_day)
-    start_day_fill = single_sim.day('2020-07-29')
-    end_day_idx = -7
+    start_day_fill = single_sim.day('2020-10-01')
+    end_day_idx = -1
     
     
     pl.fill_between(tvec[start_day_fill:end_day_idx], 
@@ -156,7 +150,7 @@ colours = ['#006837', '#1a9850', '#66bd63', '#a6d96a', '#fdae61', '#f46d43', '#d
 for file_idx, this_file in enumerate(list_of_files):
     msim = sc.loadobj(f'{resultsfolder}/{this_file}')
     sims = msim.sims
-    format_ax(ax1, sims[0])
-    plotter('new_diagnoses', sims, ax1, label='Model', ylabel='new diagnoses', start_day='2020-03-01', main_colour=colours[file_idx])
+    format_ax(ax1, sims[0], start_day_idx=sims[0].day('2020-09-15'))
+    plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel='new diagnoses', start_day='2020-09-15', main_colour=colours[file_idx])
 
 plt.show()
