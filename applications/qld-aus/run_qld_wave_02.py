@@ -345,7 +345,7 @@ if __name__ == '__main__':
                     input_args = args)
 
     if args.case == 'calibration':
-        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}.obj"
+        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}_{args.cluster_size:02d}.obj"
     else:
         results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.4f}_{args.end_simulation_date}.obj"
 
