@@ -51,6 +51,11 @@ parser.add_argument('--par2', default=1.0,
                               type=float, 
                               help='''The "secondary" distribution parameter (e.g. std).''')
 
+
+parser.add_argument('--cluster_size', default=0, 
+                              type=int, 
+                              help='''The number of infected people entering QLD community on a given date (default, 2020-01-10)''')
+
 parser.add_argument('--open_borders_date', default='2020-10-01', 
                               type=str, 
                               help='''The date at which borders are open (eg, '2020-09-21').''')
@@ -297,6 +302,10 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
 
     # Add known infections from Victoria and the cluster in the youth centre in brisbane
     sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
+
+    # Test cluster size ie, number of infections arriging at one on a given date
+    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
+
 
     # Close borders, then open them again to account for victorian imports and leaky quarantine
     sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
