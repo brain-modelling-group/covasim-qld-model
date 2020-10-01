@@ -109,7 +109,7 @@ def format_ax(ax, sim, key=None):
     return
 
 
-def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.025, high_q=0.975, flabel=True, start_day=None, subsample=2, choose_run=0):
+def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.01, high_q=0.99, flabel=True, start_day=None, subsample=2, choose_run=0):
 
     main_colour = [31/255.0, 120/255.0, 180/255.0]  
     
@@ -120,7 +120,7 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.025, high_q
     yarr = np.array(ys)
 
      # Moving average over X-days
-    num_days = 3
+    num_days = 7
     for idx in range(yarr.shape[0]):
         yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
@@ -147,12 +147,12 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.025, high_q
     
     pl.fill_between(tvec[start_day_idx:end_day_idx], 
                      low[start_day_idx:end_day_idx], 
-                     high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.2)
+                     high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.3)
 
     pl.plot(tvec[start_day_idx:end_day_idx], 
             halfsies[start_day_idx:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
-    pl.bar(tvec[start_day_idx:end_day_idx], 
-            halfsies[start_day_idx:end_day_idx], color=main_colour, label=label, alpha=0.4)
+    #pl.bar(tvec[start_day_idx:end_day_idx], 
+    #        halfsies[start_day_idx:end_day_idx], color=main_colour, label=label, alpha=0.4)
     
     
     sc.setylim()
@@ -216,7 +216,7 @@ for file_idx, this_file in enumerate(list_of_files):
     msim = sc.loadobj(f'{resultsfolder}/{this_file}')
     sims = msim.sims
     format_ax(ax1, sims[0])
-    tvec, color = plotter('new_diagnoses', sims, ax1, label='Model', ylabel='new diagnoses')
+    tvec, color = plotter('new_diagnoses', sims, ax1, label='model data', ylabel='new diagnoses')
 
 # Plot empirical data
 inputs_folder = 'inputs'
@@ -226,12 +226,13 @@ input_data = 'qld_epi_data_wave_01_basic_stats.csv'
 data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 start_idx = sims[0].day('2020-01-25')
 xx = data['new_cases'][-start_idx:]
-num_days = 3
+num_days = 7
 xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
 #import pdb; pdb.set_trace()
 
 #pl.bar(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, color='b', label='epi data', alpha=0.4)
-pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, c='b', lw=4,label='epi data', alpha=0.4)
+pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, c='b', lw=2,label='empirical data', alpha=1)
+pl.legend(loc='upper right', frameon=False)
 
-ax1.set_ylim([0, 200])
+ax1.set_ylim([0, 130])
 plt.show()
