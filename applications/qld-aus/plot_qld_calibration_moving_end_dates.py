@@ -119,6 +119,11 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.025, high_q
         ys.append(this_sim.results[key].values)
     yarr = np.array(ys)
 
+     # Moving average over X-days
+    num_days = 3
+    for idx in range(yarr.shape[0]):
+        yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
+
     if choose_run is not None:
         single_sim = sims[choose_run].results[key].values
 
@@ -142,7 +147,7 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.025, high_q
     
     pl.fill_between(tvec[start_day_idx:end_day_idx], 
                      low[start_day_idx:end_day_idx], 
-                     high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.1)
+                     high[start_day_idx:end_day_idx], facecolor=main_colour, alpha=0.2)
 
     pl.plot(tvec[start_day_idx:end_day_idx], 
             halfsies[start_day_idx:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
@@ -221,10 +226,12 @@ input_data = 'qld_epi_data_wave_01_basic_stats.csv'
 data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 start_idx = sims[0].day('2020-01-25')
 xx = data['new_cases'][-start_idx:]
+num_days = 3
+xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
 #import pdb; pdb.set_trace()
 
 #pl.bar(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, color='b', label='epi data', alpha=0.4)
 pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, c='b', lw=4,label='epi data', alpha=0.4)
 
-ax1.set_ylim([0, 100])
+ax1.set_ylim([0, 200])
 plt.show()
