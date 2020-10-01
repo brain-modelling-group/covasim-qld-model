@@ -81,7 +81,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
               'large_events', 
               'social']
     # Dates
-    start_day = '2020-02-15'
+    start_day = '2020-02-20'
     if case_to_run == 'calibration':
         end_day = args.end_calibration_date
     elif case_to_run == 'scenarios':
