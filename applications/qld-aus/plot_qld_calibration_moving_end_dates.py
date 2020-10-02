@@ -96,7 +96,7 @@ figsfolder = 'figs'
 #                  'qld_calibration__2020-09-14.obj',
 #                  'qld_calibration__2020-09-15.obj']
 
-list_of_files = ['qld_calibration_2020-10-31.obj']
+list_of_files = ['qld_calibration_2020-10-15_00.obj']
 def format_ax(ax, sim, key=None):
     @ticker.FuncFormatter
     def date_formatter(x, pos):
@@ -120,7 +120,7 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.01, high_q=
     yarr = np.array(ys)
 
      # Moving average over X-days
-    num_days = 7
+    num_days = 14
     for idx in range(yarr.shape[0]):
         yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
@@ -226,7 +226,7 @@ input_data = 'qld_epi_data_wave_01_basic_stats.csv'
 data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 start_idx = sims[0].day('2020-01-25')
 xx = data['new_cases'][-start_idx:]
-num_days = 7
+num_days = 14
 xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
 #import pdb; pdb.set_trace()
 
