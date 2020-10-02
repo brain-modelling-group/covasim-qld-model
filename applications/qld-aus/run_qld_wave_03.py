@@ -149,7 +149,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     borders02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
     borders03 ='2020-09-25'  # borders open to ACT
     borders04 ='2020-09-23'  # borders open to some parts of NSW
-    parks02 =  
+    parks02 =  '2020-09-02'  
 
     # Updates november onwards
     pubs01 = '2020-10-02'     # eat and drink while standing
