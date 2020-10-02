@@ -22,18 +22,50 @@ import matplotlib.pyplot as plt
 resultsfolder = 'results'
 figsfolder = 'figs'
 
-# list_of_files = ['qld_scenarios_poisson_0.00_2020-10-31.obj',
-#                  'qld_scenarios_poisson_0.10_2020-10-31.obj',
-#                  'qld_scenarios_poisson_0.20_2020-10-31.obj',
-#                  'qld_scenarios_poisson_0.30_2020-10-31.obj',
-#                  'qld_scenarios_poisson_0.40_2020-10-31.obj',
-#                  'qld_scenarios_poisson_0.50_2020-10-31.obj']
-
 list_of_files = [
-'qld_calibration_2020-10-31_00.obj',
-'qld_calibration_2020-10-31_01.obj',
-'qld_calibration_2020-10-31_02.obj']
-
+'qld_scenarios_poisson_0.0000_2020-12-31.obj',
+'qld_scenarios_poisson_0.1000_2020-12-31.obj',
+'qld_scenarios_poisson_0.2000_2020-12-31.obj',
+'qld_scenarios_poisson_0.3000_2020-12-31.obj',
+'qld_scenarios_poisson_0.4000_2020-12-31.obj',
+'qld_scenarios_poisson_0.5000_2020-12-31.obj',
+'qld_scenarios_poisson_0.6000_2020-12-31.obj',
+'qld_scenarios_poisson_0.7000_2020-12-31.obj',
+'qld_scenarios_poisson_0.8000_2020-12-31.obj',
+'qld_scenarios_poisson_0.9000_2020-12-31.obj',
+'qld_scenarios_poisson_1.0000_2020-12-31.obj',
+'qld_scenarios_poisson_1.1000_2020-12-31.obj',
+'qld_scenarios_poisson_1.2000_2020-12-31.obj',
+'qld_scenarios_poisson_1.3000_2020-12-31.obj',
+'qld_scenarios_poisson_1.4000_2020-12-31.obj',
+'qld_scenarios_poisson_1.5000_2020-12-31.obj',
+'qld_scenarios_poisson_1.6000_2020-12-31.obj',
+'qld_scenarios_poisson_1.7000_2020-12-31.obj',
+'qld_scenarios_poisson_1.8000_2020-12-31.obj',
+'qld_scenarios_poisson_1.9000_2020-12-31.obj',
+'qld_scenarios_poisson_2.0000_2020-12-31.obj',
+'qld_scenarios_poisson_2.1000_2020-12-31.obj',
+'qld_scenarios_poisson_2.2000_2020-12-31.obj',
+'qld_scenarios_poisson_2.3000_2020-12-31.obj',
+'qld_scenarios_poisson_2.4000_2020-12-31.obj',
+'qld_scenarios_poisson_2.5000_2020-12-31.obj',
+'qld_scenarios_poisson_2.6000_2020-12-31.obj',
+'qld_scenarios_poisson_2.7000_2020-12-31.obj',
+'qld_scenarios_poisson_2.8000_2020-12-31.obj',
+'qld_scenarios_poisson_2.9000_2020-12-31.obj',
+'qld_scenarios_poisson_3.0000_2020-12-31.obj',
+'qld_scenarios_poisson_3.1000_2020-12-31.obj',
+'qld_scenarios_poisson_3.2000_2020-12-31.obj',
+'qld_scenarios_poisson_3.3000_2020-12-31.obj',
+'qld_scenarios_poisson_3.4000_2020-12-31.obj',
+'qld_scenarios_poisson_3.5000_2020-12-31.obj',
+'qld_scenarios_poisson_3.6000_2020-12-31.obj',
+'qld_scenarios_poisson_3.7000_2020-12-31.obj',
+'qld_scenarios_poisson_3.8000_2020-12-31.obj',
+'qld_scenarios_poisson_3.9000_2020-12-31.obj',
+'qld_scenarios_poisson_4.0000_2020-12-31.obj',
+'qld_scenarios_poisson_4.1000_2020-12-31.obj',
+'qld_scenarios_poisson_4.2000_2020-12-31.obj']
 
 
                   
@@ -44,7 +76,7 @@ def format_ax(ax, sim, start_day_idx=0, key=None):
     ax.xaxis.set_major_formatter(date_formatter)
     if key != 'r_eff':
         sc.commaticks()
-    pl.xlim([start_day_idx, sim['n_days']+10])
+    pl.xlim([start_day_idx, sim['n_days']-7])
     sc.boxoff()
     return
 
@@ -81,14 +113,14 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
     end_day_idx = -1
     
     
-    pl.fill_between(tvec[start_day_fill:end_day_idx], 
-                    low[start_day_fill:end_day_idx], 
-                    high[start_day_fill:end_day_idx], facecolor=main_colour, alpha=0.2)
+    #pl.fill_between(tvec[start_day_fill:end_day_idx], 
+    #                low[start_day_fill:end_day_idx], 
+    #                high[start_day_fill:end_day_idx], facecolor=main_colour, alpha=0.2)
 
     pl.plot(tvec[start_day_fill:end_day_idx], yarr[:, start_day_fill:end_day_idx].T, c=main_colour, alpha=0.1)
     pl.plot(tvec[start_day_idx:start_day_fill+1], yarr[:, start_day_idx:start_day_fill+1].T, c=[0.0, 0.0, 0.0], alpha=0.05)
 
-    pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=2, alpha=0.7)
+    pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=1, alpha=0.7)
     
     sc.setylim()
     xmin, xmax = ax.get_xlim()
@@ -144,13 +176,19 @@ x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 
 #colours = ['#fed976', '#feb24c', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026']
-colours = ['#006837', '#1a9850', '#66bd63', '#a6d96a', '#fdae61', '#f46d43', '#d73027', '#a50026']
+#colours = ['#006837', '#1a9850', '#66bd63', '#a6d96a', '#fdae61', '#f46d43', '#d73027', '#a50026']
+
+
+import matplotlib.cm as cm                                                                                                                                       
+cmap = cm.get_cmap('Spectral_r')     
+
 
 # Load the data
 for file_idx, this_file in enumerate(list_of_files):
     msim = sc.loadobj(f'{resultsfolder}/{this_file}')
     sims = msim.sims
     format_ax(ax1, sims[0], start_day_idx=sims[0].day('2020-09-15'))
-    plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel='new diagnoses', start_day='2020-09-15', main_colour=colours[file_idx])
-
+    main_colour =  list(cmap(file_idx/len(list_of_files)))[0:-1]
+    plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel='new diagnoses', start_day='2020-09-15', main_colour=main_colour)
+plt.ylim([0, 30])
 plt.show()
