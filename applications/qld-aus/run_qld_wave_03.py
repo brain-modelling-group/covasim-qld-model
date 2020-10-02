@@ -153,7 +153,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
 
     # Updates november onwards
     pubs01 = '2020-10-02'     # eat and drink while standing
-    gatherings01 '2020-11-01' # up to 40 people will be able to gather in homes and public spaces in Queensland.
+    gatherings01 = '2020-11-01' # up to 40 people will be able to gather in homes and public spaces in Queensland.
     gatherings02 = '2020-12-01' # up to 50 ppl homes and public spaces
     borders05 = '2020-11-01'    # borders open to NSW ppl unrestricted 
  
