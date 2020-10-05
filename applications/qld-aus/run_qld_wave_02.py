@@ -54,7 +54,7 @@ parser.add_argument('--par2', default=1.0,
 
 parser.add_argument('--cluster_size', default=0, 
                               type=int, 
-                              help='''The number of infected people entering QLD community on a given date (default, 2020-01-10)''')
+                              help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
 parser.add_argument('--open_borders_date', default='2020-10-01', 
                               type=str, 
@@ -99,7 +99,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
             'beta': 0.025,         # Overall beta to use for calibration portion of the simulations
-                                    #   H        S       W       C   church   psport  csport  ent     cafe    pub     trans   park    event   soc
+                                    #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,     0.0,    0.0,    0.1,    0.00,   0.0,     0.0,     0.0,    0.00,   0.00,    0.00,    0.00,      0.00,   0.0], index=layers).to_dict(),
@@ -142,8 +142,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     schools   = ['2020-03-30', '2020-05-25']
     # shut borders again
     borders02 ='2020-08-05'  # effective border closure NSW, VIC, ACT
-    borders03 ='2020-09-11'  # borders open to ACT
-    borders04 ='2020-09-22'  # borders open to some parts of NSW
+    borders03 ='2020-09-25'  # borders open to ACT
+    borders04 ='2020-09-23'  # borders open to some parts of NSW
 
 
     beta_ints = [cv.clip_edges(days=[response00, response01]+schools, 
@@ -314,8 +314,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                              sim.day('2020-09-23'),  # QLD/NSW Border population
                                                                              sim.day('2020-09-25')], # ACT
                                                                     'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30')], 
-                                                                'vals': [0.01]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
+                                                               'vals': [0.01, 0.015]}}, do_plot=False))
     sim.initialize()
 
     return sim
