@@ -208,7 +208,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                 layers=['pub_bar'], do_plot=False),
                  
                  cv.change_beta(days=[lockdown00, borders00, borders01, borders02], 
-                                changes=[0.5, 0.4, 0.5, 0.2], 
+                                changes=[0.5, 0.4, 0.5, 0.8], 
                                 layers=['transport'], do_plot=False),
                  
                  cv.change_beta(days=[outdoors00, parks00, parks01, parks02], 
