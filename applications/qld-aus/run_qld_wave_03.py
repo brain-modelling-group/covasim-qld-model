@@ -313,8 +313,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                     'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
 
     # Overall decreased transmissibility due to distancing, noncompulsury maskwearing, covid safe practices
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30')], 
-                                                               'vals': [0.01]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-10-01'), sim.day('2020-11-01'), sim.day('2020-12-01')], 
+                                                               'vals': [0.01, 0.0125, 0.015, 0.0175]}}, do_plot=False))
 
     # Set 'Borders opening' interventions
     if case_to_run == 'scenarios':
