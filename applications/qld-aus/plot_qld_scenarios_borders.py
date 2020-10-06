@@ -19,7 +19,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
 # Filepaths
-resultsfolder = 'results_gt_0-025_eos_2020-12-31'
+resultsfolder = 'results'
 figsfolder = 'figs'
 
 # list_of_files = [
@@ -91,28 +91,40 @@ figsfolder = 'figs'
 # 'qld_scenarios_poisson_20.0000_2020-12-31.obj']
 
 
-list_of_files = [
-'qld_scenarios_poisson_0.0000_2020-12-31.obj',
-'qld_scenarios_poisson_1.0000_2020-12-31.obj',
-'qld_scenarios_poisson_2.0000_2020-12-31.obj',
-'qld_scenarios_poisson_3.0000_2020-12-31.obj',
-'qld_scenarios_poisson_4.0000_2020-12-31.obj',
-'qld_scenarios_poisson_5.0000_2020-12-31.obj',
-'qld_scenarios_poisson_6.0000_2020-12-31.obj',
-'qld_scenarios_poisson_7.0000_2020-12-31.obj',
-'qld_scenarios_poisson_8.0000_2020-12-31.obj',
-'qld_scenarios_poisson_9.0000_2020-12-31.obj',
-'qld_scenarios_poisson_10.0000_2020-12-31.obj',
-'qld_scenarios_poisson_11.0000_2020-12-31.obj',
-'qld_scenarios_poisson_12.0000_2020-12-31.obj',
-'qld_scenarios_poisson_13.0000_2020-12-31.obj',
-'qld_scenarios_poisson_14.0000_2020-12-31.obj',
-'qld_scenarios_poisson_15.0000_2020-12-31.obj',
-'qld_scenarios_poisson_16.0000_2020-12-31.obj',
-'qld_scenarios_poisson_17.0000_2020-12-31.obj',
-'qld_scenarios_poisson_18.0000_2020-12-31.obj',
-'qld_scenarios_poisson_19.0000_2020-12-31.obj',
-'qld_scenarios_poisson_20.0000_2020-12-31.obj']
+# list_of_files = [
+# 'qld_scenarios_poisson_0.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_1.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_2.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_3.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_4.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_5.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_6.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_7.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_8.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_9.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_10.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_11.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_12.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_13.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_14.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_15.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_16.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_17.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_18.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_19.0000_2020-12-31.obj',
+# 'qld_scenarios_poisson_20.0000_2020-12-31.obj']
+
+list_of_files = ['qld_scenarios_poisson_0.0000_2021-01-31.obj', 
+                 'qld_scenarios_poisson_1.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_2.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_3.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_4.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_5.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_6.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_7.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_8.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_9.0000_2021-01-31.obj',
+                 'qld_scenarios_poisson_10.0000_2021-01-31.obj']
 
 #list_of_files = ['qld_scenarios_poisson_0.0000_2021-01-15.obj']
 
@@ -222,7 +234,7 @@ import matplotlib as mpl
 num_cases = len(list_of_files)                                                                                                                                      
 cmap = cm.get_cmap('Spectral_r', num_cases+1)
 
-norm_cbar = mpl.colors.Normalize(vmin=0,vmax=21)     
+norm_cbar = mpl.colors.Normalize(vmin=0,vmax=num_cases)     
 
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm_cbar)
 sm.set_array([])
@@ -237,8 +249,8 @@ for file_idx, this_file in enumerate(list_of_files):
 plt.ylim([0, 30])
 
 plot_intervs(sims[0])
-cbar = plt.colorbar(sm, ticks=np.linspace(0.5, 20.5, num_cases), 
-                        boundaries=np.arange(0, 22, 1))
+cbar = plt.colorbar(sm, ticks=np.linspace(0.5, num_cases-0.5, num_cases), 
+                        boundaries=np.arange(0, num_cases+1, 1))
 
 cbar_labels = [str(label) for label in range(num_cases)]
 cbar.ax.get_yaxis().labelpad = 20
