@@ -24,12 +24,19 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
     """
     location = 'QLD'
     db_name  = 'input_data_Australia'
-    epi_name = 'epi_data_Australia' # Not sure why epi datafile needs to be passed in here, but difficult to remove this dependency
+    epi_name = 'qld_epi_data_wave_01_basic_stats' # Not sure why epi datafile needs to be passed in here, but difficult to remove this dependency
 
     all_lkeys = ['H', 'S', 'W', 'C', 
-                 'church', 'pSport', 'cSport', 
-                 'entertainment', 'cafe_restaurant', 'pub_bar',
-                 'transport', 'public_parks', 'large_events', 'social']
+                 'church', 
+                 'pSport', 
+                 'cSport', 
+                 'entertainment', 
+                 'cafe_restaurant', 
+                 'pub_bar',
+                 'transport', 
+                 'public_parks', 
+                 'large_events', 
+                 'social']
 
     dynamic_lkeys = ['C', 'entertainment', 'cafe_restaurant', 'pub_bar',
                      'transport', 'public_parks', 'large_events']
@@ -38,7 +45,8 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
                 'pop_infected': pop_infected,
                 'pop_scale': 10,
                 'rescale': 1,
-                'calibration_end': None
+                'calibration_end': None,
+                'contacts':   pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=all_lkeys).to_dict()
                 } # Pass in a minimal set of sim pars
 
     #user_pars, _ = utils.clean_pars(user_pars, [location])
@@ -49,16 +57,15 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
                               epi_name=epi_name,
                               all_lkeys=all_lkeys,
                               dynamic_lkeys=dynamic_lkeys,
-                              calibration_end={'QLD':'2020-09-15'})
+                              calibration_end={'QLD':'2020-09-30'})
 
 
     loc_data = all_data
-    loc_pars = user_pars[location]
 
     # setup parameters object for this simulation
     params = parameters.setup_params(location=location,
                                      loc_data=loc_data,
-                                     sim_pars=loc_pars)
+                                     sim_pars=user_pars)
 
 
 
