@@ -19,7 +19,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
 # Filepaths
-resultsfolder = 'results'
+resultsfolder = 'results_gt_0-010_eos_2020-12-31'
 figsfolder = 'figs'
 
 # list_of_files = [
@@ -167,10 +167,11 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
     #                high[start_day_fill:end_day_idx], facecolor=main_colour, alpha=0.2)
 
     #pl.plot(tvec[start_day_fill:end_day_idx], yarr[:, start_day_fill:end_day_idx].T, c=main_colour, alpha=0.1)
-    pl.plot(tvec[start_day_idx:start_day_fill+1], yarr[:, start_day_idx:start_day_fill+1].T, c=[0.0, 0.0, 0.0], alpha=0.05)
+    #pl.plot(tvec[start_day_idx:start_day_fill+1], yarr[:, start_day_idx:start_day_fill+1].T, c=[0.0, 0.0, 0.0], alpha=0.05)
 
+    pl.plot(tvec[start_day_idx:start_day_fill+1], halfsies[start_day_idx:start_day_fill+1], c=[0.0, 0.0, 0.0], alpha=0.7)
     pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=1, alpha=0.7)
-    
+    pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [20, 20], c=[0.5, 0.5, 0.5], lw=2, ls='--')
     sc.setylim()
     xmin, xmax = ax.get_xlim()
     pl.ylabel(ylabel)
