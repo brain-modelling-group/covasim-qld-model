@@ -19,7 +19,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
 # Filepaths
-resultsfolder = 'results_gt_0-010_eos_2020-12-31'
+resultsfolder = 'results_gt_0-025_eos_2020-12-31'
 figsfolder = 'figs'
 
 # list_of_files = [
@@ -171,7 +171,7 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
 
     pl.plot(tvec[start_day_idx:start_day_fill+1], halfsies[start_day_idx:start_day_fill+1], c=[0.0, 0.0, 0.0], alpha=0.7)
     pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=1, alpha=0.7)
-    pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [20, 20], c=[0.5, 0.5, 0.5], lw=2, ls='--')
+    pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [20, 20], c=[0.5, 0.5, 0.5], lw=1)
     sc.setylim()
     xmin, xmax = ax.get_xlim()
     pl.ylabel(ylabel)
@@ -181,39 +181,25 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
 def plot_intervs(sim, labels=True):
 
     color = [0, 0, 0]
-    mar15 = sim.day('2020-03-15')
-    mar19 = sim.day('2020-03-19')
-    mar23 = sim.day('2020-03-23')
-    apr04 = sim.day('2020-04-03')
-    may01 = sim.day('2020-05-01')
-    jul10 = sim.day('2020-07-10')
-    aug05 = sim.day('2020-08-05')
+    oct01 = sim.day('2020-10-01')
 
-    for day in [mar15, mar19, mar23, apr04, may01, jul10, aug05]:
-        pl.axvline(day, c=color, linestyle='--', alpha=0.4, lw=3)
+
+    for day in [oct01]:
+        pl.axvline(day, c=color, linestyle='--', alpha=0.7, lw=1)
 
     if labels:
         yl = pl.ylim()
         labely = yl[1]*0.95
-        pl.text(mar15, labely*1.15, 'Physical \ndistancing', bbox=dict(facecolor='#e5d210', alpha=0.5), color=color, alpha=0.9, style='italic')
-        pl.text(mar19+1, labely, 'Outdoors \nrestricted',  bbox=dict(facecolor='#e5ae10', alpha=0.7), color=color, alpha=0.9, style='italic')
-        pl.text(mar23+1, labely*0.92,  'Lockdown',  bbox=dict(facecolor='red', alpha=0.5), color=color, alpha=0.9, style='italic')
-        pl.text(apr04+1, labely*0.7, 'QLD \nborder \nclosed', bbox=dict(facecolor='red', alpha=0.7), color=color, alpha=0.9, style='italic')
-        pl.text(may01+1, labely, 'Begin phased \nrelease', color=color, alpha=0.9, style='italic')
-        pl.text(jul10+1, labely, '\nQLD \nborder \nopen',  color=color, alpha=0.9, style='italic')
-        pl.text(aug05+1, labely, '\nQLD \nborder \nclosed', color=color, alpha=0.9, style='italic')
+        pl.text(oct01+1, labely, '\nQLD \nborders \nopen', color=color, alpha=0.9, style='italic')
     return
 
 # Fonts and sizes
 font_size = 20
 pl.rcParams['font.size'] = font_size
-pl.figure(figsize=(24,8))
 
 # Plot locations
 ygaps = 0.06
 xgaps = 0.06
-remainingy = 1-3*ygaps
-remainingx = 1-3*xgaps
 mainplotheight = 0.85
 mainplotwidth = 0.85
 
@@ -222,16 +208,24 @@ def date_formatter(x, pos):
     return (dt.date(2020,3,1) + dt.timedelta(days=x)).strftime('%b-%d')
 
 # Plot diagnoses
+this_fig = plt.figure(figsize=(22,8))
 x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
-ax1 = pl.axes([x0, y0, dx, dy])
+ax1 = pl.axes([x0, y0, dx, dy], figure=this_fig)
 
 #colours = ['#fed976', '#feb24c', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026']
 #colours = ['#006837', '#1a9850', '#66bd63', '#a6d96a', '#fdae61', '#f46d43', '#d73027', '#a50026']
 
 
-import matplotlib.cm as cm                                                                                                                                       
-cmap = cm.get_cmap('Spectral_r')     
+import matplotlib.cm as cm
+import matplotlib as mpl 
 
+num_cases = len(list_of_files)                                                                                                                                      
+cmap = cm.get_cmap('Spectral_r', num_cases+1)
+
+norm_cbar = mpl.colors.Normalize(vmin=0,vmax=21)     
+
+sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm_cbar)
+sm.set_array([])
 
 # Load the data
 for file_idx, this_file in enumerate(list_of_files):
@@ -241,4 +235,13 @@ for file_idx, this_file in enumerate(list_of_files):
     main_colour =  list(cmap(file_idx/len(list_of_files)))[0:-1]
     plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel='new diagnoses', start_day='2020-09-15', main_colour=main_colour)
 plt.ylim([0, 30])
+
+plot_intervs(sims[0])
+cbar = plt.colorbar(sm, ticks=np.linspace(0.5, 20.5, num_cases), 
+                        boundaries=np.arange(0, 22, 1))
+
+cbar_labels = [str(label) for label in range(num_cases)]
+cbar.ax.get_yaxis().labelpad = 20
+cbar.ax.set_ylabel('# of daily new infections', rotation=270)
+cbar.ax.set_yticklabels(cbar_labels)  # vertically oriented colorbar
 plt.show()
