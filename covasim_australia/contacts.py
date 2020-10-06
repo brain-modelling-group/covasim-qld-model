@@ -302,7 +302,7 @@ def make_lo_hi_contacts(params):
 
 
 def make_contacts(params):
-    ccontacts = {}
+    contacts = {}
 
     pop_size = params.pars['pop_size']
     household_dist = params.household_dist
