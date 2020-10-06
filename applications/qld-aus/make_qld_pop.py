@@ -45,8 +45,7 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
                 'pop_infected': pop_infected,
                 'pop_scale': 10,
                 'rescale': 1,
-                'calibration_end': None,
-                'contacts':   pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=all_lkeys).to_dict()
+                'calibration_end': None
                 } # Pass in a minimal set of sim pars
 
     #user_pars, _ = utils.clean_pars(user_pars, [location])
