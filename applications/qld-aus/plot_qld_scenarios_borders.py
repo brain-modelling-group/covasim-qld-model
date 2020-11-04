@@ -19,7 +19,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
 # Filepaths
-resultsfolder = 'results'
+resultsfolder = 'results_gt_0-025_eos_2020-12-31'
 figsfolder = 'figs'
 
 # list_of_files = [
@@ -91,40 +91,40 @@ figsfolder = 'figs'
 # 'qld_scenarios_poisson_20.0000_2020-12-31.obj']
 
 
-# list_of_files = [
-# 'qld_scenarios_poisson_0.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_1.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_2.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_3.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_4.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_5.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_6.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_7.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_8.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_9.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_10.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_11.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_12.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_13.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_14.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_15.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_16.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_17.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_18.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_19.0000_2020-12-31.obj',
-# 'qld_scenarios_poisson_20.0000_2020-12-31.obj']
+list_of_files = [
+'qld_scenarios_poisson_0.0000_2020-12-31.obj',
+'qld_scenarios_poisson_1.0000_2020-12-31.obj',
+'qld_scenarios_poisson_2.0000_2020-12-31.obj',
+'qld_scenarios_poisson_3.0000_2020-12-31.obj',
+'qld_scenarios_poisson_4.0000_2020-12-31.obj',
+'qld_scenarios_poisson_5.0000_2020-12-31.obj',
+'qld_scenarios_poisson_6.0000_2020-12-31.obj',
+'qld_scenarios_poisson_7.0000_2020-12-31.obj',
+'qld_scenarios_poisson_8.0000_2020-12-31.obj',
+'qld_scenarios_poisson_9.0000_2020-12-31.obj',
+'qld_scenarios_poisson_10.0000_2020-12-31.obj',
+'qld_scenarios_poisson_11.0000_2020-12-31.obj',
+'qld_scenarios_poisson_12.0000_2020-12-31.obj',
+'qld_scenarios_poisson_13.0000_2020-12-31.obj',
+'qld_scenarios_poisson_14.0000_2020-12-31.obj',
+'qld_scenarios_poisson_15.0000_2020-12-31.obj',
+'qld_scenarios_poisson_16.0000_2020-12-31.obj',
+'qld_scenarios_poisson_17.0000_2020-12-31.obj',
+'qld_scenarios_poisson_18.0000_2020-12-31.obj',
+'qld_scenarios_poisson_19.0000_2020-12-31.obj',
+'qld_scenarios_poisson_20.0000_2020-12-31.obj']
 
-list_of_files = ['qld_scenarios_poisson_0.0000_2021-01-31.obj', 
-                 'qld_scenarios_poisson_1.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_2.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_3.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_4.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_5.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_6.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_7.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_8.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_9.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_10.0000_2021-01-31.obj']
+# list_of_files = ['qld_scenarios_poisson_0.0000_2021-01-31.obj', 
+#                  'qld_scenarios_poisson_1.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_2.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_3.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_4.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_5.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_6.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_7.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_8.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_9.0000_2021-01-31.obj',
+#                  'qld_scenarios_poisson_10.0000_2021-01-31.obj']
 
 #list_of_files = ['qld_scenarios_poisson_0.0000_2021-01-15.obj']
 
@@ -182,7 +182,7 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
     #pl.plot(tvec[start_day_idx:start_day_fill+1], yarr[:, start_day_idx:start_day_fill+1].T, c=[0.0, 0.0, 0.0], alpha=0.05)
 
     pl.plot(tvec[start_day_idx:start_day_fill+1], halfsies[start_day_idx:start_day_fill+1], c=[0.0, 0.0, 0.0], alpha=0.7)
-    pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=1, alpha=0.7)
+    pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=2, alpha=1.0)
     pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [20, 20], c=[0.5, 0.5, 0.5], lw=1)
     sc.setylim()
     xmin, xmax = ax.get_xlim()
@@ -208,6 +208,7 @@ def plot_intervs(sim, labels=True):
 # Fonts and sizes
 font_size = 20
 pl.rcParams['font.size'] = font_size
+pl.rcParams['text.usetex'] = True
 
 # Plot locations
 ygaps = 0.06
@@ -245,15 +246,16 @@ for file_idx, this_file in enumerate(list_of_files):
     sims = msim.sims
     format_ax(ax1, sims[0], start_day_idx=sims[0].day('2020-09-15'))
     main_colour =  list(cmap(file_idx/len(list_of_files)))[0:-1]
-    plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel='new diagnoses', start_day='2020-09-15', main_colour=main_colour)
-plt.ylim([0, 30])
+    plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel=r'$\log_{10}(new diagnoses)$', start_day='2020-09-15', main_colour=main_colour)
+plt.yscale('log')
+plt.ylim([0.1, 120])
 
 plot_intervs(sims[0])
 cbar = plt.colorbar(sm, ticks=np.linspace(0.5, num_cases-0.5, num_cases), 
                         boundaries=np.arange(0, num_cases+1, 1))
 
 cbar_labels = [str(label) for label in range(num_cases)]
-cbar.ax.get_yaxis().labelpad = 20
-cbar.ax.set_ylabel('# of daily new infections', rotation=270)
+cbar.ax.get_yaxis().labelpad = 55
+cbar.ax.set_ylabel('average rate of \ndaily imported infections', rotation=270)
 cbar.ax.set_yticklabels(cbar_labels)  # vertically oriented colorbar
 plt.show()
