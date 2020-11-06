@@ -26,7 +26,7 @@ import argparse
 #cv.check_version('1.6.1', die=True)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--nruns', default=10, 
+parser.add_argument('--nruns', default=3, 
                                type=int, 
                                help='''Number of simulations to run per scenario. 
                                        Uses different PRNG seeds for each simulations.''')
@@ -43,17 +43,21 @@ parser.add_argument('--dist', default='poisson',
                               help='''Name of distribution to use to seed infections.
                                       Can be uniform, normal, etc''')
 
-parser.add_argument('--par1', default=5.0, 
+parser.add_argument('--par1', default=0.0, 
                               type=float, 
                               help=''' The "main" distribution parameter (e.g. mean).''')
 
-parser.add_argument('--par2', default=1.0, 
+parser.add_argument('--par2', default=0.0, 
                               type=float, 
                               help='''The "secondary" distribution parameter (e.g. std).''')
 
-parser.add_argument('--gt0', default=0.025, 
-                              type=float, 
+parser.add_argument('--gt0', default= 15, 
+                              type=int, 
                               help='''Transmissibility @ open borders ''')
+
+parser.add_argument('--gt1', default= 14, 
+                              type=float, 
+                              help='''Quarantine factor''')
 
 parser.add_argument('--cluster_size', default=100, 
                               type=int, 
@@ -96,7 +100,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
         end_day = args.end_simulation_date
 
     pars = {'pop_size': 200e3,    # Population size
-            'pop_infected': 30,   # Original population infecdted
+            'pop_infected': 30,   # Original population infected
             'pop_scale': 1,       # Population scale
             'rescale': False,     # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
@@ -106,8 +110,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,  40.0,    30.0,    25.0,   19.0,  30.0,   25.0,   10.0,     50.0,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,     0.0,    0.0,    0.1,    0.00,   0.0,     0.0,     0.0,    0.00,   0.00,    0.00,    0.00,      0.00,   0.0], index=layers).to_dict(),
-            'quar_factor': pd.Series([1.0,    1.0,    1.0,    1.0,    1.0,   1.0,    1.0,     1.0,    1.0,   1.0,    1.0,    1.0,      1.0,   1.0], index=layers).to_dict(), #quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(), # NATHAN EDIT SET ALL THESE TO ZERO
-            'quar_period': 0,# NJS EDIT, set this to zero rather than 14
+            'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
+            'quar_period': 14, # NJS EDIT, set this to zero rather than 14
             'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
             'start_day': start_day,
             'end_day': end_day,
@@ -150,86 +154,101 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     borders04 ='2020-09-23'  # borders open to some parts of NSW
     end_date = '2020-11-01'  # NJS EDIT - turn all changes off, i.e. revert to pre-COVID times
 
-
-    beta_ints = [cv.clip_edges(days=[response00, response01, end_date]+schools, 
-                               changes=[0.95, 0.85, 1.0, 0.05, 0.9], 
-                               layers=['S'], do_plot=False),
+# take from arguments - dum controls the application of an intervention (one at a time)
+# dum1 is the scaling factor for quarantine
+# dum2 is the scaling factor for isolation
+    
+    dum = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    dum[args.gt0] = 0
+#    dum[3,4,5] = 0
+#    aa = [3,4,5,6]
+#     for i in aa:
+#        dum[i] = 0
+# 
+    dum1 = args.par1
+    dum2 = args.par2
+#    
+    #print(dum)
+    
+    sim.pars['interventions'].append(cv.clip_edges(days=[response00, response01, end_date]+schools, 
+                               changes=[0.95, 0.85, dum[0], 0.05, 0.9], 
+                               layers=['S'], do_plot=False))
+     
+                    
+    sim.pars['interventions'].append(cv.clip_edges(days=[response00, response01, lockdown00, lockdown01, lockdown02, reopen01, end_date], 
+                               changes=[0.95, 0.8, 0.4, 0.3, 0.2, 0.5, dum[1]], 
+                               layers=['W'], do_plot=False))
                  
-                 cv.clip_edges(days=[response00, response01, lockdown00, lockdown01, lockdown02, reopen01, end_date], 
-                               changes=[0.95, 0.8, 0.4, 0.3, 0.2, 0.5, 1.0], 
-                               layers=['W'], do_plot=False),
+    sim.pars['interventions'].append(cv.clip_edges(days=[lockdown00, reopen01, end_date], 
+                               changes=[0.0, 0.5, dum[2]], 
+                               layers=['pSport'], do_plot=False))
                  
-                 cv.clip_edges(days=[lockdown00, reopen01, end_date], 
-                               changes=[0.0, 0.5, 1.0], 
-                               layers=['pSport'], do_plot=False),
-                 
-                 cv.clip_edges(days=[lockdown00, reopen01, end_date],
-                               changes=[0.0, 0.8, 1.0], 
-                               layers=['cSport'], do_plot=False),
+    sim.pars['interventions'].append(cv.clip_edges(days=[lockdown00, reopen01, end_date],
+                               changes=[0.0, 0.8, dum[3]], 
+                               layers=['cSport'], do_plot=False))
 
                  # Reduce overall beta to account for distancing, handwashing, etc
-                 cv.change_beta([response00, response01, reopen01, end_date], [0.9, 0.8, 0.9, 1.0], do_plot=False), 
+    sim.pars['interventions'].append(cv.change_beta([response00, response01, reopen01, end_date], [0.9, 0.8, 0.9, dum[4]], do_plot=False)) 
                  
-                 cv.change_beta(days=[lockdown00, reopen01, reopen02, end_date], 
-                                changes=[1.2, 1.1, 1.0, 1.0], 
-                                layers=['H'], do_plot=True),
+    sim.pars['interventions'].append(cv.change_beta(days=[lockdown00, reopen01, reopen02, end_date], 
+                                changes=[1.2, 1.1, 1.0, dum[5]], 
+                                layers=['H'], do_plot=False))
                  
-                 cv.change_beta(days=[lockdown00, church00, end_date], 
-                                changes=[0.0, 0.6, 1.0], 
-                                layers=['church'], do_plot=False),
+    sim.pars['interventions'].append(cv.change_beta(days=[lockdown00, church00, end_date], 
+                                changes=[0.0, 0.6, dum[6]], 
+                                layers=['church'], do_plot=False))
                  
-                 cv.change_beta(days=[lockdown00, reopen01, reopen02, reopen03, end_date], 
-                                changes=[0.1, 0.3, 0.4, 0.5, 1.0], 
-                                layers=['social'], do_plot=False),
+    sim.pars['interventions'].append(cv.change_beta(days=[lockdown00, reopen01, reopen02, reopen03, end_date], 
+                                changes=[0.1, 0.3, 0.4, 0.5, dum[7]], 
+                                layers=['social'], do_plot=False))
                  # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
                  # 'pub_bar', 'transport', 'public_parks', 'large_events']
                  
-                 cv.change_beta(days=[start_day, response01, lockdown01, lockdown02, reopen01, reopen02, borders02, end_date], 
-                                changes=[3.0, 0.7, 0.67, 0.6, 0.7, 0.8, 0.9, 1.0], 
-                                layers=['C'], do_plot=True),
+    sim.pars['interventions'].append(cv.change_beta(days=[start_day, response01, lockdown01, lockdown02, reopen01, reopen02, borders02, end_date], 
+                                changes=[3.0, 0.7, 0.67, 0.6, 0.7, 0.8, 0.9, dum[8]], 
+                                layers=['C'], do_plot=False))
                  
-                 cv.change_beta(days=[lockdown00, reopen01, end_date], 
-                                changes=[0.0, 0.8, 1.0], 
-                                layers=['entertainment'], do_plot=False),
+    sim.pars['interventions'].append(cv.change_beta(days=[lockdown00, reopen01, end_date], 
+                                changes=[0.0, 0.8, dum[9]], 
+                                layers=['entertainment'], do_plot=False))
                  
-                 cv.change_beta(days=[lockdown00, reopen01, end_date], 
-                                changes=[0.1, 0.7, 1.0], 
-                                layers=['cafe_restaurant'], do_plot=False),
+    sim.pars['interventions'].append(cv.change_beta(days=[lockdown00, reopen01, end_date], 
+                                changes=[0.1, 0.7, dum[10]], 
+                                layers=['cafe_restaurant'], do_plot=False))
                  
-                 cv.change_beta(days=[lockdown00, reopen01, end_date], 
-                                changes=[0.0, 0.5, 1.0], 
-                                layers=['pub_bar'], do_plot=False),
+    sim.pars['interventions'].append(cv.change_beta(days=[lockdown00, reopen01, end_date], 
+                                changes=[0.0, 0.5, dum[11]], 
+                                layers=['pub_bar'], do_plot=False))
                  
-                 cv.change_beta(days=[lockdown00, borders00, borders01, borders02, end_date], 
-                                changes=[0.5, 0.4, 0.5, 0.2, 1.0], 
-                                layers=['transport'], do_plot=False),
+    sim.pars['interventions'].append(cv.change_beta(days=[lockdown00, borders00, borders01, borders02, end_date], 
+                                changes=[0.5, 0.4, 0.5, 0.2, dum[12]], 
+                                layers=['transport'], do_plot=False))
                  
-                 cv.change_beta(days=[outdoors00, parks00, parks01, end_date], 
-                                changes=[0.4, 0.1, 0.5, 1.0], 
-                                layers=['public_parks'], do_plot=False),
+    sim.pars['interventions'].append(cv.change_beta(days=[outdoors00, parks00, parks01, end_date], 
+                                changes=[0.4, 0.1, 0.5, dum[13]], 
+                                layers=['public_parks'], do_plot=False))
                  
-                 cv.change_beta(days=[lockdown00, reopen03, end_date], 
-                                changes=[0.0, 0.6, 1.0], 
-                                layers=['large_events'], do_plot=False),
-                 ]
+    sim.pars['interventions'].append(cv.change_beta(days=[lockdown00, reopen03, end_date], 
+                                changes=[0.0, 0.6, dum[14]], 
+                                layers=['large_events'], do_plot=False))
+                 
 
     # Set 'Borders opening' interventions
-    if case_to_run == 'scenarios':
+    #if case_to_run == 'scenarios':
         #SET SPECIFIC INFECTIONS
-        start_intervention_date = args.open_borders_date
-        end_intervention_date = args.end_simulation_date
-        dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
-        seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
-                                                                   start_intervention_date,
-                                                                   end_intervention_date,
-                                                                   **dist_kwd_arguments)
+#        start_intervention_date = args.open_borders_date
+#        end_intervention_date = args.end_simulation_date
+#        dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
+#        seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
+#                                                                   start_intervention_date,
+#                                                                   end_intervention_date,
+#                                                                   **dist_kwd_arguments)
+#
+#        sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
 
-        sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
-
-          
+    
  
     # Testing
-    # Testing  NJS edit - set all probabilities to 1 both symptomatic and a asymptomatic just to see what is going down
     symp_prob_prelockdown = 0.08    # Limited testing pre lockdown
     symp_prob_prelockdown_01 = 0.1 # 
     symp_prob_prelockdown_02 = 0.2 #
@@ -241,75 +260,76 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     sim.pars['interventions'].append(cv.test_prob(start_day=start_day, 
                                                   end_day='2020-03-07', 
                                                   symp_prob=symp_prob_prelockdown, 
-                                                  asymp_quar_prob=0.01, do_plot=False))
+                                                  asymp_quar_prob=0.001, do_plot=False))
     
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-07', 
                                                   end_day='2020-03-15', 
                                                   symp_prob=symp_prob_prelockdown_01, 
-                                                  asymp_quar_prob=0.01, do_plot=False))
+                                                  asymp_quar_prob=0.001, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-15', 
                                                   end_day='2020-03-20', 
                                                   symp_prob=symp_prob_prelockdown_02, 
-                                                  asymp_quar_prob=0.01, do_plot=False))
+                                                  asymp_quar_prob=0.001, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-20', 
                                                   end_day= '2020-03-24', 
                                                   symp_prob=symp_prob_prelockdown_03, 
-                                                  asymp_quar_prob=0.01, do_plot=False))
+                                                  asymp_quar_prob=0.001, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-24', 
                                                   end_day= '2020-03-28', 
                                                   symp_prob=symp_prob_prelockdown_04, 
-                                                  asymp_quar_prob=0.01, do_plot=False))
+                                                  asymp_quar_prob=0.001, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-28', 
                                                   end_day= '2020-04-05', 
                                                   symp_prob=symp_prob_prelockdown_04, 
-                                                  asymp_quar_prob=0.01, do_plot=False))
+                                                  asymp_quar_prob=0.001, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-05', 
                                                   end_day=reopen01, 
                                                   symp_prob=symp_prob_lockdown, 
-                                                  asymp_quar_prob=0.01,do_plot=False))
+                                                  asymp_quar_prob=0.001,do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=reopen01, 
                                                   symp_prob=symp_prob_postlockdown, 
-                                                  asymp_quar_prob=0.01,do_plot=True))
+                                                  asymp_quar_prob=0.001,do_plot=False))
+
 
     # Tracing
-    trace_probs = {'H': 1, 'S': 0.95, 
-                   'W': 0.9, 'C': 0.05, 
-                   'church': 0.5, 
-                   'pSport': 0.8, 
-                   'cSport': 0.5,
-                   'entertainment': 0.1, 
-                   'cafe_restaurant': 0.8, 
-                   'pub_bar': 0.8, 
-                   'transport': 0.8, 
-                   'public_parks': 0.01, 
-                   'large_events': 0.01, 
-                   'social': 0.9}
-    trace_time = {'H': 0, 'S': 2, 
-                  'W': 2, 'C': 7, 
-                  'church': 5, 
-                  'pSport': 3, 
-                  'cSport': 3, 
-                  'entertainment': 7,
-                  'cafe_restaurant': 4, 
-                  'pub_bar': 4, 
-                  'transport': 2, 
-                  'public_parks': 14,  
-                  'large_events': 14,
-                  'social': 3}
-    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=trace_probs, 
-                                                        trace_time=trace_time, 
-                                                        start_day=0, do_plot=False))
+#    trace_probs = {'H': 1, 'S': 0.95, 
+#                   'W': 0.9, 'C': 0.05, 
+#                   'church': 0.5, 
+#                   'pSport': 0.8, 
+#                   'cSport': 0.5,
+#                   'entertainment': 0.1, 
+#                   'cafe_restaurant': 0.8, 
+#                   'pub_bar': 0.8, 
+#                   'transport': 0.8, 
+#                   'public_parks': 0.01, 
+#                   'large_events': 0.01, 
+#                   'social': 0.9}
+#    trace_time = {'H': 0, 'S': 2, 
+#                  'W': 2, 'C': 7, 
+#                  'church': 5, 
+#                  'pSport': 3, 
+#                  'cSport': 3, 
+#                  'entertainment': 7,
+#                  'cafe_restaurant': 4, 
+#                  'pub_bar': 4, 
+#                  'transport': 2, 
+#                  'public_parks': 14,  
+#                  'large_events': 14,
+#                  'social': 3}
+#    sim.pars['interventions'].append(cv.contact_tracing(trace_probs=trace_probs, 
+#                                                        trace_time=trace_time, 
+#                                                        start_day=0, do_plot=False))
 
     # Add known infections from Victoria and the cluster in the youth centre in brisbane
     sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
 
     # Test cluster size ie, number of infections arriging at one on a given date
-    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
+    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-11-01'): args.cluster_size}))
 
 
     # Close borders, then open them again to account for victorian imports and leaky quarantine
@@ -319,12 +339,20 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                              sim.day('2020-09-23'),  # QLD/NSW Border population
                                                                              sim.day('2020-09-25')], # ACT
                                                                     'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-11-01')], 
                                                                'vals': [0.01, 0.025]}}, do_plot=False))
     
     # This is setting isolation to nothing on the 1st of November, hopefully this is the last change that will affect infections
     sim.pars['interventions'].append(cv.dynamic_pars({'iso_factor': {'days': [sim.day('2020-03-30'), sim.day('2020-11-01')], 
-                                                               'vals':  [pd.Series([0.2,     0.0,    0.0,    0.1,    0.00,   0.0,     0.0,     0.0,    0.00,   0.00,    0.00,    0.00,      0.00,   0.0], index=layers).to_dict(), pd.Series([1,    1,    1,    1,    1,   1,     1,    1,   1,   1,    1,   1,   1,   1], index=layers).to_dict()]}}, do_plot=False))
+                                                               'vals':  [pd.Series([0.2,     0.0,    0.0,    0.1,    0.00,   0.0,     0.0,     0.0,    0.00,   0.00,    0.00,    0.00,      0.00,   0.0], index=layers).to_dict(), pd.Series([1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1, 1-dum1], index=layers).to_dict()]}}, do_plot=False))
+        
+    sim.pars['interventions'].append(cv.dynamic_pars({'quar_factor': {'days': [sim.day('2020-03-30'), sim.day('2020-11-01')], 
+                                                               'vals':  [pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(), pd.Series([1, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2, 1-dum2], index=layers).to_dict()]}}, do_plot=False))
+    
+    sim.pars['interventions'].append(cv.dynamic_pars({'quar_period': {'days': [sim.day('2020-03-30'), sim.day('2020-11-01')], 
+                                                               'vals': [14, args.gt1]}}, do_plot=False))
+        
+    
     
    #
     
@@ -343,7 +371,7 @@ if __name__ == '__main__':
     case_to_run    = args.case
     # Filepaths
     inputsfolder = 'inputs'
-#    resultsfolder = 'results'
+    resultsfolder = 'results'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
@@ -356,41 +384,55 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-#    if args.case == 'calibration':
-#        results_path = f'{resultsfolder}/qld_{args.gt0:.4f}_{args.end_calibration_date}_{args.cluster_size:3d}.obj'
-#    else:
-#        results_path = f'{resultsfolder}/qld_{args.gt0:.4f}_{args.dist}_{float(args.par1):.2f}_{args.cluster_size:3d}.obj'
+    if args.case == 'calibration':
+        results_path = f'{resultsfolder}/qld_{args.gt0:.4f}_{args.end_calibration_date}_{args.cluster_size:3d}.obj'
+    else:
+        results_path = f'{resultsfolder}/qld_{args.gt0:2f}_{args.dist}_{float(args.par1):.2f}_{args.par2:.2f}.obj'
 
     
     # Run and plot
     if args.nruns > 1:
         msim = cv.MultiSim(base_sim=sim)
         msim.run(n_runs=args.nruns, reseed=True, noise=0)
-#        msim.save(results_path)
+        msim.save(results_path)
     else:
         sim.run()
- #       sim.save(results_path)
-
+        sim.save(results_path)
     sc.toc(T)
     
-    
-import pandas as pd
-import sciris as sc
-import pylab as pl
-import numpy as np
-from matplotlib import ticker
-import datetime as dt
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
-
-sims = msim.sims
-key = 'new_diagnoses'
-ys = []
-for this_sim in sims:
-    ys.append(this_sim.results[key].values)
-    yarr = np.array(ys)
-
-yarr.shape
-plt.plot(yarr.mean(axis=0))
-
-    
+##    
+#import pandas as pd
+#import sciris as sc
+#import pylab as pl
+#import numpy as np
+#from matplotlib import ticker
+#import datetime as dt
+#import matplotlib.patches as patches
+#import matplotlib.pyplot as plt
+#
+## msim.result_keys() this gives the list of time series in the results
+##['cum_infections', 'cum_infectious', 'cum_tests', 'cum_diagnoses', 'cum_recoveries', 
+##'cum_symptomatic', 'cum_severe', 'cum_critical', 'cum_deaths', 'cum_quarantined',
+## 'new_infections', 'new_infectious', 'new_tests', 'new_diagnoses', 'new_recoveries', 
+##'new_symptomatic', 'new_severe', 'new_critical', 'new_deaths', 'new_quarantined',
+## 'n_susceptible', 'n_exposed', 'n_infectious', 'n_symptomatic', 'n_severe', 
+##'n_critical', 'n_diagnosed', 'n_quarantined', 'n_alive', 'prevalence', 'incidence',
+## 'r_eff', 'doubling_time', 'test_yield', 'rel_test_yield']
+#
+#sims = msim.sims
+#key1 = 'new_infections'
+#key2 = 'new_diagnoses'
+##key = 'r_eff'
+#ys1 = []
+#ys2 = []
+#for this_sim in sims:
+#    ys1.append(this_sim.results[key1].values)
+#    ys2.append(this_sim.results[key2].values)
+#    yarr1 = np.array(ys1)
+#    yarr2 = np.array(ys2)
+#
+##yarr.shape
+#plt.plot(yarr1.mean(axis=0))
+#plt.plot(yarr2.mean(axis=0))
+#
+#    
