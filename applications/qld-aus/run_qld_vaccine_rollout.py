@@ -159,20 +159,18 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     sim.pars['interventions'].extend(beta_ints)
 
     # Set 'Borders opening' interventions
-    if case_to_run == 'scenarios':
-        #SET SPECIFIC INFECTIONS
-        start_intervention_date = args.open_borders_date
-        end_intervention_date   = args.end_simulation_date
-        dist_kwd_arguments   = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
-        seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
-                                                                   start_intervention_date,
-                                                                   end_intervention_date,
-                                                                   **dist_kwd_arguments)
+    #SET SPECIFIC INFECTIONS
+    start_intervention_date = args.open_borders_date
+    end_intervention_date   = args.end_simulation_date
+    dist_kwd_arguments   = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
+    seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
+                                                               start_intervention_date,
+                                                               end_intervention_date,
+                                                               **dist_kwd_arguments)
 
-        sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
+    sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
 
           
-
     # Testing
     symp_prob_postlockdown = 0.35   # Testing since lockdown
 
@@ -269,7 +267,7 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-   case_to_run = args.scenarios
+   case_to_run = args.case
    results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.4f}_{args.end_simulation_date}.obj"
 
     
