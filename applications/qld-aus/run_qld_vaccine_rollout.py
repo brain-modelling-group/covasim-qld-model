@@ -34,13 +34,18 @@ parser.add_argument('--nruns', default=10,
                                type=int, 
                                help='''Number of simulations to run per scenario. 
                                        Uses different PRNG seeds for each simulations.''')
-parser.add_argument('--case', default='scenarios', 
+parser.add_argument('--case', default='monodose', 
                               type=str, 
                               help='''Case of simulation to run. Can be either 
-                                      "calibration" or "scenarios". The former 
-                                      stops on the last day of epi data available 
-                                      (currently 2020-09-15). The latter performs 
-                                      calibration and continues simulation until 2020-10-31.''')
+                                      "monodose" or "multidose". ''')
+
+parser.add_argument('--vac_prob', default=0.8, 
+                                  type=float, 
+                                  help=''' Probability of being vaccinated ''')
+
+parser.add_argument('--vac_eff', default=0.5, 
+                                  type=float, 
+                                  help=''' Vaccination efficacy ''')
 
 parser.add_argument('--dist', default='poisson', 
                               type=str, 
@@ -150,6 +155,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                 changes=[0.0, 0.8], 
                                 layers=['large_events'], do_plot=False),
                  ]
+    # Include interventions             
     sim.pars['interventions'].extend(beta_ints)
 
     # Set 'Borders opening' interventions
@@ -215,20 +221,25 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
 
 
     # Close borders, then open them again to account for victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
-                                                                             sim.day('2020-07-10'), 
+    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-07-10'), 
                                                                              sim.day('2020-08-08'),
                                                                              sim.day('2020-09-23'),  # QLD/NSW Border population
                                                                              sim.day('2020-09-25')], # ACT
-                                                                    'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
-                                                               'vals': [0.01, 0.045]}}, do_plot=False))
+                                                                    'vals': [0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-07-30'), sim.day('2020-09-30')], 
+                                                               'vals': [0.01, 0.025]}}, do_plot=False))
 
 
-    sim.pars['interventions'].append(cv.vaccine(days=['2021-03-01','2021-03-14','2021-03-28','2021-04-11'], 
-                                                prob=0.8, 
-                                                rel_sus=0.5, 
-                                                subtarget={'inds': lambda sim: sim.people.age>50, 'vals': 1.0})) 
+    # Multiple doses
+    # sim.pars['interventions'].append(cv.vaccine(days=['2021-03-01','2021-03-14','2021-03-28','2021-04-11'], 
+    #                                             prob=0.8, 
+    #                                             rel_sus=0.5, 
+    #                                             subtarget={'inds': lambda sim: sim.people.age>50, 'vals': 1.0})) 
+
+    # One dose
+    sim.pars['interventions'].append(cv.vaccine(days=['2021-03-01'], 
+                                                prob=args.vac_prob, 
+                                                rel_sus=args.vac_eff)) 
 
     sim.initialize()
 
