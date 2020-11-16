@@ -43,7 +43,7 @@ parser.add_argument('--vac_prob', default=0.8,
                                   type=float, 
                                   help=''' Probability of being vaccinated ''')
 
-parser.add_argument('--vac_eff', default=0.5, 
+parser.add_argument('--vac_eff', default=0.3, 
                                   type=float, 
                                   help=''' Vaccination efficacy ''')
 
@@ -72,7 +72,7 @@ parser.add_argument('--start_simulation_date', default='2020-07-01',
                               type=str, 
                               help='''The date at which to stop simulation (eg, 2020-12-31).''')
 
-parser.add_argument('--end_simulation_date', default='2021-05-31', 
+parser.add_argument('--end_simulation_date', default='2021-07-31', 
                               type=str, 
                               help='''The date at which to stop simulation (eg, 2020-12-31).''')
 
@@ -215,7 +215,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
 
     # Test cluster size ie, number of infections arriging at one on a given date
-    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
+    #sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
 
 
     # Close borders, then open them again to account for victorian imports and leaky quarantine
@@ -224,7 +224,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                              sim.day('2020-09-23'),  # QLD/NSW Border population
                                                                              sim.day('2020-09-25')], # ACT
                                                                     'vals': [0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-07-30'), sim.day('2020-09-30')], 
+    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-07-30'), sim.day('2020-08-30')], 
                                                                'vals': [0.01, 0.025]}}, do_plot=False))
 
 
