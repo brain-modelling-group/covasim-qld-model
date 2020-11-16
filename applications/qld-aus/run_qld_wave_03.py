@@ -216,7 +216,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                 layers=['public_parks'], do_plot=False),
                  
                  cv.change_beta(days=[lockdown00, reopen03, gatherings01, gatherings02], 
-                                changes=[0.0, 0.6, 0.4, 0.5, 0.75], 
+                                changes=[0.0, 0.4, 0.5, 0.75], 
                                 layers=['large_events'], do_plot=False),
                  ]
 
