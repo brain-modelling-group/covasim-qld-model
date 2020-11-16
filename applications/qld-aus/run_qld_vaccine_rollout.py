@@ -267,7 +267,6 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-   case_to_run = args.case
    results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.4f}_{args.end_simulation_date}.obj"
 
     
