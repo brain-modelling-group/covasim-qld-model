@@ -102,7 +102,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                     #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
-            'iso_factor':  pd.Series([0.2,     1.0,    1.0,    1.0,    1.00,   1.0,     1.0,     1.0,    1.00,   1.00,    1.00,    1.00,      1.00,   1.0], index=layers).to_dict(),
+            'iso_factor':  pd.Series([1.0,     1.0,    1.0,    1.0,    1.00,   1.0,     1.0,     1.0,    1.00,   1.00,    1.00,    1.00,      1.00,   1.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
             'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
             'start_day': start_day,
@@ -316,7 +316,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                              sim.day('2020-09-25')], # ACT
                                                                     'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
     sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
-                                                               'vals': [0.01, 0.045]}}, do_plot=False))
+                                                               'vals': [0.01, 0.015]}}, do_plot=False))
     sim.initialize()
 
     return sim
@@ -332,7 +332,7 @@ if __name__ == '__main__':
     case_to_run    = args.case
     # Filepaths
     inputsfolder = 'inputs'
-    resultsfolder = 'results'
+    resultsfolder = 'results_iso-1-0_gt_0-015_eos_2021-01-31'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
