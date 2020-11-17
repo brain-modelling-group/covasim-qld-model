@@ -317,7 +317,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                         sim.day('2020-10-01'), # roadmap to recovery
                                                                         sim.day('2020-11-01'), # 
                                                                         sim.day('2020-12-01')], 
-                                                               'vals': [0.01, 0.01, 0.025, 0.025]}}, do_plot=False))
+                                                               'vals': [0.01, 0.01, 0.015, 0.015]}}, do_plot=False))
 
     # Set 'Borders opening' interventions
     if case_to_run == 'scenarios':
@@ -349,7 +349,7 @@ if __name__ == '__main__':
     case_to_run    = args.case
     # Filepaths
     inputsfolder = 'inputs'
-    resultsfolder = 'results_iso-0-50_gt_0-025_eos_2021-01-31'
+    resultsfolder = 'results_iso-0-50_gt_0-015_eos_2021-01-31'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
