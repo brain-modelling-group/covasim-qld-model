@@ -310,14 +310,14 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                              sim.day('2020-08-08'),
                                                                              sim.day('2020-09-23'),  # QLD/NSW Border population
                                                                              sim.day('2020-09-25')], # ACT
-                                                                    'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
+                                                                    'vals': [0.01, 0.01, 0.01, 0.01, 0.01]}}, do_plot=False))
 
     # Overall decreased transmissibility due to distancing, noncompulsury maskwearing, covid safe practices
     sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), # lockdown
                                                                         sim.day('2020-10-01'), # roadmap to recovery
                                                                         sim.day('2020-11-01'), # 
                                                                         sim.day('2020-12-01')], 
-                                                               'vals': [0.01, 0.01125, 0.0125, 0.015]}}, do_plot=False))
+                                                               'vals': [0.01, 0.01, 0.01, 0.01]}}, do_plot=False))
 
     # Set 'Borders opening' interventions
     if case_to_run == 'scenarios':
