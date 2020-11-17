@@ -107,8 +107,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                     #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
-            'iso_factor':  pd.Series([1.2,     1.0,    1.0,    1.0,    1.00,   1.0,     1.0,     1.0,    1.00,   1.00,    1.00,    1.00,      1.00,   1.0], index=layers).to_dict(),
-            'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
+            'iso_factor':  pd.Series([0.7,     0.5,    0.5,    0.5,    0.5,    0.5,     0.5,     0.5,    0.5,    0.5,     0.5,    0.5,       0.50,   0.5], index=layers).to_dict(),
+            'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,   0.00,      0.00,   0.0], index=layers).to_dict(),
             'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
             'start_day': start_day,
             'end_day': end_day,
@@ -317,7 +317,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                         sim.day('2020-10-01'), # roadmap to recovery
                                                                         sim.day('2020-11-01'), # 
                                                                         sim.day('2020-12-01')], 
-                                                               'vals': [0.01, 0.01, 0.01, 0.01]}}, do_plot=False))
+                                                               'vals': [0.01, 0.01, 0.025, 0.025]}}, do_plot=False))
 
     # Set 'Borders opening' interventions
     if case_to_run == 'scenarios':
@@ -349,7 +349,7 @@ if __name__ == '__main__':
     case_to_run    = args.case
     # Filepaths
     inputsfolder = 'inputs'
-    resultsfolder = 'results_iso-1-0_gt_0-015_eos_2021-01-31'
+    resultsfolder = 'results_iso-0-50_gt_0-025_eos_2021-01-31'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
