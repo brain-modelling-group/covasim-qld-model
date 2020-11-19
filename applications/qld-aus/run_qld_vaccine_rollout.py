@@ -41,11 +41,19 @@ parser.add_argument('--case', default='monodose',
 
 parser.add_argument('--vac_prob', default=0.8, 
                                   type=float, 
-                                  help=''' Probability of being vaccinated ''')
+                                  help=''' Probability of being vaccinated. ''')
 
 parser.add_argument('--vac_eff', default=0.3, 
-                                  type=float, 
-                                  help=''' Vaccination efficacy ''')
+                                 type=float, 
+                                 help=''' Vaccination efficacy. The lower tha number, the more effective the vaccine is. ''')
+
+parser.add_argument('--vac_roll', default='2021-03-01', 
+                                  type=str, 
+                                  help=''' Vaccination rollout start day. ''')
+
+parser.add_argument('--iso_factor', default=0.5, 
+                                    type=float, 
+                                    help=''' Isolation factor for all layers. ''')
 
 parser.add_argument('--dist', default='poisson', 
                               type=str, 
@@ -101,11 +109,11 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
             'rescale': False,     # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
-            'beta': 0.025,         # Overall beta to use for calibration portion of the simulations
-                                    #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
+            'beta': 0.025,        # Overall beta to use for calibration portion of the simulations
+                                  #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
-            'iso_factor':  pd.Series([0.2,     0.5,    0.5,    0.5,    0.5,    0.2,     0.2,     0.25,    0.5,    0.5,     0.5,     0.25,     1.00,   1.0], index=layers).to_dict(),
+            'iso_factor':  pd.Series([0.0,     0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,     0.0,     0.0,       0.00,   0.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
             'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
             'start_day': start_day,
@@ -164,9 +172,9 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     end_intervention_date   = args.end_simulation_date
     dist_kwd_arguments   = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
     seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
-                                                               start_intervention_date,
-                                                               end_intervention_date,
-                                                               **dist_kwd_arguments)
+                                                              start_intervention_date,
+                                                              end_intervention_date,
+                                                              **dist_kwd_arguments)
 
     sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
 
@@ -228,6 +236,13 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                'vals': [0.01, 0.025]}}, do_plot=False))
 
 
+        
+    sim.pars['interventions'].append(cv.dynamic_pars({'iso_factor': {'days': [sim.day('2020-03-30'), sim.day('2020-11-01')], 
+                                                                     'vals':  [pd.Series([0.2, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], index=layers).to_dict(), 
+                                                                               pd.Series([args.iso_factor, args.iso_factor, args.iso_factor, args.iso_factor, args.iso_factor, args.iso_factor, 
+                                                                                          args.iso_factor, args.iso_factor, args.iso_factor, args.iso_factor, args.iso_factor, args.iso_factor, 
+                                                                                          args.iso_factor, args.iso_factor], index=layers).to_dict()]}}, do_plot=False))
+
     # Multiple doses
     # sim.pars['interventions'].append(cv.vaccine(days=['2021-03-01','2021-03-14','2021-03-28','2021-04-11'], 
     #                                             prob=0.8, 
@@ -235,7 +250,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     #                                             subtarget={'inds': lambda sim: sim.people.age>50, 'vals': 1.0})) 
 
     # One dose
-    sim.pars['interventions'].append(cv.vaccine(days=['2021-03-01'], 
+    sim.pars['interventions'].append(cv.vaccine(days=args.vac_roll, 
                                                 prob=args.vac_prob, 
                                                 rel_sus=args.vac_eff)) 
 
@@ -267,7 +282,7 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-    results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.4f}_{args.end_simulation_date}.obj"
+    results_path = f"{resultsfolder}/qld_vaccine-rollout_{case_to_run}_{args.dist}_vprob-{float(args.vac_prob):.4f}_veff-{float(args.vac_roll):.4f}.obj"
 
     
     # Run and plot
