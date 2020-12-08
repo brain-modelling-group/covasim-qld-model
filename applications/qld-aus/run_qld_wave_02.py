@@ -9,12 +9,14 @@ of the calibration process. The model was calibrated to data  on
 (1)  the  number  of  tests  conducted  and  
 (2)  the  daily  number  of  cases  diagnosed  in  QLD
 
-How: by  performing  an  automated  search  for  the  values  of  the  per
-contact transmission risk (beta) and the number of seed infections 
+How: by  performing  an  automated  search for the  values of the number of seed infections 
 that *minimized the absolute differences between the model projections and the data*. 
 
 We repeated the initialization 100 times (for each combination?), each time with 
 a different set of 100 people infected at the beginning of the simulation.
+
+Many simulation parameters are taken from calibrated NSW case:
+https://github.com/optimamodel/covid_nsw/blob/master/run_nsw_tracing.py
 
 # author: For QLD Paula Sanz-Leon, QIMRB, Aug-Dec 2020
 """
@@ -36,7 +38,7 @@ import argparse
 cv.check_version('1.6.1', die=True)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--nruns', default=4, 
+parser.add_argument('--nruns', default=2, 
                                type=int, 
                                help='''Number of simulations to run per scenario. 
                                        Uses different PRNG seeds for each simulations.''')
@@ -71,7 +73,7 @@ parser.add_argument('--open_borders_date', default='2020-10-01',
                               help='''The date at which borders are open (eg, '2020-09-21').''')
 
 
-parser.add_argument('--end_calibration_date', default='2020-09-30', 
+parser.add_argument('--end_calibration_date', default='2020-12-08', 
                               type=str, 
                               help='''The date at which calibration finishes (default, '2020-09-30'). ''')
 
@@ -97,10 +99,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
               'social']
     # Dates
     start_day = '2020-02-20'
-    if case_to_run == 'calibration':
-        end_day = args.end_calibration_date
-    elif case_to_run == 'scenarios':
-        end_day = args.end_simulation_date
+   
 
     pars = {'pop_size': 100e3,    # Population size
             'pop_infected': 30,   # Original population infedcted
@@ -110,9 +109,9 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
             'rel_death_prob': 0.6,#
             'beta': 0.025,        # Overall beta to use for calibration portion of the simulations
                                   #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
-            'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.00,  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
+            'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,0  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
-            'iso_factor':  pd.Series([1.0,     1.0,    1.0,    1.0,    1.00,   1.0,     1.0,     1.0,    1.00,   1.00,    1.00,    1.00,      1.00,   1.0], index=layers).to_dict(),
+            'iso_factor':  pd.Series([0.2,     0.0,    0.0,    0.1,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,     0.0,     0.0,       0.0,    0.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
             'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
             'start_day': start_day,
@@ -155,7 +154,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     borders03 ='2020-09-25'  # borders open to ACT
     borders04 ='2020-09-23'  # borders open to some parts of NSW
 
-
+    # The value in 'changes' expreses the percentage % of edges that is preserved after clipping
     beta_ints = [cv.clip_edges(days=[response00, response01]+schools, 
                                changes=[0.95, 0.85, 0.05, 0.9], 
                                layers=['S'], do_plot=False),
@@ -219,28 +218,12 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                  ]
     sim.pars['interventions'].extend(beta_ints)
 
-    # Set 'Borders opening' interventions
-    if case_to_run == 'scenarios':
-        #SET SPECIFIC INFECTIONS
-        start_intervention_date = args.open_borders_date
-        end_intervention_date = args.end_simulation_date
-        dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
-        seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
-                                                                   start_intervention_date,
-                                                                   end_intervention_date,
-                                                                   **dist_kwd_arguments)
-
-        sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
-
-          
-
-    # Testing
     # Testing
     symp_prob_prelockdown = 0.08    # Limited testing pre lockdown
-    symp_prob_prelockdown_01 = 0.1 # 
-    symp_prob_prelockdown_02 = 0.2 #
-    symp_prob_prelockdown_03 = 0.3 #
-    symp_prob_prelockdown_04 = 0.4 #
+    symp_prob_prelockdown_01 = 0.1  # 
+    symp_prob_prelockdown_02 = 0.2  #
+    symp_prob_prelockdown_03 = 0.3  #
+    symp_prob_prelockdown_04 = 0.4  #
     symp_prob_prelockdown_05 = 0.35 #
     symp_prob_lockdown = 0.3        # Increased testing during lockdown
     symp_prob_postlockdown = 0.35   # Testing since lockdown
@@ -325,8 +308,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                                              sim.day('2020-09-23'),  # QLD/NSW Border population
                                                                              sim.day('2020-09-25')], # ACT
                                                                     'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
-                                                               'vals': [0.01, 0.015]}}, do_plot=False))
+    # sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
+    #                                                            'vals': [0.01, 0.015]}}, do_plot=False))
     sim.initialize()
 
     return sim
@@ -345,7 +328,7 @@ if __name__ == '__main__':
     resultsfolder = 'results_iso-1-0_gt_0-015_eos_2021-01-31'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
-    populationfile = f'{inputsfolder}/qldppl.pop'
+    populationfile = f'{inputsfolder}/qldppl_100k_2020-09-30.pop'
 
     # Create instance of simulator
     sim  = make_sim(case_to_run,
@@ -355,8 +338,8 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-    if args.case == 'calibration':
-        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}_{args.cluster_size:02d}.obj"
+    if args.case == 'calibration'
+:        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}_{args.cluster_size:02d}.obj"
     else:
         results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.4f}_{args.end_simulation_date}.obj"
 
