@@ -104,7 +104,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
 
     pars = {'pop_size': 100e3,    # Population size
             'pop_infected': 30,   # Original population infedcted
-            'pop_scale': 58,      # Population scale
+            'pop_scale': 58,      # Population scale 5.8M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
