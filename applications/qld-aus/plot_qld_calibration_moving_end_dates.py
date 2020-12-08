@@ -19,84 +19,10 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
 # Filepaths
-resultsfolder = 'results'
+resultsfolder = 'results_recalibration'
 figsfolder = 'figs'
 
-# list_of_files = ['qld_calibration__2020-07-05.obj',
-#                  'qld_calibration__2020-07-06.obj',
-#                  'qld_calibration__2020-07-07.obj',
-#                  'qld_calibration__2020-07-08.obj',
-#                  'qld_calibration__2020-07-09.obj',
-#                  'qld_calibration__2020-07-10.obj',
-#                  'qld_calibration__2020-07-11.obj',
-#                  'qld_calibration__2020-07-12.obj',
-#                  'qld_calibration__2020-07-13.obj',
-#                  'qld_calibration__2020-07-14.obj',
-#                  'qld_calibration__2020-07-15.obj',
-#                  'qld_calibration__2020-07-16.obj',
-#                  'qld_calibration__2020-07-17.obj',
-#                  'qld_calibration__2020-07-18.obj',
-#                  'qld_calibration__2020-07-19.obj',
-#                  'qld_calibration__2020-07-20.obj',
-#                  'qld_calibration__2020-07-21.obj',
-#                  'qld_calibration__2020-07-22.obj',
-#                  'qld_calibration__2020-07-23.obj',
-#                  'qld_calibration__2020-07-24.obj',
-#                  'qld_calibration__2020-07-25.obj',
-#                  'qld_calibration__2020-07-26.obj',
-#                  'qld_calibration__2020-07-27.obj',
-#                  'qld_calibration__2020-07-28.obj',
-#                  'qld_calibration__2020-07-29.obj',
-#                  'qld_calibration__2020-07-30.obj',
-#                  'qld_calibration__2020-07-31.obj',
-#                  'qld_calibration__2020-08-01.obj',
-#                  'qld_calibration__2020-08-02.obj',
-#                  'qld_calibration__2020-08-03.obj',
-#                  'qld_calibration__2020-08-04.obj',
-#                  'qld_calibration__2020-08-05.obj',
-#                  'qld_calibration__2020-08-06.obj',
-#                  'qld_calibration__2020-08-07.obj',
-#                  'qld_calibration__2020-08-08.obj',
-#                  'qld_calibration__2020-08-09.obj',
-#                  'qld_calibration__2020-08-10.obj',
-#                  'qld_calibration__2020-08-11.obj',
-#                  'qld_calibration__2020-08-12.obj',
-#                  'qld_calibration__2020-08-13.obj',
-#                  'qld_calibration__2020-08-14.obj',
-#                  'qld_calibration__2020-08-15.obj',
-#                  'qld_calibration__2020-08-16.obj',
-#                  'qld_calibration__2020-08-17.obj',
-#                  'qld_calibration__2020-08-18.obj',
-#                  'qld_calibration__2020-08-19.obj',
-#                  'qld_calibration__2020-08-20.obj',
-#                  'qld_calibration__2020-08-21.obj',
-#                  'qld_calibration__2020-08-22.obj',
-#                  'qld_calibration__2020-08-23.obj',
-#                  'qld_calibration__2020-08-24.obj',
-#                  'qld_calibration__2020-08-25.obj',
-#                  'qld_calibration__2020-08-26.obj',
-#                  'qld_calibration__2020-08-27.obj',
-#                  'qld_calibration__2020-08-28.obj',
-#                  'qld_calibration__2020-08-29.obj',
-#                  'qld_calibration__2020-08-30.obj',
-#                  'qld_calibration__2020-08-31.obj',
-#                  'qld_calibration__2020-09-01.obj',
-#                  'qld_calibration__2020-09-02.obj',
-#                  'qld_calibration__2020-09-03.obj',
-#                  'qld_calibration__2020-09-04.obj',
-#                  'qld_calibration__2020-09-05.obj',
-#                  'qld_calibration__2020-09-06.obj',
-#                  'qld_calibration__2020-09-07.obj',
-#                  'qld_calibration__2020-09-08.obj',
-#                  'qld_calibration__2020-09-09.obj',
-#                  'qld_calibration__2020-09-10.obj',
-#                  'qld_calibration__2020-09-11.obj',
-#                  'qld_calibration__2020-09-12.obj',
-#                  'qld_calibration__2020-09-13.obj',
-#                  'qld_calibration__2020-09-14.obj',
-#                  'qld_calibration__2020-09-15.obj']
-
-list_of_files = ['qld_calibration_2020-10-15_00.obj']
+list_of_files = ['qld_recalibration_2020-06-30_01.obj']
 def format_ax(ax, sim, key=None):
     @ticker.FuncFormatter
     def date_formatter(x, pos):
@@ -120,7 +46,7 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.01, high_q=
     yarr = np.array(ys)
 
      # Moving average over X-days
-    num_days = 14
+    num_days = 7
     for idx in range(yarr.shape[0]):
         yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
@@ -203,7 +129,7 @@ mainplotwidth = 0.85
 
 @ticker.FuncFormatter
 def date_formatter(x, pos):
-    return (dt.date(2020,3,1) + dt.timedelta(days=x)).strftime('%b-%d')
+    return (dt.date(2020,2,15) + dt.timedelta(days=x)).strftime('%b-%d')
 
 # Plot diagnoses
 x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
@@ -225,13 +151,19 @@ input_data = 'qld_epi_data_wave_01_basic_stats.csv'
 # Load data
 data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 start_idx = sims[0].day('2020-01-25')
-xx = data['new_cases'][-start_idx:]
-num_days = 14
+end_idx = sims[0].day('2020-06-30')-start_idx
+xx = data['new_cases'][-start_idx:end_idx]
+zz = data['new_cases_source_community'][-start_idx:end_idx]
+num_days = 7
 xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
+zz = np.convolve(zz, np.ones((num_days, ))/num_days, mode='same')
+
 #import pdb; pdb.set_trace()
 
 #pl.bar(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, color='b', label='epi data', alpha=0.4)
-pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, c='b', lw=2,label='empirical data', alpha=1)
+pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, c='b', lw=2,label='empirical data (all)', alpha=1)
+pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], zz, c='r', lw=2,label='empirical data (community)', alpha=1)
+
 pl.legend(loc='upper right', frameon=False)
 
 ax1.set_ylim([0, 130])
