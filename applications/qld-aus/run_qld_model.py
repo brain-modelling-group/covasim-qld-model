@@ -87,6 +87,7 @@ args = parser.parse_args()
 
 
 def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None, input_args=None):
+    start_day = args.start_calibration_date
     layers = ['H', 'S', 'W', 'C', 
               'church', 
               'pSport', 
@@ -336,7 +337,7 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-   results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}_{args.init_seed_infections:02d}.obj"
+    results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}_{args.init_seed_infections:02d}.obj"
 
     
     # Run and plot
