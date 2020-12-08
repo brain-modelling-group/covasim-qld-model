@@ -107,7 +107,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
             'rel_death_prob': 0.6,#
             'beta': 0.025,        # Overall beta to use for calibration portion of the simulations
                                   #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
-            'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,0  40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
+            'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,   40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,     0.0,    0.0,    0.1,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,     0.0,     0.0,       0.0,    0.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
@@ -152,20 +152,20 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     borders03 ='2020-09-25'  # borders open to ACT
     borders04 ='2020-09-23'  # borders open to some parts of NSW
 
-    # The value in 'changes' expreses the percentage % of edges that is preserved after clipping
-    beta_ints = [cv.clip_edges(days=[response00, response01]+schools, 
-                               changes=[0.95, 0.85, 0.05, 0.9], 
-                               layers=['S'], do_plot=False),
+    # If using clip_edges, the value in 'changes' expreses the percentage % of edges that is preserved after clipping
+    beta_ints = [cv.change_beta(days=[response00, response01]+schools, 
+                                changes=[0.80, 0.80, 0.80, 0.9], 
+                                layers=['S'], do_plot=False),
                  
-                 cv.clip_edges(days=[response00, response01, lockdown00, lockdown01, lockdown02, reopen01], 
+                 cv.change_beta(days=[response00, response01, lockdown00, lockdown01, lockdown02, reopen01], 
                                changes=[0.95, 0.8, 0.4, 0.3, 0.2, 0.5], 
                                layers=['W'], do_plot=False),
                  
-                 cv.clip_edges(days=[lockdown00, reopen01], 
+                 cv.change_beta(days=[lockdown00, reopen01], 
                                changes=[0.0, 0.5], 
                                layers=['pSport'], do_plot=False),
                  
-                 cv.clip_edges(days=[lockdown00, reopen01],
+                 cv.change_beta(days=[lockdown00, reopen01],
                                changes=[0.0, 0.8], 
                                layers=['cSport'], do_plot=False),
 
