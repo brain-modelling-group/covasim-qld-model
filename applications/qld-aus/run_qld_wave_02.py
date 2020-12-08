@@ -3,9 +3,11 @@
 """
 (RE)calibration of QLD model.
 
-We initialized the model on February 15th, 2020 by seeding 32 infections 
-in the model population, with the number of seed infections chosen as part 
-of the calibration process. The model was calibrated to data  on  
+We initialized the model on February 15th, and run simulations until June 30th 2020.
+by seeding X infections in the model population.
+
+The number of seed infections chosen as part of the calibration process. 
+The model was fitted to data  on  
 (1)  the  number  of  tests  conducted  and  
 (2)  the  daily  number  of  cases  diagnosed  in  QLD
 
@@ -42,13 +44,10 @@ parser.add_argument('--nruns', default=2,
                                type=int, 
                                help='''Number of simulations to run per scenario. 
                                        Uses different PRNG seeds for each simulations.''')
-parser.add_argument('--case', default='scenarios', 
+parser.add_argument('--case', default='recalibration', 
                               type=str, 
-                              help='''Case of simulation to run. Can be either 
-                                      "calibration" or "scenarios". The former 
-                                      stops on the last day of epi data available 
-                                      (currently 2020-09-15). The latter performs 
-                                      calibration and continues simulation until 2020-10-31.''')
+                              help='''Label used in the output to tag which scenario
+                                      we are running.''')
 
 parser.add_argument('--dist', default='poisson', 
                               type=str, 
@@ -63,24 +62,26 @@ parser.add_argument('--par2', default=1.0,
                               type=float, 
                               help='''The "secondary" distribution parameter (e.g. std).''')
 
-
 parser.add_argument('--cluster_size', default=0, 
                               type=int, 
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
+
+parser.add_argument('--init_seed_infections', default=1, 
+                               type=int, 
+                               help='''Number of ppl infected at the beginning of the simulation.''')
 
 parser.add_argument('--open_borders_date', default='2020-10-01', 
                               type=str, 
                               help='''The date at which borders are open (eg, '2020-09-21').''')
 
-
-parser.add_argument('--end_calibration_date', default='2020-12-08', 
+parser.add_argument('--start_calibration_date', default='2020-02-15', 
                               type=str, 
-                              help='''The date at which calibration finishes (default, '2020-09-30'). ''')
+                              help='''The date at which calibration starts (default, '2020-02-15').''')
 
-
-parser.add_argument('--end_simulation_date', default='2020-10-31', 
+parser.add_argument('--end_calibration_date', default='2020-06-30', 
                               type=str, 
-                              help='''The date at which to stop simulation (eg, 2020-12-31).''')
+                              help='''The date at which calibration finishes (default, '2020-06-30').''')
+
 
 args = parser.parse_args()
 
@@ -96,13 +97,10 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
               'transport', 
               'public_parks', 
               'large_events', 
-              'social']
-    # Dates
-    start_day = '2020-02-20'
-   
+              'social']   
 
     pars = {'pop_size': 100e3,    # Population size
-            'pop_infected': 30,   # Original population infedcted
+            'pop_infected': args.init_seed_infections,   # Original population infedcted
             'pop_scale': 58,      # Population scale 5.8M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
@@ -114,8 +112,8 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
             'iso_factor':  pd.Series([0.2,     0.0,    0.0,    0.1,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,     0.0,     0.0,       0.0,    0.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
             'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
-            'start_day': start_day,
-            'end_day': end_day,
+            'start_day': args.start_calibration_date,
+            'end_day': args.end_calibration_date,
             'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
             'verbose': .1}
 
@@ -219,7 +217,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing
-    symp_prob_prelockdown = 0.08    # Limited testing pre lockdown
+    symp_prob_prelockdown = 0.04    # Limited testing pre lockdown
     symp_prob_prelockdown_01 = 0.1  # 
     symp_prob_prelockdown_02 = 0.2  #
     symp_prob_prelockdown_03 = 0.3  #
@@ -294,20 +292,20 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                         trace_time=trace_time, 
                                                         start_day=0, do_plot=False))
 
-    # Add known infections from Victoria and the cluster in the youth centre in brisbane
-    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
+    # # Add known infections from Victoria and the cluster in the youth centre in brisbane
+    # sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
 
-    # Test cluster size ie, number of infections arriging at one on a given date
-    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
+    # # Test cluster size ie, number of infections arriging at one on a given date
+    # sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
 
 
     # Close borders, then open them again to account for victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
-                                                                             sim.day('2020-07-10'), 
-                                                                             sim.day('2020-08-08'),
-                                                                             sim.day('2020-09-23'),  # QLD/NSW Border population
-                                                                             sim.day('2020-09-25')], # ACT
-                                                                    'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
+    # sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
+    #                                                                          sim.day('2020-07-10'), 
+    #                                                                          sim.day('2020-08-08'),
+    #                                                                          sim.day('2020-09-23'),  # QLD/NSW Border population
+    #                                                                          sim.day('2020-09-25')], # ACT
+    #                                                                 'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
     # sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
     #                                                            'vals': [0.01, 0.015]}}, do_plot=False))
     sim.initialize()
@@ -325,7 +323,7 @@ if __name__ == '__main__':
     case_to_run    = args.case
     # Filepaths
     inputsfolder = 'inputs'
-    resultsfolder = 'results_iso-1-0_gt_0-015_eos_2021-01-31'
+    resultsfolder = 'results_recalibration'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl_100k_2020-09-30.pop'
@@ -338,10 +336,7 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-    if args.case == 'calibration'
-:        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}_{args.cluster_size:02d}.obj"
-    else:
-        results_path = f"{resultsfolder}/qld_{case_to_run}_{args.dist}_{float(args.par1):.4f}_{args.end_simulation_date}.obj"
+   results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}_{args.init_seed_infections:02d}.obj"
 
     
     # Run and plot
