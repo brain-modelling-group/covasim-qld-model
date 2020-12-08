@@ -32,9 +32,15 @@ now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
 inputs_folder = 'inputs'
 input_data = 'qld_epi_data_wave_01_basic_stats.csv'
 
+source_keys = ['new_cases_source_overseas',
+               'new_cases_source_interstate', 
+               'new_cases_source_community', 
+               'new_cases_source_unknown', 
+               'new_cases_source_under_investigation']
+
 # Output data
 figs_folder = 'figs'
-output_fig =  "-".join((now_str, 'qld_epi_data_daily_cases.png'))
+output_fig =  "-".join((now_str, 'qld_epi_data_daily_cases.jpeg'))
 
 # import ipdb
 # ipdb.set_trace()
@@ -46,11 +52,11 @@ data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 data.set_index('date', inplace=True)
 
 # Start graphics objects
-f, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(18, 10), sharex=True)
+f, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(28, 18), sharex=True)
 
 
 # Plot new cases
-ax1.bar(data.index, data['new_cases'])
+ax1.bar(data.index, data['new_cases'], width=0.9)
 # Set ticks every week
 ax1.xaxis.set_major_locator(mdates.WeekdayLocator())
 # Set major ticks format
@@ -62,28 +68,32 @@ plt.setp(ax1.get_xticklabels(),
 
 
 # Plot new deaths
-ax2.bar(data.index, data['new_deaths'], color='#ad150b')
+ax2.bar(data.index, data[source_keys[2]], color='#ad150b')
 ax2.xaxis.set_major_locator(mdates.WeekdayLocator())
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
-ax2.set_ylabel('new deaths')
+ax2.set_ylabel('new cases \n(community transmission)')
 plt.setp(ax2.get_xticklabels(), 
          rotation=45, ha="right",
          rotation_mode="anchor")
 
-# Plot new testing
-ax3.bar(data.index, data['new_tests'], color='#e5a810')
+# Plot imported cases
+ax3.bar(data.index, data[source_keys[0]])
+ax3.bar(data.index, data[source_keys[1]])
+ax3.bar(data.index, data[source_keys[3]])
+ax3.bar(data.index, data[source_keys[4]])
+ax3.bar(data.index, data[source_keys[2]])
 ax3.xaxis.set_major_locator(mdates.WeekdayLocator())
 ax3.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
-ax3.set_ylabel('new tests')
+ax3.set_ylabel('new cases (other sources)')
 plt.setp(ax3.get_xticklabels(), 
          rotation=45, ha="right",
          rotation_mode="anchor")
 
-# Plot imported cases
-ax4.bar(data.index, data['imported_cases'], color='k')
+# Plot new testing
+ax4.bar(data.index, data['new_tests'], color='#e5a810')
 ax4.xaxis.set_major_locator(mdates.WeekdayLocator())
 ax4.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
-ax4.set_ylabel('imported cases')
+ax4.set_ylabel('new tests')
 plt.setp(ax4.get_xticklabels(), 
          rotation=45, ha="right",
          rotation_mode="anchor")
