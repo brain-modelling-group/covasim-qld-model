@@ -283,9 +283,9 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                   'pSport': 3, 
                   'cSport': 3, 
                   'entertainment': 7,
-                  'cafe_restaurant': 4, 
-                  'pub_bar': 4, 
-                  'transport': 2, 
+                  'cafe_restaurant': 7, 
+                  'pub_bar': 7, 
+                  'transport': 7, 
                   'public_parks': 14,  
                   'large_events': 14,
                   'social': 3}
