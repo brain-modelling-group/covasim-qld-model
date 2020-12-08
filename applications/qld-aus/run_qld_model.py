@@ -100,9 +100,9 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
               'large_events', 
               'social']   
 
-    pars = {'pop_size': 100e3,    # Population size
+    pars = {'pop_size': 200e3,    # Population size
             'pop_infected': args.init_seed_infections,   # Original population infedcted
-            'pop_scale': 58,      # Population scale 5.8M ppl in QLD
+            'pop_scale': 29,      # Population scales to 5.8M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
@@ -327,7 +327,7 @@ if __name__ == '__main__':
     resultsfolder = 'results_recalibration'
     datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
-    populationfile = f'{inputsfolder}/qldppl_100k_2020-09-30.pop'
+    populationfile = f'{inputsfolder}/qldppl.pop'
 
     # Create instance of simulator
     sim  = make_sim(case_to_run,
