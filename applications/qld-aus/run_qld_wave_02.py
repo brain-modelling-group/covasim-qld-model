@@ -1,12 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
+(RE)calibration of QLD model.
 
-Model to tests incoming infection capacity.
-This model incorporates an integer number of infections on specific days.
-=========================================================================
+We initialized the model on February 15th, 2020 by seeding 32 infections 
+in the model population, with the number of seed infections chosen as part 
+of the calibration process. The model was calibrated to data  on  
+(1)  the  number  of  tests  conducted  and  
+(2)  the  daily  number  of  cases  diagnosed  in  QLD
 
-# author: For QLD Paula Sanz-Leon, QIMRB, September 2020
+How: by  performing  an  automated  search  for  the  values  of  the  per
+contact transmission risk (beta) and the number of seed infections 
+that *minimized the absolute differences between the model projections and the data*. 
+
+We repeated the initialization 100 times (for each combination?), each time with 
+a different set of 100 people infected at the beginning of the simulation.
+
+# author: For QLD Paula Sanz-Leon, QIMRB, Aug-Dec 2020
 """
 
 # Import scientific python
