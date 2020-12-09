@@ -91,7 +91,7 @@ mainplotwidth = 0.85
 
 @ticker.FuncFormatter
 def date_formatter(x, pos):
-    return (dt.date(2020,2,15) + dt.timedelta(days=x)).strftime('%b-%d')
+    return (dt.date(2020, 2, 15) + dt.timedelta(days=x)).strftime('%b-%d')
 
 # Plot diagnoses
 x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
@@ -121,14 +121,15 @@ xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
 # error distribution between empirical data and median prediction
 # [num par values, timepoints]
 yy = np.abs(data_arr[:, 0:-1].T-xx[:, np.newaxis])
-yy_med = np.percentile(yy, q=50, axis=1)
-yy_q1  = np.percentile(yy, q=25, axis=1)
-yy_q3  = np.percentile(yy, q=75, axis=1)
+yy_med = np.percentile(yy, q=50, axis=0)
+yy_q1  = np.percentile(yy, q=25, axis=0)
+yy_q3  = np.percentile(yy, q=75, axis=0)
 
-pl.plot(range(len(list_of_files))+1, yy_med, np.array([yy_q1, yy_q3]), c='k', marker='x', lw=2, label='abs(emp-model)', alpha=1)
+#import pdb; pdb.set_trace()
+pl.errorbar(np.arange(len(list_of_files))+1, yy_med, np.array([yy_q1, yy_q3]), c='k', ecolor='r', marker='x', lw=2, alpha=1)
 
 pl.legend(loc='upper right', frameon=False)
-pl.ylabel('abs(model-empirical)')
+pl.ylabel('Q2 - abs(model-empirical)')
 pl.xlabel('number of seed infections')
 #ax1.set_ylim([0, 130])
 plt.show()
