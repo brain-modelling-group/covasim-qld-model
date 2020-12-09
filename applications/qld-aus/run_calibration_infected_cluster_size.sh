@@ -1,9 +1,10 @@
 #/usr/bin/bash
-# Run calibration of QLD covid model up to END_DATE
+# Run calibration of QLD covid model with different number of initial infections
+# 
 
 # Paula Sanz-Leon, QIMR Berghofer September 2020
-for x in {0..10}; do
+for x in {1..10}; do
     THIS_NUMBER=$x
     #echo $THIS_NUMBER
-    python run_qld_wave_02.py --nruns 5 --case calibration --cluster_size $THIS_NUMBER --end_calibration_date '2020-11-15'
+    python run_qld_model.py --nruns 20 --init_seed_infections $THIS_NUMBER
 done
