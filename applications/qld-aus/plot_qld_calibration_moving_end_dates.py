@@ -22,7 +22,13 @@ import matplotlib.pyplot as plt
 resultsfolder = 'results_recalibration'
 figsfolder = 'figs'
 
-list_of_files = ['qld_recalibration_2020-06-30_01.obj']
+list_of_files = ['qld_recalibration_2020-06-30_05.obj',
+                 'qld_recalibration_2020-06-30_06.obj',
+                 'qld_recalibration_2020-06-30_07.obj',
+                 'qld_recalibration_2020-06-30_08.obj',
+                 'qld_recalibration_2020-06-30_09.obj',
+                 'qld_recalibration_2020-06-30_10.obj']
+
 def format_ax(ax, sim, key=None):
     @ticker.FuncFormatter
     def date_formatter(x, pos):
@@ -46,7 +52,7 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.01, high_q=
     yarr = np.array(ys)
 
      # Moving average over X-days
-    num_days = 7
+    num_days = 3
     for idx in range(yarr.shape[0]):
         yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
@@ -85,7 +91,7 @@ def plotter(key, sims, ax, calib=False, label='', ylabel='', low_q=0.01, high_q=
     xmin, xmax = ax.get_xlim()
     pl.ylabel(ylabel)
 
-    return tvec, main_colour
+    return tvec, main_colour, halfsies
 
 
 def plot_intervs(sim, labels=True):
@@ -138,11 +144,14 @@ ax1 = pl.axes([x0, y0, dx, dy])
 #
 
 # Load the data
+halfsies_arr = np.zeros((len(list_of_files), 137))
+
 for file_idx, this_file in enumerate(list_of_files):
     msim = sc.loadobj(f'{resultsfolder}/{this_file}')
     sims = msim.sims
     format_ax(ax1, sims[0])
-    tvec, color = plotter('new_diagnoses', sims, ax1, label='model data', ylabel='new diagnoses')
+    tvec, color, halfsies_arr[file_idx, :] = plotter('new_diagnoses', sims, ax1, label='model data', ylabel='new diagnoses')
+
 
 # Plot empirical data
 inputs_folder = 'inputs'
@@ -154,15 +163,18 @@ start_idx = sims[0].day('2020-01-25')
 end_idx = sims[0].day('2020-06-30')-start_idx
 xx = data['new_cases'][-start_idx:end_idx]
 zz = data['new_cases_source_community'][-start_idx:end_idx]
-num_days = 7
+tt = data['new_tests'][-start_idx:end_idx]
+
+num_days = 3
 xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
 zz = np.convolve(zz, np.ones((num_days, ))/num_days, mode='same')
 
 #import pdb; pdb.set_trace()
 
 #pl.bar(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, color='b', label='epi data', alpha=0.4)
-pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, c='b', lw=2,label='empirical data (all)', alpha=1)
-pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], zz, c='r', lw=2,label='empirical data (community)', alpha=1)
+pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], xx, c='b', marker='x', lw=2, label='empirical data (source: all)', alpha=1)
+pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], zz, c='r', marker='o', lw=2, label='empirical data (source: community)', alpha=1)
+pl.plot(tvec[0:-(tvec.shape[0] - xx.shape[0])], tt/1000.0, c='g', marker='o', lw=2, label='new tests', alpha=1)
 
 pl.legend(loc='upper right', frameon=False)
 

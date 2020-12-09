@@ -106,11 +106,11 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
-            'beta': 0.025,        # Overall beta to use for calibration portion of the simulations
+            'beta': 0.0275,       # Overall beta to use for calibration portion of the simulations
                                   #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,   40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
-            'iso_factor':  pd.Series([0.2,     0.0,    0.0,    0.1,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,     0.0,     0.0,       0.0,    0.0], index=layers).to_dict(),
+            'iso_factor':  pd.Series([0.2,     0.1,    0.1,    0.1,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,     0.0,     0.0,       0.0,    0.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0,     0.1,    0.1,    0.2,    0.01,   0.0,     0.0,     0.0,    0.00,   0.0,     0.10,    0.00,      0.00,   0.0], index=layers).to_dict(),
             'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
             'start_day': args.start_calibration_date,
@@ -218,9 +218,9 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing -
-    symp_prob_prelockdown = 0.04    # Limited testing pre lockdown
-    symp_prob_prelockdown_01 = 0.1  # 
-    symp_prob_prelockdown_02 = 0.2  #
+    symp_prob_prelockdown = 0.02     # Limited testing pre lockdown
+    symp_prob_prelockdown_01 = 0.04  # 
+    symp_prob_prelockdown_02 = 0.08  #
     symp_prob_prelockdown_03 = 0.3  #
     symp_prob_prelockdown_04 = 0.4  #
     symp_prob_prelockdown_05 = 0.35 #
