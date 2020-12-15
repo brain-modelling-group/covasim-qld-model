@@ -102,7 +102,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
 
     pars = {'pop_size': 200e3,    # Population size
             'pop_infected': args.init_seed_infections,   # Original population infedcted
-            'pop_scale': 29,      # Population scales to 5.8M ppl in QLD
+            'pop_scale': 25,      # Population scales to 5.8M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
@@ -325,7 +325,7 @@ if __name__ == '__main__':
     # Filepaths
     inputsfolder = 'inputs'
     resultsfolder = 'results_recalibration'
-    datafile = f'{inputsfolder}/qld_epi_data_wave_01_basic_stats.csv'
+    datafile = f'{inputsfolder}/qld_health_epi_data.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
 
@@ -337,7 +337,7 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-    results_path = f"{resultsfolder}/qld_{case_to_run}_{args.end_calibration_date}_{args.init_seed_infections:02d}.obj"
+    results_path = f"{resultsfolder}/qld_update_{case_to_run}_{args.end_calibration_date}_{args.init_seed_infections:02d}.obj"
 
     
     # Run and plot
