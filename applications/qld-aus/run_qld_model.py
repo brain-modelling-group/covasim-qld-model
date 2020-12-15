@@ -265,18 +265,18 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                                                   asymp_quar_prob=0.001,do_plot=True))
 
     # Tracing
-    trace_probs = {'H': 1, 'S': 0.95, 
-                   'W': 0.9, 'C': 0.05, 
-                   'church': 0.5, 
-                   'pSport': 0.8, 
-                   'cSport': 0.5,
-                   'entertainment': 0.1, 
-                   'cafe_restaurant': 0.8, 
-                   'pub_bar': 0.8, 
-                   'transport': 0.8, 
-                   'public_parks': 0.01, 
-                   'large_events': 0.01, 
-                   'social': 0.9}
+    trace_probs = {'H': 1.00, 'S': 0.95, 
+                   'W': 0.80, 'C': 0.05, 
+                   'church': 0.50, 
+                   'pSport': 0.80, 
+                   'cSport': 0.50,
+                   'entertainment': 0.10, 
+                   'cafe_restaurant': 0.70, 
+                   'pub_bar': 0.50, 
+                   'transport': 0.50, 
+                   'public_parks': 0.00, 
+                   'large_events': 0.05, 
+                   'social': 0.90}
     trace_time = {'H': 0, 'S': 2, 
                   'W': 2, 'C': 7, 
                   'church': 5, 
