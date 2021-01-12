@@ -337,7 +337,7 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-    results_path = f"{resultsfolder}/qld_update_{case_to_run}_{args.end_calibration_date}_{args.init_seed_infections:02d}.obj"
+    results_path = f"{resultsfolder}/qld_update_locally_acquired_{case_to_run}_{args.end_calibration_date}_{args.init_seed_infections:02d}.obj"
 
     
     # Run and plot

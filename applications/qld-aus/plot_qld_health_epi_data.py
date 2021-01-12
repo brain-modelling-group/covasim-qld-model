@@ -42,36 +42,35 @@ output_fig =  "-".join((now_str, 'qld_health_epi_data.jpeg'))
 data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 
 # Set date as index
-#data.set_index('date', inplace=True)
+data.set_index('date', inplace=True)
 
 # Start graphics objects
 f, (ax1, ax2) = plt.subplots(2, 1, figsize=(28, 18), sharex=True)
 
 
 # Plot new cases
-new_cases = np.array(data['new_cases'])
-ax1.plot(np.flip(new_cases))
+#import pdb; pdb.set_trace()
+ax1.plot(data.index, data['new_cases'], color='#377eb8')
+ax1.plot(data.index, data['new_locally_acquired_cases'], color='#e41a1c', ls='--')
 # Set ticks every week
-#ax1.xaxis.set_major_locator(mdates.WeekdayLocator())
+ax1.xaxis.set_major_locator(mdates.WeekdayLocator())
 # Set major ticks format
-#ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
+ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+ax1.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 12, 15)])
 ax1.set_ylabel('new cases')
 plt.setp(ax1.get_xticklabels(), 
          rotation=45, ha="right",
          rotation_mode="anchor")
 
-#import pdb
-#pdb.set_trace()
 # Plot new deaths
-new_tests = np.array(data['new_tests'])
-ax2.plot(np.flip(new_tests), color='#ad150b')
-#ax2.xaxis.set_major_locator(mdates.WeekdayLocator())
-#ax2.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
-#ax2.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 12, 6)])
+ax2.plot(data.index, data['new_tests'], color='#4daf4a')
+ax2.xaxis.set_major_locator(mdates.WeekdayLocator())
+ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+ax2.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 12, 15)])
 ax2.set_ylabel('new tests')
 plt.setp(ax2.get_xticklabels(), 
          rotation=45, ha="right",
          rotation_mode="anchor")
    
-
-cv.savefig("/".join((figs_folder, output_fig)), dpi=100)
+plt.show()
+#cv.savefig("/".join((figs_folder, output_fig)), dpi=100)

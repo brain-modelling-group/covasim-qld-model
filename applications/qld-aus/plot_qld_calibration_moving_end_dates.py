@@ -22,12 +22,18 @@ import matplotlib.pyplot as plt
 resultsfolder = 'results_recalibration'
 figsfolder = 'figs'
 
-list_of_files = ['qld_recalibration_2020-06-30_05.obj',
-                 'qld_recalibration_2020-06-30_06.obj',
-                 'qld_recalibration_2020-06-30_07.obj',
-                 'qld_recalibration_2020-06-30_08.obj',
-                 'qld_recalibration_2020-06-30_09.obj',
-                 'qld_recalibration_2020-06-30_10.obj']
+list_of_files = [
+                 'qld_update_locally_acquired_recalibration_2020-05-15_01.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_02.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_03.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_04.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_05.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_06.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_07.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_08.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_09.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_10.obj'
+                 ]
 
 def format_ax(ax, sim, key=None):
     @ticker.FuncFormatter

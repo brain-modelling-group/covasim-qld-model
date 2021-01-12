@@ -22,16 +22,16 @@ import matplotlib.pyplot as plt
 resultsfolder = 'results_recalibration'
 figsfolder = 'figs'
 
-list_of_files = ['qld_recalibration_2020-06-30_01.obj',
-                 'qld_recalibration_2020-06-30_02.obj',
-                 'qld_recalibration_2020-06-30_03.obj',
-                 'qld_recalibration_2020-06-30_04.obj',
-                 'qld_recalibration_2020-06-30_05.obj',
-                 'qld_recalibration_2020-06-30_06.obj',
-                 'qld_recalibration_2020-06-30_07.obj',
-                 'qld_recalibration_2020-06-30_08.obj',
-                 'qld_recalibration_2020-06-30_09.obj',
-                 'qld_recalibration_2020-06-30_10.obj']
+list_of_files = ['qld_update_locally_acquired_recalibration_2020-05-15_01.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_02.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_03.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_04.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_05.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_06.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_07.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_08.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_09.obj',
+                 'qld_update_locally_acquired_recalibration_2020-05-15_10.obj']
 
 def format_ax(ax, sim, key=None):
     @ticker.FuncFormatter
@@ -82,8 +82,8 @@ pl.rcParams['font.size'] = font_size
 pl.figure(figsize=(24,8))
 
 # Plot locations
-ygaps = 0.06
-xgaps = 0.06
+ygaps = 0.1
+xgaps = 0.1
 remainingy = 1-3*ygaps
 remainingx = 1-3*xgaps
 mainplotheight = 0.85
@@ -98,7 +98,7 @@ x0, y0, dx, dy = xgaps, ygaps, mainplotwidth, mainplotheight
 ax1 = pl.axes([x0, y0, dx, dy])
 
 # Load the data
-data_arr = np.zeros((len(list_of_files), 137))
+data_arr = np.zeros((len(list_of_files), 91))
 
 for file_idx, this_file in enumerate(list_of_files):
     msim = sc.loadobj(f'{resultsfolder}/{this_file}')
@@ -108,13 +108,13 @@ for file_idx, this_file in enumerate(list_of_files):
 
 # Plot empirical data
 inputs_folder = 'inputs'
-input_data = 'qld_epi_data_wave_01_basic_stats.csv'
+input_data = 'qld_health_epi_data.csv'
 
 # Load data
 data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 start_idx = sims[0].day('2020-01-25')
-end_idx = sims[0].day('2020-06-30')-start_idx
-xx = data['new_cases'][-start_idx:end_idx]
+end_idx = sims[0].day('2020-05-15')-start_idx
+xx = data['new_locally_acquired_cases'][-start_idx:end_idx]
 
 num_days = 3
 xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
@@ -126,7 +126,9 @@ yy_q1  = np.percentile(yy, q=25, axis=0)
 yy_q3  = np.percentile(yy, q=75, axis=0)
 
 #import pdb; pdb.set_trace()
-pl.errorbar(np.arange(len(list_of_files))+1, yy_med, np.array([yy_q1, yy_q3]), c='k', ecolor='r', marker='x', lw=2, alpha=1)
+#num_init_infections = np.array([1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0])
+num_init_infections = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
+pl.errorbar(num_init_infections, yy_med, np.array([yy_q1, yy_q3]), c='k', ecolor='r', marker='x', lw=2, alpha=1)
 
 pl.legend(loc='upper right', frameon=False)
 pl.ylabel('Q2 - abs(model-empirical)')
