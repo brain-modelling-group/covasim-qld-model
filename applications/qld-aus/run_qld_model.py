@@ -85,7 +85,7 @@ parser.add_argument('--end_calibration_date', default='2020-05-15',
 
 
 def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None, input_args=None):
-    start_day = inout_args.start_calibration_date
+    start_day = input_args.start_calibration_date
     layers = ['H', 'S', 'W', 'C', 
               'church', 
               'pSport', 
