@@ -3,13 +3,11 @@
 """
 (RE)calibration of QLD model.
 
-We initialized the model on February 15th, and run simulations until June 30th 2020.
-by seeding X infections in the model population.
+We initialized the model on February 15th, and run simulations until `end_date`
 
 The number of seed infections chosen as part of the calibration process. 
 The model was fitted to data  on  
-(1)  the  number  of  tests  conducted  and  
-(2)  the  daily  number  of  cases  diagnosed  in  QLD
+(1)  the  daily  number  of  cases  diagnosed  in  QLD
 
 How: by  performing  an  automated  search for the  values of the number of seed infections 
 that *minimized the absolute differences between the model projections and the data*. 
@@ -40,13 +38,13 @@ import argparse
 cv.check_version('1.6.1', die=True)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--nruns', default=2, 
+parser.add_argument('--nruns', default=5, 
                                type=int, 
                                help='''Number of simulations to run per scenario. 
                                        Uses different PRNG seeds for each simulations.''')
-parser.add_argument('--case', default='recalibration', 
-                              type=str, 
-                              help='''Label used in the output to tag which scenario
+parser.add_argument('--label', default='recalibration', 
+                               type=str, 
+                               help='''Label used in the output to tag which scenario
                                       we are running.''')
 
 parser.add_argument('--dist', default='poisson', 
@@ -62,32 +60,32 @@ parser.add_argument('--par2', default=1.0,
                               type=float, 
                               help='''The "secondary" distribution parameter (e.g. std).''')
 
-parser.add_argument('--cluster_size', default=0, 
+parser.add_argument('--cluster_size', 
+                              default=0, 
                               type=int, 
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
-parser.add_argument('--init_seed_infections', default=1, 
+parser.add_argument('--init_seed_infections', 
+                               default=1, 
                                type=int, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--open_borders_date', default='2020-10-01', 
-                              type=str, 
-                              help='''The date at which borders are open (eg, '2020-09-21').''')
+parser.add_argument('--global_beta', default=0.0275, 
+                               type=float, 
+                               help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--start_calibration_date', default='2020-02-15', 
+
+parser.add_argument('--start_calibration_date', default='2020-01-15', 
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
 
-parser.add_argument('--end_calibration_date', default='2020-06-30', 
+parser.add_argument('--end_calibration_date', default='2020-05-15', 
                               type=str, 
                               help='''The date at which calibration finishes (default, '2020-06-30').''')
 
 
-args = parser.parse_args()
-
-
-def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None, input_args=None):
-    start_day = args.start_calibration_date
+def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None, input_args=None):
+    start_day = inout_args.start_calibration_date
     layers = ['H', 'S', 'W', 'C', 
               'church', 
               'pSport', 
@@ -101,20 +99,20 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
               'social']   
 
     pars = {'pop_size': 200e3,    # Population size
-            'pop_infected': args.init_seed_infections,   # Original population infedcted
-            'pop_scale': 25,      # Population scales to 5.8M ppl in QLD
+            'pop_infected': input_args.init_seed_infections,   # Original population infedcted
+            'pop_scale': 25.5,    # Population scales to 5.1M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
-            'beta': 0.0275,       # Overall beta to use for calibration portion of the simulations
-                                  #   H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
+            'beta': input_args.global_beta,  # Overall beta to use for calibration portion of the simulations
+                                       # H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,   40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
             'iso_factor':  pd.Series([0.2,     0.01,   0.1,    0.1,    0.01,   0.0,     0.0,     0.01,   0.01,   0.01,    0.10,    0.0,       0.00,    0.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0,     0.01,   0.1,    0.1,    0.01,   0.0,     0.0,     0.01,   0.01,   0.01,    0.10,    0.00,      0.01,   0.0], index=layers).to_dict(),
-            'n_imports': 0.1, # Number of new cases per day -- can be varied over time as part of the interventions
-            'start_day': args.start_calibration_date,
-            'end_day': args.end_calibration_date,
+            'n_imports': 0.0, # Number of new cases per day -- can be varied over time as part of the interventions
+            'start_day': input_args.start_calibration_date,
+            'end_day':   input_args.end_calibration_date,
             'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
             'verbose': .1}
 
@@ -184,8 +182,6 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                  cv.change_beta(days=[lockdown00, reopen01, reopen02, reopen03], 
                                 changes=[0.1, 0.3, 0.4, 0.5], 
                                 layers=['social'], do_plot=False),
-                 # Dynamic layers ['C', 'entertainment', 'cafe_restaurant', 
-                 # 'pub_bar', 'transport', 'public_parks', 'large_events']
                  
                  cv.change_beta(days=[start_day, response01, lockdown01, lockdown02, reopen01, reopen02, borders02], 
                                 changes=[3.0, 0.7, 0.67, 0.6, 0.7, 0.8, 0.9], 
@@ -217,15 +213,15 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
                  ]
     sim.pars['interventions'].extend(beta_ints)
 
-    # Testing -
-    symp_prob_prelockdown = 0.02     # Limited testing pre lockdown
-    symp_prob_prelockdown_01 = 0.04  # 
-    symp_prob_prelockdown_02 = 0.08  #
+    # Testing of symptomatic cases
+    symp_prob_prelockdown = 0.02    # Limited testing pre lockdown
+    symp_prob_prelockdown_01 = 0.04 # 
+    symp_prob_prelockdown_02 = 0.08 #
     symp_prob_prelockdown_03 = 0.3  #
     symp_prob_prelockdown_04 = 0.4  #
     symp_prob_prelockdown_05 = 0.35 #
     symp_prob_lockdown = 0.3        # Increased testing during lockdown
-    symp_prob_postlockdown = 0.2   # Testing since lockdown
+    symp_prob_postlockdown = 0.2    # Testing since lockdown
     sim.pars['interventions'].append(cv.test_prob(start_day=start_day, 
                                                   end_day='2020-03-07', 
                                                   symp_prob=symp_prob_prelockdown, 
@@ -319,9 +315,7 @@ def make_sim(case_to_run, load_pop=True, popfile='qldppl.pop', datafile=None, ag
 if __name__ == '__main__':
     
     T = sc.tic()
-    # Settings
     
-    case_to_run    = args.case
     # Filepaths
     inputsfolder = 'inputs'
     resultsfolder = 'results_recalibration'
@@ -329,15 +323,16 @@ if __name__ == '__main__':
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
 
+    args = parser.parse_args()
+
     # Create instance of simulator
-    sim  = make_sim(case_to_run,
-                    load_pop=True, 
+    sim  = make_sim(load_pop=True, 
                     popfile=populationfile, 
                     datafile=datafile, 
                     agedatafile=agedatafile,
                     input_args = args)
 
-    results_path = f"{resultsfolder}/qld_update_locally_acquired_{case_to_run}_{args.end_calibration_date}_{args.init_seed_infections:02d}.obj"
+    results_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta}_{args.init_seed_infections:02d}.obj"
 
     
     # Run and plot
