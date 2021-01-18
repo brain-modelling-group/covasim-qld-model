@@ -41,7 +41,7 @@ if __name__ == '__main__':
     figsfolder = 'figs'
 
     betas = np.arange(0.01, 0.03, 0.0005)
-    seed_infections = np.arange(1, 26, 1)
+    seed_infections = np.arange(1, 3, 1)
 
 
     # Axes of PSE
@@ -94,5 +94,3 @@ if __name__ == '__main__':
     yy_q3  = np.percentile(yy, q=75, axis=0)
 
     np.savez("recalibration_2d_pse", res=yy, x=seed_infections, y=betas)
-
-    import pdb; pdb.set_trace()
