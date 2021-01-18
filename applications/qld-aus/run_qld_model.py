@@ -55,7 +55,7 @@ parser.add_argument('--dist', default='poisson',
 parser.add_argument('--par1', default=1.0, 
                               type=float, 
                               help=''' The "main" distribution parameter (e.g. mean).''')
-
+  
 parser.add_argument('--par2', default=1.0, 
                               type=float, 
                               help='''The "secondary" distribution parameter (e.g. std).''')
@@ -332,7 +332,7 @@ if __name__ == '__main__':
                     agedatafile=agedatafile,
                     input_args = args)
 
-    results_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta}_{args.init_seed_infections:02d}.obj"
+    results_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
 
     
     # Run and plot
