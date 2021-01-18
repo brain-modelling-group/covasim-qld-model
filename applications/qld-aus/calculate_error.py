@@ -40,8 +40,8 @@ if __name__ == '__main__':
     resultsfolder = 'results_recalibration'
     figsfolder = 'figs'
 
-    betas = np.arange(0.01, 0.04, 0.0005)
-    seed_infections = np.arange(1, 2, 1)
+    betas = np.arange(0.01, 0.03, 0.0005)
+    seed_infections = np.arange(1, 26, 1)
 
 
     # Axes of PSE
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     error_matrix = np.zeros((num_betas, num_infections))
 
     # Load the simulated data
-    sim_length_days = 122
+    sim_length_days = 76
 
     data_arr = np.zeros((sim_length_days, num_betas, num_infections))
 
