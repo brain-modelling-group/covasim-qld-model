@@ -1,8 +1,8 @@
 start_date,end_date,covasim_component,intervention_label,intervention_brief_description,intervention_description,category,level,stage,colour_level,colour_stage
-2020-03-15,2021-12-31,global beta,all,physical distancing 1.5m,enforce physical distancing to 1.5m,behavioural,public health rules change,0,#9e0142,#9e0142
-2020-03-15,2021-12-31,global beta,all,hand sanitising,Increase hand sanitising,behavioural,public health rules change,0,#9e0142,#9e0142
-2020-03-15,2021-12-31,global beta,all,PPE,increased personal protective equipment (PPE) ,behavioural,public health rules change,0,#9e0142,#9e0142
-2020-03-15,2021-12-31,global beta,all,frequent disinfection and cleaning,frequent disinfection and cleaning,behavioural,public health rules change,0,#9e0142,#9e0142
+2020-03-15,2021-12-31,global beta,all,physical distancing 1.5m,enforce physical distancing to 1.5m,behavioural,public health rules change,0,#5e4fa2,#5e4fa2
+2020-03-15,2021-12-31,global beta,all,hand sanitising,Increase hand sanitising,behavioural,public health rules change,0,#5e4fa2,#5e4fa2
+2020-03-15,2021-12-31,global beta,all,PPE,increased personal protective equipment (PPE) ,behavioural,public health rules change,0,#5e4fa2,#5e4fa2
+2020-03-15,2021-12-31,global beta,all,frequent disinfection and cleaning,frequent disinfection and cleaning,behavioural,public health rules change,0,#5e4fa2,#5e4fa2
 2020-03-19,2021-12-31,imports,international borders,international borders close,Australia bans all arrivals by non-citizens and non-residents,policy,restriction,0,#f46d43,#000000
 2020-03-19,2020-03-22,layer,all,outdoors gath. < 200 ppl,outdoors gatherings restricted to <200 people,policy,restriction,0,#f46d43,#000000
 2020-03-29,2020-03-30,layer,house,house visitors <=10 ppl,visitors <=10 people,policy,restriction,0,#f46d43,#000000
@@ -58,7 +58,7 @@ start_date,end_date,covasim_component,intervention_label,intervention_brief_desc
 2020-08-22,2020-09-30,layer,public parks,,Sout-East QLD Outdoors <=10 people,policy,restriction,3,#f46d43,#fee08b
 2020-08-22,2020-09-30,layer,home,,rest of QLD <=30 people,policy,restriction,3,#f46d43,#fee08b
 2020-08-22,2020-09-30,layer,public parks,,rest of QLD Outdoors <=30 people,policy,restriction,3,#f46d43,#fee08b
-2020-08-24,2022-12-31,global beta,all,,mask wearing,behavioural,public health rules change,3,#9e0142,#9e0142
+2020-08-24,2022-12-31,global beta,all,,mask wearing,behavioural,public health rules change,3,#5e4fa2,#5e4fa2
 2020-10-01,2020-11-02,imports,Interstate borders,,open to NSW postcodes close to borders,policy,relaxation,4,#abdda4,#d9ef8b
 2020-10-01,2022-12-31,layer,pubs,,standing earing and drinking allowed,policy,relaxation,4,#abdda4,#d9ef8b
 2020-10-01,2020-11-02,layer,large events,,increase capacity stadiums to 75%,policy,relaxation,4,#abdda4,#d9ef8b
