@@ -133,5 +133,4 @@ pl.errorbar(num_init_infections, yy_med, np.array([yy_q1, yy_q3]), c='k', ecolor
 pl.legend(loc='upper right', frameon=False)
 pl.ylabel('Q2 - abs(model-empirical)')
 pl.xlabel('number of seed infections')
-#ax1.set_ylim([0, 130])
 plt.show()

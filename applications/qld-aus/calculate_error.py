@@ -23,8 +23,8 @@ def get_simulated_data(sims, key, av_days=3, low_q=25, high_q=75):
 
     # Moving average over X-days
     num_days = av_days
-    for idx in range(yarr.shape[0]):
-        yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
+    #for idx in range(yarr.shape[0]):
+    #    yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
     low_percentile  = np.percentile(yarr, low_q, axis=0)
     high_percentile = np.percentile(yarr, high_q, axis=0)
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     figsfolder = 'figs'
 
     betas = np.arange(0.01, 0.03, 0.0005)
-    seed_infections = np.arange(1, 3, 1)
+    seed_infections = np.arange(1, 26, 1)
 
 
     # Axes of PSE
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     for beta_idx, this_beta in enumerate(betas):
         for infect_idx, this_infection in enumerate(seed_infections):
             # Generate file name
-            this_file = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-15_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.obj"
+            this_file = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-03-30_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.obj"
             msim = sc.loadobj(f'{resultsfolder}/{this_file}')
             sims = msim.sims
             data_arr[..., beta_idx, infect_idx] = get_simulated_data(sims, 'new_diagnoses')
@@ -76,14 +76,14 @@ if __name__ == '__main__':
 
     # Get 
     start_sim_idx = sims[0].day('2020-01-22') # First data point of sim data is 15-01-2020
-    end_sim_idx   = sims[0].day('2020-05-15') # Last data point of simulated data is 15-05-2020 
+    end_sim_idx   = sims[0].day('2020-03-30') # Last data point of simulated data is 15-05-2020 
 
     start_data_idx = 0 # First data point of sim data is 22-01-2020
-    end_data_idx   = sims[0].day('2020-05-15')-start_sim_idx # Last data point of empirical data is today
+    end_data_idx   = sims[0].day('2020-03-30')-start_sim_idx # Last data point of empirical data is today
 
     xx = data['new_locally_acquired_cases'][start_data_idx:end_data_idx]
     num_days = 3
-    xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
+    #xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
     # error distribution between empirical data and median prediction
     # [num par values, timepoints]
     yy = np.abs(data_arr[start_sim_idx:end_sim_idx, ...]-xx[:, np.newaxis, np.newaxis])
@@ -93,4 +93,4 @@ if __name__ == '__main__':
     yy_q1  = np.percentile(yy, q=25, axis=0)
     yy_q3  = np.percentile(yy, q=75, axis=0)
 
-    np.savez("recalibration_2d_pse", res=yy, x=seed_infections, y=betas)
+    np.savez("recalibration_2d_pse_2020-01-15_2020-03-30_no-conv", res=yy, x=seed_infections, y=betas)
