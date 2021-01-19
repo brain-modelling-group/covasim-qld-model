@@ -127,8 +127,8 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     response02 = '2020-03-21' # Enahnced screening and distancing within age care facilities
     lockdown00 = '2020-03-23' # Lockdown starts, churches close, restaurants/pubs close
                               # cSports cancelled, entratianment, large-events, pSports
-    lockdown01 = '2020-03-25' # noncovid health services close - C-layer
-    lockdown02 = '2020-03-26' # retail close - C layer
+    lockdown01 ='2020-03-25'  # noncovid health services close - C-layer
+    lockdown02 ='2020-03-26'  # retail close - C layer
     parks00   = '2020-04-03'  # National parks close - public parks
     borders00 = '2020-04-03'  # Borders shut to all state
     beach00   = '2020-04-07'  # Beaches closes
