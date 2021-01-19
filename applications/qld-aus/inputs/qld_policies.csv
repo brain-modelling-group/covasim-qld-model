@@ -5,9 +5,9 @@ start_date,end_date,covasim_component,intervention_label,intervention_brief_desc
 2020-03-15,2021-12-31,global beta,all,frequent disinfection and cleaning,frequent disinfection and cleaning,behavioural,public health rules change,0,#5e4fa2,#5e4fa2
 2020-03-19,2021-12-31,imports,international borders,international borders close,Australia bans all arrivals by non-citizens and non-residents,policy,restriction,0,#f46d43,#000000
 2020-03-19,2020-03-22,layer,all,outdoors gath. < 200 ppl,outdoors gatherings restricted to <200 people,policy,restriction,0,#f46d43,#000000
-2020-03-29,2020-03-30,layer,house,house visitors <=10 ppl,visitors <=10 people,policy,restriction,0,#f46d43,#000000
+2020-03-29,2020-03-30,layer,home,house visitors <=10 ppl,visitors <=10 people,policy,restriction,0,#f46d43,#000000
 2020-03-29,2020-03-30,layer,public parks,outdoors gath. (park) < 10 ppl,Outdoors <=10 people,policy,restriction,0,#f46d43,#000000
-2020-03-30,2020-05-16,layer,house,house visitors <=2 ppl,visitors <=2 people,policy,restriction,0,#f46d43,#000000
+2020-03-30,2020-05-16,layer,home,house visitors <=2 ppl,visitors <=2 people,policy,restriction,0,#f46d43,#000000
 2020-03-30,2020-05-16,layer,public parks,outdoors gath. (park) <=2  ppl,outdoors <=2 people,policy,restriction,0,#f46d43,#000000
 2020-03-30,2020-05-02,layer,all,lockdown,"lockdown travel outside the home banned except for four essential reasons: getting food, medical reasons, work and exercise. ",policy,restriction,0,#f46d43,#000000
 2020-03-23,2020-05-16,layer,church,places of worship close,places of worship close,policy,restriction,0,#f46d43,#000000
