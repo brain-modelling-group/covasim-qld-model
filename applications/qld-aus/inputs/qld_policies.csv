@@ -52,7 +52,7 @@ start_date,end_date,covasim_component,intervention_label,intervention_descriptio
 2020-07-27,2020-12-11,quarantine,quarantine,queenslanders returning from hotspots must observe hotel quarantine,policy,restriction,3
 2020-07-27,2020-09-24,imports,Interstate borders,Non-residents coming from hotspots not allowed entry,policy,restriction,3
 2020-07-29,2020-07-29,imports,Interstate borders,greater sydney is declared hotspot,event,restriction,3
-2020-07-29,2020-07-29,seed infections,Interstate borders,three people infected put into  quarantine,event,restriction,3
+2020-07-29,2020-07-29,seed infections,Interstate borders,three people infected put into quarantine,event,restriction,3
 2020-08-08,2020-09-25,imports,Interstate borders,borders close to NSW and ACT,policy,restriction,3
 2020-08-20,2020-08-08,seed infections,Interstate borders,a person test positive at a youth centre,event,restriction,3
 2020-08-22,2020-09-30,layer,home,Sout-East QLD <=10 people,policy,restriction,3
