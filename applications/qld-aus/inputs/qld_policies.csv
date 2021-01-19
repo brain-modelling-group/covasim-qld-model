@@ -1,95 +1,95 @@
-start_date,end_date,covasim_component,intervention_label,intervention_brief_description,intervention_description,category,level,stage,colour
-2020-03-15,2021-12-31,global beta,all,physical distancing 1.5m,enforce physical distancing to 1.5m,behavioural,public health rules change,0,
-2020-03-15,2021-12-31,global beta,all,hand sanitising,Increase hand sanitising,behavioural,public health rules change,0,
-2020-03-15,2021-12-31,global beta,all,PPE,increased personal protective equipment (PPE) ,behavioural,public health rules change,0,
-2020-03-15,2021-12-31,global beta,all,frequent disinfection and cleaning,frequent disinfection and cleaning,behavioural,public health rules change,0,
-2020-03-19,2021-12-31,imports,international borders,international borders close,Australia bans all arrivals by non-citizens and non-residents,policy,restriction,0,
-2020-03-19,2020-03-22,layer,all,outdoors gath. < 200 ppl,outdoors gatherings restricted to <200 people,policy,restriction,0,
-2020-03-29,2020-03-30,layer,house,house visitors <=10 ppl,visitors <=10 people,policy,restriction,0,
-2020-03-29,2020-03-30,layer,public parks,outdoors gath. (park) < 10 ppl,Outdoors <=10 people,policy,restriction,0,
-2020-03-30,2020-05-16,layer,house,house visitors <=2 ppl,visitors <=2 people,policy,restriction,0,
-2020-03-30,2020-05-16,layer,public parks,outdoors gath. (park) <=2  ppl,outdoors <=2 people,policy,restriction,0,
-2020-03-30,2020-05-02,layer,all,lockdown,"lockdown travel outside the home banned except for four essential reasons: getting food, medical reasons, work and exercise. ",policy,restriction,0,
-2020-03-23,2020-05-16,layer,church,places of worship close,places of worship close,policy,restriction,0,
-2020-03-23,2020-05-16,layer,restaurants,restaurants/cafes close,restaurants/cafes close,policy,restriction,0,
-2020-03-23,2020-05-16,layer,pubs,pubs close,pubs close,policy,restriction,0,
-2020-03-23,2020-06-11,layer,cSports,community sports cancelled (gym),community sports cancelled (gym),policy,restriction,0,
-2020-03-23,2020-07-02,layer,entertainment ,places of entertainment close ,places of entertainment close ,policy,restriction,0,
-2020-03-23,2020-06-19,layer,large events,large-events cancelled,large-events cancelled,policy,restriction,0,
-2020-03-23,2020-07-02,layer,pSports,professional sports cancelled,professional sports cancelled,policy,restriction,0,
-2020-03-25,2020-05-01,layer,community,non-covid health services closed,non-covid health services closed,policy,restriction,0,
-2020-03-26,2020-05-01,layer,community,retail shops close,retail shops close,policy,restriction,0,
-2020-03-30,2020-05-10,layer,school,school activity reduced  ,schools 'student-free' except for children whose parents work in essential services,policy,restriction,0,
-2020-04-03,2020-05-01,layer,public parks,national parks close,national parks close,policy,restriction,0,
-2020-04-02,2020-12-12,imports,Interstate borders,interstate borders close,Interstate borders restriction in place,policy,restriction,0,
-2020-04-06,2020-11-01,testing,testing,increased testing in hotspots,Testing anyone with respiratory symptoms in hotspots,intervention,counteract,0,
-2020-04-07,2020-04-22,layer,community,beaches close,beaches close,policy,restriction,0,
-2020-04-19,2020-05-11,layer,school,schools activity increased,schools open for term two for vulnerable students and the children of essential workers only ,policy,restriction,0,
-2020-05-02,2020-05-15,layer,public parks,travel up to 50 km / family picnics allowed,up to 50 kilometres from home and family picnics allowed,policy,relaxation,1,
-2020-05-02,2022-12-31,layer,community,non-essential shopping allowed,non-essential shopping allowed,policy,relaxation,1,
-2020-05-15,2020-07-09,layer,public parks,travel up to 150 km / family picnics allowed,up to 150 kilometres from home and family picnics allowed,policy,relaxation,1,
-2020-05-10,2020-07-02,layer,home,house visitors <=5 ppl,up to 5 people from another household can visit,policy,relaxation,1,
-2020-05-11,2020-05-25,layer,school,school partial resumption,"partial resumption (kindergarten, prep and years 1, 11 and 12)",policy,relaxation,1,
-2020-05-25,2022-12-31,layer,school,school full resumption,full resumption,policy,relaxation,1,
-2020-05-15,2020-07-02,layer,public parks,outdoors gath. (park) <=10  ppl,Outdoors <=10 people,policy,relaxation,1,
-2020-05-16,2020-07-02,layer,restaurants,restaurants/cafes reopen <=10 ppl,reopen with up to 10 patrons,policy,relaxation,1,
-2020-05-16,2020-07-02,layer,pubs,pubs/bars reopen <=10 ppl,reopen with up to 10 patrons,policy,relaxation,1,
-2020-06-12,2020-07-10,layer,cSports,gym reopen 4sqm/person,"gym up to 20 people non-contact training, 4  square metres per person",policy,relaxation,2,
-2020-06-12,2020-10-15,layer,home,,Visitors <=20 people,policy,relaxation,2,
-2020-07-03,2020-11-30,layer,public parks,,Outdoors <=20 people,policy,relaxation,2,
-2020-06-18,2020-11-30,layer,aged care,,2 visitors at a time in aged care places,policy,relaxation,2,
-2020-06-20,2020-06-20,layer,large events,,2000 fans allowed at Lang Park and the Gabba ,event,relaxation,2,
-2020-07-03,2022-12-31,layer,pubs,,pubs allowed to have patrons back,policy,relaxation,3,
-2020-07-03,2022-12-31,layer,pSports,,Contact – full contact is permitted on the ‘field of play’ ,policy,relaxation,3,
-2020-07-03,2020-07-09,quarantine,Interstate borders,,people returning from Victoria forced into hotel quarantine,policy,restriction,3,
-2020-07-10,2020-08-07,imports,Interstate borders,,borders open to travellers except Victorians,policy,relaxation,3,
-2020-07-10,2022-12-31,layer,cSports,,"gym up to 100 people non-contact training, 4  square metres per person",policy,relaxation,3,
-2020-07-14,2020-11-30,imports,Interstate borders,,block entry from NSW hotspots,policy,restriction,3,
-2020-07-16,2020-12-01,layer,social,,100 people can attend a funeral,policy,relaxation,3,
-2020-07-22,2020-07-22,quarantine,house quarantine compliance,,"out of 2000 checks, 400 not at home, 200 people missing",event,counteract,3,
-2020-07-24,2020-09-30,layer,pubs,,sit down rule,policy,restriction,3,
-2020-07-27,2020-12-11,quarantine,quarantine,,queenslanders returning from hotspots must observe hotel quarantine,policy,restriction,3,
-2020-07-27,2020-09-24,imports,Interstate borders,,Non-residents coming from hotspots not allowed entry,policy,restriction,3,
-2020-07-29,2020-07-29,imports,Interstate borders,,greater sydney is declared hotspot,event,restriction,3,
-2020-07-29,2020-07-29,seed infections,Interstate borders,,three people infected put into quarantine,event,restriction,3,
-2020-08-08,2020-09-25,imports,Interstate borders,,borders close to NSW and ACT,policy,restriction,3,
-2020-08-20,2020-08-08,seed infections,Interstate borders,,a person test positive at a youth centre,event,restriction,3,
-2020-08-22,2020-09-30,layer,home,,Sout-East QLD <=10 people,policy,restriction,3,
-2020-08-22,2020-09-30,layer,public parks,,Sout-East QLD Outdoors <=10 people,policy,restriction,3,
-2020-08-22,2020-09-30,layer,home,,rest of QLD <=30 people,policy,restriction,3,
-2020-08-22,2020-09-30,layer,public parks,,rest of QLD Outdoors <=30 people,policy,restriction,3,
-2020-08-24,2022-12-31,global beta,all,, mask wearing,behavioural,public health rules change,3,
-2020-10-01,2020-11-02,imports,Interstate borders,,open to NSW postcodes close to borders,policy,relaxation,4,
-2020-10-01,2022-12-31,layer,pubs,,standing earing and drinking allowed,policy,relaxation,4,
-2020-10-01,2020-11-02,layer,large events,,increase capacity stadiums to 75%,policy,relaxation,4,
-2020-10-16,2020-11-30,layer,home,,Visitors <=40 people,policy,relaxation,4,
-2020-10-16,2022-12-31,layer,church,,"up to 100 people outdoor, 2 square meters per person",policy,relaxation,5,
-2020-10-16,2022-12-31,layer,church,,"up to 500 people indoor, 4 square meters per person",policy,relaxation,5,
-2020-11-03,2022-12-31,layer,large events,,increase capacity stadiums to 100%,policy,relaxation,5,
-2020-11-03,2020-11-30,imports,interstate borders,,open to regional NSW,policy,relaxation,5,
-2020-11-26,2022-12-31,layer,restaurants,,all venues can allow up to 100% of seated capacity,policy,relaxation,5,
-2020-12-01,2022-12-31,layer,large events,,outdoors <= 1500 people,policy,relaxation,6,
-2020-12-01,2022-12-31,layer,home,,50 people allowed to gather in homes,policy,relaxation,6,
-2020-12-01,2020-12-01,layer,public parks,,100 people allowed to gather in public spaces,policy,relaxation,6,
-2020-12-01,2022-12-31,layer,restaurants,,One per person per 2m2,policy,relaxation,6,
-2020-12-01,2022-12-31,layer,pubs,,One per person per 2m2,policy,relaxation,6,
-2020-12-01,2022-12-31,layer,church,,One per person per 2m2,policy,relaxation,6,
-2020-12-01,2022-12-31,layer,entertainment ,,One per person per 2m2,policy,relaxation,6,
-2020-12-01,2022-12-31,layer,social,,200 people can attend a wedding,policy,relaxation,6,
-2020-12-01,2022-12-31,layer,social,,200 people can attend a funeral,policy,relaxation,6,
-2020-12-01,2022-12-31,layer,entertainment ,,"100% capacity at seated, ticketed venues ",policy,relaxation,6,
-2020-12-01,2022-12-31,layer,large events,,Open air stadiums: 100% seated capacity ,policy,relaxation,6,
-2020-12-01,2020-12-11,imports,interstate borders,,open to Greater Sydney,policy,relaxation,6,
-2020-12-01,2022-12-31,imports,interstate borders,,no border declaration required,policy,relaxation,6,
-2020-12-01,2020-12-12,imports,interstate borders,,14-day quarantine if returning from hotpsot,policy,restriction,6,
-2020-12-01,2020-12-12,quarantine,interstate borders,,14-day quarantine if returning from hotpsot,policy,restriction,6,
-2020-12-12,2022-12-31,imports,borders,,no hotspots in Australia,policy,relaxation,6,
-2020-12-12,2022-12-31,imports,international borders,,New Zealand is a safe travel zone country,policy,relaxation,6,
-2020-12-14,2022-12-31,tracing,tracing,,keep customer contact details for from 30 days up to 56 days,policy,counteract,6,
-2020-03-15,2020-05-01,none,Stage 0,,Lockdown,roadmap,restriction,,
-2020-05-02,2020-06-11,none,Stage 1,,Easing,roadmap,relaxation,,
-2020-06-12,2020-07-02,none,Stage 2,,Easing,roadmap,relaxation,,
-2020-07-03,2020-09-30,none,Stage 3,,Easing,roadmap,relaxation,,
-2020-10-01,2020-11-02,none,Stage 4,,Easing,roadmap,relaxation,,
-2020-11-03,2020-11-30,none,Stage 5,,Easing,roadmap,relaxation,,
-2020-12-01,2022-12-31,none,Stage 6,,Recover,roadmap,relaxation,,
+start_date,end_date,covasim_component,intervention_label,intervention_brief_description,intervention_description,category,level,stage,colour_level,colour_stage
+2020-03-15,2021-12-31,global beta,all,physical distancing 1.5m,enforce physical distancing to 1.5m,behavioural,public health rules change,0,#9e0142,#9e0142
+2020-03-15,2021-12-31,global beta,all,hand sanitising,Increase hand sanitising,behavioural,public health rules change,0,#9e0142,#9e0142
+2020-03-15,2021-12-31,global beta,all,PPE,increased personal protective equipment (PPE) ,behavioural,public health rules change,0,#9e0142,#9e0142
+2020-03-15,2021-12-31,global beta,all,frequent disinfection and cleaning,frequent disinfection and cleaning,behavioural,public health rules change,0,#9e0142,#9e0142
+2020-03-19,2021-12-31,imports,international borders,international borders close,Australia bans all arrivals by non-citizens and non-residents,policy,restriction,0,#f46d43,#000000
+2020-03-19,2020-03-22,layer,all,outdoors gath. < 200 ppl,outdoors gatherings restricted to <200 people,policy,restriction,0,#f46d43,#000000
+2020-03-29,2020-03-30,layer,house,house visitors <=10 ppl,visitors <=10 people,policy,restriction,0,#f46d43,#000000
+2020-03-29,2020-03-30,layer,public parks,outdoors gath. (park) < 10 ppl,Outdoors <=10 people,policy,restriction,0,#f46d43,#000000
+2020-03-30,2020-05-16,layer,house,house visitors <=2 ppl,visitors <=2 people,policy,restriction,0,#f46d43,#000000
+2020-03-30,2020-05-16,layer,public parks,outdoors gath. (park) <=2  ppl,outdoors <=2 people,policy,restriction,0,#f46d43,#000000
+2020-03-30,2020-05-02,layer,all,lockdown,"lockdown travel outside the home banned except for four essential reasons: getting food, medical reasons, work and exercise. ",policy,restriction,0,#f46d43,#000000
+2020-03-23,2020-05-16,layer,church,places of worship close,places of worship close,policy,restriction,0,#f46d43,#000000
+2020-03-23,2020-05-16,layer,restaurants,restaurants/cafes close,restaurants/cafes close,policy,restriction,0,#f46d43,#000000
+2020-03-23,2020-05-16,layer,pubs,pubs close,pubs close,policy,restriction,0,#f46d43,#000000
+2020-03-23,2020-06-11,layer,cSports,community sports cancelled (gym),community sports cancelled (gym),policy,restriction,0,#f46d43,#000000
+2020-03-23,2020-07-02,layer,entertainment ,places of entertainment close ,places of entertainment close ,policy,restriction,0,#f46d43,#000000
+2020-03-23,2020-06-19,layer,large events,large-events cancelled,large-events cancelled,policy,restriction,0,#f46d43,#000000
+2020-03-23,2020-07-02,layer,pSports,professional sports cancelled,professional sports cancelled,policy,restriction,0,#f46d43,#000000
+2020-03-25,2020-05-01,layer,community,non-covid health services closed,non-covid health services closed,policy,restriction,0,#f46d43,#000000
+2020-03-26,2020-05-01,layer,community,retail shops close,retail shops close,policy,restriction,0,#f46d43,#000000
+2020-03-30,2020-05-10,layer,school,school activity reduced  ,schools 'student-free' except for children whose parents work in essential services,policy,restriction,0,#f46d43,#000000
+2020-04-03,2020-05-01,layer,public parks,national parks close,national parks close,policy,restriction,0,#f46d43,#000000
+2020-04-02,2020-12-12,imports,Interstate borders,interstate borders close,Interstate borders restriction in place,policy,restriction,0,#f46d43,#000000
+2020-04-06,2020-11-01,testing,testing,increased testing in hotspots,Testing anyone with respiratory symptoms in hotspots,intervention,counteract,0,#3288bd,#000000
+2020-04-07,2020-04-22,layer,community,beaches close,beaches close,policy,restriction,0,#f46d43,#000000
+2020-04-19,2020-05-11,layer,school,schools activity increased,schools open for term two for vulnerable students and the children of essential workers only ,policy,restriction,0,#f46d43,#000000
+2020-05-02,2020-05-15,layer,public parks,travel up to 50 km / family picnics allowed,up to 50 kilometres from home and family picnics allowed,policy,relaxation,1,#abdda4,#d73027
+2020-05-02,2022-12-31,layer,community,non-essential shopping allowed,non-essential shopping allowed,policy,relaxation,1,#abdda4,#d73027
+2020-05-15,2020-07-09,layer,public parks,travel up to 150 km / family picnics allowed,up to 150 kilometres from home and family picnics allowed,policy,relaxation,1,#abdda4,#d73027
+2020-05-10,2020-07-02,layer,home,house visitors <=5 ppl,up to 5 people from another household can visit,policy,relaxation,1,#abdda4,#d73027
+2020-05-11,2020-05-25,layer,school,school partial resumption,"partial resumption (kindergarten, prep and years 1, 11 and 12)",policy,relaxation,1,#abdda4,#d73027
+2020-05-25,2022-12-31,layer,school,school full resumption,full resumption,policy,relaxation,1,#abdda4,#d73027
+2020-05-15,2020-07-02,layer,public parks,outdoors gath. (park) <=10  ppl,Outdoors <=10 people,policy,relaxation,1,#abdda4,#d73027
+2020-05-16,2020-07-02,layer,restaurants,restaurants/cafes reopen <=10 ppl,reopen with up to 10 patrons,policy,relaxation,1,#abdda4,#d73027
+2020-05-16,2020-07-02,layer,pubs,pubs/bars reopen <=10 ppl,reopen with up to 10 patrons,policy,relaxation,1,#abdda4,#d73027
+2020-06-12,2020-07-10,layer,cSports,gym reopen 4sqm/person,"gym up to 20 people non-contact training, 4  square metres per person",policy,relaxation,2,#abdda4,#fc8d59
+2020-06-12,2020-10-15,layer,home,,Visitors <=20 people,policy,relaxation,2,#abdda4,#fc8d59
+2020-07-03,2020-11-30,layer,public parks,,Outdoors <=20 people,policy,relaxation,2,#abdda4,#fc8d59
+2020-06-18,2020-11-30,layer,aged care,,2 visitors at a time in aged care places,policy,relaxation,2,#abdda4,#fc8d59
+2020-06-20,2020-06-20,layer,large events,,2000 fans allowed at Lang Park and the Gabba ,event,relaxation,2,#abdda4,#fc8d59
+2020-07-03,2022-12-31,layer,pubs,,pubs allowed to have patrons back,policy,relaxation,3,#abdda4,#fee08b
+2020-07-03,2022-12-31,layer,pSports,,Contact – full contact is permitted on the ‘field of play’ ,policy,relaxation,3,#abdda4,#fee08b
+2020-07-03,2020-07-09,quarantine,Interstate borders,,people returning from Victoria forced into hotel quarantine,policy,restriction,3,#f46d43,#fee08b
+2020-07-10,2020-08-07,imports,Interstate borders,,borders open to travellers except Victorians,policy,relaxation,3,#abdda4,#fee08b
+2020-07-10,2022-12-31,layer,cSports,,"gym up to 100 people non-contact training, 4  square metres per person",policy,relaxation,3,#abdda4,#fee08b
+2020-07-14,2020-11-30,imports,Interstate borders,,block entry from NSW hotspots,policy,restriction,3,#f46d43,#fee08b
+2020-07-16,2020-12-01,layer,social,,100 people can attend a funeral,policy,relaxation,3,#abdda4,#fee08b
+2020-07-22,2020-07-22,quarantine,house quarantine compliance,,"out of 2000 checks, 400 not at home, 200 people missing",event,counteract,3,#3288bd,#fee08b
+2020-07-24,2020-09-30,layer,pubs,,sit down rule,policy,restriction,3,#f46d43,#fee08b
+2020-07-27,2020-12-11,quarantine,quarantine,,queenslanders returning from hotspots must observe hotel quarantine,policy,restriction,3,#f46d43,#fee08b
+2020-07-27,2020-09-24,imports,Interstate borders,,Non-residents coming from hotspots not allowed entry,policy,restriction,3,#f46d43,#fee08b
+2020-07-29,2020-07-29,imports,Interstate borders,,greater sydney is declared hotspot,event,restriction,3,#f46d43,#fee08b
+2020-07-29,2020-07-29,seed infections,Interstate borders,,three people infected put into quarantine,event,restriction,3,#f46d43,#fee08b
+2020-08-08,2020-09-25,imports,Interstate borders,,borders close to NSW and ACT,policy,restriction,3,#f46d43,#fee08b
+2020-08-20,2020-08-08,seed infections,Interstate borders,,a person test positive at a youth centre,event,restriction,3,#f46d43,#fee08b
+2020-08-22,2020-09-30,layer,home,,Sout-East QLD <=10 people,policy,restriction,3,#f46d43,#fee08b
+2020-08-22,2020-09-30,layer,public parks,,Sout-East QLD Outdoors <=10 people,policy,restriction,3,#f46d43,#fee08b
+2020-08-22,2020-09-30,layer,home,,rest of QLD <=30 people,policy,restriction,3,#f46d43,#fee08b
+2020-08-22,2020-09-30,layer,public parks,,rest of QLD Outdoors <=30 people,policy,restriction,3,#f46d43,#fee08b
+2020-08-24,2022-12-31,global beta,all,,mask wearing,behavioural,public health rules change,3,#9e0142,#9e0142
+2020-10-01,2020-11-02,imports,Interstate borders,,open to NSW postcodes close to borders,policy,relaxation,4,#abdda4,#d9ef8b
+2020-10-01,2022-12-31,layer,pubs,,standing earing and drinking allowed,policy,relaxation,4,#abdda4,#d9ef8b
+2020-10-01,2020-11-02,layer,large events,,increase capacity stadiums to 75%,policy,relaxation,4,#abdda4,#d9ef8b
+2020-10-16,2020-11-30,layer,home,,Visitors <=40 people,policy,relaxation,4,#abdda4,#d9ef8b
+2020-10-16,2022-12-31,layer,church,,"up to 100 people outdoor, 2 square meters per person",policy,relaxation,5,#abdda4,#91cf60
+2020-10-16,2022-12-31,layer,church,,"up to 500 people indoor, 4 square meters per person",policy,relaxation,5,#abdda4,#91cf60
+2020-11-03,2022-12-31,layer,large events,,increase capacity stadiums to 100%,policy,relaxation,5,#abdda4,#91cf60
+2020-11-03,2020-11-30,imports,interstate borders,,open to regional NSW,policy,relaxation,5,#abdda4,#91cf60
+2020-11-26,2022-12-31,layer,restaurants,,all venues can allow up to 100% of seated capacity,policy,relaxation,5,#abdda4,#91cf60
+2020-12-01,2022-12-31,layer,large events,,outdoors <= 1500 people,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,home,,50 people allowed to gather in homes,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2020-12-01,layer,public parks,,100 people allowed to gather in public spaces,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,restaurants,,One per person per 2m2,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,pubs,,One per person per 2m2,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,church,,One per person per 2m2,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,entertainment ,,One per person per 2m2,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,social,,200 people can attend a wedding,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,social,,200 people can attend a funeral,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,entertainment ,,"100% capacity at seated, ticketed venues ",policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,layer,large events,,Open air stadiums: 100% seated capacity ,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2020-12-11,imports,interstate borders,,open to Greater Sydney,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2022-12-31,imports,interstate borders,,no border declaration required,policy,relaxation,6,#abdda4,#1a9850
+2020-12-01,2020-12-12,imports,interstate borders,,14-day quarantine if returning from hotpsot,policy,restriction,6,#f46d43,#1a9850
+2020-12-01,2020-12-12,quarantine,interstate borders,,14-day quarantine if returning from hotpsot,policy,restriction,6,#f46d43,#1a9850
+2020-12-12,2022-12-31,imports,borders,,no hotspots in Australia,policy,relaxation,6,#f46d43,#1a9850
+2020-12-12,2022-12-31,imports,international borders,,New Zealand is a safe travel zone country,policy,relaxation,6,#f46d43,#1a9850
+2020-12-14,2022-12-31,tracing,tracing,,keep customer contact details for from 30 days up to 56 days,policy,counteract,6,#3288bd,#1a9850
+2020-03-15,2020-05-01,none,Stage 0,,Lockdown,roadmap,restriction,,,
+2020-05-02,2020-06-11,none,Stage 1,,Easing,roadmap,relaxation,,,
+2020-06-12,2020-07-02,none,Stage 2,,Easing,roadmap,relaxation,,,
+2020-07-03,2020-09-30,none,Stage 3,,Easing,roadmap,relaxation,,,
+2020-10-01,2020-11-02,none,Stage 4,,Easing,roadmap,relaxation,,,
+2020-11-03,2020-11-30,none,Stage 5,,Easing,roadmap,relaxation,,,
+2020-12-01,2022-12-31,none,Stage 6,,Recover,roadmap,relaxation,,,
