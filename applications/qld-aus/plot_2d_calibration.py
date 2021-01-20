@@ -37,7 +37,7 @@ ax13 = axs[1, 3].imshow(np.log10(yy_q1), interpolation='none', aspect = 'equal',
 
 ax14 = axs[1, 4].imshow(yy_q3, interpolation='none', aspect = 'equal', origin='lower', extent = [0, 1, 0, 1], vmax=4.0)
 ax15 = axs[1, 5].imshow(np.log10(yy_q3), interpolation='none', aspect = 'equal', origin='lower', extent = [0, 1, 0, 1])
-ax16 = axs[1, 6].imshow(yy_q3+yy_q1+yy_med, interpolation='none', aspect = 'equal', origin='lower', extent = [0, 1, 0, 1], vmax=2)
+ax16 = axs[1, 6].imshow(yy_q3+yy_q1+yy_med, interpolation='none', aspect = 'equal', origin='lower', extent = [0, 1, 0, 1], vmax=3)
 
 #fig.colorbar(ax00, ax=axs[0,0])
 
