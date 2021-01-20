@@ -52,7 +52,7 @@ if __name__ == '__main__':
     error_matrix = np.zeros((num_betas, num_infections))
 
     # Load the simulated data
-    sim_length_days = 76
+    sim_length_days = 108
 
     data_arr = np.zeros((sim_length_days, num_betas, num_infections))
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     for beta_idx, this_beta in enumerate(betas):
         for infect_idx, this_infection in enumerate(seed_infections):
             # Generate file name
-            this_file = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-03-30_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.obj"
+            this_file = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-1_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.obj"
             msim = sc.loadobj(f'{resultsfolder}/{this_file}')
             sims = msim.sims
             data_arr[..., beta_idx, infect_idx] = get_simulated_data(sims, 'new_diagnoses')
@@ -76,10 +76,10 @@ if __name__ == '__main__':
 
     # Get 
     start_sim_idx = sims[0].day('2020-01-22') # First data point of sim data is 15-01-2020
-    end_sim_idx   = sims[0].day('2020-03-30') # Last data point of simulated data is 15-05-2020 
+    end_sim_idx   = sims[0].day('2020-05-01') # Last data point of simulated data is 15-05-2020 
 
     start_data_idx = 0 # First data point of sim data is 22-01-2020
-    end_data_idx   = sims[0].day('2020-03-30')-start_sim_idx # Last data point of empirical data is today
+    end_data_idx   = sims[0].day('2020-05-01')-start_sim_idx # Last data point of empirical data is today
 
     xx = data['new_locally_acquired_cases'][start_data_idx:end_data_idx]
     num_days = 3
@@ -93,4 +93,4 @@ if __name__ == '__main__':
     yy_q1  = np.percentile(yy, q=25, axis=0)
     yy_q3  = np.percentile(yy, q=75, axis=0)
 
-    np.savez("recalibration_2d_pse_2020-01-15_2020-03-30_no-conv", res=yy, x=seed_infections, y=betas)
+    np.savez("recalibration_2d_pse_2020-01-15_2020-05-01_no-conv", res=yy, x=seed_infections, y=betas)
