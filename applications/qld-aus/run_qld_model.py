@@ -24,6 +24,7 @@ https://github.com/optimamodel/covid_nsw/blob/master/run_nsw_tracing.py
 # Import scientific python
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Import IDM/Optima code
 import covasim as cv
@@ -66,11 +67,11 @@ parser.add_argument('--cluster_size',
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
 parser.add_argument('--init_seed_infections', 
-                               default=1, 
+                               default=7, 
                                type=int, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--global_beta', default=0.0275, 
+parser.add_argument('--global_beta', default=0.0125, 
                                type=float, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
@@ -334,16 +335,38 @@ if __name__ == '__main__':
 
     results_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
 
-    
+    fit_pars_dict = {'absolute':True,
+                     'use_median':True,
+                     'font-size': 14}
     # Run and plot
     if args.nruns > 1:
         msim = cv.MultiSim(base_sim=sim)
         msim.run(n_runs=args.nruns, reseed=True, noise=0)
+        msim.reduce()
         msim.save(results_path)
+        # Plot all sims together 
+        plt.ion()
+        msim_fig = msim.plot()
+        msim_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
+        msim_fig.savefig(msim_fig_path, dpi=100)
+        plt.close('all')
+
+        # Calculate fits independentely
+        fitting_list = []
+        for this_sim in msim.sims: 
+            fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'new_tests'],
+                                       weights= [10.0, 5.0, 2.5],
+                                       **fit_pars_dict))
+        # Save list of fits
+        fits_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
+        fit_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
+
+        fit_fig = fitting_list[0].plot()
+        fit_fig[0].savefig(fit_fig_path, dpi=100)
+        plt.close('all')
+        
+        sc.saveobj(filename=fits_path, obj=fitting_list)
     else:
         sim.run()
         sim.save(results_path)
-    sim.run()
-    fit = sim.compute_fit()
-    fit.plot()
-    sc.toc(T)
+    #sc.toc(T)
