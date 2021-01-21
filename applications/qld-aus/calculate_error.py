@@ -79,14 +79,14 @@ if __name__ == '__main__':
     end_sim_idx   = sims[0].day('2020-05-31') # Last data point of simulated data is 15-05-2020 
 
     start_data_idx = cvm.day('2020-01-22', start_day='2020-01-22')   # First data point of sim data is 22-01-2020
-    end_data_idx   = cvm.day('2020-05-31', start_day='2020-01-22')-start_sim_idx # Last data point of empirical data is today
+    end_data_idx   = cvm.day('2020-05-31', start_day='2020-01-22')   # Last data point of empirical data is today
 
     xx = data['new_locally_acquired_cases'][start_data_idx:end_data_idx]
     #num_days = 3
     #xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
     # error distribution between empirical data and median prediction
     # [num par values, timepoints]
-    yy = np.abs(data_arr[start_sim_idx:end_sim_idx, ...]-xx[:, np.newaxis, np.newaxis])
+    yy = np.abs(data_arr[start_sim_idx:end_sim_idx, ...]-np.array(xx)[:, np.newaxis, np.newaxis])
     import pdb; pdb.set_trace()
 
     # Get percentiles of the error distribution 
