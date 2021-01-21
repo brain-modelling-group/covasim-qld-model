@@ -37,64 +37,72 @@ def get_simulated_data(key, sims):
     yarr = np.array(ys)
 
     # Moving average over 7 days
-    for idx in range(yarr.shape[0]):
-        yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((3, ))/3, mode='same')
+    #for idx in range(yarr.shape[0]):
+    #    yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((3, ))/3, mode='same')
 
     return yarr
     
 
 
-
-# Input data
-inputs_folder = 'inputs'
-input_data = 'qld_health_epi_data.csv'
-
-# Load data
-data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
-
-# Set date as index
-data.set_index('date', inplace=True)
-
-# Start graphics objects
-f, ax1 = plt.subplots(1, 1, figsize=(28, 18), sharex=True)
-
-# Plot new cases
-#import pdb; pdb.set_trace()
-epi_data =  data['new_locally_acquired_cases'][0:68]
-epi_data = np.convolve(epi_data, np.ones((3, ))/3, mode='same')
-ax1.plot(data.index[0:68],epi_data, color='#e41a1c', ls='--')
-# Set ticks every week
-ax1.xaxis.set_major_locator(mdates.WeekdayLocator())
-# Set major ticks format
-ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-ax1.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 3, 30)])
-ax1.set_ylabel('new cases')
-plt.setp(ax1.get_xticklabels(), 
-         rotation=45, ha="right",
-         rotation_mode="anchor")
+def plot_multisim_vs_emp_data(sim_data, figname):
+    # Input data
+    inputs_folder = 'inputs'
+    input_data = 'qld_health_epi_data.csv'
+    figsfolder = 'results_recalibration_2020-01-15__2020-05-31-refined_betas'
 
 
-# Load multisim
+    # Load data
+    data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 
-# Filepaths
-resultsfolder = 'results_recalibration_2020-01-15__2020-03-30'
+    # Set date as index
+    data.set_index('date', inplace=True)
 
-# List of files to plot
-list_of_files = ['qld_update_locally_acquired_recalibration_2020-01-15_2020-03-30_0.0110_08.obj']
+    # Start graphics objects
+    f, ax1 = plt.subplots(1, 1, figsize=(28/3, 18/3), sharex=True)
 
-msim = sc.loadobj(f'{resultsfolder}/{list_of_files[0]}')
-sims = msim.sims
-sim_data = get_simulated_data('new_infectious', sims)[:, cvm.day('2020-01-22', start_day='2020-01-15'):cvm.day('2020-03-30', start_day='2020-01-15')].T
-#import pdb; pdb.set_trace()
+    # Plot new cases
+    #import pdb; pdb.set_trace()
+    data_start_idx = cvm.day('2020-01-22', start_day='2020-01-22')
+    data_end_idx = cvm.day('2020-05-31', start_day='2020-01-22')
 
-ax1.plot(data.index[0:68], np.percentile(sim_data, 50, axis=1), color='black', alpha=0.5)
+    epi_data =  data['new_locally_acquired_cases'][data_start_idx:data_end_idx]
+    #epi_data = np.convolve(epi_data, np.ones((3, ))/3, mode='same')
+    ax1.plot(data.index[data_start_idx:data_end_idx], epi_data, color='#e41a1c')
+    # Set ticks every week
+    ax1.xaxis.set_major_locator(mdates.WeekdayLocator())
+    # Set major ticks format
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    ax1.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 5, 31)])
+    ax1.set_ylabel('new cases')
+    plt.setp(ax1.get_xticklabels(), 
+             rotation=45, ha="right",
+             rotation_mode="anchor")
 
+
+    ax1.plot(data.index[data_start_idx:data_end_idx], np.percentile(sim_data, 50, axis=1), color='blue', alpha=1.0)
+    ax1.plot(data.index[data_start_idx:data_end_idx], sim_data, color='black', alpha=0.3)
+
+    cv.savefig(f'{figsfolder}/{figname}', dpi=100)
    
-plt.show()
+    plt.close()
 
 
-# Output data
-#figs_folder = 'figs'
-#output_fig =  "-".join((now_str, 'qld_health_epi_data_sims_dat.jpeg'))
+if __name__ == '__main__':
 
-#cv.savefig("/".join((figs_folder, output_fig)), dpi=100)
+    # Filepaths
+    resultsfolder = 'results_recalibration_2020-01-15__2020-05-31-refined_betas'
+    figsfolder = 'results_recalibration_2020-01-15__2020-05-31-refined_betas'
+
+    betas = np.arange(0.01, 0.03, 0.0005)
+    seed_infections = np.arange(1, 26, 1)
+
+    # Get all the data
+    for beta_idx, this_beta in enumerate(betas):
+        for infect_idx, this_infection in enumerate(seed_infections):
+            # Generate file name
+            this_file = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-31_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.obj"
+            msim = sc.loadobj(f'{resultsfolder}/{this_file}')
+            sims = msim.sims
+            sim_data = get_simulated_data('new_infectious', sims)[:, cvm.day('2020-01-22', start_day='2020-01-15'):cvm.day('2020-05-31', start_day='2020-01-15')].T
+            figname = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-31_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.png"
+            plot_multisim_vs_emp_data(sim_data, figname)
