@@ -10,6 +10,7 @@ inputs/qld_model_layer_betas.csv
 # Import scientific python
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Import IDM/Optima code
 import covasim as cv
@@ -258,10 +259,10 @@ if __name__ == '__main__':
     if args.nruns > 1:
         msim = cv.MultiSim(base_sim=sim)
         msim.run(n_runs=args.nruns, reseed=True, noise=0)
-        msim.reduce()
         msim.save(results_path)
+        msim.reduce()
         # Plot all sims together 
-        plt.ion()
+        plt.ioff()
         msim_fig = msim.plot()
         msim_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
         msim_fig.savefig(msim_fig_path, dpi=100)
