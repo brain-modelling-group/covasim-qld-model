@@ -29,22 +29,24 @@ now = datetime.datetime.now()
 now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
 
 
-def get_simulated_data(key, sims):
+def get_simulated_data(key, sims, do_moving_average=false):
     
     ys = []
     for this_sim in sims:
         ys.append(this_sim.results[key].values)
     yarr = np.array(ys)
 
-    # Moving average over 7 days
-    #for idx in range(yarr.shape[0]):
-    #    yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((3, ))/3, mode='same')
+   if do_moving_average:
+       # Moving average over X days
+       num_days = 3.0
+       for idx in range(yarr.shape[0]):
+            yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
     return yarr
     
 
 
-def plot_multisim_vs_emp_data(sim_data, figname):
+def plot_multisim_vs_emp_data(sim_data, figname, do_moving_average=False):
     # Input data
     inputs_folder = 'inputs'
     input_data = 'qld_health_epi_data.csv'
@@ -61,12 +63,15 @@ def plot_multisim_vs_emp_data(sim_data, figname):
     f, ax1 = plt.subplots(1, 1, figsize=(28/3, 18/3), sharex=True)
 
     # Plot new cases
-    #import pdb; pdb.set_trace()
     data_start_idx = cvm.day('2020-01-22', start_day='2020-01-22')
     data_end_idx = cvm.day('2020-05-31', start_day='2020-01-22')
 
     epi_data =  data['new_locally_acquired_cases'][data_start_idx:data_end_idx]
-    #epi_data = np.convolve(epi_data, np.ones((3, ))/3, mode='same')
+    
+    if do_moving_average:
+        num-days = 3.0
+        epi_data = np.convolve(epi_data, np.ones((num_days, ))/num_days, mode='same')
+    
     ax1.plot(data.index[data_start_idx:data_end_idx], epi_data, color='#e41a1c')
     # Set ticks every week
     ax1.xaxis.set_major_locator(mdates.WeekdayLocator())
@@ -97,12 +102,16 @@ if __name__ == '__main__':
     seed_infections = np.arange(1, 26, 1)
 
     # Get all the data
+    do_moving_average = True
     for beta_idx, this_beta in enumerate(betas):
         for infect_idx, this_infection in enumerate(seed_infections):
             # Generate file name
             this_file = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-31_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.obj"
             msim = sc.loadobj(f'{resultsfolder}/{this_file}')
             sims = msim.sims
-            sim_data = get_simulated_data('new_infectious', sims)[:, cvm.day('2020-01-22', start_day='2020-01-15'):cvm.day('2020-05-31', start_day='2020-01-15')].T
-            figname = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-31_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.png"
-            plot_multisim_vs_emp_data(sim_data, figname)
+            sim_data = get_simulated_data('new_infectious', sims, do_moving_average=do_moving_average)[:, cvm.day('2020-01-22', start_day='2020-01-15'):cvm.day('2020-05-31', start_day='2020-01-15')].T
+            if do_moving_average:
+                figname = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-31_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_moving_average.png"
+            else:
+                figname = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-31_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}.png"
+            plot_multisim_vs_emp_data(sim_data, figname, do_moving_average=do_moving_average)
