@@ -251,13 +251,36 @@ if __name__ == '__main__':
     results_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
 
     
+    fit_pars_dict = {'absolute':True,
+                     'use_median':True,
+                     'font-size': 14}
     # Run and plot
     if args.nruns > 1:
         msim = cv.MultiSim(base_sim=sim)
         msim.run(n_runs=args.nruns, reseed=True, noise=0)
+        msim.reduce()
         msim.save(results_path)
-    else:
-        sim.run()
-        sim.save(results_path)
+        # Plot all sims together 
+        plt.ion()
+        msim_fig = msim.plot()
+        msim_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
+        msim_fig.savefig(msim_fig_path, dpi=100)
+        plt.close('all')
 
-    sc.toc(T)
+        # Calculate fits independentely
+        fitting_list = []
+        for this_sim in msim.sims: 
+            fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'new_tests'],
+                                       weights= [4.0, 2.0, 1.0],
+                                       **fit_pars_dict))
+        # Save list of fits
+        fits_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
+        fit_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
+
+        fit_fig = fitting_list[0].plot()
+        fit_fig[0].savefig(fit_fig_path, dpi=100)
+        plt.close('all')
+        
+        sc.saveobj(filename=fits_path, obj=fitting_list)
+    else:
+        print("Nope.")
