@@ -16,7 +16,7 @@ fig, axs = plt.subplots(nrows=2, ncols=7, figsize=(9, 6),
                         subplot_kw={'xticks': [], 'yticks': []})
 
 
-data = np.load("recalibration_2d_pse_2020-01-15_2020-03-30_no-conv.npz")
+data = np.load("recalibration_2d_pse_2020-01-15_2020-05-31_no-conv.npz")
 yy = data['res']
 
 x = data['x']

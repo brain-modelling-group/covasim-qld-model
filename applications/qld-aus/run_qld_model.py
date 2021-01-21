@@ -343,5 +343,7 @@ if __name__ == '__main__':
     else:
         sim.run()
         sim.save(results_path)
-
+    sim.run()
+    fit = sim.compute_fit()
+    fit.plot()
     sc.toc(T)

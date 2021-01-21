@@ -38,7 +38,7 @@ def get_simulated_data(key, sims, do_moving_average=False):
 
     if do_moving_average:
        # Moving average over X days
-       num_days = 3.0
+       num_days = 3
        for idx in range(yarr.shape[0]):
             yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
@@ -69,7 +69,7 @@ def plot_multisim_vs_emp_data(sim_data, figname, do_moving_average=False):
     epi_data =  data['new_locally_acquired_cases'][data_start_idx:data_end_idx]
     
     if do_moving_average:
-        num_days = 3.0
+        num_days = 3
         epi_data = np.convolve(epi_data, np.ones((num_days, ))/num_days, mode='same')
     
     ax1.plot(data.index[data_start_idx:data_end_idx], epi_data, color='#e41a1c')
@@ -110,6 +110,7 @@ if __name__ == '__main__':
             msim = sc.loadobj(f'{resultsfolder}/{this_file}')
             sims = msim.sims
             sim_data = get_simulated_data('new_infectious', sims, do_moving_average=do_moving_average)[:, cvm.day('2020-01-22', start_day='2020-01-15'):cvm.day('2020-05-31', start_day='2020-01-15')].T
+            
             if do_moving_average:
                 figname = f"qld_update_locally_acquired_recalibration_2020-01-15_2020-05-31_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_moving_average.png"
             else:
