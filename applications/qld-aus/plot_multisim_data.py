@@ -36,7 +36,7 @@ def get_simulated_data(key, sims, do_moving_average=false):
         ys.append(this_sim.results[key].values)
     yarr = np.array(ys)
 
-   if do_moving_average:
+    if do_moving_average:
        # Moving average over X days
        num_days = 3.0
        for idx in range(yarr.shape[0]):
