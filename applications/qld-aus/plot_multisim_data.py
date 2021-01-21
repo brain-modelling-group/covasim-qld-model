@@ -29,7 +29,7 @@ now = datetime.datetime.now()
 now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
 
 
-def get_simulated_data(key, sims, do_moving_average=false):
+def get_simulated_data(key, sims, do_moving_average=False):
     
     ys = []
     for this_sim in sims:
