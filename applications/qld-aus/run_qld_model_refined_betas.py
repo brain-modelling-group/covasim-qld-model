@@ -20,6 +20,7 @@ import covasim_australia.utils as utils
 # Add argument parser
 import argparse
 
+plt.ioff()
 
 # Check covasim version is the one we actually need
 cv.check_version('1.7.6', die=True)
@@ -260,13 +261,14 @@ if __name__ == '__main__':
         msim = cv.MultiSim(base_sim=sim)
         msim.run(n_runs=args.nruns, reseed=True, noise=0)
         msim.save(results_path)
-        msim.reduce()
-        # Plot all sims together 
-        plt.ioff()
-        msim_fig = msim.plot()
-        msim_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
-        msim_fig.savefig(msim_fig_path, dpi=100)
-        plt.close('all')
+        #msim.reduce()
+        # Plot all sims together
+        #plt.ioff() 
+        #msim_fig = msim.plot()
+        #msim_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
+        #msim_fig.savefig(msim_fig_path, dpi=100)
+        #plt.ioff()
+        #plt.close('all')
 
         # Calculate fits independentely
         fitting_list = []
@@ -276,12 +278,14 @@ if __name__ == '__main__':
                                        **fit_pars_dict))
         # Save list of fits
         fits_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
-        fit_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
-
-        fit_fig = fitting_list[0].plot()
-        fit_fig[0].savefig(fit_fig_path, dpi=100)
-        plt.close('all')
-        
         sc.saveobj(filename=fits_path, obj=fitting_list)
+        #fit_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
+        #plt.ioff()
+        #fit_fig = fitting_list[0].plot()
+        #fit_fig[0].savefig(fit_fig_path, dpi=100)
+        #plt.ioff()
+        #plt.close('all')
+        
+        
     else:
         print("Nope.")
