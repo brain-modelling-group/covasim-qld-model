@@ -75,23 +75,23 @@ if __name__ == '__main__':
     data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 
     # Get 
-    start_sim_idx = sims[0].day('2020-01-22') # First data point of sim data is 15-01-2020
-    end_sim_idx   = sims[0].day('2020-05-31') # Last data point of simulated data is 15-05-2020 
+    start_sim_idx = sims[0].day('2020-03-01') # First data point of sim data is 15-01-2020
+    end_sim_idx   = sims[0].day('2020-04-30') # Last data point of simulated data is 15-05-2020 
 
-    start_data_idx = cvm.day('2020-01-22', start_day='2020-01-22')   # First data point of sim data is 22-01-2020
-    end_data_idx   = cvm.day('2020-05-31', start_day='2020-01-22')   # Last data point of empirical data is today
+    start_data_idx = cvm.day('2020-03-01', start_day='2020-01-22')   # First data point of sim data is 22-01-2020
+    end_data_idx   = cvm.day('2020-04-30', start_day='2020-01-22')   # Last data point of empirical data is today
 
-    xx = data['new_locally_acquired_cases'][start_data_idx:end_data_idx]
+    xx = data['new_locally_acquired_cases'].astype(float)[start_data_idx:end_data_idx]
     #num_days = 3
     #xx = np.convolve(xx, np.ones((num_days, ))/num_days, mode='same')
     # error distribution between empirical data and median prediction
     # [num par values, timepoints]
     yy = np.abs(data_arr[start_sim_idx:end_sim_idx, ...]-np.array(xx)[:, np.newaxis, np.newaxis])
-    import pdb; pdb.set_trace()
 
     # Get percentiles of the error distribution 
     yy_med = np.percentile(yy, q=50, axis=0)
+    #import pdb; pdb.set_trace()
     yy_q1  = np.percentile(yy, q=25, axis=0)
     yy_q3  = np.percentile(yy, q=75, axis=0)
 
-    np.savez("recalibration_2d_pse_2020-01-15_2020-05-31_no-conv", res=yy, x=seed_infections, y=betas)
+    np.savez("recalibration_2d_pse_2020-03-01_2020-04-30_no-conv", res=yy, x=seed_infections, y=betas)
