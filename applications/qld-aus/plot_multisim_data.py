@@ -69,7 +69,7 @@ def plot_multisim_vs_emp_data(sim_data, figname, do_moving_average=False):
     epi_data =  data['new_locally_acquired_cases'][data_start_idx:data_end_idx]
     
     if do_moving_average:
-        num-days = 3.0
+        num_days = 3.0
         epi_data = np.convolve(epi_data, np.ones((num_days, ))/num_days, mode='same')
     
     ax1.plot(data.index[data_start_idx:data_end_idx], epi_data, color='#e41a1c')
