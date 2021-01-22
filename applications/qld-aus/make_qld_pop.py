@@ -24,7 +24,7 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
     """
     location = 'QLD'
     db_name  = 'input_data_Australia'
-    epi_name = 'qld_epi_data_wave_01_basic_stats' # Not sure why epi datafile needs to be passed in here, but difficult to remove this dependency
+    epi_name = 'qld_health_epi_data.csv' # Not sure why epi datafile needs to be passed in here, but difficult to remove this dependency
 
     all_lkeys = ['H', 'S', 'W', 'C', 
                  'church', 
@@ -42,8 +42,8 @@ def make_qld_people(seed=None, pop_size=200000, pop_infected=50,
                      'transport', 'public_parks', 'large_events']
 
     user_pars = {'pop_size': pop_size,
-                'pop_infected': pop_infected,
-                'pop_scale': 10,
+                #'pop_infected': pop_infected,
+                'pop_scale': 25.5,
                 'rescale': 1,
                 'calibration_end': None
                 } # Pass in a minimal set of sim pars
