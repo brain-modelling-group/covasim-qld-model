@@ -264,7 +264,7 @@ if __name__ == '__main__':
         #msim.reduce()
         # Plot all sims together
         #plt.ioff() 
-        #msim_fig = msim.plot()
+        #msim_fig = msim.plot(do_show=False)
         #msim_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
         #msim_fig.savefig(msim_fig_path, dpi=100)
         #plt.ioff()
@@ -281,7 +281,7 @@ if __name__ == '__main__':
         sc.saveobj(filename=fits_path, obj=fitting_list)
         #fit_fig_path = f"{resultsfolder}/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
         #plt.ioff()
-        #fit_fig = fitting_list[0].plot()
+        #fit_fig = fitting_list[0].plot(do_show=False)
         #fit_fig[0].savefig(fit_fig_path, dpi=100)
         #plt.ioff()
         #plt.close('all')
