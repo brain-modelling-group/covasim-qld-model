@@ -53,6 +53,12 @@ parser.add_argument('--cluster_size',
                               type=int, 
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
+parser.add_argument('--new_tests_mode', 
+                              default='raw', 
+                              type=str, 
+                              help='''The column of new tests to use: Can be 'raw' or 'conv'.''')
+
+
 parser.add_argument('--init_seed_infections', 
                                default=50, 
                                type=int, 
@@ -182,7 +188,12 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
 
     data = pd.read_csv(datafile, parse_dates=['date'])
-    new_tests = data['new_tests_raw'].to_list()
+    if input_args.new_tests_mode == 'raw':
+       this_column = 'new_tests_raw'
+     else:
+       this_column = 'new_tests'
+    new_tests = data[this_column].to_list()
+
     #import pdb; pdb.set_trace()
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[0:44]))
 
