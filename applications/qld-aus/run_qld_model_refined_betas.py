@@ -54,7 +54,7 @@ parser.add_argument('--cluster_size',
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
 parser.add_argument('--init_seed_infections', 
-                               default=1, 
+                               default=20, 
                                type=int, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     # Filepaths
     inputsfolder = 'inputs'
     resultsfolder = 'results_recalibration_2020-02-15_2020-05-15-local-cases'
-    datafile = f'{inputsfolder}/qld_health_epi_data.csv'
+    datafile = f'{inputsfolder}/qld_health_epi_data_calibration.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
     betasfile = f'{inputsfolder}/qld_model_layer_betas.csv'
