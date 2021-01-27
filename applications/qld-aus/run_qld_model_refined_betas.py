@@ -54,11 +54,11 @@ parser.add_argument('--cluster_size',
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
 parser.add_argument('--init_seed_infections', 
-                               default=10, 
+                               default=50, 
                                type=int, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--global_beta', default=0.020, 
+parser.add_argument('--global_beta', default=0.015, 
                                type=float, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
@@ -128,52 +128,64 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     beta_ints = define_beta_changes(betasfile, layers)             
     sim.pars['interventions'].extend(beta_ints)
 
-    # Testing of symptomatic cases
-    symp_prob_prelockdown = 0.08    # Limited testing pre lockdown
-    symp_prob_prelockdown_01 = 0.1 # 
-    symp_prob_prelockdown_02 = 0.2  #
-    symp_prob_prelockdown_03 = 0.3  #
-    symp_prob_prelockdown_04 = 0.4  #
-    symp_prob_prelockdown_05 = 0.35 #
-    symp_prob_lockdown = 0.3        # Increased testing during lockdown
-    symp_prob_postlockdown = 0.45   # Testing since lockdown
-    sim.pars['interventions'].append(cv.test_prob(start_day=start_day, 
-                                                  end_day='2020-02-29', 
-                                                  symp_prob=symp_prob_prelockdown, 
-                                                  asymp_quar_prob=0.001, do_plot=False))
+    # # Testing of symptomatic cases
+    # symp_prob_prelockdown = 0.08    # Limited testing pre lockdown
+    # symp_prob_prelockdown_01 = 0.1 # 
+    # symp_prob_prelockdown_02 = 0.2  #
+    # symp_prob_prelockdown_03 = 0.3  #
+    # symp_prob_prelockdown_04 = 0.4  #
+    # symp_prob_prelockdown_05 = 0.35 #
+    # symp_prob_lockdown = 0.3        # Increased testing during lockdown
+    # symp_prob_postlockdown = 0.45   # Testing since lockdown
+    # sim.pars['interventions'].append(cv.test_prob(start_day=start_day, 
+    #                                               end_day='2020-02-29', 
+    #                                               symp_prob=symp_prob_prelockdown, 
+    #                                               asymp_quar_prob=0.001, do_plot=False))
     
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-02-29', 
-                                                  end_day='2020-03-07', 
-                                                  symp_prob=symp_prob_prelockdown_01, 
-                                                  asymp_quar_prob=0.001, do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-02-29', 
+    #                                               end_day='2020-03-07', 
+    #                                               symp_prob=symp_prob_prelockdown_01, 
+    #                                               asymp_quar_prob=0.001, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-07', 
-                                                  end_day='2020-03-10', 
-                                                  symp_prob=symp_prob_prelockdown_02, 
-                                                  asymp_quar_prob=0.001, do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-07', 
+    #                                               end_day='2020-03-10', 
+    #                                               symp_prob=symp_prob_prelockdown_02, 
+    #                                               asymp_quar_prob=0.001, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-10', 
-                                                  end_day= '2020-03-15', 
-                                                  symp_prob=symp_prob_prelockdown_03, 
-                                                  asymp_quar_prob=0.001, do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-10', 
+    #                                               end_day= '2020-03-15', 
+    #                                               symp_prob=symp_prob_prelockdown_03, 
+    #                                               asymp_quar_prob=0.001, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-15', 
-                                                  end_day= '2020-03-24', 
-                                                  symp_prob=symp_prob_prelockdown_04, 
-                                                  asymp_quar_prob=0.001, do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-15', 
+    #                                               end_day= '2020-03-24', 
+    #                                               symp_prob=symp_prob_prelockdown_04, 
+    #                                               asymp_quar_prob=0.001, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-24', 
-                                                  end_day= '2020-04-07', 
-                                                  symp_prob=symp_prob_prelockdown_05, 
-                                                  asymp_quar_prob=0.001, do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-24', 
+    #                                               end_day= '2020-04-07', 
+    #                                               symp_prob=symp_prob_prelockdown_05, 
+    #                                               asymp_quar_prob=0.001, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-07', 
-                                                  end_day='2020-05-01', 
-                                                  symp_prob=symp_prob_lockdown, 
-                                                  asymp_quar_prob=0.001,do_plot=False))
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-01', 
-                                                  symp_prob=symp_prob_postlockdown, 
-                                                  asymp_quar_prob=0.001,do_plot=True))
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-07', 
+    #                                               end_day='2020-05-01', 
+    #                                               symp_prob=symp_prob_lockdown, 
+    #                                               asymp_quar_prob=0.001,do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-01', 
+    #                                               symp_prob=symp_prob_postlockdown, 
+    #                                               asymp_quar_prob=0.001,do_plot=True))
+
+    
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-01', 
+    #                                               symp_prob=symp_prob_postlockdown, 
+    #                                               asymp_quar_prob=0.001,do_plot=True))
+
+
+    data = pd.read_csv(datafile, parse_dates=['date'])
+    new_tests = data['new_tests'].to_list()
+    #import pdb; pdb.set_trace()
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests))
+
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -200,6 +212,8 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                   'public_parks': 21,  
                   'large_events': 21,
                   'social': 3}
+
+
     sim.pars['interventions'].append(cv.contact_tracing(trace_probs=trace_probs, 
                                                         trace_time=trace_time, 
                                                         start_day=0, do_plot=False))
