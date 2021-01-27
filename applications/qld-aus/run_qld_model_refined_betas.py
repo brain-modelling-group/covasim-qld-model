@@ -286,8 +286,8 @@ if __name__ == '__main__':
         # Calculate fits independentely
         fitting_list = []
         for this_sim in msim.sims: 
-            fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths', 'new_tests'],
-                                       weights= [4.0, 2.0, 1.0, 1.0],
+            fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths'],
+                                       weights= [4.0, 2.0, 1.0],
                                        **fit_pars_dict))
         # Save list of fits
         fits_path = f"{resultsfolder}/sim-data/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
