@@ -58,12 +58,12 @@ parser.add_argument('--init_seed_infections',
                                type=int, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--global_beta', default=0.0275, 
+parser.add_argument('--global_beta', default=0.020, 
                                type=float, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
 
-parser.add_argument('--start_calibration_date', default='2020-01-15', 
+parser.add_argument('--start_calibration_date', default='2020-02-15', 
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
 
