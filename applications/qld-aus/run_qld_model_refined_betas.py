@@ -67,7 +67,7 @@ parser.add_argument('--start_calibration_date', default='2020-02-15',
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
 
-parser.add_argument('--end_calibration_date', default='2020-04-15', 
+parser.add_argument('--end_calibration_date', default='2020-05-15', 
                               type=str, 
                               help='''The date at which calibration finishes (default, '2020-06-30').''')
 
