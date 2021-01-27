@@ -29,7 +29,7 @@ now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
 
 # Input data
 inputs_folder = 'inputs'
-input_data = 'qld_health_epi_data.csv'
+input_data = 'qld_health_epi_data_calibration.csv'
 
 
 
@@ -50,13 +50,12 @@ f, (ax1, ax2) = plt.subplots(2, 1, figsize=(28, 18), sharex=True)
 
 # Plot new cases
 #import pdb; pdb.set_trace()
-ax1.plot(data.index, data['new_cases'], color='#377eb8')
-ax1.plot(data.index, data['new_locally_acquired_cases'], color='#e41a1c', ls='--')
+ax1.plot(data.index, data['new_diagnoses'], color='#377eb8')
 # Set ticks every week
 ax1.xaxis.set_major_locator(mdates.WeekdayLocator())
 # Set major ticks format
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-ax1.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 12, 15)])
+ax1.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 5, 31)])
 ax1.set_ylabel('new cases')
 plt.setp(ax1.get_xticklabels(), 
          rotation=45, ha="right",
@@ -64,9 +63,12 @@ plt.setp(ax1.get_xticklabels(),
 
 # Plot new deaths
 ax2.plot(data.index, data['new_tests'], color='#4daf4a')
+ax2.plot(data.index, data['new_tests_raw'], color='black')
+ax2.plot(data.index, 100*data['new_diagnoses'], color='#377eb8')
+
 ax2.xaxis.set_major_locator(mdates.WeekdayLocator())
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-ax2.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 12, 15)])
+ax2.set_xlim([datetime.date(2020, 1, 22), datetime.date(2020, 5, 31)])
 ax2.set_ylabel('new tests')
 plt.setp(ax2.get_xticklabels(), 
          rotation=45, ha="right",
