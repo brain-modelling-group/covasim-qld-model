@@ -195,7 +195,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
 
     #import pdb; pdb.set_trace()
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[0:44]))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests))
 
 
     # Tracing
