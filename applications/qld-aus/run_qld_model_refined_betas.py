@@ -233,7 +233,7 @@ if __name__ == '__main__':
     
     # Filepaths
     inputsfolder = 'inputs'
-    resultsfolder = 'results_recalibration_2020-02-15_2020-05-15'
+    resultsfolder = 'results_recalibration_2020-02-15_2020-05-15-local-cases'
     datafile = f'{inputsfolder}/qld_health_epi_data.csv'
     agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
