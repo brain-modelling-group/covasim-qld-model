@@ -67,7 +67,7 @@ parser.add_argument('--start_calibration_date', default='2020-02-15',
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
 
-parser.add_argument('--end_calibration_date', default='2020-05-15', 
+parser.add_argument('--end_calibration_date', default='2020-04-15', 
                               type=str, 
                               help='''The date at which calibration finishes (default, '2020-06-30').''')
 
@@ -182,9 +182,9 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
 
     data = pd.read_csv(datafile, parse_dates=['date'])
-    new_tests = data['new_tests'].to_list()
+    new_tests = data['new_tests_raw'].to_list()
     #import pdb; pdb.set_trace()
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[0:44]))
 
 
     # Tracing
@@ -279,7 +279,7 @@ if __name__ == '__main__':
         # Plot all sims together
         plt.ioff() 
         msim_fig = msim.plot(do_show=False)
-        msim_fig_path = f"{resultsfolder}/figures/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
+        msim_fig_path = f"{resultsfolder}/figures/qld_clb_rawtests_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
         msim_fig.savefig(msim_fig_path, dpi=100)
         plt.close('all')
 
@@ -290,9 +290,9 @@ if __name__ == '__main__':
                                        weights= [4.0, 2.0, 1.0],
                                        **fit_pars_dict))
         # Save list of fits
-        fits_path = f"{resultsfolder}/sim-data/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
+        fits_path = f"{resultsfolder}/sim-data/qld_clb_rawtests_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
         sc.saveobj(filename=fits_path, obj=fitting_list)
-        fit_fig_path = f"{resultsfolder}/figures/qld_update_locally_acquired_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
+        fit_fig_path = f"{resultsfolder}/figures/qld_clb_rawtests_{args.label}_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
         plt.ioff()
         fit_fig = fitting_list[0].plot(do_show=False)
         fit_fig[0].savefig(fit_fig_path, dpi=100)
