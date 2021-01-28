@@ -259,8 +259,8 @@ if __name__ == '__main__':
     # Filepaths
     inputsfolder = 'inputs'
     resultsfolder = 'results_recalibration_2020-02-15_2020-05-15-local-cases'
-    datafile = f'{inputsfolder}/qld_health_epi_data_calibration.csv'
-    agedatafile = f'{inputsfolder}/qld_epi_data_wave_01_age_cumulative.csv'
+    datafile = f'{inputsfolder}/qld_epi_data_calibration_qld-health.csv'
+    agedatafile = f'{inputsfolder}/qld_demo_data_abs.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
     betasfile = f'{inputsfolder}/qld_model_layer_betas.csv'
 
