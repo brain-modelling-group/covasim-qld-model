@@ -311,10 +311,10 @@ if __name__ == '__main__':
 
     # Calculate fits independentely
     fitting_list = []
-      for this_sim in msim.sims: 
-          fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths'],
-                              weights= [4.0, 2.0, 1.0],
-                              **fit_pars_dict))
+    for this_sim in msim.sims: 
+        fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths'],
+                            weights= [4.0, 2.0, 1.0],
+                            **fit_pars_dict))
         # Save list of fits
     fits_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
     sc.saveobj(filename=fits_filename, obj=fitting_list)
