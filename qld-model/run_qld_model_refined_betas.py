@@ -11,6 +11,7 @@ inputs/qld_model_layer_betas.csv
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import pathlib as pathlib
 
 # Import IDM/Optima code
 import covasim as cv
@@ -30,7 +31,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--results_path', default='results', 
                               type=str, 
-                              help='''The relative and/or absolute path to the results folder.''')
+                              help='''The relative and/or absolute path to the results folder, without the trailing /''')
 
 parser.add_argument('--nruns', default=5, 
                                type=int, 
@@ -262,15 +263,24 @@ if __name__ == '__main__':
     
     T = sc.tic()
     
-    # Filepaths
+    # Inputs
     inputsfolder = 'inputs'
-    resultsfolder = args.results_path
     datafile = f'{inputsfolder}/qld_epi_data_calibration_qld-health.csv'
     agedatafile = f'{inputsfolder}/qld_demo_data_abs.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
     betasfile = f'{inputsfolder}/qld_model_layer_betas.csv'
 
+    # Results paths
+    resultsfolder = args.results_path
+    # simulation data path
+    simfolder = f'{resultsfolder}/sim-data'
+    # figures data path
+    figfolder = f'{resultsfolder}/figures'
 
+    pathlib.Path(simfolder).mkdir(parents=True, exist_ok=True)
+    pathlib.Path(figfolder).mkdir(parents=True, exist_ok=True)
+
+    # Load argparse
     args = parser.parse_args()
 
     # Create instance of simulator
@@ -281,40 +291,36 @@ if __name__ == '__main__':
                     betasfile=betasfile,
                     input_args=args)
 
-    results_path = f"{resultsfolder}/sim-data/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
+    # Do the stuff & save results
+    msim = cv.MultiSim(base_sim=sim)
+    msim.run(n_runs=args.nruns, reseed=True, noise=0)
+    msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
+    msim.save(msim_filename)
+   
+    # Plot all sims together 
+    msim.reduce()
+    msim_fig = msim.plot(do_show=False)
+    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
+    msim_fig.savefig(msim_fig_filename, dpi=100)
+    plt.close('all')
 
-    
+    # Calculate fits 
     fit_pars_dict = {'absolute':True,
                      'use_median':True,
                      'font-size': 14}
-    # Run and plot
-    if args.nruns > 1:
-        msim = cv.MultiSim(base_sim=sim)
-        msim.run(n_runs=args.nruns, reseed=True, noise=0)
-        msim.save(results_path)
-        msim.reduce()
-        # Plot all sims together
-        plt.ioff() 
-        msim_fig = msim.plot(do_show=False)
-        msim_fig_path = f"{resultsfolder}/figures/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
-        msim_fig.savefig(msim_fig_path, dpi=100)
-        plt.close('all')
 
-        # Calculate fits independentely
-        fitting_list = []
-        for this_sim in msim.sims: 
-            fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths'],
-                                       weights= [4.0, 2.0, 1.0],
-                                       **fit_pars_dict))
+    # Calculate fits independentely
+    fitting_list = []
+      for this_sim in msim.sims: 
+          fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths'],
+                              weights= [4.0, 2.0, 1.0],
+                              **fit_pars_dict))
         # Save list of fits
-        fits_path = f"{resultsfolder}/sim-data/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
-        sc.saveobj(filename=fits_path, obj=fitting_list)
-        fit_fig_path = f"{resultsfolder}/figures/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
-        plt.ioff()
-        fit_fig = fitting_list[0].plot(do_show=False)
-        fit_fig[0].savefig(fit_fig_path, dpi=100)
-        plt.close('all')
+    fits_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
+    sc.saveobj(filename=fits_filename, obj=fitting_list)
+    fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
+    
+    fit_fig = fitting_list[0].plot(do_show=False)
+    fit_fig[0].savefig(fit_fig_filename, dpi=100)
+    plt.close('all')
         
-        
-    else:
-        print("Nope.")
