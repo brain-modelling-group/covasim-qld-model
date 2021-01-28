@@ -1,6 +1,0 @@
-﻿,optimistic,pessimistic
-full_name,Optimistic,Pessimistic
-testing_symp_prob,0.75,0.4
-testing_symp_quar_prob,0.9,0.8
-testing_swab_delay,1,2
-test_isolation_compliance,0.8,0.6
