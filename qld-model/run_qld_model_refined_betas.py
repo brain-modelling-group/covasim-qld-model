@@ -281,6 +281,7 @@ if __name__ == '__main__':
 
     pathlib.Path(simfolder).mkdir(parents=True, exist_ok=True)
     pathlib.Path(figfolder).mkdir(parents=True, exist_ok=True)
+    print(resultsfolder)
 
     # Create instance of simulator
     sim  = make_sim(load_pop=True, 
