@@ -26,6 +26,12 @@ plt.ioff()
 cv.check_version('1.7.6', die=True)
 
 parser = argparse.ArgumentParser()
+
+
+parser.add_argument('--results_path', default='results', 
+                              type=str, 
+                              help='''The relative and/or absolute path to the results folder.''')
+
 parser.add_argument('--nruns', default=5, 
                                type=int, 
                                help='''Number of simulations to run per scenario. 
@@ -258,7 +264,7 @@ if __name__ == '__main__':
     
     # Filepaths
     inputsfolder = 'inputs'
-    resultsfolder = 'results_recalibration_2020-02-15_2020-05-15-local-cases'
+    resultsfolder = args.results_path
     datafile = f'{inputsfolder}/qld_epi_data_calibration_qld-health.csv'
     agedatafile = f'{inputsfolder}/qld_demo_data_abs.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
