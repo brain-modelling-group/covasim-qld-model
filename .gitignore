@@ -2,6 +2,7 @@
 .idea/
 *.xml
 *.iml
+*.obj
 .DS_Store
 results_*
 *-data-*.csv
@@ -148,3 +149,5 @@ docs/modules.rst
 
 # images (by default)
 *.png
+*.jpeg
+*.tiff
