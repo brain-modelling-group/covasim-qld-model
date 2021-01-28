@@ -270,6 +270,8 @@ if __name__ == '__main__':
     populationfile = f'{inputsfolder}/qldppl.pop'
     betasfile = f'{inputsfolder}/qld_model_layer_betas.csv'
 
+    # Load argparse
+    args = parser.parse_args()
     # Results paths
     resultsfolder = args.results_path
     # simulation data path
@@ -279,9 +281,6 @@ if __name__ == '__main__':
 
     pathlib.Path(simfolder).mkdir(parents=True, exist_ok=True)
     pathlib.Path(figfolder).mkdir(parents=True, exist_ok=True)
-
-    # Load argparse
-    args = parser.parse_args()
 
     # Create instance of simulator
     sim  = make_sim(load_pop=True, 
