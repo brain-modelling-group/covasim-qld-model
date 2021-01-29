@@ -19,9 +19,10 @@ CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model'
 
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
-for b in $(seq 0.01 0.0005 0.012); do
+for b in $(seq 0.01 0.0005 0.011); do
     BETA=$b
     python run_qld_model_refined_betas.py --nruns 2 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" --start_calibration_date '2020-02-15' --end_calibration_date '2020-05-15' --new_tests_mode 'raw' --results_path "$SCRATCH_RESULTS"
+    python run_qld_model_refined_betas.py --nruns 2 --start_calibration_date '2020-02-15' --end_calibration_date '2020-05-15' --new_tests_mode 'raw' --results_path "$SCRATCH_RESULTS"
 done
 # Create directory to save results in /working
 WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
@@ -31,7 +32,7 @@ mkdir "$WORKING_RESULTS"
 cd "$WORKING_RESULTS" || exit
 
 # Move stuff 
-scp $SCRATCH_RESULTS .
+scp -r "$SCRATCH_RESULTS" .
 
 # Clean up after ourselves
 rm -r $SCRATCH_RESULTS
