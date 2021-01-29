@@ -1,6 +1,6 @@
 #PBS -l walltime=08:00:00
-#PBS -l ncpus=32,mem=32gb
-#PBS -l host=hpcnode018
+#PBS -l ncpus=28,mem=32gb
+#PBS -l host=hpcnode040
 #PBS -N covid-qld-model
 #PBS -m ae
 #PBS -M pmsl.academic@gmail.com
@@ -21,7 +21,7 @@ SCRATCH_RESULTS="$TMPDIR"
 CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model'
 # Define number of cpus to be passed to sc.parallelize()
 # Match the number of cpus requested with PBS
-NCPUS=32
+NCPUS=28
 
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
