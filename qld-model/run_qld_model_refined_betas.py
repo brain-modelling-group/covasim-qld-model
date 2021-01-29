@@ -29,6 +29,10 @@ cv.check_version('1.7.6', die=True)
 parser = argparse.ArgumentParser()
 
 
+parser.add_argument('--ncpus', default=8, 
+                               type=int, 
+                               help='''Maximum number of cpus used by MultiSim runs.''')
+
 parser.add_argument('--results_path', default='results', 
                               type=str, 
                               help='''The relative and/or absolute path to the results folder, without the trailing /''')
@@ -292,7 +296,7 @@ if __name__ == '__main__':
                     input_args=args)
 
     # Do the stuff & save results
-    msim = cv.MultiSim(base_sim=sim)
+    msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
     msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
     msim.save(msim_filename)
