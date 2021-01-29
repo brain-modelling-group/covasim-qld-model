@@ -1,11 +1,11 @@
-#PBS -l walltime=01:00:00
-#PBS -l ncpus=8,mem=2gb
+#PBS -l walltime=04:00:00
+#PBS -l ncpus=32,mem=2gb
 #PBS -N covid-qld-model
 #PBS -m ae
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
-#PBS -J 1-2
+#PBS -J 1-50
 
 # Load packages we need
 module load python
@@ -16,13 +16,15 @@ export PYTHONPATH=$HOME/Code/covasim-qld-model:$PYTHONPATH
 # Path to directory where we are going to store results
 SCRATCH_RESULTS="$TMPDIR"
 CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model'
+# Define number of cpus to be passed to sc.parallelize()
+# Match the number of cpus requested with PBS
+NCPUS=32
 
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
-for b in $(seq 0.01 0.0005 0.011); do
+for b in $(seq 0.01 0.0005 0.03); do
     BETA=$b
-    python run_qld_model_refined_betas.py --nruns 2 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" --start_calibration_date '2020-02-15' --end_calibration_date '2020-05-15' --new_tests_mode 'raw' --results_path "$SCRATCH_RESULTS"
-    python run_qld_model_refined_betas.py --nruns 2 --start_calibration_date '2020-02-15' --end_calibration_date '2020-05-15' --new_tests_mode 'raw' --results_path "$SCRATCH_RESULTS"
+    python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 10 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" --start_calibration_date '2020-02-15' --end_calibration_date '2020-05-15' --new_tests_mode 'raw' --results_path "$SCRATCH_RESULTS"
 done
 # Create directory to save results in /working
 WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
