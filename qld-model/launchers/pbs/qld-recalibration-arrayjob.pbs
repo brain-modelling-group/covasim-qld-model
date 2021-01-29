@@ -7,6 +7,8 @@
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -J 1-50
 
+# Paula Sanz-Leon, Jan 2021, QIMRB
+
 # Load packages we need
 module load python
 
