@@ -323,4 +323,5 @@ if __name__ == '__main__':
     fit_fig = fitting_list[0].plot(do_show=False)
     fit_fig[0].savefig(fit_fig_filename, dpi=100)
     plt.close('all')
+    sc.toc(T)
         
