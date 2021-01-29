@@ -2,7 +2,7 @@
 #PBS -l ncpus=28,mem=32gb
 #PBS -l host=hpcnode040
 #PBS -N covid-qld-model
-#PBS -m ae
+#PBS -m abe
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
