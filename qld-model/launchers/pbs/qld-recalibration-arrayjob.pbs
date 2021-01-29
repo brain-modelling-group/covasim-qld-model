@@ -1,5 +1,6 @@
-#PBS -l walltime=04:00:00
-#PBS -l ncpus=32,mem=2gb
+#PBS -l walltime=08:00:00
+#PBS -l ncpus=32,mem=32gb
+#PBS -l host=hpcnode018
 #PBS -N covid-qld-model
 #PBS -m ae
 #PBS -M pmsl.academic@gmail.com
