@@ -266,7 +266,10 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 if __name__ == '__main__':
     
     T = sc.tic()
-    
+
+    # Load argparse
+    args = parser.parse_args()
+        
     # Inputs
     inputsfolder = 'inputs'
     datafile = f'{inputsfolder}/qld_epi_data_calibration_qld-health.csv'
@@ -274,8 +277,6 @@ if __name__ == '__main__':
     populationfile = f'{inputsfolder}/qldppl.pop'
     betasfile = f'{inputsfolder}/qld_model_layer_betas.csv'
 
-    # Load argparse
-    args = parser.parse_args()
     # Results paths
     resultsfolder = args.results_path
     # simulation data path
