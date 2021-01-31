@@ -86,7 +86,13 @@ parser.add_argument('--start_calibration_date', default='2020-02-15',
 
 parser.add_argument('--end_calibration_date', default='2020-05-15', 
                               type=str, 
-                              help='''The date at which calibration finishes (default, '2020-06-30').''')
+                              help='''The date at which calibration finishes.''')
+
+
+parser.add_argument('--epi_calibration_file', 
+                              default='qld_epi_data_qld-health.csv', 
+                              type=str, 
+                              help='''The name of the csv file with empirical data under inputs/.''')
 
 
 def define_beta_changes(betasfile, layers):
@@ -269,10 +275,10 @@ if __name__ == '__main__':
 
     # Load argparse
     args = parser.parse_args()
-        
+
     # Inputs
     inputsfolder = 'inputs'
-    datafile = f'{inputsfolder}/qld_epi_data_calibration_qld-health.csv'
+    datafile = f'{inputsfolder}/{args.epi_calibration_file}'
     agedatafile = f'{inputsfolder}/qld_demo_data_abs.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
     betasfile = f'{inputsfolder}/qld_model_layer_betas.csv'
