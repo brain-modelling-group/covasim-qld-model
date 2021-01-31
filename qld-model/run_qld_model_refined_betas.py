@@ -324,18 +324,32 @@ if __name__ == '__main__':
                      'use_median':True,
                      'font-size': 14}
 
-    # Calculate fits independentely
-    fitting_list = []
+    # Calculate fits independently
+    fitting_dict = {'fit_ndg_cdg_cdh_w': [], 'fit_ndg_cdg_cdh_u': [], 
+                    'fit_ndg': [], 'fit_cdg': [], 'fit_cdh': []}
+    if args.new_tests_mode == 'raw':
+        new_tests_kwd = 'new_tests_raw'
+    else:
+        new_tests_kwd = 'new_tests'
+
     for this_sim in msim.sims: 
-        fitting_list.append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths'],
-                            weights= [4.0, 2.0, 1.0],
-                            **fit_pars_dict))
+        fitting_dict['fit_ndg_cdg_cdh_w'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths', new_tests_kwd],
+                                         weights= [4.0, 2.0, 1.0, 0.0],
+                                         **fit_pars_dict))
+        fitting_dict['fit_ndg_cdg_cdh_u'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths', new_tests_kwd],
+                                         weights= [1.0, 1.0, 1.0, 0.0],
+                                         **fit_pars_dict))
+        fitting_dict['fit_ndg'].append(this_sim.compute_fit(keys=['new_diagnoses'], **fit_pars_dict))
+        fitting_dict['fit_cdg'].append(this_sim.compute_fit(keys=['cum_diagnoses'], **fit_pars_dict))
+        fitting_dict['fit_cdh'].append(this_sim.compute_fit(keys=['cum_deaths'], **fit_pars_dict))
+
+
         # Save list of fits
     fits_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
-    sc.saveobj(filename=fits_filename, obj=fitting_list)
+    sc.saveobj(filename=fits_filename, obj=fitting_dict)
     fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
     
-    fit_fig = fitting_list[0].plot(do_show=False)
+    fit_fig = fitting_dict['fit_ndg_cdg_cdh_w'][0].plot(do_show=False)
     fit_fig[0].savefig(fit_fig_filename, dpi=100)
     plt.close('all')
     sc.toc(T)
