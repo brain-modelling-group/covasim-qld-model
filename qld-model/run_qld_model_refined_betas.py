@@ -94,6 +94,10 @@ parser.add_argument('--epi_calibration_file',
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
+parser.add_argument('--layer_betas_file', 
+                              default='qld_model_layer_betas.csv', 
+                              type=str, 
+                              help='''The name of the csv file with layer-specific betas.''')
 
 def define_beta_changes(betasfile, layers):
 
@@ -281,7 +285,7 @@ if __name__ == '__main__':
     datafile = f'{inputsfolder}/{args.epi_calibration_file}'
     agedatafile = f'{inputsfolder}/qld_demo_data_abs.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
-    betasfile = f'{inputsfolder}/qld_model_layer_betas.csv'
+    betasfile = f'{inputsfolder}/{args.layer_betas_file}'
 
     # Results paths
     resultsfolder = args.results_path
