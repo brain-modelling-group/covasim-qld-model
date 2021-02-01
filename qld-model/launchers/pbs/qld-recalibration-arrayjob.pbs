@@ -1,5 +1,5 @@
-#PBS -l walltime=08:00:00
-#PBS -l ncpus=28,mem=32gb
+#PBS -l walltime=1:00:00
+#PBS -l ncpus=28,mem=4gb
 #PBS -N covid-qld-model
 #PBS -m abe
 #PBS -M pmsl.academic@gmail.com
@@ -26,16 +26,15 @@ NCPUS=28
 cd "$CODE_DIRECTORY"
 for b in $(seq 0.01 0.0005 0.03); do
     BETA=$b
-    python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 100 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
+    python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 5 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
                                           --start_calibration_date '2020-02-15' --end_calibration_date '2020-04-10' \
                                           --layer_betas_file 'qld_model_layer_betas.csv' \
                                           --epi_calibration_file 'qld_epi_data_qld-health_calibration_2020-02-15_2020-03-30.csv'\
-                                          --new_tests_mode 'mav' --results_path "$SCRATCH_RESULTS"
+                                          --new_tests_mode 'raw' --results_path "$SCRATCH_RESULTS"
 done
 # Create directory to save results in /working
 WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
-THESTAMP=$(date +%Y-%m-%d_%H%M%S)
-WORKING_RESULTS=$WORKING_DIR/results-$THESTAMP
+WORKING_RESULTS=$WORKING_DIR/results-$PBS_JOBID
 mkdir "$WORKING_RESULTS"
 cd "$WORKING_RESULTS" || exit
 
