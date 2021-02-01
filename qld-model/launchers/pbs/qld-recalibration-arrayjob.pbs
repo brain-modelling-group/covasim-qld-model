@@ -34,12 +34,19 @@ for b in $(seq 0.01 0.0005 0.03); do
 done
 # Create directory to save results in /working
 WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
-WORKING_RESULTS=$WORKING_DIR/results-$PBS_JOBID
-mkdir "$WORKING_RESULTS"
+# Save only the job number
+JOBNUM=${PBS_JOBID:0:8}
+WORKING_RESULTS=$WORKING_DIR/results-$JOBNUM
+
+# Create directory if it does not exist
+mkdir -p "$WORKING_RESULTS/sim-data"
+mkdir -p "$WORKING_RESULTS/figures"
+
 cd "$WORKING_RESULTS" || exit
 
 # Move stuff 
-scp -r "$SCRATCH_RESULTS" .
+scp "$SCRATCH_RESULTS/sim-data/*.obj" sim-data/.
+scp "$SCRATCH_RESULTS/figures/*.png" figures/.
 
 # Clean up after ourselves
 rm -r $SCRATCH_RESULTS
