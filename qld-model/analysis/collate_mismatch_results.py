@@ -110,7 +110,7 @@ def save_mismatch_results(output_path, output_dict, file_string):
 
     for key in output_dict.keys():
         file_output_name = f'{file_string}_mismatch_{key}.npy'
-        np.save(f'{output_folder}/{file_output_name}')
+        np.save(f'{output_folder}/{file_output_name}', output_dict[key])
 
 
 if __name__ == '__main__':
@@ -126,8 +126,8 @@ if __name__ == '__main__':
     fit_results_stored_as = 'list' 
 
     if fit_results_stored_as == 'list':
-        output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, {results_path}{results_folder})
+        output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, f'{results_path}{results_folder}')
     else:
-        output_dict = collate_mismatch_results_dict(betas, seed_infections, file_string, {results_path}{results_folder})
+        output_dict = collate_mismatch_results_dict(betas, seed_infections, file_string, f'{results_path}{results_folder}')
 
     save_mismatch_results(results_path, output_dict, file_string)
