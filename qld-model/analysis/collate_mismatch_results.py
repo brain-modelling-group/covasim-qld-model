@@ -22,7 +22,7 @@ def collate_mismatch_results_list(betas, seed_infections, file_string):
     """
 
     # Check the first file to get the number of runs
-    this_fit_file = f"{file_string}{betas[0]:.{4}f}_{seed_infections[0]:02d}_fit.obj"
+    this_fit_file = f"{file_string}_{betas[0]:.{4}f}_{seed_infections[0]:02d}_fit.obj"
     fitting_list = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
 
     num_runs = len(fitting_list)
@@ -37,7 +37,7 @@ def collate_mismatch_results_list(betas, seed_infections, file_string):
     for beta_idx, this_beta in enumerate(betas):
         for infect_idx, this_infection in enumerate(seed_infections):
 
-            this_fit_file = f"{file_string}{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_fit.obj"
+            this_fit_file = f"{file_string}_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_fit.obj"
             try:
                 fitting_list = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
                 for fit_idx, this_fit in enumerate(fitting_list):
@@ -74,7 +74,7 @@ def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfo
     num_infections = seed_infections.shape[0]
 
     # Check the first file to get basic info for output
-    this_fit_file = f"{file_string}{betas[0]:.{4}f}_{seed_infections[0]:02d}_fit.obj"
+    this_fit_file = f"{file_string}_{betas[0]:.{4}f}_{seed_infections[0]:02d}_fit.obj"
     fitting_dict = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
 
     # Get number of runs using the firs fitting list 
