@@ -13,7 +13,7 @@ import pathlib as pathlib
 import numpy as np 
 import sciris as sc
 
-def collate_mismatch_results_list(betas, seed_infections, file_string):
+def collate_mismatch_results_list(betas, seed_infections, file_string, resultsfolder):
     """
     Load fit objects into an array. It expects that the obj file have a list with 
     as many elements as num_runs. 
@@ -126,8 +126,8 @@ if __name__ == '__main__':
     fit_results_stored_as = 'list' 
 
     if fit_results_stored_as == 'list':
-        output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, f'{results_path}{results_folder}')
+        output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, {results_path}{results_folder})
     else:
-        output_dict = collate_mismatch_results_dict(betas, seed_infections, file_string, f'{results_path}{results_folder}')
+        output_dict = collate_mismatch_results_dict(betas, seed_infections, file_string, {results_path}{results_folder})
 
     save_mismatch_results(results_path, output_dict, file_string)
