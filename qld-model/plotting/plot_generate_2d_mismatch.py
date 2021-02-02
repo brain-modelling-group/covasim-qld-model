@@ -11,13 +11,18 @@ Plot mismatch maps
 import sciris as sc
 import pylab as pl
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+font = {'family' : 'normal',
+        'size'   : 14}
 
-def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vamx_lin = 100, figtitle):
+matplotlib.rc('font', **font)
 
-    fig, axs = plt.subplots(nrows=3, ncols=4, figsize=(9, 6),
+def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vmax_lin = 100, figtitle='no-title'):
+
+    fig, axs = plt.subplots(nrows=3, ncols=4, figsize=(15, 9),
                             subplot_kw={'xticks': [], 'yticks': []})
 
     fig.suptitle(figtitle)
@@ -28,14 +33,14 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, va
     # Display first four individual runs
     num_to_display = 4
     for ii in range(num_to_display):
-        im = axs.flat[0, ii].imshow(np.log10(mismatch_arr[ii, ...]), interpolation='none', origin='lower', extent = [0, 1, 0, 1])
+        im = axs[0, ii].imshow(np.log10(mismatch_arr[ii, ...]), interpolation='none', origin='lower', extent = [0, 1, 0, 1])
         axim.append(im)
 
     # Means and medians
     im10 = axs[1, 0].imshow(np.log10(np.mean(mismatch_arr, axis=0)), interpolation='none', origin='lower', extent = [0, 1, 0, 1], vmax=vmax_log10)
     im11 = axs[1, 1].imshow(np.log10(np.percentile(mismatch_arr, 50, axis=0)), interpolation='none', origin='lower', extent = [0, 1, 0, 1], vmax=vmax_log10)
-    im12 = axs[1, 2].imshow(np.mean(mismatch_arr, axis=0), interpolation='none', origin='lower', extent = [0, 1, 0, 1], vamax=vmax_lin)
-    im13 = axs[1, 3].imshow(np.percentile(mismatch_arr, 50, axis=0), interpolation='none', origin='lower', extent = [0, 1, 0, 1], vmax_lin)
+    im12 = axs[1, 2].imshow(np.mean(mismatch_arr, axis=0), interpolation='none', origin='lower', extent = [0, 1, 0, 1], vmax=vmax_lin)
+    im13 = axs[1, 3].imshow(np.percentile(mismatch_arr, 50, axis=0), interpolation='none', origin='lower', extent = [0, 1, 0, 1], vmax=vmax_lin)
 
     axim.append(im10)
     axim.append(im11)
@@ -60,12 +65,17 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, va
     halfpoint_infections = (seed_infections[-1] - seed_infections[0]) / 2.0
     halfpoint_betas = (betas[-1] - betas[0]) / 2.0
 
-
     axs[2,3].set_xticklabels([str(seed_infections[0]), str(halfpoint_infections), str(seed_infections[-1])])
-    axs[2,3].set_yticklabels([str(betas[0]), str(halfpoint_betas), str(betas[-1])])
+    axs[2,3].set_yticklabels(["0.01", "0.02", "0.03"])
     plt.xlabel('num seed infections')
     plt.ylabel('beta')
 
+    axs_titles = ['run 00', 'run 01', 'run 02', 'run 03', 
+                  'log10(mean)', 'log10(median)', 'mean', 'median',
+                  'log10(std)', 'log10(90-th percentile)', 'std', '90-th percentile']
+
+    for idx, ax in enumerate(axs.flat):
+        ax.set_title(axs_titles[idx])
 
     for ax, im in zip(axs.flat, axim):
         divider = make_axes_locatable(ax)
@@ -76,16 +86,17 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, va
 
 if __name__ == '__main__':
     # Filepaths
-    results_path = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14678514'
+    results_path = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14674769'
     results_folder = '/mismatch'
-    filename = 'qld_recalibration_mav_numtests_2020-02-15_2020-04-10_mismatch_fit_ndg_cdg_cdh_w.npy'
-    figtitle = 'mismatch_fit_ndg_cdg_cdh_w'
+    filename = 'qld_recalibration_raw_numtests_2020-02-15_2020-05-15_mismatch_mismatch_ndg_cdg_cdh_w.npy'
+    figtitle = filename
 
-    betas = np.arange(0.01, 0.03, 0.0005)
-    seed_infections = np.arange(1, 50, 1)
+    # Define ranges explored
+    beta_max = 0.03
+    betas = np.arange(0.01, beta_max+0.0005, 0.0005)
+    seed_max = 50
+    seed_infections = np.arange(1, seed_max+1, 1)
 
+    mismatch_arr = np.load(f'{results_path}{results_folder}/{filename}')
+    plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_lin = 100, vmax_log10=3.0,figtitle=figtitle)
 
-    # Axes of PSE
-    num_betas = betas.shape[0]
-    num_infections = seed_infections.shape[0]
-    num_runs = 4
