@@ -21,8 +21,6 @@ import covasim_australia.utils as utils
 # Add argument parser
 import argparse
 
-plt.ioff()
-
 # Check covasim version is the one we actually need
 cv.check_version('1.7.6', die=True)
 
