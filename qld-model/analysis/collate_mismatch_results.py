@@ -123,9 +123,11 @@ if __name__ == '__main__':
     betas = np.arange(0.01, 0.03, 0.0005)
     seed_infections = np.arange(1, 50, 1)
 
-    try:
-        output_dict = collate_mismatch_results_dict(betas, seed_infections, file_string, results_path+results_folder)
-    except:
+    fit_results_stored_as = 'list' 
+
+    if fit_results_stored_as == 'list'
         output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, results_path+results_folder)
-    finally:
-        save_mismatch_results(results_path, output_dict, file_string)
+    else:
+        output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, results_path+results_folder)
+
+    save_mismatch_results(results_path, output_dict, file_string)
