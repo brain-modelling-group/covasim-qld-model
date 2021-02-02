@@ -76,9 +76,9 @@ def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfo
     # Check the first file to get basic info for output
     this_fit_file = f"{file_string}_{betas[0]:.{4}f}_{seed_infections[0]:02d}_fit.obj"
     fitting_dict = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
-
+    keys = list(fitting_dict.keys())
     # Get number of runs using the firs fitting list 
-    num_runs = len(fitting_dict[fitting_dict.keys()[0]])
+    num_runs = len(fitting_dict[keys[0]])
     
     # Create output dictionary with the same keys as input dictionary
     output_dict = {x:np.zeros((num_runs, num_betas, num_infections)) for x in fitting_dict.keys()}
@@ -115,15 +115,15 @@ def save_mismatch_results(output_path, output_dict, file_string):
 
 if __name__ == '__main__':
 
-    results_path = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14674769'
+    results_path = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14678514'
     results_folder = '/sim-data'
-    file_string = 'qld_recalibration_raw_numtests_2020-02-15_2020-05-15'
+    file_string = 'qld_recalibration_mav_numtests_2020-02-15_2020-04-10'
 
     # Define ranges explored
     betas = np.arange(0.01, 0.03, 0.0005)
-    seed_infections = np.arange(1, 50, 1)
+    seed_infections = np.arange(1, 100, 1)
 
-    fit_results_stored_as = 'list' 
+    fit_results_stored_as = 'dict' 
 
     if fit_results_stored_as == 'list':
         output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, f'{results_path}{results_folder}')
