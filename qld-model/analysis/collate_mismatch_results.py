@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
     fit_results_stored_as = 'list' 
 
-    if fit_results_stored_as == 'list'
+    if fit_results_stored_as == 'list':
         output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, results_path+results_folder)
     else:
         output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, results_path+results_folder)
