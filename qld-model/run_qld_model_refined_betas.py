@@ -22,7 +22,7 @@ import covasim_australia.utils as utils
 import argparse
 
 # Check covasim version is the one we actually need
-cv.check_version('1.7.6', die=True)
+cv.check_version('1.6.1', die=True)
 
 parser = argparse.ArgumentParser()
 
@@ -88,7 +88,7 @@ parser.add_argument('--end_calibration_date', default='2020-05-15',
 
 
 parser.add_argument('--epi_calibration_file', 
-                              default='qld_epi_data_qld-health.csv', 
+                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
