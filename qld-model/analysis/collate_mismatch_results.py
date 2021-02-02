@@ -44,7 +44,7 @@ def collate_mismatch_results_list(betas, seed_infections, file_string):
                     mismatch_arr[fit_idx, beta_idx, infect_idx] = this_fit.mismatch  
             except:
                 print(f'{resultsfolder}/{this_fit_file}' '~not found~')
-                mismatch_arr[..., beta_idx, infect_idx] = 
+                mismatch_arr[..., beta_idx, infect_idx] = np.nan
             
    output_dict = {'mismatch_ndg_cdg_cdh_w': mismatch_arr}
    return output_dict
@@ -115,8 +115,8 @@ def save_mismatch_results(output_path, output_dict, file_string):
 
 if __name__ == '__main__':
 
-    results_path = '/home/paula/Work/Code/Python/covasim-australia-qld/applications/qld-aus/'
-    results_folder = 'sim-data'
+    results_path = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14674769'
+    results_folder = '/sim-data'
     file_string = 'qld_recalibration_raw_numtests_2020-02-15_2020-05-15'
 
     # Define ranges explored
@@ -129,6 +129,3 @@ if __name__ == '__main__':
         output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, results_path+results_folder)
     finally:
         save_mismatch_results(results_path, output_dict, file_string)
-
-
-
