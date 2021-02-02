@@ -46,8 +46,8 @@ def collate_mismatch_results_list(betas, seed_infections, file_string):
                 print(f'{resultsfolder}/{this_fit_file}' '~not found~')
                 mismatch_arr[..., beta_idx, infect_idx] = np.nan
             
-   output_dict = {'mismatch_ndg_cdg_cdh_w': mismatch_arr}
-   return output_dict
+    output_dict = {'mismatch_ndg_cdg_cdh_w': mismatch_arr}
+    return output_dict
 
 
 
