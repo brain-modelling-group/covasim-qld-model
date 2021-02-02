@@ -73,12 +73,12 @@ def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfo
     num_betas = betas.shape[0]
     num_infections = seed_infections.shape[0]
 
-    # Get number of runs using the firs fitting list 
-    num_runs = len(fitting_dict[fitting_dict.keys()[0]])
-
     # Check the first file to get basic info for output
     this_fit_file = f"{file_string}{betas[0]:.{4}f}_{seed_infections[0]:02d}_fit.obj"
     fitting_dict = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
+
+    # Get number of runs using the firs fitting list 
+    num_runs = len(fitting_dict[fitting_dict.keys()[0]])
     
     # Create output dictionary with the same keys as input dictionary
     output_dict = {x:np.zeros((num_runs, num_betas, num_infections)) for x in fitting_dict.keys()}
