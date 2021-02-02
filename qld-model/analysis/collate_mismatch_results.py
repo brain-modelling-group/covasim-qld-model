@@ -101,7 +101,7 @@ def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfo
                 for key in fitting_dict.keys():
                     output_dict[key][..., beta_idx, infect_idx] = np.nan
 
-   return output_dict
+    return output_dict
 
 
 def save_mismatch_results(output_path, output_dict, file_string):
