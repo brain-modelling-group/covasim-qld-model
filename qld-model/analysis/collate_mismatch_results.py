@@ -39,13 +39,12 @@ def collate_mismatch_results_list(betas, seed_infections, file_string):
             this_fit_file = f"{file_string}{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_fit.obj"
             try:
                 fitting_list = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
+                for fit_idx, this_fit in enumerate(fitting_list):
+                    mismatch_arr[fit_idx, beta_idx, infect_idx] = this_fit.mismatch  
             except:
                 print(f'{resultsfolder}/{this_fit_file}' '~not found~')
-                fitting_list = [np.nan]*num_runs
+                mismatch_arr[..., beta_idx, infect_idx] = 
             
-            for fit_idx, this_fit in enumerate(fitting_list):
-                mismatch_arr[fit_idx, beta_idx, infect_idx] = this_fit.mismatch         
-
    output_dict = {'mismatch_ndg_cdg_cdh_w': mismatch_arr}
    return output_dict
 
