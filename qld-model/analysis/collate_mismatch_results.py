@@ -15,7 +15,7 @@ Save results in numpy arrays.
 def collate_mismatch_results_list(betas, seed_infections, file_string):
     """
     Load fit objects into an array. It expects that the obj file have a list with 
-    as many elements as nruns. 
+    as many elements as num_runs. 
 
     Returns dict with a single array of shape (num_runs, num_betas, num_infections)
     """
@@ -29,6 +29,7 @@ def collate_mismatch_results_list(betas, seed_infections, file_string):
     num_betas = betas.shape[0]
     num_infections = seed_infections.shape[0]
 
+    # 
     mismatch_arr = np.zeros((num_runs, num_betas, num_infections))
 
     # Get all the data
@@ -36,19 +37,26 @@ def collate_mismatch_results_list(betas, seed_infections, file_string):
         for infect_idx, this_infection in enumerate(seed_infections):
 
             this_fit_file = f"{file_string}{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_fit.obj"
-            fitting_list = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
-
+            try:
+                fitting_list = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
+            except:
+                print(f'{resultsfolder}/{this_fit_file}' '~not found~')
+                fitting_list = [np.nan]*num_runs
+            
             for fit_idx, this_fit in enumerate(fitting_list):
-                mismatch_arr[fit_idx, beta_idx, infect_idx] = this_fit.mismatch 
-   return {'mismatch_ndg_cdg_cdh_w': mismatch_arr}
+                mismatch_arr[fit_idx, beta_idx, infect_idx] = this_fit.mismatch         
+
+   output_dict = {'mismatch_ndg_cdg_cdh_w': mismatch_arr}
+   return output_dict
+
 
 
 def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfolder):
     """
     Load fit objects into an array. It expects that the obj file to have a
     dict with the mismatch results using different combinations of
-    observables. Each value in the dict is  a list with as many elements as
-    nruns. 
+    observables. Each value in the dict is a list with as many elements as
+    num_runs. 
 
     # Input dict
     fitting_dict = {'fit_ndg_cdg_cdh_w': [], 
@@ -88,8 +96,7 @@ def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfo
                 for fit_idx, this_fit in enumerate(fitting_list):
                     mismatch_arr[fit_idx, beta_idx, infect_idx] = this_fit.mismatch 
 
-    
-   return mismatch_arr
+   return output_dict
 
 
 if __name__ == '__main__':
