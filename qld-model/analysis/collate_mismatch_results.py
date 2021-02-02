@@ -6,6 +6,9 @@ Save results in numpy arrays.
 
 =====================================================
 
+TODO: if the results are stored as dict but we call the list function, the
+try except block have unexpected behaviour. Fix. 
+
 # author: Paula Sanz-Leon, QIMRB, February 2021
 """
 
@@ -120,8 +123,10 @@ if __name__ == '__main__':
     file_string = 'qld_recalibration_mav_numtests_2020-02-15_2020-04-10'
 
     # Define ranges explored
-    betas = np.arange(0.01, 0.03, 0.0005)
-    seed_infections = np.arange(1, 100, 1)
+    beta_max = 0.03
+    betas = np.arange(0.01, beta_max+0.0005, 0.0005)
+    seed_max = 100
+    seed_infections = np.arange(1, seed_max+1, 1)
 
     fit_results_stored_as = 'dict' 
 
