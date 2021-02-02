@@ -9,8 +9,9 @@ Save results in numpy arrays.
 # author: Paula Sanz-Leon, QIMRB, February 2021
 """
 
-
-# Filepaths
+import pathlib as pathlib
+import numpy as np 
+import sciris as sc
 
 def collate_mismatch_results_list(betas, seed_infections, file_string):
     """
@@ -86,7 +87,7 @@ def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfo
     for beta_idx, this_beta in enumerate(betas):
         for infect_idx, this_infection in enumerate(seed_infections):
 
-            this_fit_file = f"{file_string}{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_fit.obj"
+            this_fit_file = f"{file_string}_{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_fit.obj"
             try:
                 fitting_dict = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
                 for key in fitting_dict.keys():
@@ -100,20 +101,34 @@ def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfo
                 for key in fitting_dict.keys():
                     output_dict[key][..., beta_idx, infect_idx] = np.nan
 
-
    return output_dict
+
+
+def save_mismatch_results(output_path, output_dict, file_string):
+    output_folder = f'{output_path}/mismatch'
+    pathlib.Path(output_folder).mkdir(parents=True, exist_ok=True)
+
+    for key in output_dict.keys():
+        file_output_name = f'{file_string}_mismatch_{key}.npy'
+        np.save(f'{output_folder}/{file_output_name}')
 
 
 if __name__ == '__main__':
 
     results_path = '/home/paula/Work/Code/Python/covasim-australia-qld/applications/qld-aus/'
     results_folder = 'sim-data'
-    file_string = 'qld_recalibration_raw_numtests_2020-02-15_2020-05-15_'
+    file_string = 'qld_recalibration_raw_numtests_2020-02-15_2020-05-15'
 
     # Define ranges explored
     betas = np.arange(0.01, 0.03, 0.0005)
     seed_infections = np.arange(1, 50, 1)
 
-    collate_mismatch_results_dict(betas, seed_infections, file_string, results_path+results_folder)
+    try:
+        output_dict = collate_mismatch_results_dict(betas, seed_infections, file_string, results_path+results_folder)
+    except:
+        output_dict = collate_mismatch_results_list(betas, seed_infections, file_string, results_path+results_folder)
+    finally:
+        save_mismatch_results(results_path, output_dict, file_string)
+
 
 
