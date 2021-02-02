@@ -21,10 +21,8 @@ import covasim_australia.utils as utils
 # Add argument parser
 import argparse
 
-plt.ioff()
-
 # Check covasim version is the one we actually need
-cv.check_version('1.7.6', die=True)
+cv.check_version('1.6.1', die=True)
 
 parser = argparse.ArgumentParser()
 
@@ -90,7 +88,7 @@ parser.add_argument('--end_calibration_date', default='2020-05-15',
 
 
 parser.add_argument('--epi_calibration_file', 
-                              default='qld_epi_data_qld-health.csv', 
+                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
@@ -155,59 +153,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     beta_ints = define_beta_changes(betasfile, layers)             
     sim.pars['interventions'].extend(beta_ints)
 
-    # # Testing of symptomatic cases
-    # symp_prob_prelockdown = 0.08    # Limited testing pre lockdown
-    # symp_prob_prelockdown_01 = 0.1 # 
-    # symp_prob_prelockdown_02 = 0.2  #
-    # symp_prob_prelockdown_03 = 0.3  #
-    # symp_prob_prelockdown_04 = 0.4  #
-    # symp_prob_prelockdown_05 = 0.35 #
-    # symp_prob_lockdown = 0.3        # Increased testing during lockdown
-    # symp_prob_postlockdown = 0.45   # Testing since lockdown
-    # sim.pars['interventions'].append(cv.test_prob(start_day=start_day, 
-    #                                               end_day='2020-02-29', 
-    #                                               symp_prob=symp_prob_prelockdown, 
-    #                                               asymp_quar_prob=0.001, do_plot=False))
-    
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-02-29', 
-    #                                               end_day='2020-03-07', 
-    #                                               symp_prob=symp_prob_prelockdown_01, 
-    #                                               asymp_quar_prob=0.001, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-07', 
-    #                                               end_day='2020-03-10', 
-    #                                               symp_prob=symp_prob_prelockdown_02, 
-    #                                               asymp_quar_prob=0.001, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-10', 
-    #                                               end_day= '2020-03-15', 
-    #                                               symp_prob=symp_prob_prelockdown_03, 
-    #                                               asymp_quar_prob=0.001, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-15', 
-    #                                               end_day= '2020-03-24', 
-    #                                               symp_prob=symp_prob_prelockdown_04, 
-    #                                               asymp_quar_prob=0.001, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-24', 
-    #                                               end_day= '2020-04-07', 
-    #                                               symp_prob=symp_prob_prelockdown_05, 
-    #                                               asymp_quar_prob=0.001, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-07', 
-    #                                               end_day='2020-05-01', 
-    #                                               symp_prob=symp_prob_lockdown, 
-    #                                               asymp_quar_prob=0.001,do_plot=False))
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-01', 
-    #                                               symp_prob=symp_prob_postlockdown, 
-    #                                               asymp_quar_prob=0.001,do_plot=True))
-
-    
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-01', 
-    #                                               symp_prob=symp_prob_postlockdown, 
-    #                                               asymp_quar_prob=0.001,do_plot=True))
-
-
+    # Testing
     data = pd.read_csv(datafile, parse_dates=['date'])
     if input_args.new_tests_mode == 'raw':
        this_column = 'new_tests_raw'
@@ -327,10 +273,8 @@ if __name__ == '__main__':
     # Calculate fits independently
     fitting_dict = {'fit_ndg_cdg_cdh_w': [], 'fit_ndg_cdg_cdh_u': [], 
                     'fit_ndg': [], 'fit_cdg': [], 'fit_cdh': []}
-    if args.new_tests_mode == 'raw':
-        new_tests_kwd = 'new_tests_raw'
-    else:
-        new_tests_kwd = 'new_tests'
+    
+    new_tests_kwd = 'new_tests'
 
     for this_sim in msim.sims: 
         fitting_dict['fit_ndg_cdg_cdh_w'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths', new_tests_kwd],
