@@ -87,24 +87,33 @@ def collate_mismatch_results_dict(betas, seed_infections, file_string, resultsfo
         for infect_idx, this_infection in enumerate(seed_infections):
 
             this_fit_file = f"{file_string}{betas[beta_idx]:.{4}f}_{seed_infections[infect_idx]:02d}_fit.obj"
-            fitting_dict = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
+            try:
+                fitting_dict = sc.loadobj(f'{resultsfolder}/{this_fit_file}')
+                for key in fitting_dict.keys():
+                    fitting_list = fitting_dict[key]
 
-            for key in fitting_dict.keys():
-                fitting_list = fitting_dict[key]
+                    for fit_idx, this_fit in enumerate(fitting_list):
+                        output_dict[key][fit_idx, beta_idx, infect_idx] = this_fit.mismatch 
 
-                for fit_idx, this_fit in enumerate(fitting_list):
-                    mismatch_arr[fit_idx, beta_idx, infect_idx] = this_fit.mismatch 
+            except:
+                print(f'{resultsfolder}/{this_fit_file}' '~not found~')
+                for key in fitting_dict.keys():
+                    output_dict[key][..., beta_idx, infect_idx] = np.nan
+
 
    return output_dict
 
 
 if __name__ == '__main__':
 
-resultsfolder = '/home/paula/Work/Code/Python/covasim-australia-qld/applications/qld-aus/results_recalibration_2020-02-15_2020-05-15-local-cases/sim-data'
-file_string = 'qld_recalibration_raw_numtests_2020-02-15_2020-05-15_'
+    results_path = '/home/paula/Work/Code/Python/covasim-australia-qld/applications/qld-aus/'
+    results_folder = 'sim-data'
+    file_string = 'qld_recalibration_raw_numtests_2020-02-15_2020-05-15_'
 
-# Define ranges explored
-betas = np.arange(0.01, 0.03, 0.0005)
-seed_infections = np.arange(1, 50, 1)
+    # Define ranges explored
+    betas = np.arange(0.01, 0.03, 0.0005)
+    seed_infections = np.arange(1, 50, 1)
+
+    collate_mismatch_results_dict(betas, seed_infections, file_string, results_path+results_folder)
 
 
