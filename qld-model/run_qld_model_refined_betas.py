@@ -273,10 +273,8 @@ if __name__ == '__main__':
     # Calculate fits independently
     fitting_dict = {'fit_ndg_cdg_cdh_w': [], 'fit_ndg_cdg_cdh_u': [], 
                     'fit_ndg': [], 'fit_cdg': [], 'fit_cdh': []}
-    if args.new_tests_mode == 'raw':
-        new_tests_kwd = 'new_tests_raw'
-    else:
-        new_tests_kwd = 'new_tests'
+    
+    new_tests_kwd = 'new_tests'
 
     for this_sim in msim.sims: 
         fitting_dict['fit_ndg_cdg_cdh_w'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths', new_tests_kwd],
