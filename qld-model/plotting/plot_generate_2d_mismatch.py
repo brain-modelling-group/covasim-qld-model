@@ -15,10 +15,46 @@ import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-font = {'family' : 'normal',
-        'size'   : 14}
-
+font = {'size'   : 14}
 matplotlib.rc('font', **font)
+
+
+# Add argument parser
+import argparse
+
+
+parser = argparse.ArgumentParser()
+
+
+parser.add_argument('--ncpus', default=8, 
+                               type=int, 
+                               help='''Maximum number of cpus used by MultiSim runs.''')
+
+parser.add_argument('--results_path',
+                              default = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14674769',
+                              type=str, 
+                              help='''The relative and/or absolute path to the folder with sims, figs etc, without the trailing /''')
+
+parser.add_argument('--results_folder',
+                              default = '/mismatch',
+                              type=str, 
+                              help='''The relative path to the results folder. Start with /''')
+
+parser.add_argument('--filename', 
+                               default='qld_recalibration_raw_numtests_2020-02-15_2020-05-15_mismatch_mismatch_ndg_cdg_cdh_w.npy',                               type=str, 
+                               help=''' Name of the npy with file with results''')
+
+
+parser.add_argument('--vmax_lin', default=100.0, 
+                               type=float, 
+                               help='''Maximum value to threshold map (linear range)''')
+
+parser.add_argument('--vmax_log', default=3.0, 
+                               type=float, 
+                               help='''Maximum value to threshold map (log10)''')
+
+
+
 
 def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vmax_lin = 100, figtitle='no-title'):
 
@@ -84,12 +120,17 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vm
 
     plt.show()
 
+
 if __name__ == '__main__':
+    
+    # Load argparse
+    args = parser.parse_args()
+
     # Filepaths
-    results_path = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14674769'
-    results_folder = '/mismatch'
-    filename = 'qld_recalibration_raw_numtests_2020-02-15_2020-05-15_mismatch_mismatch_ndg_cdg_cdh_w.npy'
-    figtitle = filename
+    results_path = args.results_path
+    results_folder = args.results_folder
+    filename = args.filename
+    figtitle = args.filename
 
     # Define ranges explored
     beta_max = 0.03
@@ -98,5 +139,5 @@ if __name__ == '__main__':
     seed_infections = np.arange(1, seed_max+1, 1)
 
     mismatch_arr = np.load(f'{results_path}{results_folder}/{filename}')
-    plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_lin = 100, vmax_log10=3.0,figtitle=figtitle)
+    plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_lin = args.vmax_lin, vmax_log10=args.log10,figtitle=figtitle)
 
