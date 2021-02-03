@@ -134,7 +134,7 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vm
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.02)
         plt.colorbar(im, cax=cax)
-
+    plt.tight_layout()
     plt.show()
 
 
