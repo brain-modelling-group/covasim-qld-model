@@ -94,7 +94,7 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vm
     # Display first four individual runs
     num_to_display = 4
     for ii in range(num_to_display):
-        im = axs[0, ii].imshow(np.log10(mismatch_arr[ii, ...]), interpolation='none', origin='lower', extent = [0, 1, 0, 1])
+        im = axs[0, ii].imshow(np.log10(mismatch_arr[ii, ...]), interpolation='none', origin='lower', extent = [0, 1, 0, 1], vmax=vmax_log10)
         axim.append(im)
 
     # Means and medians
