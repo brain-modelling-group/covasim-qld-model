@@ -31,7 +31,7 @@ parser.add_argument('--ncpus', default=8,
                                help='''Maximum number of cpus used by MultiSim runs.''')
 
 parser.add_argument('--results_path',
-                              default = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14674769',
+                              default = '/home/paula/Dropbox/COVID/simulated-data/pbs.14674769',
                               type=str, 
                               help='''The relative and/or absolute path to the folder with sims, figs etc, without the trailing /''')
 
@@ -72,14 +72,6 @@ parser.add_argument('--seed_min', default=1.0,
 parser.add_argument('--seed_max', default=100.0, 
                                type=float, 
                                help='''''')
-
-parser.add_argument('--vmax_log', default=3.0, 
-                               type=float, 
-                               help='''Maximum value to threshold map (log10)''')
-
-parser.add_argument('--vmax_log', default=3.0, 
-                               type=float, 
-                               help='''Maximum value to threshold map (log10)''')
 
 def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vmax_lin = 100, figtitle='no-title'):
 
@@ -162,5 +154,4 @@ if __name__ == '__main__':
     seed_infections = np.arange(args.seed_min, args.seed_max+1, 1)
 
     mismatch_arr = np.load(f'{results_path}{results_folder}/{filename}')
-    plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_lin = args.vmax_lin, vmax_log10=args.log10,figtitle=figtitle)
-
+    plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_lin = args.vmax_lin, vmax_log10=args.vmax_log,figtitle=figtitle)
