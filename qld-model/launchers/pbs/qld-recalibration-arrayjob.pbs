@@ -1,11 +1,11 @@
-#PBS -l walltime=2:00:00
+#PBS -l walltime=3:00:00
 #PBS -l ncpus=16,mem=4gb
 #PBS -N covid-qld-model
 #PBS -m abe
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
-#PBS -J 30-31
+#PBS -J 1-150
 
 # Paula Sanz-Leon, Jan 2021, QIMRB
 
@@ -24,7 +24,7 @@ NCPUS=16
 
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
-for b in $(seq 0.01 0.0005 0.03); do
+for b in $(seq 0.0000 0.0005 0.03); do
     BETA=$b
     python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 5 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
                                           --start_calibration_date '2020-02-15' --end_calibration_date '2020-04-10' \
