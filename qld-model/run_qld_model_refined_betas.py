@@ -271,7 +271,8 @@ if __name__ == '__main__':
                      'font-size': 14}
 
     # Calculate fits independently
-    fitting_dict = {'fit_ndg_cdg_cdh_w': [], 'fit_ndg_cdg_cdh_u': [], 
+    fitting_dict = {'fit_ndg_cdg_cdh_w': [], 'fit_ndg_cdg_cdh_u': [],
+                    'fit_ndg_cdg_w':[], 'fit_ndg_cdg_u': [], 
                     'fit_ndg': [], 'fit_cdg': [], 'fit_cdh': []}
     
     new_tests_kwd = 'new_tests'
@@ -280,6 +281,14 @@ if __name__ == '__main__':
         fitting_dict['fit_ndg_cdg_cdh_w'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths', new_tests_kwd],
                                          weights= [4.0, 2.0, 1.0, 0.0],
                                          **fit_pars_dict))
+        fitting_dict['fit_ndg_cdg_w'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses'],
+                                         weights= [1.0, 10.0],
+                                         **fit_pars_dict))
+
+        fitting_dict['fit_ndg_cdg_u'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses'],
+                                         weights= [1.0, 1.0],
+                                         **fit_pars_dict))
+
         fitting_dict['fit_ndg_cdg_cdh_u'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'cum_deaths', new_tests_kwd],
                                          weights= [1.0, 1.0, 1.0, 0.0],
                                          **fit_pars_dict))
