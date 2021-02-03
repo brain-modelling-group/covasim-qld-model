@@ -22,7 +22,7 @@ import covasim_australia.utils as utils
 import argparse
 
 # Check covasim version is the one we actually need
-cv.check_version('1.7.6', die=True)
+cv.check_version('1.6.1', die=True)
 
 parser = argparse.ArgumentParser()
 
