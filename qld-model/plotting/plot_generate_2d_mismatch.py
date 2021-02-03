@@ -53,8 +53,33 @@ parser.add_argument('--vmax_log', default=3.0,
                                type=float, 
                                help='''Maximum value to threshold map (log10)''')
 
+parser.add_argument('--beta_step', default=0.0005, 
+                               type=float, 
+                               help='''''')
 
+parser.add_argument('--beta_min', default=0.01, 
+                               type=float, 
+                               help='''''')
 
+parser.add_argument('--beta_max', default=0.03, 
+                               type=float, 
+                               help='''''')
+
+parser.add_argument('--seed_min', default=1.0, 
+                               type=float, 
+                               help='''''')
+
+parser.add_argument('--seed_max', default=100.0, 
+                               type=float, 
+                               help='''''')
+
+parser.add_argument('--vmax_log', default=3.0, 
+                               type=float, 
+                               help='''Maximum value to threshold map (log10)''')
+
+parser.add_argument('--vmax_log', default=3.0, 
+                               type=float, 
+                               help='''Maximum value to threshold map (log10)''')
 
 def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vmax_lin = 100, figtitle='no-title'):
 
@@ -133,10 +158,8 @@ if __name__ == '__main__':
     figtitle = args.filename
 
     # Define ranges explored
-    beta_max = 0.03
-    betas = np.arange(0.01, beta_max+0.0005, 0.0005)
-    seed_max = 50
-    seed_infections = np.arange(1, seed_max+1, 1)
+    betas = np.arange(args.beta_min, args.beta_max+args.beta_step, args.beta_step)
+    seed_infections = np.arange(args.seed_min, args.seed_max+1, 1)
 
     mismatch_arr = np.load(f'{results_path}{results_folder}/{filename}')
     plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_lin = args.vmax_lin, vmax_log10=args.log10,figtitle=figtitle)
