@@ -1,4 +1,4 @@
-#PBS -l walltime=15:00:00
+#PBS -l walltime=20:00:00
 #PBS -l ncpus=28,mem=32gb
 #PBS -N covid-qld-model
 #PBS -m abe
@@ -16,6 +16,7 @@ module load python
 export PYTHONPATH=$HOME/Code/covasim-qld-model:$PYTHONPATH
 
 # Path to directory where we are going to store results
+set -e  # tells a PBS job or bash script to exit on any processes non zero  exit status
 SCRATCH_RESULTS="$TMPDIR"
 CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model'
 # Define number of cpus to be passed to sc.parallelize()
@@ -26,7 +27,7 @@ NCPUS=28
 cd "$CODE_DIRECTORY"
 for b in $(seq 0.01 0.0005 0.03); do
     BETA=$b
-    python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 100 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
+    python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 200 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
                                           --start_calibration_date '2020-02-15' --end_calibration_date '2020-04-10' \
                                           --layer_betas_file 'qld_model_layer_betas_01.csv' \
                                           --epi_calibration_file 'qld_epi_data_qld-health_calibration_2020-02-15_2020-03-30.csv'\
@@ -49,4 +50,4 @@ scp "$SCRATCH_RESULTS/sim-data/"*.obj sim-data/.
 scp "$SCRATCH_RESULTS/figures/"*.png figures/.
 
 # Clean up after ourselves
-rm -r $SCRATCH_RESULTS
+#rm -r $SCRATCH_RESULTS

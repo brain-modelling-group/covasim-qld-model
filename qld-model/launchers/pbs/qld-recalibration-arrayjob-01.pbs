@@ -16,6 +16,7 @@ module load python
 export PYTHONPATH=$HOME/Code/covasim-qld-model:$PYTHONPATH
 
 # Path to directory where we are going to store results
+set -e  # tells a PBS job or bash script to exit on any processes non zero  exit status
 SCRATCH_RESULTS="$TMPDIR"
 CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model'
 # Define number of cpus to be passed to sc.parallelize()

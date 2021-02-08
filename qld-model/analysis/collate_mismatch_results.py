@@ -118,7 +118,7 @@ def save_mismatch_results(output_path, output_dict, file_string):
 
 if __name__ == '__main__':
 
-    results_path = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/pbs.14678514'
+    results_path = '/mnt/lustre/working/lab_jamesr/paulaSL/covid-results/pbs.14689757'
     results_folder = '/sim-data'
     file_string = 'qld_recalibration_mav_numtests_2020-02-15_2020-04-10'
 
