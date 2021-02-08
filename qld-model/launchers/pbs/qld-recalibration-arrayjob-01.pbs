@@ -1,4 +1,4 @@
-#PBS -l walltime=18:00:00
+#PBS -l walltime=20:00:00
 #PBS -l ncpus=28,mem=32gb
 #PBS -N covid-qld-model
 #PBS -m abe
