@@ -28,7 +28,7 @@ cd "$CODE_DIRECTORY"
 for b in $(seq 0.01 0.0005 0.03); do
     BETA=$b
     python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 100 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
-                                          --start_calibration_date '2020-02-15' --end_calibration_date '2020-05-15' \
+                                          --start_calibration_date '2020-03-01' --end_simulation_date '2020-05-15' --end_calibration_date '2020-05-15'\
                                           --layer_betas_file 'qld_model_layer_betas_01.csv' \
                                           --epi_calibration_file 'qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15.csv'\
                                           --new_tests_mode 'mav' --results_path "$SCRATCH_RESULTS"
