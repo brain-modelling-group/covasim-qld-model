@@ -82,6 +82,12 @@ parser.add_argument('--start_calibration_date', default='2020-02-15',
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
 
+
+parser.add_argument('--end_simulation_date', default='2020-05-15', 
+                              type=str, 
+                              help='''The date at which calibration finishes.''')
+
+
 parser.add_argument('--end_calibration_date', default='2020-05-15', 
                               type=str, 
                               help='''The date at which calibration finishes.''')
@@ -140,7 +146,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
             'quar_factor': pd.Series([1.0,     0.01,   0.1,    0.1,    0.01,   0.0,     0.0,     0.01,   0.01,   0.01,    0.10,    0.00,      0.01,   0.0], index=layers).to_dict(),
             'n_imports': 0.0, # Number of new cases per day -- can be varied over time as part of the interventions
             'start_day': input_args.start_calibration_date,
-            'end_day':   input_args.end_calibration_date,
+            'end_day':   input_args.end_simulation_date,
             'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
             'verbose': .1}
 
