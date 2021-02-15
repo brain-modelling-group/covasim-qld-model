@@ -172,21 +172,25 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests))
 
     # Testing probabilties of symptomatic -- from NSW cases
-    symp_test_prob_prelockdown = 0.04  # Limited testing pre lockdown
+    symp_test_prob_prelockdown = 0.002  # Limited testing pre lockdown
     symp_test_prob_lockdown = 0.07     # 0.065 #Increased testing during lockdown
     
-    
+    initresponse_date = '2020-03-15'
     lockdown_date = '2020-03-30' # Lockdown date in QLD
     reopen_date   = '2020-05-15' # Reopen shops etc date in QLD-NSW
     reopen2_date  = '2020-12-01' # Start of stage 6 in QLD
-    sim.pars['interventions'].append([cv.test_prob(start_day=input_args.start_calibration_date, 
-                                                   end_day=lockdown_date, 
+    sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
+                                                   end_day=initresponse_date, 
                                                    symp_prob=symp_test_prob_prelockdown, 
-                                                   asymp_quar_prob=0.01, do_plot=False),
-                                       cv.test_prob(start_day=lockdown_date, 
+                                                   asymp_quar_prob=0.01, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse_date, 
+                                                   end_day=lockdown_date, 
+                                                   symp_prob=symp_test_prob_prelockdown*1.03, 
+                                                   asymp_quar_prob=0.01, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
                                                     end_day=reopen_date, 
                                                     symp_prob=symp_test_prob_lockdown, 
-                                                    asymp_quar_prob=0.01,do_plot=False)])
+                                                    asymp_quar_prob=0.01,do_plot=False))
 
     if sim.day(input_args.end_simulation_date) > sim.day(reopen_date):     
         # More assumptions from NSW
