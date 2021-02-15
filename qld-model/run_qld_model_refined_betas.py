@@ -166,8 +166,8 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     else:
        this_column = 'new_tests'
     new_tests = data[this_column].to_list()
+    new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    #import pdb; pdb.set_trace()
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests))
 
 
