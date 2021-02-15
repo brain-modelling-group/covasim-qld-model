@@ -3,9 +3,9 @@
 # 
 
 # Paula Sanz-Leon, QIMR Berghofer September 2020
-for par2 in $(seq 0.6 0.2 1.4); do
+for par2 in $(seq 0.45 0.05 0.55); do
     P2=$par2
-    for par1 in $(seq 0.0 0.05 0.3); do
+    for par1 in $(seq 0.1 0.1 0.5); do
         P1=$par1
         python run_qld_model_refined_betas.py --ncpus 10 --nruns 5 --init_seed_infections 359 --global_beta 0.0105 \
                                       --par1 "$P1" --par2 "$P2" \
