@@ -190,7 +190,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     if sim.day(input_args.end_simulation_date) > sim.day(reopen_date):     
         # More assumptions from NSW
         symp_test_prob_postlockdown = 0.19 # 0.165 # Testing since lockdown
-        asymp_quar_prob_postlockdown = (1.0-(1.0-symp_prob_postlockdown)**10)
+        asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
         
         reopen2_date = '2020-12-01' # Start of stage 6 in QLD
         sim.pars['interventions'].append(cv.test_prob(start_day=reopen_date, 
@@ -201,7 +201,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     if sim.day(input_args.end_simulation_date) > sim.day(reopen2_date):
         # Future interventions, from start of stage 6 onwards
         symp_test_prob_future = 0.9 # From NSW cases
-        asymp_quar_prob_future = (1.0-(1.0-future_test_prob)**10)/2.0 
+        asymp_quar_prob_future = (1.0-(1.0-symp_test_prob_future)**10)/2.0 
 
         sim.pars['interventions'].append(cv.test_prob(start_day=reopen2_date, 
                                                       symp_prob=symp_test_prob_future, 
