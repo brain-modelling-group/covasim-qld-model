@@ -5,7 +5,7 @@
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
-#PBS -J 1-100
+#PBS -J 0-760:2
 
 # Paula Sanz-Leon, Jan 2021, QIMRB
 
@@ -25,12 +25,12 @@ NCPUS=28
 
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
-for b in $(seq 0.01 0.0005 0.03); do
+for b in $(seq 0.01 0.0005 0.04); do
     BETA=$b
-    python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 200 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
-                                          --start_calibration_date '2020-03-01' --end_simulation_date '2020-04-25' --end_calibration_date '2020-03-15'\
+    python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 5 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
+                                          --start_calibration_date '2020-03-01' --end_simulation_date '2020-04-25' --end_calibration_date '2020-03-30'\
                                           --layer_betas_file 'qld_model_layer_betas_01.csv' \
-                                          --epi_calibration_file 'qld_epi_data_qld-health_calibration_2020-02-15_2020-03-15.csv'\
+                                          --epi_calibration_file 'qld_epi_data_qld-health_calibration_2020-02-15_2020-03-30.csv'\
                                           --new_tests_mode 'mav' --results_path "$SCRATCH_RESULTS"
 done
 # Create directory to save results in /working
