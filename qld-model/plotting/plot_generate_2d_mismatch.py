@@ -134,7 +134,7 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vm
     halfpoint_betas = (betas[-1] - betas[0]) / 2.0
 
     axs[3,3].set_xticklabels([str(seed_infections[0]), str(halfpoint_infections), str(seed_infections[-1])])
-    axs[3,3].set_yticklabels(["0.01", "0.02", "0.03"])
+    axs[3,3].set_yticklabels(["0.01", "0.035", "0.06"])
     plt.xlabel('num seed infections')
     plt.ylabel('beta')
 
@@ -150,6 +150,12 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vm
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.02)
         plt.colorbar(im, cax=cax)
+
+    arr = np.array(np.percentile(mismatch_arr, 90, axis=0)+np.percentile(mismatch_arr, 50, axis=0))
+    ind = np.unravel_index(np.argmin(arr), arr.shape)
+    print(ind)
+    print(y[ind[0]])
+    print(x[ind[1]])    
     plt.tight_layout()
     plt.show()
 
