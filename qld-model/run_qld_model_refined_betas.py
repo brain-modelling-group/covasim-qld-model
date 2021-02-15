@@ -182,13 +182,13 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     reopen2_date  = '2020-12-01' # Start of stage 6 in QLD
 
     sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
-                                                   end_day=initresponse_date, 
-                                                   symp_prob=symp_test_prob_prelockdown, 
-                                                   asymp_quar_prob=0.01, do_plot=False))
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse_date, 
                                                    end_day=initresponse2_date, 
                                                    symp_prob=symp_test_prob_prelockdown*input_args.par1, 
                                                    asymp_quar_prob=0.01, do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day=initresponse_date, 
+    #                                                end_day=initresponse2_date, 
+    #                                                symp_prob=symp_test_prob_prelockdown*input_args.par1, 
+    #                                                asymp_quar_prob=0.01, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse2_date, 
                                                    end_day=lockdown_date, 
                                                    symp_prob=symp_test_prob_prelockdown*input_args.par2, 
