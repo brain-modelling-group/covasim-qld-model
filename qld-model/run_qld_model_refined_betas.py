@@ -187,11 +187,11 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                    asymp_quar_prob=0.01, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse_date, 
                                                    end_day=initresponse2_date, 
-                                                   symp_prob=symp_test_prob_prelockdown*1.02, 
+                                                   symp_prob=symp_test_prob_prelockdown*input_args.par1, 
                                                    asymp_quar_prob=0.01, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse2_date, 
                                                    end_day=lockdown_date, 
-                                                   symp_prob=symp_test_prob_prelockdown*1.2, 
+                                                   symp_prob=symp_test_prob_prelockdown*input_args.par2, 
                                                    asymp_quar_prob=0.01, do_plot=False))
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
                                                     end_day=reopen_date, 
