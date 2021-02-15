@@ -169,7 +169,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=80.0))
 
     # Testing probabilties of symptomatic -- 
     # symp_test_prob_prelockdown = 0.000  # 
@@ -186,12 +186,14 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
     #                                               end_day=initresponse_date, 
     #                                               symp_prob=symp_test_prob_prelockdown, 
-    #                                               asymp_quar_prob=0.01, do_plot=False))
+    #                                               asymp_quar_prob=0.01, do_plot=False),
+    #                                               test_delay=1)
 
     # sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
     #                                                 end_day=reopen_date, 
     #                                                 symp_prob=symp_test_prob_lockdown, 
-    #                                                 asymp_quar_prob=0.01,do_plot=False))
+    #                                                 asymp_quar_prob=0.01,do_plot=False),
+    #                                                 test_delay=1)
 
     if sim.day(input_args.end_simulation_date) > sim.day(reopen_date):     
         # More assumptions from NSW
