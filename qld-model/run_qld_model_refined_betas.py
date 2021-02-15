@@ -176,8 +176,9 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     symp_test_prob_lockdown = 0.07     # 0.065 #Increased testing during lockdown
     
     
-    lockdown_date = '2020-03-30'  # Lockdown date in QLD
-    reopen_date   = '2020-05-15'  # Reopen shops etc date in QLD-NSW
+    lockdown_date = '2020-03-30' # Lockdown date in QLD
+    reopen_date   = '2020-05-15' # Reopen shops etc date in QLD-NSW
+    reopen2_date  = '2020-12-01' # Start of stage 6 in QLD
     sim.pars['interventions'].append([cv.test_prob(start_day=input_args.start_calibration_date, 
                                                    end_day=lockdown_date, 
                                                    symp_prob=symp_test_prob_prelockdown, 
@@ -192,7 +193,6 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
         symp_test_prob_postlockdown = 0.19 # 0.165 # Testing since lockdown
         asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
         
-        reopen2_date = '2020-12-01' # Start of stage 6 in QLD
         sim.pars['interventions'].append(cv.test_prob(start_day=reopen_date, 
                                                       end_day=reopen2_date, 
                                                       symp_prob=symp_test_prob_postlockdown, 
