@@ -179,43 +179,61 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     symp_test_prob_prelockdown = 0.000  # Limited testing pre lockdown
     symp_test_prob_lockdown = 0.0#0.012     
     
-    initresponse0_date = '2020-03-05'
-    initresponse1_date = '2020-03-10'
+    initresponse1_date = '2020-03-12'
     initresponse2_date = '2020-03-15'
     initresponse3_date = '2020-03-20'
+    initresponse4_date = '2020-03-26'
     lockdown_date = '2020-03-30' # Lockdown start date in QLD
     reopen0_date  = '2020-05-15' # Reopen shops etc date in QLD-NSW
     reopen1_date  = '2020-12-01' # Start of stage 6 in QLD
 
     sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
-                                                  end_day=initresponse0_date, 
-                                                  symp_prob=input_args.p1/100.0, 
-                                                  asymp_quar_prob=0.01, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse0_date, 
                                                   end_day=initresponse1_date, 
-                                                  symp_prob=0.000, 
+                                                  symp_prob=0.009, 
+                                                  asymp_prob=0.0001, 
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse1_date, 
-                                                  end_day=initresponse2_date, 
-                                                  symp_prob=0.0,#0.016, 
+                                                  end_day=initresponse4_date, 
+                                                  symp_prob=0.1,
+                                                  asymp_prob=0.00020,  
                                                   asymp_quar_prob=0.01, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse2_date, 
-                                                   end_day=initresponse3_date, 
-                                                   symp_prob=0.0,#0.014, 
-                                                   asymp_quar_prob=0.01, do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day=initresponse2_date, 
+    #                                               end_day=initresponse3_date, 
+    #                                               symp_prob=0.1, 
+    #                                               asymp_prob=0.00025, 
+    #                                               asymp_quar_prob=0.01, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse3_date, 
+    # sim.pars['interventions'].append(cv.test_prob(start_day=initresponse3_date, 
+    #                                                end_day=initresponse4_date, 
+    #                                                symp_prob=0.0975, 
+    #                                                asymp_prob=0.0003, 
+    #                                                asymp_quar_prob=0.01, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse4_date, 
                                                    end_day=lockdown_date, 
-                                                   symp_prob=0.0,#0.01, 
+                                                   symp_prob=0.05, 
+                                                   asymp_prob=0.0003, 
                                                    asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
-                                                  end_day=reopen0_date, 
-                                                  symp_prob=0.0, 
+                                                  end_day='2020-04-10', 
+                                                  symp_prob=0.025, 
+                                                  asymp_prob=0.0003, 
                                                   asymp_quar_prob=0.01,do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-10', 
+                                                  end_day='2020-05-15', 
+                                                  symp_prob=0.03,
+                                                  asymp_prob=0.00022, 
+                                                  asymp_quar_prob=0.01,do_plot=False))
+
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-20', 
+    #                                               end_day='2020-05-15', 
+    #                                               symp_prob=0.03,
+    #                                               asymp_prob=0.00025, 
+    #                                               asymp_quar_prob=0.02,do_plot=False))
 
     if sim.day(input_args.end_simulation_date) > sim.day(reopen0_date):     
         # More assumptions from NSW
@@ -310,14 +328,14 @@ if __name__ == '__main__':
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
     msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
-    msim.save(msim_filename)
+    #msim.save(msim_filename)
    
     #Plot all sims together 
-    msim.reduce()
-    msim_fig = msim.plot(do_show=False)
-    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
-    msim_fig.savefig(msim_fig_filename, dpi=100)
-    plt.close('all')
+    # msim.reduce()
+    # msim_fig = msim.plot(do_show=False)
+    # msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
+    # msim_fig.savefig(msim_fig_filename, dpi=100)
+    # plt.close('all')
 
     # Calculate fits 
     fit_pars_dict = {'absolute':True,
@@ -345,7 +363,7 @@ if __name__ == '__main__':
 
         # Save list of fits
     fits_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
-    sc.saveobj(filename=fits_filename, obj=fitting_dict)
+    #sc.saveobj(filename=fits_filename, obj=fitting_dict)
     fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
     
     fit_fig = fitting_dict['fit_ndg_cdg_nt_ct_u'][0].plot(do_show=False)
