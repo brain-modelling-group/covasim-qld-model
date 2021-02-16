@@ -186,10 +186,15 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                  symp_test = 60.0))
 
 
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-15'):sim.day('2020-03-31')], 
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-15'):sim.day('2020-03-21')], 
                                                                       start_day='2020-03-15', 
-                                                                      end_day  ='2020-03-30',
-                                                                      symp_test = input_args.p1))
+                                                                      end_day  ='2020-03-20',
+                                                                      symp_test = 95.0))
+
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-21'):sim.day('2020-03-31')], 
+                                                                      start_day='2020-03-21', 
+                                                                      end_day  ='2020-03-31',
+                                                                      symp_test = 100.0))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
