@@ -171,11 +171,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # Testing interventions
     # Testing numbers and proportion of symptomatic patients
     data = pd.read_csv(datafile, parse_dates=['date'])
-    if input_args.new_tests_mode == 'raw':
-       this_column = 'new_tests_raw'
-    else:
-       this_column = 'new_tests'
-    new_tests = data[this_column].to_list()
+    new_tests = data['new_tests'].to_list()
     # Clip data that
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
