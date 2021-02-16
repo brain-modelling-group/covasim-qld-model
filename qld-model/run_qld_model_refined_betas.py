@@ -49,6 +49,18 @@ parser.add_argument('--dist', default='poisson',
                               help='''Name of distribution to use to seed infections.
                                       Can be uniform, normal, etc''')
 
+parser.add_argument('--p1', default=1.0, 
+                            type=float, 
+                            help=''' Dummy parameter for paramter sweeps.''')
+  
+parser.add_argument('--p2', default=1.0, 
+                            type=float, 
+                            help='''Dummy parameter for paramter sweeps.''')
+
+parser.add_argument('--p3', default=1.0, 
+                            type=float, 
+                            help='''Dummy parameter for paramter sweeps.''')
+
 parser.add_argument('--par1', default=1.0, 
                               type=float, 
                               help=''' The "main" distribution parameter (e.g. mean).''')
@@ -67,7 +79,6 @@ parser.add_argument('--new_tests_mode',
                               type=str, 
                               help='''The column of new tests to use: Can be 'raw' or 'conv'.''')
 
-
 parser.add_argument('--init_seed_infections', 
                                default=50, 
                                type=int, 
@@ -77,7 +88,6 @@ parser.add_argument('--global_beta', default=0.015,
                                type=float, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-
 parser.add_argument('--start_calibration_date', default='2020-02-15', 
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
@@ -86,7 +96,6 @@ parser.add_argument('--start_calibration_date', default='2020-02-15',
 parser.add_argument('--end_simulation_date', default='2020-05-15', 
                               type=str, 
                               help='''The date at which calibration finishes.''')
-
 
 parser.add_argument('--end_calibration_date', default='2020-05-15', 
                               type=str, 
