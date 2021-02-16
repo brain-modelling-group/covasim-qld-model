@@ -169,7 +169,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=80.0))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=75.0))
 
     # Testing probabilties of symptomatic -- 
     # symp_test_prob_prelockdown = 0.000  # 
