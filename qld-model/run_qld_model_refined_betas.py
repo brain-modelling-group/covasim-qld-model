@@ -189,39 +189,39 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # initresponse3_date = '2020-03-15'
     # initresponse4_date = '2020-03-20'
     # lockdown_date = '2020-03-30' # Lockdown date in QLD
-    reopen_date   = '2020-05-15' # Reopen shops etc date in QLD-NSW
-    reopen2_date  = '2020-12-01' # Start of stage 6 in QLD
+    # reopen_date   = '2020-05-15' # Reopen shops etc date in QLD-NSW
+    # reopen2_date  = '2020-12-01' # Start of stage 6 in QLD
 
-    # sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
-    #                                               end_day=initresponse_date, 
-    #                                               symp_prob=symp_test_prob_prelockdown, 
-    #                                               asymp_quar_prob=0.01, do_plot=False),
-    #                                               test_delay=1)
+    # # sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
+    # #                                               end_day=initresponse_date, 
+    # #                                               symp_prob=symp_test_prob_prelockdown, 
+    # #                                               asymp_quar_prob=0.01, do_plot=False),
+    # #                                               test_delay=1)
 
-    # sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
-    #                                                 end_day=reopen_date, 
-    #                                                 symp_prob=symp_test_prob_lockdown, 
-    #                                                 asymp_quar_prob=0.01,do_plot=False),
-    #                                                 test_delay=1)
+    # # sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
+    # #                                                 end_day=reopen_date, 
+    # #                                                 symp_prob=symp_test_prob_lockdown, 
+    # #                                                 asymp_quar_prob=0.01,do_plot=False),
+    # #                                                 test_delay=1)
 
-    if sim.day(input_args.end_simulation_date) > sim.day(reopen_date):     
-        # More assumptions from NSW
-        symp_test_prob_postlockdown = 0.19 # 0.165 # Testing since lockdown
-        asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
+    # if sim.day(input_args.end_simulation_date) > sim.day(reopen_date):     
+    #     # More assumptions from NSW
+    #     symp_test_prob_postlockdown = 0.19 # 0.165 # Testing since lockdown
+    #     asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
         
-        sim.pars['interventions'].append(cv.test_prob(start_day=reopen_date, 
-                                                      end_day=reopen2_date, 
-                                                      symp_prob=symp_test_prob_postlockdown, 
-                                                      asymp_quar_prob=asymp_quar_prob_postlockdown,do_plot=True))
+    #     sim.pars['interventions'].append(cv.test_prob(start_day=reopen_date, 
+    #                                                   end_day=reopen2_date, 
+    #                                                   symp_prob=symp_test_prob_postlockdown, 
+    #                                                   asymp_quar_prob=asymp_quar_prob_postlockdown,do_plot=True))
 
-    if sim.day(input_args.end_simulation_date) > sim.day(reopen2_date):
-        # Future interventions, from start of stage 6 onwards
-        symp_test_prob_future = 0.9 # From NSW cases
-        asymp_quar_prob_future = (1.0-(1.0-symp_test_prob_future)**10)/2.0 
+    # if sim.day(input_args.end_simulation_date) > sim.day(reopen2_date):
+    #     # Future interventions, from start of stage 6 onwards
+    #     symp_test_prob_future = 0.9 # From NSW cases
+    #     asymp_quar_prob_future = (1.0-(1.0-symp_test_prob_future)**10)/2.0 
 
-        sim.pars['interventions'].append(cv.test_prob(start_day=reopen2_date, 
-                                                      symp_prob=symp_test_prob_future, 
-                                                      asymp_quar_prob=asymp_quar_prob_future,do_plot=True))
+    #     sim.pars['interventions'].append(cv.test_prob(start_day=reopen2_date, 
+    #                                                   symp_prob=symp_test_prob_future, 
+    #                                                   asymp_quar_prob=asymp_quar_prob_future,do_plot=True))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
