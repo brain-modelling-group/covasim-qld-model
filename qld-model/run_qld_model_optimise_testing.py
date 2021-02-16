@@ -184,7 +184,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     initresponse3_date = '2020-03-20'
     initresponse4_date = '2020-03-26'
     lockdown_date = '2020-03-30' # Lockdown start date in QLD
-    reopen0_date  = '2020-05-15' # Reopen shops etc date in QLD-NSW
+    reopen0_date  = '2020-05-05' # End of QLD lockdown
     reopen1_date  = '2020-12-01' # Start of stage 6 in QLD
 
     sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
@@ -195,21 +195,10 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse1_date, 
                                                   end_day=initresponse4_date, 
-                                                  symp_prob=0.1,
+                                                  symp_prob=0.095,
                                                   asymp_prob=0.00020,  
                                                   asymp_quar_prob=0.01, do_plot=False))
 
-    # sim.pars['interventions'].append(cv.test_prob(start_day=initresponse2_date, 
-    #                                               end_day=initresponse3_date, 
-    #                                               symp_prob=0.1, 
-    #                                               asymp_prob=0.00025, 
-    #                                               asymp_quar_prob=0.01, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day=initresponse3_date, 
-    #                                                end_day=initresponse4_date, 
-    #                                                symp_prob=0.0975, 
-    #                                                asymp_prob=0.0003, 
-    #                                                asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse4_date, 
                                                    end_day=lockdown_date, 
@@ -218,22 +207,12 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                    asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
-                                                  end_day='2020-04-10', 
+                                                  end_day=reopen0_date, 
                                                   symp_prob=0.025, 
                                                   asymp_prob=0.0003, 
                                                   asymp_quar_prob=0.01,do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-10', 
-                                                  end_day='2020-05-15', 
-                                                  symp_prob=0.03,
-                                                  asymp_prob=0.00022, 
-                                                  asymp_quar_prob=0.01,do_plot=False))
 
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-20', 
-    #                                               end_day='2020-05-15', 
-    #                                               symp_prob=0.03,
-    #                                               asymp_prob=0.00025, 
-    #                                               asymp_quar_prob=0.02,do_plot=False))
 
     if sim.day(input_args.end_simulation_date) > sim.day(reopen0_date):     
         # More assumptions from NSW
@@ -242,7 +221,8 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
         
         sim.pars['interventions'].append(cv.test_prob(start_day=reopen0_date, 
                                                       end_day=reopen1_date, 
-                                                      symp_prob=symp_test_prob_postlockdown, 
+                                                      symp_prob=symp_test_prob_postlockdown,
+                                                      asymp_prob=0.0005, 
                                                       asymp_quar_prob=asymp_quar_prob_postlockdown,do_plot=False))
 
     if sim.day(input_args.end_simulation_date) > sim.day(reopen1_date):
@@ -251,7 +231,8 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
         asymp_quar_prob_future = (1.0-(1.0-symp_test_prob_future)**10)/2.0 
 
         sim.pars['interventions'].append(cv.test_prob(start_day=reopen1_date, 
-                                                      symp_prob=symp_test_prob_future, 
+                                                      symp_prob=symp_test_prob_future,
+                                                      asymp_prob=0.0003, 
                                                       asymp_quar_prob=asymp_quar_prob_future, do_plot=False))
 
     # Tracing
