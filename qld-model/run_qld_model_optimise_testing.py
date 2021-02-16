@@ -198,10 +198,21 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-15', 
-                                                  end_day='2020-03-31', 
-                                                  symp_prob=1.0, 
-                                                  asymp_prob=0.1, do_plot=False))
+                                                  end_day='2020-03-30', 
+                                                  symp_prob=0.0, 
+                                                  asymp_prob=0.03, do_plot=False))
 
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-31', 
+                                                  end_day='2020-04-15', 
+                                                  symp_prob=0.0, 
+                                                  asymp_prob=0.025, do_plot=False))
+
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-15', 
+                                                  end_day='2020-05-15', 
+                                                  symp_prob=0.0, 
+                                                  asymp_prob=0.015, do_plot=False))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -277,14 +288,14 @@ if __name__ == '__main__':
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
     msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
-    #msim.save(msim_filename)
+    msim.save(msim_filename)
    
-    # Plot all sims together 
-    # msim.reduce()
-    # msim_fig = msim.plot(do_show=True)
-    # msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_{args.par1:.{4}f}_{args.par2:.{4}f}_msim_fig.png"
-    # msim_fig.savefig(msim_fig_filename, dpi=100)
-    # plt.close('all')
+    #Plot all sims together 
+    msim.reduce()
+    msim_fig = msim.plot(do_show=False)
+    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_{args.par1:.{4}f}_{args.par2:.{4}f}_msim_fig.png"
+    msim_fig.savefig(msim_fig_filename, dpi=100)
+    plt.close('all')
 
     # Calculate fits 
     fit_pars_dict = {'absolute':True,
@@ -318,7 +329,7 @@ if __name__ == '__main__':
     sc.saveobj(filename=fits_filename, obj=fitting_dict)
     fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
     
-    fit_fig = fitting_dict['fit_cdg'][0].plot(do_show=False)
+    fit_fig = fitting_dict['fit_ndg_cdg_nt_ct_u'][0].plot(do_show=False)
     fit_fig[0].savefig(fit_fig_filename, dpi=100)
     plt.close('all')
     sc.toc(T)
