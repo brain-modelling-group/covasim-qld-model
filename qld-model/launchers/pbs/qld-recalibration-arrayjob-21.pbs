@@ -30,7 +30,7 @@ python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 1000 --init_seed_
                                       --start_calibration_date '2020-02-15' --end_simulation_date '2020-04-25' --end_calibration_date '2020-03-30'\
                                       --layer_betas_file 'qld_model_layer_betas_01.csv' \
                                       --epi_calibration_file 'qld_epi_data_qld-health_calibration_2020-02-15_2020-03-30.csv'\
-                                      --new_tests_mode 'raw' --results_path "$SCRATCH_RESULTS"
+                                      --new_tests_mode 'mav' --results_path "$SCRATCH_RESULTS"
 # Create directory to save results in /working
 WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
 # Save only the job number
