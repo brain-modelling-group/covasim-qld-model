@@ -175,7 +175,6 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # Clip data that
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
-
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
                    'W': 0.80, 'C': 0.05, 
@@ -279,10 +278,7 @@ if __name__ == '__main__':
                                          weights= [1.0, 1.0],
                                          **fit_pars_dict))
 
-        fitting_dict['fit_ndg'].append(this_sim.compute_fit(keys=['new_diagnoses'], **fit_pars_dict))
         fitting_dict['fit_cdg'].append(this_sim.compute_fit(keys=['cum_diagnoses'], **fit_pars_dict))
-
-        fitting_dict['fit_nt'].append(this_sim.compute_fit(keys=['new_tests'], **fit_pars_dict))
         fitting_dict['fit_ct'].append(this_sim.compute_fit(keys=['cum_tests'], **fit_pars_dict))
 
 
