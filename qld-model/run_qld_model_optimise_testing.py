@@ -189,8 +189,8 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
     sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
                                                   end_day=initresponse1_date, 
-                                                  symp_prob=0.009, 
-                                                  asymp_prob=0.0001, 
+                                                  symp_prob=0.007, 
+                                                  asymp_prob=0.00000, 
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse1_date, 
