@@ -196,6 +196,13 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                                       end_day  ='2020-03-31',
                                                                       symp_test = 100.0))
 
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-15', 
+                                                  end_day='2020-03-31', 
+                                                  symp_prob=1.0, 
+                                                  asymp_prob=0.1, do_plot=False))
+
+
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
                    'W': 0.80, 'C': 0.05, 
