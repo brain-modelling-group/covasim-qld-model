@@ -169,7 +169,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing interventions
-    # Testing numbers
+    # Testing numbers and proportion of symptomatic patients
     data = pd.read_csv(datafile, parse_dates=['date'])
     if input_args.new_tests_mode == 'raw':
        this_column = 'new_tests_raw'
@@ -180,48 +180,6 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=input_args.p1))
 
-    # Testing probabilties of symptomatic -- 
-    # symp_test_prob_prelockdown = 0.000  # 
-    # symp_test_prob_lockdown = 0.003     #       
-    
-    # initresponse_date = '2020-03-05'
-    # initresponse2_date = '2020-03-10'
-    # initresponse3_date = '2020-03-15'
-    # initresponse4_date = '2020-03-20'
-    # lockdown_date = '2020-03-30' # Lockdown date in QLD
-    # reopen_date   = '2020-05-15' # Reopen shops etc date in QLD-NSW
-    # reopen2_date  = '2020-12-01' # Start of stage 6 in QLD
-
-    # # sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
-    # #                                               end_day=initresponse_date, 
-    # #                                               symp_prob=symp_test_prob_prelockdown, 
-    # #                                               asymp_quar_prob=0.01, do_plot=False),
-    # #                                               test_delay=1)
-
-    # # sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
-    # #                                                 end_day=reopen_date, 
-    # #                                                 symp_prob=symp_test_prob_lockdown, 
-    # #                                                 asymp_quar_prob=0.01,do_plot=False),
-    # #                                                 test_delay=1)
-
-    # if sim.day(input_args.end_simulation_date) > sim.day(reopen_date):     
-    #     # More assumptions from NSW
-    #     symp_test_prob_postlockdown = 0.19 # 0.165 # Testing since lockdown
-    #     asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
-        
-    #     sim.pars['interventions'].append(cv.test_prob(start_day=reopen_date, 
-    #                                                   end_day=reopen2_date, 
-    #                                                   symp_prob=symp_test_prob_postlockdown, 
-    #                                                   asymp_quar_prob=asymp_quar_prob_postlockdown,do_plot=True))
-
-    # if sim.day(input_args.end_simulation_date) > sim.day(reopen2_date):
-    #     # Future interventions, from start of stage 6 onwards
-    #     symp_test_prob_future = 0.9 # From NSW cases
-    #     asymp_quar_prob_future = (1.0-(1.0-symp_test_prob_future)**10)/2.0 
-
-    #     sim.pars['interventions'].append(cv.test_prob(start_day=reopen2_date, 
-    #                                                   symp_prob=symp_test_prob_future, 
-    #                                                   asymp_quar_prob=asymp_quar_prob_future,do_plot=True))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -254,22 +212,6 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                         trace_time=trace_time, 
                                                         start_day=0, do_plot=False))
 
-    # # Add known infections from Victoria and the cluster in the youth centre in brisbane
-    # sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
-
-    # # Test cluster size ie, number of infections arriging at one on a given date
-    # sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
-
-
-    # Close borders, then open them again to account for victorian imports and leaky quarantine
-    # sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
-    #                                                                          sim.day('2020-07-10'), 
-    #                                                                          sim.day('2020-08-08'),
-    #                                                                          sim.day('2020-09-23'),  # QLD/NSW Border population
-    #                                                                          sim.day('2020-09-25')], # ACT
-    #                                                                 'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
-    # sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
-    #                                                            'vals': [0.01, 0.015]}}, do_plot=False))
     sim.initialize()
 
     return sim
@@ -300,7 +242,6 @@ if __name__ == '__main__':
 
     pathlib.Path(simfolder).mkdir(parents=True, exist_ok=True)
     pathlib.Path(figfolder).mkdir(parents=True, exist_ok=True)
-    print(resultsfolder)
 
     # Create instance of simulator
     sim  = make_sim(load_pop=True, 
@@ -355,7 +296,7 @@ if __name__ == '__main__':
     sc.saveobj(filename=fits_filename, obj=fitting_dict)
     fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
     
-    fit_fig = fitting_dict['fit_ndg_cdg_nt_ct_u'][0].plot(do_show=False)
+    fit_fig = fitting_dict['fit_cdg'][0].plot(do_show=False)
     fit_fig[0].savefig(fit_fig_filename, dpi=100)
     plt.close('all')
     sc.toc(T)
