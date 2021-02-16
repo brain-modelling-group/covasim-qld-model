@@ -314,14 +314,14 @@ if __name__ == '__main__':
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
     msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
-    #msim.save(msim_filename)
+    msim.save(msim_filename)
    
     # Plot all sims together 
-    # msim.reduce()
-    # msim_fig = msim.plot(do_show=True)
-    # msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_{args.par1:.{4}f}_{args.par2:.{4}f}_msim_fig.png"
-    # msim_fig.savefig(msim_fig_filename, dpi=100)
-    # plt.close('all')
+     msim.reduce()
+     msim_fig = msim.plot(do_show=True)
+     msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_{args.par1:.{4}f}_{args.par2:.{4}f}_msim_fig.png"
+     msim_fig.savefig(msim_fig_filename, dpi=100)
+     plt.close('all')
 
     # Calculate fits 
     fit_pars_dict = {'absolute':True,
