@@ -157,7 +157,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
             'start_day': input_args.start_calibration_date,
             'end_day':   input_args.end_simulation_date,
             'analyzers': cv.age_histogram(datafile=agedatafile, edges=np.linspace(0, 75, 16), days=[8, 54]), # These days correspond to dates 9 March and 24 April, which is the date window in which qld has published age-disaggregated case counts
-            'verbose': .1}
+            'verbose': 0}
 
     sim = cv.Sim(pars=pars,
                  datafile=datafile,
