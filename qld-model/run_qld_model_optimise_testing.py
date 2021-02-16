@@ -181,8 +181,8 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
     # Period one - from 2020-02-15 to 2020-03-14
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day(input_args.start_calibration_date):sim.day('2020-03-15')], 
-                                                 start_date=input_args.start_calibration_date, 
-                                                 end_date  ='2020-03-14',
+                                                 start_day=input_args.start_calibration_date, 
+                                                 end_day  ='2020-03-14',
                                                  symp_test = 60.0))
 
 
