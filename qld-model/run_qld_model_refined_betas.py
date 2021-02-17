@@ -295,13 +295,13 @@ if __name__ == '__main__':
     # Do the stuff & save results
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
-    msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
+    msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}.obj"
     #msim.save(msim_filename)
    
     # Plot all sims together 
     msim.reduce()
     msim_fig = msim.plot(do_show=False)
-    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_{args.par1:.{4}f}_{args.par2:.{4}f}_msim_fig.png"
+    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}_{args.par1:.{4}f}_{args.par2:.{4}f}_msim_fig.png"
     msim_fig.savefig(msim_fig_filename, dpi=100)
     plt.close('all')
 
@@ -333,9 +333,9 @@ if __name__ == '__main__':
 
 
         # Save list of fits
-    fits_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
+    fits_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}_fit.obj"
     sc.saveobj(filename=fits_filename, obj=fitting_dict)
-    fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
+    fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}_fit_fig.png"
     
     fit_fig = fitting_dict['fit_ndg_cdg_nt_ct_u'][0].plot(do_show=False)
     fit_fig[0].savefig(fit_fig_filename, dpi=100)
