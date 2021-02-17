@@ -176,7 +176,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
 
     # Testing probabilties of symptomatic 
-    initresponse01_date = '2020-03-12' # 
+    initresponse01_date = '2020-03-11' # 
     initresponse02_date = '2020-03-15' # international arrivals banned
     initresponse03_date = '2020-03-19' # outdoor gatherings/home visitors
     initresponse04_date = '2020-03-23' # commmunity starts shutting down (pubs)
@@ -200,33 +200,33 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 ## Second period symp prob
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
                                                   end_day=initresponse01_date, 
-                                                  symp_prob=0.05, 
+                                                  symp_prob=0.02, 
                                                   asymp_quar_prob=0.01, do_plot=False))
 
 ## Third period symp prob
 
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse01_date, 
                                                   end_day=initresponse05_date, 
-                                                  symp_prob=0.07,
+                                                  symp_prob=0.075,
                                                   asymp_quar_prob=0.01, do_plot=False))
 
 
 # Fourth period symp prob
     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse05_date, 
                                                    end_day=lockdown_start, 
-                                                   symp_prob=0.07, 
+                                                   symp_prob=0.075, 
                                                    asymp_quar_prob=0.01, do_plot=False))
 
 ## fifth period symp prob
     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_start, 
                                                    end_day=stage01_start, 
-                                                   symp_prob=0.01, 
+                                                   symp_prob=0.005, 
                                                    asymp_quar_prob=0.01, do_plot=False))
 
 
     if sim.day(input_args.end_simulation_date) > sim.day(stage01_start):     
         # More assumptions from NSW
-        symp_test_prob_postlockdown = 0.19 # 0.165 # Testing since lockdown
+        symp_test_prob_postlockdown = 0.005 # 0.165 # Testing since lockdown
         asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
         
         sim.pars['interventions'].append(cv.test_prob(start_day=stage01_start, 
@@ -357,7 +357,7 @@ if __name__ == '__main__':
     #sc.saveobj(filename=fits_filename, obj=fitting_dict)
     fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
     
-    fit_fig = fitting_dict['fit_ndg_cdg_nt_ct_u'][0].plot(do_show=False)
+    fit_fig = fitting_dict['fit_cdg'][0].plot(do_show=False)
     fit_fig[0].savefig(fit_fig_filename, dpi=100)
     plt.close('all')
     sc.toc(T)
