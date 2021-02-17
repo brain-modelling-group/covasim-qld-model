@@ -192,62 +192,123 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     stage06_start  = '2020-12-01'
 
 ## First period symp prob
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-02-01', 
-                                                  end_day='2020-03-01', 
-                                                  symp_prob=0.00, 
-                                                  asymp_quar_prob=0.00, do_plot=False))
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-02-01', 
+    #                                               end_day='2020-03-01', 
+    #                                               symp_prob=0.00, 
+    #                                               asymp_quar_prob=0.00, do_plot=False))
 
 ## Second period symp prob
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
-                                                  end_day=initresponse01_date, 
-                                                  symp_prob=0.0175, 
-                                                  asymp_quar_prob=0.01, do_plot=False))
+                                                  end_day='2020-03-04', 
+                                                  symp_prob=0.045, 
+                                                  asymp_prob=0.000005, 
+                                                  asymp_quar_prob=0.02, do_plot=False))
 
-## Third period symp prob
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse01_date, 
-                                                  end_day=initresponse03_date, 
-                                                  symp_prob=0.0165,
-                                                  asymp_quar_prob=0.01, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-04', 
+                                                  end_day='2020-03-08', 
+                                                  symp_prob=0.030, 
+                                                  asymp_quar_prob=0.02, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse03_date, 
-                                                  end_day=initresponse05_date, 
-                                                  symp_prob=0.015,
-                                                  asymp_quar_prob=0.01, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-08', 
+                                                  end_day='2020-03-11', 
+                                                  symp_prob=0.0251,
+                                                  asymp_quar_prob=0.00, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-11', 
+                                                  end_day='2020-03-18', 
+                                                  symp_prob=0.0265,
+                                                  asymp_quar_prob=0.00, do_plot=False))
+
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-18', 
+    #                                               end_day='2020-03-19', 
+    #                                               symp_prob=0.0000,
+    #                                               asymp_quar_prob=0.00, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
+                                                  end_day='2020-03-21', 
+                                                  symp_prob=0.005,
+                                                  asymp_quar_prob=0.00, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-21', 
+                                                  end_day='2020-03-26', 
+                                                  symp_prob=0.0125,
+                                                  asymp_quar_prob=0.00, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-26', 
+                                                  end_day='2020-03-31', 
+                                                  symp_prob=0.008,
+                                                  asymp_quar_prob=0.00, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-31', 
+                                                  end_day='2020-04-06', 
+                                                  symp_prob=0.0040,
+                                                  asymp_quar_prob=0.00, do_plot=False))
 
 
-# Fourth period symp prob
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse05_date, 
-                                                   end_day=lockdown_start, 
-                                                   symp_prob=0.0, 
-                                                   asymp_quar_prob=0.00, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-06', 
+                                                  end_day='2020-04-10', 
+                                                  symp_prob=0.007,
+                                                  asymp_quar_prob=0.00, do_plot=False))
 
-## fifth period symp prob
-    sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_start, 
-                                                   end_day=stage01_start, 
-                                                   symp_prob=0.001, 
-                                                   asymp_quar_prob=0.01, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-10', 
+                                                  end_day='2020-04-20', 
+                                                  symp_prob=0.02,
+                                                  asymp_quar_prob=0.00, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-20', 
+                                                  end_day='2020-04-26', 
+                                                  symp_prob=0.0525,
+                                                  asymp_quar_prob=0.00, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-26', 
+                                                  end_day='2020-05-02', 
+                                                  symp_prob=0.07,
+                                                  asymp_quar_prob=0.00, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-02', 
+                                                  end_day='2020-05-15', 
+                                                  symp_prob=0.1,
+                                                  asymp_quar_prob=0.02, do_plot=False))
 
 
-    if sim.day(input_args.end_simulation_date) > sim.day(stage01_start):     
-        # More assumptions from NSW
-        symp_test_prob_postlockdown = 0.005 # 0.165 # Testing since lockdown
-        asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-02', 
+    #                                               end_day='2020-05-15', 
+    #                                               symp_prob=0.1,
+    #                                               asymp_quar_prob=0.01, do_plot=False))
+
+
+# # Fourth period symp prob
+#     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse05_date, 
+#                                                    end_day=lockdown_start, 
+#                                                    symp_prob=0.0, 
+#                                                    asymp_quar_prob=0.00, do_plot=False))
+
+# ## fifth period symp prob
+#     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_start, 
+#                                                    end_day=stage01_start, 
+#                                                    symp_prob=0.001, 
+#                                                    asymp_quar_prob=0.01, do_plot=False))
+
+
+    # if sim.day(input_args.end_simulation_date) > sim.day(stage01_start):     
+    #     # More assumptions from NSW
+    #     symp_test_prob_postlockdown = 0.005 # 0.165 # Testing since lockdown
+    #     asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
         
-        sim.pars['interventions'].append(cv.test_prob(start_day=stage01_start, 
-                                                      end_day=stage06_start, 
-                                                      symp_prob=symp_test_prob_postlockdown,
-                                                      asymp_prob=0.00005, 
-                                                      asymp_quar_prob=asymp_quar_prob_postlockdown,do_plot=False))
+    #     sim.pars['interventions'].append(cv.test_prob(start_day=stage01_start, 
+    #                                                   end_day=stage06_start, 
+    #                                                   symp_prob=symp_test_prob_postlockdown,
+    #                                                   asymp_prob=0.00005, 
+    #                                                   asymp_quar_prob=asymp_quar_prob_postlockdown,do_plot=False))
 
-    if sim.day(input_args.end_simulation_date) > sim.day(stage06_start):
-        # Future interventions, from start of stage 6 onwards
-        symp_test_prob_future = 0.9 # From NSW cases
-        asymp_quar_prob_future = (1.0-(1.0-symp_test_prob_future)**10)/2.0 
+    # if sim.day(input_args.end_simulation_date) > sim.day(stage06_start):
+    #     # Future interventions, from start of stage 6 onwards
+    #     symp_test_prob_future = 0.9 # From NSW cases
+    #     asymp_quar_prob_future = (1.0-(1.0-symp_test_prob_future)**10)/2.0 
 
-        sim.pars['interventions'].append(cv.test_prob(start_day=stage06_start, 
-                                                      symp_prob=symp_test_prob_future,
-                                                      #asymp_prob=0.0003, 
-                                                      asymp_quar_prob=asymp_quar_prob_future, do_plot=False))
+    #     sim.pars['interventions'].append(cv.test_prob(start_day=stage06_start, 
+    #                                                   symp_prob=symp_test_prob_future,
+    #                                                   #asymp_prob=0.0003, 
+    #                                                   asymp_quar_prob=asymp_quar_prob_future, do_plot=False))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
