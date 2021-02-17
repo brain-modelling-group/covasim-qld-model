@@ -175,14 +175,14 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # new_tests = new_tests[-sim.day(data['date'][0]):]
 
 
-    # Testing probabilties of symptomatic -- from NSW cases
-    symp_test_prob_prelockdown = 0.000  # Limited testing pre lockdown
-    symp_test_prob_lockdown = 0.0#0.012     
-    
-    initresponse1_date = '2020-03-12'
-    initresponse2_date = '2020-03-15'
-    initresponse3_date = '2020-03-19'
-    initresponse4_date = '2020-03-29'
+    # Testing probabilties of symptomatic 
+    initresponse1_date = '2020-03-12' # 
+    initresponse2_date = '2020-03-15' # international arrivals banned
+    initresponse3_date = '2020-03-19' # outdoor gatherings/home visitors
+    initresponse4_date = '2020-03-23' # commmunity starts shutting down (pubs)
+    initresponse5_date = '2020-03-26' # retails close 
+    initresponse6_date = '2020-03-29' # outdoor gatherings/home visitors more strict
+
     lockdown_start = '2020-03-30' # Lockdown start date in QLD
     stage01_start  = '2020-05-02' # Start stage 01/reopening in QLD 
     stage02_start  = '2020-06-12' # Start of reopening in QLD 
