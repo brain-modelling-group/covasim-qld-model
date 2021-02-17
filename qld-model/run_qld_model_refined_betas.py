@@ -319,7 +319,7 @@ if __name__ == '__main__':
 
     for this_sim in msim.sims: 
         fitting_dict['fit_ndg_cdg_nt_ct_u'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'new_tests', 'cum_tests'],
-                                         weights= [0.0, 1.0, 0.0, 1.0],
+                                         weights= [0.0, 1.0, 0.0, 0.0],
                                          **fit_pars_dict))
         fitting_dict['fit_cdg_ct_u'].append(this_sim.compute_fit(keys=['cum_diagnoses', 'cum_tests'],
                                          weights= [1.0, 1.0],
