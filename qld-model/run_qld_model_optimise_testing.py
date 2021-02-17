@@ -187,31 +187,31 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     reopen0_date  = '2020-05-05' # End of QLD lockdown
     reopen1_date  = '2020-12-01' # Start of stage 6 in QLD
 
-    sim.pars['interventions'].append(cv.test_prob(start_day=input_args.start_calibration_date, 
-                                                  end_day=initresponse1_date, 
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-02-01', 
+                                                  end_day='2020-03-01', 
+                                                  symp_prob=0.00, 
+                                                  asymp_prob=0.000015, 
+                                                  asymp_quar_prob=0.01, do_plot=False))
+
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
+                                                  end_day='2020-03-12', 
                                                   symp_prob=0.007, 
                                                   asymp_prob=0.00000, 
                                                   asymp_quar_prob=0.01, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse1_date, 
-                                                  end_day=initresponse4_date, 
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
+                                                  end_day='2020-03-26', 
                                                   symp_prob=0.095,
                                                   asymp_prob=0.00020,  
                                                   asymp_quar_prob=0.01, do_plot=False))
 
 
-    sim.pars['interventions'].append(cv.test_prob(start_day=initresponse4_date, 
-                                                   end_day=lockdown_date, 
-                                                   symp_prob=0.05, 
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-26', 
+                                                   end_day='2020-05-05', 
+                                                   symp_prob=0.12, 
                                                    asymp_prob=0.0003, 
                                                    asymp_quar_prob=0.01, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_date, 
-                                                  end_day=reopen0_date, 
-                                                  symp_prob=0.025, 
-                                                  asymp_prob=0.0003, 
-                                                  asymp_quar_prob=0.01,do_plot=False))
-
 
 
     if sim.day(input_args.end_simulation_date) > sim.day(reopen0_date):     
