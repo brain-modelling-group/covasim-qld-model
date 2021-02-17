@@ -182,28 +182,28 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # Testing, following NSW example
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
                                                   end_day='2020-03-12', 
-                                                  symp_prob=0.04,
+                                                  symp_prob=0.03,
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
                                                   end_day='2020-03-19', 
-                                                  symp_prob=0.05,
+                                                  symp_prob=0.045,
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
-                                                  end_day='2020-03-26', 
-                                                  symp_prob=0.06,
-                                                  asymp_quar_prob=0.01, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-26', 
-                                                  end_day='2020-04-30', 
+                                                  end_day='2020-03-29', 
                                                   symp_prob=0.05,
                                                   asymp_quar_prob=0.01, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-30', 
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-29', 
                                                   end_day='2020-05-15', 
-                                                  symp_prob=0.08, #NSW
+                                                  symp_prob=0.040,
                                                   asymp_quar_prob=0.01, do_plot=False))
+
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-30', 
+    #                                               end_day='2020-05-15', 
+    #                                               symp_prob=0.05, #NSW
+    #                                               asymp_quar_prob=0.01, do_plot=False))
 
 
     # Tracing
@@ -300,7 +300,7 @@ if __name__ == '__main__':
    
     # Plot all sims together 
     msim.reduce()
-    msim_fig = msim.plot(do_show=True)
+    msim_fig = msim.plot(do_show=False)
     msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_{args.par1:.{4}f}_{args.par2:.{4}f}_msim_fig.png"
     msim_fig.savefig(msim_fig_filename, dpi=100)
     plt.close('all')
