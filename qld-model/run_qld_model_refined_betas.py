@@ -182,27 +182,27 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # Testing, following NSW example
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
                                                   end_day='2020-03-12', 
-                                                  symp_prob=0.009,
+                                                  symp_prob=0.04,
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
                                                   end_day='2020-03-19', 
-                                                  symp_prob=0.01,
+                                                  symp_prob=0.05,
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
                                                   end_day='2020-03-26', 
-                                                  symp_prob=0.012,
+                                                  symp_prob=0.06,
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-26', 
                                                   end_day='2020-04-30', 
-                                                  symp_prob=0.014,
+                                                  symp_prob=0.05,
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-30', 
                                                   end_day='2020-05-15', 
-                                                  symp_prob=0.07, #NSW
+                                                  symp_prob=0.08, #NSW
                                                   asymp_quar_prob=0.01, do_plot=False))
 
 
@@ -283,7 +283,6 @@ if __name__ == '__main__':
 
     pathlib.Path(simfolder).mkdir(parents=True, exist_ok=True)
     pathlib.Path(figfolder).mkdir(parents=True, exist_ok=True)
-    print(resultsfolder)
 
     # Create instance of simulator
     sim  = make_sim(load_pop=True, 
