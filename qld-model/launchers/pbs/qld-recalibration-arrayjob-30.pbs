@@ -25,7 +25,7 @@ NCPUS=28
 
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
-for b in $(seq 0.01 0.0005 0.03); do
+for b in $(seq 0.00 0.0005 0.0105); do
     BETA=$b
     python run_qld_model_refined_betas.py --ncpus "$NCPUS" --nruns 20 --init_seed_infections "$PBS_ARRAY_INDEX" --global_beta "$BETA" \
                                           --start_calibration_date '2020-03-01' --end_simulation_date '2020-05-15' --end_calibration_date '2020-05-15'\
