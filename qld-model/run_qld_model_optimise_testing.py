@@ -311,8 +311,8 @@ def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
     pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.01, 0.011) # Sample from beta values within this range
-    pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 200, 1) # Sample from beta values within this range
-    pars["prob_a"] = trial.suggest_uniform('prob_a', 0.0, 0.01) # Sample from beta values within this range
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 190, 1) # Sample from beta values within this range
+    pars["prob_a"] = trial.suggest_uniform('prob_a', 0.0, 0.07) # Sample from beta values within this range
     pars["prob_b"] = trial.suggest_uniform('prob_b', 0.05, 0.1) # Sample from beta values within this range
     pars["prob_c"] = trial.suggest_uniform('prob_c', 0.05, 0.2) # Sample from beta values within this range
     pars["prob_lockdown"] = trial.suggest_uniform('prob_lockdown', 0.05, 0.3) # Sample from beta values within this range
