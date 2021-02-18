@@ -143,7 +143,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
               'large_events', 
               'social']   
 
-    pars = {'pop_size': 200e3,    # Population size
+    sim_pars = {'pop_size': 200e3,    # Population size
             'pop_infected': input_args.init_seed_infections,  # Original population infedcted
             'pop_scale': 25.5,    # Population scales to 5.1M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
@@ -160,7 +160,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
             'end_day':   input_args.end_simulation_date,
             'verbose': 0}
 
-    sim = cv.Sim(pars=pars,
+    sim = cv.Sim(pars=sim_pars,
                  datafile=datafile,
                  popfile=popfile,
                  load_pop=load_pop)
@@ -191,17 +191,17 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
                                                   end_day='2020-03-19', 
-                                                  symp_prob=0.045,
+                                                  symp_prob=pars["prob_b"],
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
                                                   end_day='2020-03-29', 
-                                                  symp_prob=0.05,
+                                                  symp_prob=pars["prob_c"],
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-29', 
                                                   end_day='2020-05-15', 
-                                                  symp_prob=0.040,
+                                                  symp_prob=pars["prob_lockdown"],
                                                   asymp_quar_prob=0.01, do_plot=False))
 
 
@@ -312,9 +312,9 @@ def run_trial(trial):
     pars = {}
     #pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.010, 0.011) # Sample from beta values within this range
     pars["prob_a"] = trial.suggest_uniform('prob_a', 0.0, 0.05) # Sample from beta values within this range
-    #pars["test_prob_b"] = trial.suggest_uniform('test_prob_b', 0.0, 0.1) # Sample from beta values within this range
-    #pars["test_prob_c"] = trial.suggest_uniform('test_prob_c', 0.0, 0.1) # Sample from beta values within this range
-    #pars["test_prob_lockdown"] = trial.suggest_uniform('test_prob_lockdown', 0.0, 0.1) # Sample from beta values within this range
+    pars["prob_b"] = trial.suggest_uniform('prob_b', 0.0, 0.1) # Sample from beta values within this range
+    pars["prob_c"] = trial.suggest_uniform('prob_c', 0.0, 0.1) # Sample from beta values within this range
+    pars["prob_lockdown"] = trial.suggest_uniform('prob_lockdown', 0.0, 0.2) # Sample from beta values within this range
 
     mismatch = run_sim(pars)
     return mismatch
