@@ -176,10 +176,11 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=pars["symp_odds_ratio"]))
-
-
-
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-03-12')], symp_test=pars["symp_odds_ratio_a"]))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-12'):sim.day('2020-03-19')], symp_test=pars["symp_odds_ratio_b"]))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-19'):sim.day('2020-03-29')], symp_test=pars["symp_odds_ratio_c"]))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-29'):sim.day('2020-05-02')], symp_test=pars["symp_odds_ratio_d"]))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-05-02'):sim.day('2020-05-15')], symp_test=pars["symp_odds_ratio_e"]))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -270,9 +271,13 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.01, 0.015) # Sample from beta values within this range
-    pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 180, 5) # Sample from beta values within this range
-    pars["symp_odds_ratio"] = trial.suggest_uniform('symp_odds_ratio', 85, 100.0) # Sample from beta values within this range
+    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.01, 0.015)         # Sample from beta values within this range
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 180, 1)     # Sample seeds from this range
+    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
+    pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
+    pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
+    pars["symp_odds_ratio_d"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
+    pars["symp_odds_ratio_e"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
 
     mismatch = run_sim(pars)
     return mismatch
@@ -301,7 +306,7 @@ if __name__ == '__main__':
     
      # Settings
     n_workers = 1 # Define how many workers to run in parallel
-    n_trials = 25 # Define the number of trials, i.e. sim runs, per worker
+    n_trials = 100 # Define the number of trials, i.e. sim runs, per worker
     name      = 'my-example-calibration'
     db_name   = f'{name}.db'
     storage   = f'sqlite:///{db_name}'
