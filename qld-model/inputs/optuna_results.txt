@@ -50,4 +50,34 @@ Output : {'global_beta': 0.010039872577668781,
           'prob_lockdown': 0.09905822726126276}
 
 
-Trial 21 finished with value: 31.840277777777775 and parameters: {'global_beta': 0.013833201150836267, 'seed_infections': 130, 'symp_odds_ratio': 96.374721859418}. Best is trial 21 with value: 31.840277777777775.
+fit  'cum_diagnoses', 31.840277777777775 
+Output: {'global_beta': 0.013833201150836267, 
+         'seed_infections': 130, 
+         'symp_odds_ratio': 96.374721859418}. 
+
+
+fit  'cum_diagnoses', 19.07638888888889
+Output: {'global_beta': 0.014023709096092803, 
+         'seed_infections': 172, 
+         'symp_odds_ratio_a': 62.859961765638786, 
+         'symp_odds_ratio_b': 48.43851827983169, 
+         'symp_odds_ratio_c': 76.37801272864583, 
+         'symp_odds_ratio_d': 94.03483290224783, 
+         'symp_odds_ratio_e': 40.44609054921603}
+
+
+    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.01, 0.015)           # Sample from beta values within this range
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 180, 1)       # Sample seeds from this range
+    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 0.0, 100.0) # 
+    pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 100.0) # 
+    pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 100.0) # 
+    pars["symp_odds_ratio_d"] = trial.suggest_uniform('symp_odds_ratio_d', 0.0, 100.0) # 
+    pars["symp_odds_ratio_e"] = trial.suggest_uniform('symp_odds_ratio_e', 0.0, 100.0) # 
+
+
+fit  'cum_diagnoses', 25.83333333333333.
+    Output: {'global_beta': 0.013234948922038548, 
+              'seed_infections': 147, 
+              'symp_odds_ratio_a': 45.92827203665293, 
+              'symp_odds_ratio_b': 93.1547049887114, 
+              'symp_odds_ratio_c': 88.18528088769416}, 
