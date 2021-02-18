@@ -17,7 +17,9 @@ import pathlib as pathlib
 import covasim as cv
 import sciris as sc
 import covasim_australia.utils as utils
+import optuna as op
 
+import os
 # Add argument parser
 import argparse
 
@@ -127,7 +129,7 @@ def define_beta_changes(betasfile, layers):
                                                 layers=[this_layer], do_plot=False))
     return betas_interventions
 
-def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None, input_args=None, betasfile=None):
+def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None, input_args=None, betasfile=None, pars=None):
     start_day = input_args.start_calibration_date
     layers = ['H', 'S', 'W', 'C', 
               'church', 
@@ -142,12 +144,12 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
               'social']   
 
     pars = {'pop_size': 200e3,    # Population size
-            'pop_infected': input_args.init_seed_infections,   # Original population infedcted
+            'pop_infected': input_args.init_seed_infections,  # Original population infedcted
             'pop_scale': 25.5,    # Population scales to 5.1M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
-            'beta': input_args.global_beta,  # Overall beta to use for calibration portion of the simulations
+            'beta': pars["global_beta"],  # Overall beta to use for calibration portion of the simulations
                                        # H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,   40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
@@ -180,6 +182,8 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=input_args.p1))
 
     # Testing, following NSW example
+    #import pdb; pdb.set_trace()
+    # print(pars["test_a"])
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
                                                   end_day='2020-03-12', 
                                                   symp_prob=0.03,
@@ -199,11 +203,6 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                   end_day='2020-05-15', 
                                                   symp_prob=0.040,
                                                   asymp_quar_prob=0.01, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-30', 
-    #                                               end_day='2020-05-15', 
-    #                                               symp_prob=0.05, #NSW
-    #                                               asymp_quar_prob=0.01, do_plot=False))
 
 
     # Tracing
@@ -257,7 +256,9 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
     return sim
 
-def run_sim(args, pars):
+def run_sim(pars):
+    # Load argparse
+    args = parser.parse_args()
     # Inputs
     inputsfolder = 'inputs'
     datafile = f'{inputsfolder}/{args.epi_calibration_file}'
@@ -276,14 +277,13 @@ def run_sim(args, pars):
     pathlib.Path(figfolder).mkdir(parents=True, exist_ok=True)
 
     # Create instance of simulator
-    args.init_seed_infections = pars["seed_infection"]
-    args.global_beta = pars["global_beta"]
     sim  = make_sim(load_pop=True, 
                     popfile=populationfile, 
                     datafile=datafile, 
                     agedatafile=agedatafile,
                     betasfile=betasfile,
-                    input_args=args)
+                    input_args=args,
+                    pars=pars)
 
     # Do the stuff & save results
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
@@ -310,34 +310,51 @@ def run_sim(args, pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["beta"]  = trial.suggest_uniform('beta', 0.0001, 0.011) # Sample from beta values within this range
-    pars["seed_infection"] = trial.suggest_uniform('seed_infection', 0.5, 3.0) # Sample from beta values within this range
+    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.010, 0.011) # Sample from beta values within this range
+    #pars["test_prob_a"] = trial.suggest_uniform('test_prob_a', 0.0001, 0.05) # Sample from beta values within this range
+    #pars["test_prob_b"] = trial.suggest_uniform('test_prob_b', 0.0, 0.1) # Sample from beta values within this range
+    #pars["test_prob_c"] = trial.suggest_uniform('test_prob_c', 0.0, 0.1) # Sample from beta values within this range
+    #pars["test_prob_lockdown"] = trial.suggest_uniform('test_prob_lockdown', 0.0, 0.1) # Sample from beta values within this range
+
     mismatch = run_sim(pars)
     return mismatch
 
 
+def make_study():
+    ''' Make a study, deleting one if it already exists '''
+    if os.path.exists(db_name):
+        os.remove(db_name)
+        print(f'Removed existing calibration {db_name}')
+    output = op.create_study(storage=storage, study_name=name)
+    return output
+
+def worker():
+    ''' Run a single worker '''
+    study = op.load_study(storage=storage, study_name=name)
+    output = study.optimize(run_trial, n_trials=n_trials)
+    return output
+
+def run_workers():
+    ''' Run multiple workers in parallel '''
+    output = sc.parallelize(worker, n_workers)
+    return output
+
 if __name__ == '__main__':
     
-    T = sc.tic()
+     # Settings
+    n_workers = 1 # Define how many workers to run in parallel
+    n_trials = 25 # Define the number of trials, i.e. sim runs, per worker
+    name      = 'my-example-calibration'
+    db_name   = f'{name}.db'
+    storage   = f'sqlite:///{db_name}'
 
-    # Load argparse
-    args = parser.parse_args()
-
-
-
-
-
-    
-    new_tests_kwd = 'new_tests'
-
-
-        fitting_dict['fit_cdg_ct_u'].append(this_sim.compute_fit(keys=['cum_diagnoses', 'cum_tests'],
-                                         weights= [1.0, 1.0],
-                                         **fit_pars_dict))
-
-        fitting_dict['fit_cdg'].append(this_sim.compute_fit(keys=['cum_diagnoses'], **fit_pars_dict))
-
-        fitting_dict['fit_ct'].append(this_sim.compute_fit(keys=['cum_tests'], **fit_pars_dict))
+    # Run the optimization
+    tstart = sc.tic()
+    make_study()
+    worker()
+    study = op.load_study(storage=storage, study_name=name)
+    best_pars = study.best_params
+    T = sc.toc(tstart, output=True)
+    print(f'\n\nOutput: {best_pars}, time: {T:0.1f} s')
 
 
-    sc.toc(T)
