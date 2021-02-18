@@ -118,14 +118,14 @@ def save_mismatch_results(output_path, output_dict, file_string):
 
 if __name__ == '__main__':
 
-    results_path = '/mnt/lustre/working/lab_jamesr/paulaSL/covid-results/pbs.14738769'
+    results_path = '/mnt/lustre/working/lab_jamesr/paulaSL/covid-results/pbs.14789947'
     results_folder = '/sim-data'
-    file_string = 'qld_recalibration_raw_numtests_2020-03-01_2020-03-30'
+    file_string = 'qld_recalibration_mav05_numtests_2020-03-01_2020-05-15_1.0000'
 
     # Define ranges explored
-    beta_max = 0.06
+    beta_max = 0.03
     betas = np.arange(0.01, beta_max+0.0005, 0.0005)
-    seed_max = 250
+    seed_max = 300
     seed_infections = np.arange(1, seed_max+1, 1)
 
     fit_results_stored_as = 'dict' 
