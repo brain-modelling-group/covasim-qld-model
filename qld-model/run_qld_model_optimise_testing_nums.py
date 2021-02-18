@@ -105,7 +105,7 @@ parser.add_argument('--end_calibration_date', default='2020-05-15',
 
 
 parser.add_argument('--epi_calibration_file', 
-                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_mav05.csv', 
+                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_raw.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
@@ -171,38 +171,14 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
     # Testing interventions
     # Testing numbers
-    # data = pd.read_csv(datafile, parse_dates=['date'])
-    # if input_args.new_tests_mode == 'raw':
-    #    this_column = 'new_tests_raw'
-    # else:
-    #    this_column = 'new_tests'
-    # new_tests = data[this_column].to_list()
-    # new_tests = new_tests[-sim.day(data['date'][0]):]
+    data = pd.read_csv(datafile, parse_dates=['date'])
+    this_column = 'new_tests'
+    new_tests = data[this_column].to_list()
+    new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=input_args.p1))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=pars["symp_odds_ratio"]))
 
-    # Testing, following NSW example
-    #import pdb; pdb.set_trace()
-    # print(pars["test_a"])
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
-                                                  end_day='2020-03-12', 
-                                                  symp_prob=pars["prob_a"],
-                                                  asymp_quar_prob=0.01, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
-                                                  end_day='2020-03-19', 
-                                                  symp_prob=pars["prob_b"],
-                                                  asymp_quar_prob=0.01, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
-                                                  end_day='2020-03-29', 
-                                                  symp_prob=pars["prob_c"],
-                                                  asymp_quar_prob=0.01, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-29', 
-                                                  end_day='2020-05-15', 
-                                                  symp_prob=pars["prob_lockdown"],
-                                                  asymp_quar_prob=0.01, do_plot=False))
 
 
     # Tracing
@@ -236,22 +212,6 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                         trace_time=trace_time, 
                                                         start_day=0, do_plot=False))
 
-    # # Add known infections from Victoria and the cluster in the youth centre in brisbane
-    # sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
-
-    # # Test cluster size ie, number of infections arriging at one on a given date
-    # sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
-
-
-    # Close borders, then open them again to account for victorian imports and leaky quarantine
-    # sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
-    #                                                                          sim.day('2020-07-10'), 
-    #                                                                          sim.day('2020-08-08'),
-    #                                                                          sim.day('2020-09-23'),  # QLD/NSW Border population
-    #                                                                          sim.day('2020-09-25')], # ACT
-    #                                                                 'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
-    # sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
-    #                                                            'vals': [0.01, 0.015]}}, do_plot=False))
     sim.initialize()
 
     return sim
@@ -296,8 +256,8 @@ def run_sim(pars):
                      'font-size': 14}
     mismatch = 0.0
     for this_sim in msim.sims: 
-        fit = this_sim.compute_fit(keys=['cum_diagnoses', 'cum_tests'],
-                                         weights= [1.0, 1.0],
+        fit = this_sim.compute_fit(keys=['cum_diagnoses'],
+                                         weights= [1.0],
                                          **fit_pars_dict)
         mismatch += fit.mismatch
 
@@ -310,12 +270,9 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.0100, 0.0105) # Sample from beta values within this range
-    pars["seed_infections"]  = trial.suggest_int('seed_infections', 125, 140, 1) # Sample from beta values within this range
-    pars["prob_a"] = trial.suggest_uniform('prob_a', 0.00, 0.3) # Sample from beta values within this range
-    pars["prob_b"] = trial.suggest_uniform('prob_b', 0.00, 0.3) # Sample from beta values within this range
-    pars["prob_c"] = trial.suggest_uniform('prob_c', 0.00, 0.3) # Sample from beta values within this range
-    pars["prob_lockdown"] = trial.suggest_uniform('prob_lockdown', 0.00, 0.3) # Sample from beta values within this range
+    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.03) # Sample from beta values within this range
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 50, 200, 5) # Sample from beta values within this range
+    pars["symp_odds_ratio"] = trial.suggest_uniform('symp_odds_ratio', 0.00, 100.0) # Sample from beta values within this range
 
     mismatch = run_sim(pars)
     return mismatch
@@ -344,7 +301,7 @@ if __name__ == '__main__':
     
      # Settings
     n_workers = 1 # Define how many workers to run in parallel
-    n_trials = 100 # Define the number of trials, i.e. sim runs, per worker
+    n_trials = 25 # Define the number of trials, i.e. sim runs, per worker
     name      = 'my-example-calibration'
     db_name   = f'{name}.db'
     storage   = f'sqlite:///{db_name}'
