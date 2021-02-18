@@ -35,7 +35,7 @@ parser.add_argument('--results_path', default='results',
                               type=str, 
                               help='''The relative and/or absolute path to the results folder, without the trailing /''')
 
-parser.add_argument('--nruns', default=5, 
+parser.add_argument('--nruns', default=3, 
                                type=int, 
                                help='''Number of simulations to run per scenario. 
                                        Uses different PRNG seeds for each simulations.''')
@@ -80,15 +80,15 @@ parser.add_argument('--new_tests_mode',
                               help='''The column of new tests to use: Can be 'raw' or 'conv'.''')
 
 parser.add_argument('--init_seed_infections', 
-                               default=50, 
+                               default=185, 
                                type=int, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--global_beta', default=0.015, 
+parser.add_argument('--global_beta', default=0.010, 
                                type=float, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--start_calibration_date', default='2020-02-15', 
+parser.add_argument('--start_calibration_date', default='2020-03-01', 
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
 
@@ -103,12 +103,12 @@ parser.add_argument('--end_calibration_date', default='2020-05-15',
 
 
 parser.add_argument('--epi_calibration_file', 
-                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15.csv', 
+                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_mav05.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
 parser.add_argument('--layer_betas_file', 
-                              default='qld_model_layer_betas.csv', 
+                              default='qld_model_layer_betas_01.csv', 
                               type=str, 
                               help='''The name of the csv file with layer-specific betas.''')
 
@@ -168,147 +168,43 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing interventions
-    # # Testing numbers and proportion of symptomatic patients
+    # Testing numbers
     # data = pd.read_csv(datafile, parse_dates=['date'])
-    # new_tests = data['new_tests'].to_list()
-    # # Clip data that
+    # if input_args.new_tests_mode == 'raw':
+    #    this_column = 'new_tests_raw'
+    # else:
+    #    this_column = 'new_tests'
+    # new_tests = data[this_column].to_list()
     # new_tests = new_tests[-sim.day(data['date'][0]):]
 
+    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=input_args.p1))
 
-    # Testing probabilties of symptomatic 
-    initresponse01_date = '2020-03-13' # 
-    initresponse02_date = '2020-03-15' # international arrivals banned
-    initresponse03_date = '2020-03-19' # outdoor gatherings/home visitors
-    initresponse04_date = '2020-03-23' # commmunity starts shutting down (pubs)
-    initresponse05_date = '2020-03-26' # retails close 
-    initresponse06_date = '2020-03-29' # outdoor gatherings/home visitors more strict
-
-    lockdown_start = '2020-03-30' # Lockdown start date in QLD
-    stage01_start  = '2020-05-02' # Start stage 01/reopening in QLD 
-    stage02_start  = '2020-06-12' # Start of reopening in QLD 
-    stage03_start  = '2020-07-03'
-    stage04_start  = '2020-10-01'
-    stage05_start  = '2020-11-03'
-    stage06_start  = '2020-12-01'
-
-## First period symp prob
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-02-01', 
-    #                                               end_day='2020-03-01', 
-    #                                               symp_prob=0.00, 
-    #                                               asymp_quar_prob=0.00, do_plot=False))
-
-## Second period symp prob
+    # Testing, following NSW example
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
-                                                  end_day='2020-03-04', 
-                                                  symp_prob=0.045, 
-                                                  asymp_prob=0.000005, 
-                                                  asymp_quar_prob=0.02, do_plot=False))
+                                                  end_day='2020-03-12', 
+                                                  symp_prob=0.03,
+                                                  asymp_quar_prob=0.01, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-04', 
-                                                  end_day='2020-03-08', 
-                                                  symp_prob=0.030, 
-                                                  asymp_quar_prob=0.02, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-08', 
-                                                  end_day='2020-03-11', 
-                                                  symp_prob=0.0251,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-11', 
-                                                  end_day='2020-03-18', 
-                                                  symp_prob=0.0265,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-18', 
-    #                                               end_day='2020-03-19', 
-    #                                               symp_prob=0.0000,
-    #                                               asymp_quar_prob=0.00, do_plot=False))
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
+                                                  end_day='2020-03-19', 
+                                                  symp_prob=0.045,
+                                                  asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
-                                                  end_day='2020-03-21', 
-                                                  symp_prob=0.005,
-                                                  asymp_quar_prob=0.00, do_plot=False))
+                                                  end_day='2020-03-29', 
+                                                  symp_prob=0.05,
+                                                  asymp_quar_prob=0.01, do_plot=False))
 
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-21', 
-                                                  end_day='2020-03-26', 
-                                                  symp_prob=0.0125,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-26', 
-                                                  end_day='2020-03-31', 
-                                                  symp_prob=0.008,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-31', 
-                                                  end_day='2020-04-06', 
-                                                  symp_prob=0.0040,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-06', 
-                                                  end_day='2020-04-10', 
-                                                  symp_prob=0.007,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-10', 
-                                                  end_day='2020-04-20', 
-                                                  symp_prob=0.02,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-20', 
-                                                  end_day='2020-04-26', 
-                                                  symp_prob=0.0525,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-04-26', 
-                                                  end_day='2020-05-02', 
-                                                  symp_prob=0.07,
-                                                  asymp_quar_prob=0.00, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-02', 
+    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-29', 
                                                   end_day='2020-05-15', 
-                                                  symp_prob=0.1,
-                                                  asymp_quar_prob=0.02, do_plot=False))
+                                                  symp_prob=0.040,
+                                                  asymp_quar_prob=0.01, do_plot=False))
 
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-05-02', 
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-30', 
     #                                               end_day='2020-05-15', 
-    #                                               symp_prob=0.1,
+    #                                               symp_prob=0.05, #NSW
     #                                               asymp_quar_prob=0.01, do_plot=False))
 
-
-# # Fourth period symp prob
-#     sim.pars['interventions'].append(cv.test_prob(start_day=initresponse05_date, 
-#                                                    end_day=lockdown_start, 
-#                                                    symp_prob=0.0, 
-#                                                    asymp_quar_prob=0.00, do_plot=False))
-
-# ## fifth period symp prob
-#     sim.pars['interventions'].append(cv.test_prob(start_day=lockdown_start, 
-#                                                    end_day=stage01_start, 
-#                                                    symp_prob=0.001, 
-#                                                    asymp_quar_prob=0.01, do_plot=False))
-
-
-    # if sim.day(input_args.end_simulation_date) > sim.day(stage01_start):     
-    #     # More assumptions from NSW
-    #     symp_test_prob_postlockdown = 0.005 # 0.165 # Testing since lockdown
-    #     asymp_quar_prob_postlockdown = (1.0-(1.0-symp_test_prob_postlockdown)**10)
-        
-    #     sim.pars['interventions'].append(cv.test_prob(start_day=stage01_start, 
-    #                                                   end_day=stage06_start, 
-    #                                                   symp_prob=symp_test_prob_postlockdown,
-    #                                                   asymp_prob=0.00005, 
-    #                                                   asymp_quar_prob=asymp_quar_prob_postlockdown,do_plot=False))
-
-    # if sim.day(input_args.end_simulation_date) > sim.day(stage06_start):
-    #     # Future interventions, from start of stage 6 onwards
-    #     symp_test_prob_future = 0.9 # From NSW cases
-    #     asymp_quar_prob_future = (1.0-(1.0-symp_test_prob_future)**10)/2.0 
-
-    #     sim.pars['interventions'].append(cv.test_prob(start_day=stage06_start, 
-    #                                                   symp_prob=symp_test_prob_future,
-    #                                                   #asymp_prob=0.0003, 
-    #                                                   asymp_quar_prob=asymp_quar_prob_future, do_plot=False))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -341,20 +237,27 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                         trace_time=trace_time, 
                                                         start_day=0, do_plot=False))
 
+    # # Add known infections from Victoria and the cluster in the youth centre in brisbane
+    # sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
+
+    # # Test cluster size ie, number of infections arriging at one on a given date
+    # sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
+
+
+    # Close borders, then open them again to account for victorian imports and leaky quarantine
+    # sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
+    #                                                                          sim.day('2020-07-10'), 
+    #                                                                          sim.day('2020-08-08'),
+    #                                                                          sim.day('2020-09-23'),  # QLD/NSW Border population
+    #                                                                          sim.day('2020-09-25')], # ACT
+    #                                                                 'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
+    # sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
+    #                                                            'vals': [0.01, 0.015]}}, do_plot=False))
     sim.initialize()
 
     return sim
 
-# Start setting up to run
-# NB, this file assumes that you've already generated a population file saved in the same folder as this script, called qldpop.pop
-
-if __name__ == '__main__':
-    
-    T = sc.tic()
-
-    # Load argparse
-    args = parser.parse_args()
-
+def run_sim(args, pars):
     # Inputs
     inputsfolder = 'inputs'
     datafile = f'{inputsfolder}/{args.epi_calibration_file}'
@@ -373,6 +276,8 @@ if __name__ == '__main__':
     pathlib.Path(figfolder).mkdir(parents=True, exist_ok=True)
 
     # Create instance of simulator
+    args.init_seed_infections = pars["seed_infection"]
+    args.global_beta = pars["global_beta"]
     sim  = make_sim(load_pop=True, 
                     popfile=populationfile, 
                     datafile=datafile, 
@@ -383,47 +288,56 @@ if __name__ == '__main__':
     # Do the stuff & save results
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
-    msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}.obj"
-    #msim.save(msim_filename)
-   
-    #Plot all sims together 
-    # msim.reduce()
-    # msim_fig = msim.plot(do_show=False)
-    # msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_msim_fig.png"
-    # msim_fig.savefig(msim_fig_filename, dpi=100)
-    # plt.close('all')
 
+   
     # Calculate fits 
     fit_pars_dict = {'absolute':True,
                      'use_median':True,
                      'font-size': 14}
+    mismatch = 0.0
+    for this_sim in msim.sims: 
+        fit = this_sim.compute_fit(keys=['cum_diagnoses', 'cum_tests'],
+                                         weights= [1.0, 1.0],
+                                         **fit_pars_dict)
+        mismatch += fit.mismatch
 
-    # Calculate fits independently
-    fitting_dict = {'fit_ndg_cdg_nt_ct_u': [], 'fit_cdg_ct_u': [],
-                    'fit_ndg': [], 'fit_cdg': [], 
-                    'fit_nt': [], 'fit_ct': []}
+    # just average mismatch
+    mismatch /= args.nruns
+    return mismatch
+
+
+
+def run_trial(trial):
+    ''' Define the objective for Optuna '''
+    pars = {}
+    pars["beta"]  = trial.suggest_uniform('beta', 0.0001, 0.011) # Sample from beta values within this range
+    pars["seed_infection"] = trial.suggest_uniform('seed_infection', 0.5, 3.0) # Sample from beta values within this range
+    mismatch = run_sim(pars)
+    return mismatch
+
+
+if __name__ == '__main__':
+    
+    T = sc.tic()
+
+    # Load argparse
+    args = parser.parse_args()
+
+
+
+
+
     
     new_tests_kwd = 'new_tests'
 
-    for this_sim in msim.sims: 
-        fitting_dict['fit_ndg_cdg_nt_ct_u'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'new_tests', 'cum_tests'],
-                                         weights= [0.0, 1.0, 0.0, 1.0],
-                                         **fit_pars_dict))
+
         fitting_dict['fit_cdg_ct_u'].append(this_sim.compute_fit(keys=['cum_diagnoses', 'cum_tests'],
                                          weights= [1.0, 1.0],
                                          **fit_pars_dict))
 
         fitting_dict['fit_cdg'].append(this_sim.compute_fit(keys=['cum_diagnoses'], **fit_pars_dict))
+
         fitting_dict['fit_ct'].append(this_sim.compute_fit(keys=['cum_tests'], **fit_pars_dict))
 
 
-        # Save list of fits
-    fits_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit.obj"
-    #sc.saveobj(filename=fits_filename, obj=fitting_dict)
-    fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:02d}_fit_fig.png"
-    
-    fit_fig = fitting_dict['fit_ndg_cdg_nt_ct_u'][0].plot(do_show=False)
-    fit_fig[0].savefig(fit_fig_filename, dpi=100)
-    plt.close('all')
     sc.toc(T)
-        
