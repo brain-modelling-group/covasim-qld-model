@@ -301,7 +301,7 @@ if __name__ == '__main__':
     
      # Settings
     n_workers = 1 # Define how many workers to run in parallel
-    n_trials = 100 # Define the number of trials, i.e. sim runs, per worker
+    n_trials = 25 # Define the number of trials, i.e. sim runs, per worker
     name      = 'my-example-calibration'
     db_name   = f'{name}.db'
     storage   = f'sqlite:///{db_name}'
