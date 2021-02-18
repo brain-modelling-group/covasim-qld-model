@@ -81,3 +81,8 @@ fit  'cum_diagnoses', 25.83333333333333.
               'symp_odds_ratio_a': 45.92827203665293, 
               'symp_odds_ratio_b': 93.1547049887114, 
               'symp_odds_ratio_c': 88.18528088769416}, 
+
+
+
+Output: {'global_beta': 0.011292546330810189, 'seed_infections': 142, 'symp_odds_ratio_a': 180.06569429205757}, time: 1897.3 s
+20.13888888888889.
