@@ -270,9 +270,9 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.03) # Sample from beta values within this range
-    pars["seed_infections"]  = trial.suggest_int('seed_infections', 50, 200, 5) # Sample from beta values within this range
-    pars["symp_odds_ratio"] = trial.suggest_uniform('symp_odds_ratio', 0.00, 100.0) # Sample from beta values within this range
+    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.01, 0.015) # Sample from beta values within this range
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 180, 5) # Sample from beta values within this range
+    pars["symp_odds_ratio"] = trial.suggest_uniform('symp_odds_ratio', 85, 100.0) # Sample from beta values within this range
 
     mismatch = run_sim(pars)
     return mismatch

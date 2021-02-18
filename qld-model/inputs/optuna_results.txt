@@ -48,3 +48,6 @@ Output : {'global_beta': 0.010039872577668781,
           'prob_b': 0.08629546650081471, 
           'prob_c': 0.28812018352316177, 
           'prob_lockdown': 0.09905822726126276}
+
+
+Trial 21 finished with value: 31.840277777777775 and parameters: {'global_beta': 0.013833201150836267, 'seed_infections': 130, 'symp_odds_ratio': 96.374721859418}. Best is trial 21 with value: 31.840277777777775.
