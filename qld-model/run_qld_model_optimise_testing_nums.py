@@ -273,11 +273,11 @@ def run_trial(trial):
     pars = {}
     pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.01, 0.015)         # Sample from beta values within this range
     pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 180, 1)     # Sample seeds from this range
-    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
-    pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
-    pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
-    pars["symp_odds_ratio_d"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
-    pars["symp_odds_ratio_e"] = trial.suggest_uniform('symp_odds_ratio', 0.0, 100.0) # 
+    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 0.0, 100.0) # 
+    pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 100.0) # 
+    pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 100.0) # 
+    pars["symp_odds_ratio_d"] = trial.suggest_uniform('symp_odds_ratio_d', 0.0, 100.0) # 
+    pars["symp_odds_ratio_e"] = trial.suggest_uniform('symp_odds_ratio_e', 0.0, 100.0) # 
 
     mismatch = run_sim(pars)
     return mismatch
