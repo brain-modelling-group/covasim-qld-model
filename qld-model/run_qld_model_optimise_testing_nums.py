@@ -105,7 +105,7 @@ parser.add_argument('--end_calibration_date', default='2020-05-15',
 
 
 parser.add_argument('--epi_calibration_file', 
-                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_raw.csv', 
+                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_mav15.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
@@ -176,11 +176,9 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-03-12')], symp_test=pars["symp_odds_ratio_a"]))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-12'):sim.day('2020-03-19')], symp_test=pars["symp_odds_ratio_b"]))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-19'):sim.day('2020-03-29')], symp_test=pars["symp_odds_ratio_c"]))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-29'):sim.day('2020-05-02')], symp_test=pars["symp_odds_ratio_d"]))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-05-02'):sim.day('2020-05-15')], symp_test=pars["symp_odds_ratio_e"]))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-05-16')], symp_test=pars["symp_odds_ratio_a"], test_delay=3))
+    #sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-12'):sim.day('2020-03-30')], symp_test=pars["symp_odds_ratio_b"]))
+    #sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-30'):sim.day('2020-05-15')], symp_test=pars["symp_odds_ratio_c"]))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -271,13 +269,11 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.01, 0.015)         # Sample from beta values within this range
-    pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 180, 1)     # Sample seeds from this range
-    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 0.0, 100.0) # 
-    pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 100.0) # 
-    pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 100.0) # 
-    pars["symp_odds_ratio_d"] = trial.suggest_uniform('symp_odds_ratio_d', 0.0, 100.0) # 
-    pars["symp_odds_ratio_e"] = trial.suggest_uniform('symp_odds_ratio_e', 0.0, 100.0) # 
+    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.009, 0.02)         # Sample from beta values within this range
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 100, 200, 1)     # Sample seeds from this range
+    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 80, 250.0) # 
+    #pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 100.0) # 
+    #pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 100.0) # 
 
     mismatch = run_sim(pars)
     return mismatch

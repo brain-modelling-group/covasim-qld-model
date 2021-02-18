@@ -88,7 +88,7 @@ parser.add_argument('--global_beta', default=0.015,
                                type=float, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--start_calibration_date', default='2020-02-15', 
+parser.add_argument('--start_calibration_date', default='2020-03-01', 
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
 
@@ -103,12 +103,12 @@ parser.add_argument('--end_calibration_date', default='2020-05-15',
 
 
 parser.add_argument('--epi_calibration_file', 
-                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15.csv', 
+                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_mav15.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
 parser.add_argument('--layer_betas_file', 
-                              default='qld_model_layer_betas.csv', 
+                              default='qld_model_layer_betas_01.csv', 
                               type=str, 
                               help='''The name of the csv file with layer-specific betas.''')
 
@@ -142,12 +142,12 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
               'social']   
 
     pars = {'pop_size': 200e3,    # Population size
-            'pop_infected': input_args.init_seed_infections,   # Original population infedcted
+            'pop_infected': input_args.init_seed_infections, # input_args.init_seed_infections,   # Original population infedcted
             'pop_scale': 25.5,    # Population scales to 5.1M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
-            'beta': 0.010039872577668781,  # Overall beta to use for calibration portion of the simulations
+            'beta': input_args.global_beta, #0.010039872577668781,  # Overall beta to use for calibration portion of the simulations
                                        # H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,   40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
@@ -168,43 +168,37 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     sim.pars['interventions'].extend(beta_ints)
 
     # Testing interventions
-    # Testing numbers
-    # data = pd.read_csv(datafile, parse_dates=['date'])
-    # if input_args.new_tests_mode == 'raw':
-    #    this_column = 'new_tests_raw'
-    # else:
-    #    this_column = 'new_tests'
-    # new_tests = data[this_column].to_list()
-    # new_tests = new_tests[-sim.day(data['date'][0]):]
+    data = pd.read_csv(datafile, parse_dates=['date'])
+    this_column = 'new_tests'
+    new_tests = data[this_column].to_list()
+    new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests, symp_test=input_args.p1))
+    #sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-05-15')], symp_test=96.374721859418))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-05-16')], symp_test=180.06569429205757, test_delay=3))
+    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-12'):sim.day('2020-03-30')], symp_test=96.374721859418))
+    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-30'):sim.day('2020-05-15')], symp_test=96.374721859418))
+    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-05-02'):sim.day('2020-05-15')], symp_test=40.44609054921603))
 
     # Testing, following NSW example
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
-                                                  end_day='2020-03-12', 
-                                                  symp_prob=0.04451142882580657,
-                                                  asymp_quar_prob=0.01, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
-                                                  end_day='2020-03-19', 
-                                                  symp_prob=0.08629546650081471,
-                                                  asymp_quar_prob=0.01, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
-                                                  end_day='2020-03-29', 
-                                                  symp_prob=0.28812018352316177,
-                                                  asymp_quar_prob=0.01, do_plot=False))
-
-    sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-29', 
-                                                  end_day='2020-05-15', 
-                                                  symp_prob=0.09905822726126276,
-                                                  asymp_quar_prob=0.01, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-30', 
-    #                                               end_day='2020-05-15', 
-    #                                               symp_prob=0.05, #NSW
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
+    #                                               end_day='2020-03-12', 
+    #                                               symp_prob=0.04451142882580657,
     #                                               asymp_quar_prob=0.01, do_plot=False))
 
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
+    #                                               end_day='2020-03-19', 
+    #                                               symp_prob=0.08629546650081471,
+    #                                               asymp_quar_prob=0.01, do_plot=False))
+
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
+    #                                               end_day='2020-03-29', 
+    #                                               symp_prob=0.28812018352316177,
+    #                                               asymp_quar_prob=0.01, do_plot=False))
+
+    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-29', 
+    #                                               end_day='2020-05-15', 
+    #                                               symp_prob=0.09905822726126276,
+    #                                               asymp_quar_prob=0.01, do_plot=False))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -337,7 +331,7 @@ if __name__ == '__main__':
     sc.saveobj(filename=fits_filename, obj=fitting_dict)
     fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.p1:.{4}f}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}_fit_fig.png"
     
-    fit_fig = fitting_dict['fit_cdg_ct_u'][0].plot(do_show=False)
+    fit_fig = fitting_dict['fit_ndg_cdg_nt_ct_u'][0].plot(do_show=False)
     fit_fig[0].savefig(fit_fig_filename, dpi=100)
     plt.close('all')
     sc.toc(T)
