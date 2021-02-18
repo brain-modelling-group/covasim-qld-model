@@ -42,8 +42,6 @@ Output: {'global_beta': 0.01041671690793345,
 
 
 fit  'cum_diagnoses', 'cum_tests' =  56.554721010786274 
-
-
 Output : {'global_beta': 0.010039872577668781, 
           'seed_infections': 129, 
           'prob_a': 0.04451142882580657, 
