@@ -149,7 +149,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
-            'beta': pars["global_beta"],  # Overall beta to use for calibration portion of the simulations
+            'beta': 0.010254803833845997, #pars["global_beta"],  # Overall beta to use for calibration portion of the simulations
                                        # H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,   40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
@@ -186,7 +186,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     # print(pars["test_a"])
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
                                                   end_day='2020-03-12', 
-                                                  symp_prob=0.03,
+                                                  symp_prob=pars["prob_a"],
                                                   asymp_quar_prob=0.01, do_plot=False))
 
     sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
@@ -310,8 +310,8 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.010, 0.011) # Sample from beta values within this range
-    #pars["test_prob_a"] = trial.suggest_uniform('test_prob_a', 0.0001, 0.05) # Sample from beta values within this range
+    #pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.010, 0.011) # Sample from beta values within this range
+    pars["prob_a"] = trial.suggest_uniform('prob_a', 0.0, 0.05) # Sample from beta values within this range
     #pars["test_prob_b"] = trial.suggest_uniform('test_prob_b', 0.0, 0.1) # Sample from beta values within this range
     #pars["test_prob_c"] = trial.suggest_uniform('test_prob_c', 0.0, 0.1) # Sample from beta values within this range
     #pars["test_prob_lockdown"] = trial.suggest_uniform('test_prob_lockdown', 0.0, 0.1) # Sample from beta values within this range
