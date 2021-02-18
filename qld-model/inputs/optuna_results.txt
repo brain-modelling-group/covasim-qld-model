@@ -39,3 +39,14 @@ Output: {'global_beta': 0.01041671690793345,
 	pars["prob_b"] = trial.suggest_uniform('prob_b', 0.05, 0.1) # Sample from beta values within this range
 	pars["prob_c"] = trial.suggest_uniform('prob_c', 0.05, 0.2) # Sample from beta values within this range
 	pars["prob_lockdown"] = trial.suggest_uniform('prob_lockdown', 0.05, 0.3) # Sample from beta values within this range
+
+
+fit  'cum_diagnoses', 'cum_tests' =  56.554721010786274 
+
+
+Output : {'global_beta': 0.010039872577668781, 
+          'seed_infections': 129, 
+          'prob_a': 0.04451142882580657, 
+          'prob_b': 0.08629546650081471, 
+          'prob_c': 0.28812018352316177, 
+          'prob_lockdown': 0.09905822726126276}
