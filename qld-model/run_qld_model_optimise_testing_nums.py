@@ -110,7 +110,7 @@ parser.add_argument('--epi_calibration_file',
                               help='''The name of the csv file with empirical data under inputs/.''')
 
 parser.add_argument('--layer_betas_file', 
-                              default='qld_model_layer_betas_01.csv', 
+                              default='qld_model_layer_betas_02.csv', 
                               type=str, 
                               help='''The name of the csv file with layer-specific betas.''')
 
@@ -269,8 +269,8 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.009, 0.015)         # Sample from beta values within this range
-    pars["seed_infections"]  = trial.suggest_int('seed_infections', 130, 180, 1)     # Sample seeds from this range
+    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.015)         # Sample from beta values within this range
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 100, 200, 1)     # Sample seeds from this range
     pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 80, 250.0) # 
     #pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 100.0) # 
     #pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 100.0) # 
@@ -302,7 +302,7 @@ if __name__ == '__main__':
     
      # Settings
     n_workers = 1 # Define how many workers to run in parallel
-    n_trials = 100 # Define the number of trials, i.e. sim runs, per worker
+    n_trials = 50 # Define the number of trials, i.e. sim runs, per worker
     name      = 'my-example-calibration'
     db_name   = f'{name}.db'
     storage   = f'sqlite:///{db_name}'
