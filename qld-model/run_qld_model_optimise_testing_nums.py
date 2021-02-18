@@ -105,7 +105,7 @@ parser.add_argument('--end_calibration_date', default='2020-05-15',
 
 
 parser.add_argument('--epi_calibration_file', 
-                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_mav05.csv', 
+                              default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_raw.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
@@ -257,7 +257,7 @@ def run_sim(pars):
     mismatch = 0.0
     for this_sim in msim.sims: 
         fit = this_sim.compute_fit(keys=['cum_diagnoses'],
-                                         weights= [1.0, 1.0],
+                                         weights= [1.0],
                                          **fit_pars_dict)
         mismatch += fit.mismatch
 
