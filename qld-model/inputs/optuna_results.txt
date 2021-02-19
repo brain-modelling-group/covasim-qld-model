@@ -94,3 +94,9 @@ Output: {'global_beta':  -, 'seed_infections': 142, 'symp_odds_ratio_a': 180.065
 Trial 44 finished with value: 9.666666666666666 and parameters: {'symp_odds_ratio_a': 77.50229728697813, 
                                                                  'symp_odds_ratio_b': 27.162522459741147, 
                                                                  'symp_odds_ratio_c': 22.065340488311218}. 
+
+
+Trial 87 finished with value: 9.29166666666667 and parameters: {'symp_odds_ratio_a': 66.70111685284185, 
+                                                                'symp_odds_ratio_b': 22.374796156748435, 
+                                                                'symp_odds_ratio_c': 36.905689838124246}. Best is trial 87 with value: 9.29166666666667.
+
