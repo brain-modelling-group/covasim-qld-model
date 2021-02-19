@@ -288,7 +288,7 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    #pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.015)         # Sample from beta values within this range
+    #pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.015)      # Sample from beta values within this range
     pars["seed_infections"]  = trial.suggest_int('seed_infections', 80, 135, 1)     # Sample seeds from this range
     pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 40.0, 200.0) # 
     #pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 40.0) # 
