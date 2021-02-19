@@ -80,11 +80,11 @@ parser.add_argument('--new_tests_mode',
                               help='''The column of new tests to use: Can be 'raw' or 'conv'.''')
 
 parser.add_argument('--init_seed_infections', 
-                               default=50, 
+                               default=142, 
                                type=int, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--global_beta', default=0.015, 
+parser.add_argument('--global_beta', default=0.011292546330810189, 
                                type=float, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
@@ -108,7 +108,7 @@ parser.add_argument('--epi_calibration_file',
                               help='''The name of the csv file with empirical data under inputs/.''')
 
 parser.add_argument('--layer_betas_file', 
-                              default='qld_model_layer_betas_01.csv', 
+                              default='qld_model_layer_betas_02.csv', 
                               type=str, 
                               help='''The name of the csv file with layer-specific betas.''')
 
