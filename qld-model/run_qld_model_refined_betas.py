@@ -174,8 +174,20 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
     #sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-05-15')], symp_test=96.374721859418))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-05-16')], symp_test=179.40290808880232, test_delay=3))
-    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-12'):sim.day('2020-03-30')], symp_test=96.374721859418))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-03-29')], 
+                                                 start_day='2020-03-01', 
+                                                 end_day='2020-03-29', 
+                                                 symp_test=179.40290808880232, test_delay=3))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-29'):sim.day('2020-04-05')], 
+                                                 start_day='2020-03-29', 
+                                                 end_day='2020-04-05', 
+                                                 symp_test=80.0, test_delay=3))
+
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-05'):sim.day('2020-05-16')], 
+                                                 start_day='2020-04-05', 
+                                                 end_day='2020-05-16', 
+                                                 symp_test=20.0, test_delay=3))
+
     # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-30'):sim.day('2020-05-15')], symp_test=96.374721859418))
     # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-05-02'):sim.day('2020-05-15')], symp_test=40.44609054921603))
 
