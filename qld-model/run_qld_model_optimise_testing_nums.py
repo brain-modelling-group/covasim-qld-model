@@ -82,11 +82,12 @@ parser.add_argument('--new_tests_mode',
                               help='''The column of new tests to use: Can be 'raw' or 'conv'.''')
 
 parser.add_argument('--init_seed_infections', 
-                               default=185, 
+                               default=142, 
                                type=int, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
-parser.add_argument('--global_beta', default=0.010, 
+parser.add_argument('--global_beta', 
+                               default=0.011292546330810189, 
                                type=float, 
                                help='''Number of ppl infected at the beginning of the simulation.''')
 
@@ -144,12 +145,12 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
               'social']   
 
     sim_pars = {'pop_size': 200e3,    # Population size
-            'pop_infected': pars["seed_infections"],  # Original population infedcted
+            'pop_infected': input_args.init_seed_infections,  # Original population infedcted
             'pop_scale': 25.5,    # Population scales to 5.1M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
-            'beta': pars["global_beta"],  # Overall beta to use for calibration portion of the simulations
+            'beta': input_args.global_beta , # Overall beta to use for calibration portion of the simulations
                                        # H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,   40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
@@ -176,10 +177,23 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-05-16')], symp_test=pars["symp_odds_ratio_a"], test_delay=3))
-    #sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-12'):sim.day('2020-03-30')], symp_test=pars["symp_odds_ratio_b"]))
-    #sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-30'):sim.day('2020-05-15')], symp_test=pars["symp_odds_ratio_c"]))
-
+    
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-03-29')], 
+                                                 start_day='2020-03-01', 
+                                                 end_day='2020-03-29', 
+                                                 symp_test=179.40290808880232, test_delay=3))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-29'):sim.day('2020-04-05')], 
+                                                 start_day='2020-03-29', 
+                                                 end_day='2020-04-05', 
+                                                 symp_test=pars["symp_odds_ratio_a"], test_delay=3))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-05'):sim.day('2020-04-16')], 
+                                                 start_day='2020-04-05', 
+                                                 end_day='2020-04-16', 
+                                                 symp_test=pars["symp_odds_ratio_b"], test_delay=3))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-16'):sim.day('2020-05-16')], 
+                                                 start_day='2020-04-16', 
+                                                 end_day='2020-05-16', 
+                                                 symp_test=pars["symp_odds_ratio_c"], test_delay=3))
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
                    'W': 0.80, 'C': 0.05, 
@@ -269,11 +283,11 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.015)         # Sample from beta values within this range
-    pars["seed_infections"]  = trial.suggest_int('seed_infections', 100, 200, 1)     # Sample seeds from this range
-    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 80, 250.0) # 
-    #pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 100.0) # 
-    #pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 100.0) # 
+    #pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.015)         # Sample from beta values within this range
+    #pars["seed_infections"]  = trial.suggest_int('seed_infections', 100, 200, 1)     # Sample seeds from this range
+    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 60.0, 90.0) # 
+    pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 40.0) # 
+    pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 40.0) # 
 
     mismatch = run_sim(pars)
     return mismatch
