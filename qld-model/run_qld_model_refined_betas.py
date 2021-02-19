@@ -168,7 +168,11 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    #sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-05-15')], symp_test=96.374721859418))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-02-15'):sim.day('2020-03-01')], 
+                                                 start_day='2020-02-15', 
+                                                 end_day='2020-03-01', 
+                                                 symp_test=input_args.par1, test_delay=3))
+
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-03-29')], 
                                                  start_day='2020-03-01', 
                                                  end_day='2020-03-29', 
