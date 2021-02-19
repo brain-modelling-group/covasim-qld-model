@@ -84,5 +84,13 @@ fit  'cum_diagnoses', 25.83333333333333.
 
 
 
-Output: {'global_beta': 0.011292546330810189, 'seed_infections': 142, 'symp_odds_ratio_a': 180.06569429205757}, time: 1897.3 s
+Output: {'global_beta':  -, 'seed_infections': 142, 'symp_odds_ratio_a': 180.06569429205757}, time: 1897.3 s
 20.13888888888889.
+
+
+ Trial 12 finished with value: 9.576388888888888 and parameters: {'symp_odds_ratio_a': 67.19049236836088, 
+                                                                  'symp_odds_ratio_b': 27.809801215164807, 'symp_odds_ratio_c': 29.866624403470333}. Best is trial 12 with value: 9.576388888888888.
+
+Trial 44 finished with value: 9.666666666666666 and parameters: {'symp_odds_ratio_a': 77.50229728697813, 
+                                                                 'symp_odds_ratio_b': 27.162522459741147, 
+                                                                 'symp_odds_ratio_c': 22.065340488311218}. 
