@@ -145,7 +145,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
               'social']   
 
     sim_pars = {'pop_size': 200e3,    # Population size
-            'pop_infected': input_args.init_seed_infections,  # Original population infedcted
+            'pop_infected': pars["seed_infections"],  # Original population infedcted
             'pop_scale': 25.5,    # Population scales to 5.1M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
@@ -177,6 +177,11 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
+
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-02-15'):sim.day('2020-03-01')], 
+                                                 start_day='2020-02-15', 
+                                                 end_day='2020-03-01', 
+                                                 symp_test=pars["symp_odds_ratio_a"], test_delay=3))
     
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-03-29')], 
                                                  start_day='2020-03-01', 
@@ -185,15 +190,15 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-29'):sim.day('2020-04-05')], 
                                                  start_day='2020-03-29', 
                                                  end_day='2020-04-05', 
-                                                 symp_test=pars["symp_odds_ratio_a"], test_delay=3))
+                                                 symp_test=66.70111685284185, test_delay=3))
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-05'):sim.day('2020-04-16')], 
                                                  start_day='2020-04-05', 
                                                  end_day='2020-04-16', 
-                                                 symp_test=pars["symp_odds_ratio_b"], test_delay=3))
+                                                 symp_test=22.374796156748435, test_delay=3))
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-16'):sim.day('2020-05-16')], 
                                                  start_day='2020-04-16', 
                                                  end_day='2020-05-16', 
-                                                 symp_test=pars["symp_odds_ratio_c"], test_delay=3))
+                                                 symp_test=36.905689838124246, test_delay=3))
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
                    'W': 0.80, 'C': 0.05, 
@@ -284,10 +289,10 @@ def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
     #pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.015)         # Sample from beta values within this range
-    #pars["seed_infections"]  = trial.suggest_int('seed_infections', 100, 200, 1)     # Sample seeds from this range
-    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 60.0, 90.0) # 
-    pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 40.0) # 
-    pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 40.0) # 
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 20, 120, 1)     # Sample seeds from this range
+    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 0.0, 250.0) # 
+    #pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 40.0) # 
+    #pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 40.0) # 
 
     mismatch = run_sim(pars)
     return mismatch
