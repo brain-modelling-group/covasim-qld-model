@@ -1,10 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-(RE)calibration of QLD model, using layer-specific betas from 
-inputs/qld_model_layer_betas.csv
+Calibrated QLD model (set as default parameters)
 
-# author: For QLD Paula Sanz-Leon, QIMRB, Aug-Dec 2020
+We initialized the model on March 1st and run simulations until May 15th (~ two weeks afer reopneing started)
+
+The number of initial seed infections are chosen as part of the calibration process. 
+The model was fitted to data on  
+(1) the  cumulative daily  number of cases  diagnosed  in  QLD
+(2) we used the empirical number of tests (with a moving average of 15 days) as inputs to the simulator
+
+Many simulation parameters are taken from the calibrated NSW case:
+https://github.com/optimamodel/covid_nsw/blob/master/2_resubmission/run_nsw_tracing.py
+
+# author: For QLD Paula Sanz-Leon, QIMRB, Aug 2020 - Feb 2021 
 """
 
 # Import scientific python
@@ -49,18 +58,6 @@ parser.add_argument('--dist', default='poisson',
                               help='''Name of distribution to use to seed infections.
                                       Can be uniform, normal, etc''')
 
-parser.add_argument('--p1', default=1.0, 
-                            type=float, 
-                            help=''' Dummy parameter for paramter sweeps.''')
-  
-parser.add_argument('--p2', default=1.0, 
-                            type=float, 
-                            help='''Dummy parameter for paramter sweeps.''')
-
-parser.add_argument('--p3', default=1.0, 
-                            type=float, 
-                            help='''Dummy parameter for paramter sweeps.''')
-
 parser.add_argument('--par1', default=1.0, 
                               type=float, 
                               help=''' The "main" distribution parameter (e.g. mean).''')
@@ -75,14 +72,14 @@ parser.add_argument('--cluster_size',
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
 parser.add_argument('--new_tests_mode', 
-                              default='raw', 
+                              default='mav15', 
                               type=str, 
-                              help='''The column of new tests to use: Can be 'raw' or 'conv'.''')
+                              help='''A label added to the filename to identified the number of tests used.''')
 
 parser.add_argument('--init_seed_infections', 
                                default=142, 
                                type=int, 
-                               help='''Number of ppl infected at the beginning of the simulation.''')
+                               help='''Number of ppl infected as of 2020-03-01.''')
 
 parser.add_argument('--global_beta', default=0.011292546330810189, 
                                type=float, 
@@ -92,7 +89,6 @@ parser.add_argument('--start_calibration_date', default='2020-03-01',
                               type=str, 
                               help='''The date at which calibration starts (default, '2020-02-15').''')
 
-
 parser.add_argument('--end_simulation_date', default='2020-05-15', 
                               type=str, 
                               help='''The date at which calibration finishes.''')
@@ -100,7 +96,6 @@ parser.add_argument('--end_simulation_date', default='2020-05-15',
 parser.add_argument('--end_calibration_date', default='2020-05-15', 
                               type=str, 
                               help='''The date at which calibration finishes.''')
-
 
 parser.add_argument('--epi_calibration_file', 
                               default='qld_epi_data_qld-health_calibration_2020-02-15_2020-05-15_mav15.csv', 
@@ -190,30 +185,6 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                  start_day='2020-04-16', 
                                                  end_day='2020-05-16', 
                                                  symp_test=25.0, test_delay=3))
-
-    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-30'):sim.day('2020-05-15')], symp_test=96.374721859418))
-    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-05-02'):sim.day('2020-05-15')], symp_test=40.44609054921603))
-
-    # Testing, following NSW example
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-01', 
-    #                                               end_day='2020-03-12', 
-    #                                               symp_prob=0.04451142882580657,
-    #                                               asymp_quar_prob=0.01, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-12', 
-    #                                               end_day='2020-03-19', 
-    #                                               symp_prob=0.08629546650081471,
-    #                                               asymp_quar_prob=0.01, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-19', 
-    #                                               end_day='2020-03-29', 
-    #                                               symp_prob=0.28812018352316177,
-    #                                               asymp_quar_prob=0.01, do_plot=False))
-
-    # sim.pars['interventions'].append(cv.test_prob(start_day='2020-03-29', 
-    #                                               end_day='2020-05-15', 
-    #                                               symp_prob=0.09905822726126276,
-    #                                               asymp_quar_prob=0.01, do_plot=False))
 
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -324,8 +295,6 @@ if __name__ == '__main__':
                     'fit_ndg': [], 'fit_cdg': [], 
                     'fit_nt': [], 'fit_ct': []}
     
-    new_tests_kwd = 'new_tests'
-
     for this_sim in msim.sims: 
         fitting_dict['fit_ndg_cdg_nt_ct_u'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'new_tests', 'cum_tests'],
                                          weights= [0.0, 1.0, 0.0, 0.0],
