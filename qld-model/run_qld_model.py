@@ -279,8 +279,9 @@ if __name__ == '__main__':
     msim.save(msim_filename)
    
     # Plot all sims together 
-    msim.reduce()
-    msim_fig = msim.plot(do_show=False)
+    msim.reduce(quantiles={'low':0.01, 'high':0.99})
+    scatter_args = {'s': 8.0}
+    msim_fig = msim.plot(do_show=False, scatter_args=scatter_args)
     msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}_msim_fig.png"
     msim_fig.savefig(msim_fig_filename, dpi=100)
     plt.close('all')
