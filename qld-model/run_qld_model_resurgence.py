@@ -156,7 +156,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     ntpts = sim.day(input_args.end_simulation_date)-sim.day(input_args.start_simulation_date)
     sim.pars['interventions'].append(cv.test_num(daily_tests=[input_args.num_tests]*ntpts, 
                                                  start_day=input_args.start_simulation_date, 
-                                                 end_day=input_args.start_simulation_date, 
+                                                 end_day=input_args.end_simulation_date, 
                                                  symp_test=100.0, test_delay=1))
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
@@ -190,13 +190,13 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                         start_day=0, do_plot=False))
 
     # Test cluster size ie, number of infections arriging at one on a given date
-    sim.pars['interventions'].append(utils.SeedInfection({sim.day(input_args.start_simulation_date): args.cluster_size}))
+    sim.pars['interventions'].append(utils.SeedInfection({sim.day(input_args.start_simulation_date): input_args.cluster_size}))
 
 
     # Set 'Borders opening' interventions
     if input_args.label == 'cluster':
         # Test cluster size ie, number of infections arriging at one on a given date
-        sim.pars['interventions'].append(utils.SeedInfection({sim.day(input_args.start_simulation_date): args.cluster_size}))
+        sim.pars['interventions'].append(utils.SeedInfection({sim.day(input_args.start_simulation_date): input_args.cluster_size}))
 
     if input_args.label == 'distributed':
         dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
