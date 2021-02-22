@@ -50,7 +50,6 @@ parser.add_argument('--dist', default='poisson',
                               type=str, 
                               help='''Name of distribution to use to seed infections.
                                       Can be uniform, normal, etc''')
-
 parser.add_argument('--p1', default=1.0, 
                             type=float, 
                             help=''' Dummy parameter for paramter sweeps.''')
