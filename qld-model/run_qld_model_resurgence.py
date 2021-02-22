@@ -86,7 +86,7 @@ parser.add_argument('--end_simulation_date', default='2021-03-01',
                               help='''The date at which simulation finishes.''')
 
 parser.add_argument('--epi_file', 
-                              default='qld_epi_data_qld-health.csv', 
+                              default='qld_epi_data_qld-health_calibration_2021-01-14_2021-02-16_raw.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
 
