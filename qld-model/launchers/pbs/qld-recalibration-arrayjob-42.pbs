@@ -25,7 +25,7 @@ NCPUS=28
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
 
-python run_qld_model.py --ncpus "$NCPUS" --nruns 2000 --results_path "$SCRATCH_RESULTS"
+python run_qld_model.py --ncpus "$NCPUS" --nruns 100 --results_path "$SCRATCH_RESULTS"
 
 # Create directory to save results in /working
 WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
