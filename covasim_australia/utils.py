@@ -804,6 +804,7 @@ def story(sim, uid):
     for day, event in sorted(events, key=lambda x: x[0]):
         print(f'On Day {day:.0f}, {uid} {event}')
 
+
 def result_df(sim):
     resdict = sim.export_results(for_json=False)
     result_df = pd.DataFrame.from_dict(resdict)
@@ -811,6 +812,26 @@ def result_df(sim):
     result_df.index.name = 'date'
     return result_df
 
+
 def save_csv(sim, fname):
     df = result_df(sim)
     result_df.to_csv(fname)
+
+
+def get_ensemble_trace(key, sims):
+    """
+    Get median trace
+    """
+    ys = []
+    for this_sim in sims:
+        ys.append(this_sim.results[key].values)
+    yarr = np.percentile(np.array(ys).T, 50, axis=1)
+
+    return yarr
+
+def detect_outbreak(data, num_cases=5.0):
+    """
+    Get the index of the last day of the first instance of three consecutive days above num_cases 
+    """
+    idx = np.argmax((np.where(data >= num_cases, 1.0, 0.0) + np.roll(np.where(data >= num_cases, 1.0, 0.0), 1) + np.roll(np.where(data >= num_cases, 1.0, 0.0), -1))+1)
+    return idx 
