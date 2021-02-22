@@ -280,7 +280,7 @@ if __name__ == '__main__':
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
     msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}.obj"
-    #msim.save(msim_filename)
+    msim.save(msim_filename)
    
     # Plot all sims together 
     msim.reduce()
