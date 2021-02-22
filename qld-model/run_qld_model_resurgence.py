@@ -81,7 +81,7 @@ parser.add_argument('--start_simulation_date', default='2021-02-01',
                               type=str, 
                               help='''The date at which simulation starts.''')
 
-parser.add_argument('--end_simulation_date', default='2021-03-01', 
+parser.add_argument('--end_simulation_date', default='2021-03-15', 
                               type=str, 
                               help='''The date at which simulation finishes.''')
 
@@ -156,7 +156,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     ntpts = sim.day(input_args.end_simulation_date)-sim.day(input_args.start_simulation_date)
     sim.pars['interventions'].append(cv.test_num(daily_tests=[input_args.num_tests]*ntpts, 
                                                  start_day=input_args.start_simulation_date, 
-                                                 end_day=input_args.end_simulation_date, 
+                                                 end_day='2021-03-16', 
                                                  symp_test=100.0, test_delay=1))
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
