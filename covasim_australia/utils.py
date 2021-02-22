@@ -834,4 +834,8 @@ def detect_outbreak(data, num_cases=5.0):
     Get the index of the last day of the first instance of three consecutive days above num_cases 
     """
     idx = np.argmax((np.where(data >= num_cases, 1.0, 0.0) + np.roll(np.where(data >= num_cases, 1.0, 0.0), 1) + np.roll(np.where(data >= num_cases, 1.0, 0.0), -1))+1)
+    
+    # If there is no outbreak 
+    if idx == 0:
+        idx = None
     return idx 
