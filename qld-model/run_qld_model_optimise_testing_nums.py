@@ -77,7 +77,7 @@ parser.add_argument('--cluster_size',
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
 parser.add_argument('--new_tests_mode', 
-                              default='mav15', 
+                              default='raw', 
                               type=str, 
                               help='''The column of new tests to use: Can be 'raw' or 'conv'.''')
 
@@ -150,7 +150,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
             'rel_death_prob': 0.6,#
-            'beta': pars["global_beta"], # Overall beta to use for calibration portion of the simulations
+            'beta': input_args.global_beta , # Overall beta to use for calibration portion of the simulations
                                        # H        S       W       C   church   psport  csport    ent     cafe    pub     trans    park        event    soc
             'contacts':    pd.Series([4.0,    21.0,    5.0,    1.0,   20.0,   40.0,    30.0,    25.0,   19.00,  30.00,   25.00,   10.00,     50.00,   6.0], index=layers).to_dict(),
             'beta_layer':  pd.Series([1.0,     0.3,    0.2,    0.1,    0.04,   0.2,     0.1,     0.01,   0.04,   0.06,    0.16,    0.03,      0.01,   0.3], index=layers).to_dict(),
@@ -178,27 +178,27 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
 
-    # sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-02-15'):sim.day('2020-03-01')], 
-    #                                              start_day='2020-02-15', 
-    #                                              end_day='2020-03-01', 
-    #                                              symp_test=pars["symp_odds_ratio_a"], test_delay=3))
+    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-02-15'):sim.day('2020-03-01')], 
+                                                 start_day='2020-02-15', 
+                                                 end_day='2020-03-01', 
+                                                 symp_test=pars["symp_odds_ratio_a"], test_delay=3))
     
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-03-29')], 
                                                  start_day='2020-03-01', 
                                                  end_day='2020-03-29', 
-                                                 symp_test=["symp_odds_ratio_a"], test_delay=3))
+                                                 symp_test=179.40290808880232, test_delay=3))
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-29'):sim.day('2020-04-05')], 
                                                  start_day='2020-03-29', 
                                                  end_day='2020-04-05', 
-                                                 symp_test=["symp_odds_ratio_b"], test_delay=3))
+                                                 symp_test=66.70111685284185, test_delay=3))
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-05'):sim.day('2020-04-16')], 
                                                  start_day='2020-04-05', 
                                                  end_day='2020-04-16', 
-                                                 symp_test=["symp_odds_ratio_c"], test_delay=3))
+                                                 symp_test=22.374796156748435, test_delay=3))
     sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-16'):sim.day('2020-05-16')], 
                                                  start_day='2020-04-16', 
                                                  end_day='2020-05-16', 
-                                                 symp_test=["symp_odds_ratio_d"], test_delay=3))
+                                                 symp_test=36.905689838124246, test_delay=3))
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
                    'W': 0.80, 'C': 0.05, 
@@ -288,12 +288,11 @@ def run_sim(pars):
 def run_trial(trial):
     ''' Define the objective for Optuna '''
     pars = {}
-    pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.009, 0.012)        # Sample from beta values within this range
-    pars["seed_infections"]  = trial.suggest_int('seed_infections', 120, 150, 1)     # Sample seeds from this range
-    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 150.0, 190.0) # 
-    pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 50.0, 70.0)   # 
-    pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 10.0, 30.0)   # 
-    pars["symp_odds_ratio_d"] = trial.suggest_uniform('symp_odds_ratio_d', 15.0, 40.0)   # 
+    #pars["global_beta"]  = trial.suggest_uniform('global_beta', 0.005, 0.015)      # Sample from beta values within this range
+    pars["seed_infections"]  = trial.suggest_int('seed_infections', 80, 135, 1)     # Sample seeds from this range
+    pars["symp_odds_ratio_a"] = trial.suggest_uniform('symp_odds_ratio_a', 40.0, 200.0) # 
+    #pars["symp_odds_ratio_b"] = trial.suggest_uniform('symp_odds_ratio_b', 0.0, 40.0) # 
+    #pars["symp_odds_ratio_c"] = trial.suggest_uniform('symp_odds_ratio_c', 0.0, 40.0) # 
 
     mismatch = run_sim(pars)
     return mismatch
@@ -322,7 +321,7 @@ if __name__ == '__main__':
     
      # Settings
     n_workers = 1 # Define how many workers to run in parallel
-    n_trials = 200 # Define the number of trials, i.e. sim runs, per worker
+    n_trials = 100 # Define the number of trials, i.e. sim runs, per worker
     name      = 'my-example-calibration'
     db_name   = f'{name}.db'
     storage   = f'sqlite:///{db_name}'
@@ -335,5 +334,3 @@ if __name__ == '__main__':
     best_pars = study.best_params
     T = sc.toc(tstart, output=True)
     print(f'\n\nOutput: {best_pars}, time: {T:0.1f} s')
-
-
