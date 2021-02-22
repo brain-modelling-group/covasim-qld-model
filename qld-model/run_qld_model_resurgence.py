@@ -75,7 +75,7 @@ parser.add_argument('--iq_factor',
 parser.add_argument('--num_tests', 
                               default=6260, 
                               type=int, 
-                              help='''Average number of tests per day. Default based on period 2021-01-14 to 2021-02-16''')
+                              help='''Average number of tests per day. Value based on average over period 2021-01-14 to 2021-02-16. Std dev: 2100''')
 
 parser.add_argument('--start_simulation_date', default='2021-02-01', 
                               type=str, 
@@ -201,9 +201,9 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     if input_args.label == 'distributed':
         dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
         seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
-                                                                   start_intervention_date,
-                                                                   end_intervention_date,
-                                                                   **dist_kwd_arguments)
+                                                                  start_intervention_date,
+                                                                  end_intervention_date,
+                                                                  **dist_kwd_arguments)
 
         sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
 
@@ -251,14 +251,14 @@ if __name__ == '__main__':
     # Do the stuff & save results
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
-    msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.global_beta:.{4}f}_{args.cluster_size:04d}.obj"
+    msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}.obj"
     msim.save(msim_filename)
    
     # Plot all sims together 
     msim.reduce(quantiles={'low':0.01, 'high':0.99})
     scatter_args = {'s': 8.0}
     msim_fig = msim.plot(do_show=False, scatter_args=scatter_args)
-    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.global_beta:.{4}f}_{args.cluster_size:04d}_msim_fig.png"
+    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}_msim_fig.png"
     msim_fig.savefig(msim_fig_filename, dpi=100)
     plt.close('all')
 
