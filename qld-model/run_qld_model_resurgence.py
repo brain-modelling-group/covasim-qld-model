@@ -254,11 +254,11 @@ if __name__ == '__main__':
     
     # Plot all sims together 
     if args.label == 'cluster':
-        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}.obj"
-        msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}_msim_fig.png"
+        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}.obj"
+        msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}_msim_fig.png"
     if args.label == 'distributed':
-        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}.obj"
-        msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}_msim_fig.png"
+        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}.obj"
+        msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}_msim_fig.png"
 
     msim.save(msim_filename)
     msim.reduce(quantiles={'low':0.01, 'high':0.99})
