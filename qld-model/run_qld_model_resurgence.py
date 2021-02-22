@@ -199,22 +199,26 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                                                         trace_time=trace_time, 
                                                         start_day=0, do_plot=False))
 
-    # Add known infections from Victoria and the cluster in the youth centre in brisbane
-    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-07-29'): 2, sim.day('2020-08-22'): 9, sim.day('2020-09-09'): 9}))
-
     # Test cluster size ie, number of infections arriging at one on a given date
-    sim.pars['interventions'].append(utils.SeedInfection({sim.day('2020-10-01'): args.cluster_size}))
+    sim.pars['interventions'].append(utils.SeedInfection({sim.day(input_args.start_simulation_date): args.cluster_size}))
 
 
-    #Close borders, then open them again to account for victorian imports and leaky quarantine
-    sim.pars['interventions'].append(cv.dynamic_pars({'n_imports': {'days': [sim.day('2020-03-30'), 
-                                                                             sim.day('2020-07-10'), 
-                                                                             sim.day('2020-08-08'),
-                                                                             sim.day('2020-09-23'),  # QLD/NSW Border population
-                                                                             sim.day('2020-09-25')], # ACT
-                                                                    'vals': [0.01, 0.5, 0.1, 0.12, 0.15]}}, do_plot=False))
-    sim.pars['interventions'].append(cv.dynamic_pars({'beta': {'days': [sim.day('2020-03-30'), sim.day('2020-09-30')], 
-                                                               'vals': [0.01, 0.015]}}, do_plot=False))
+    # Set 'Borders opening' interventions
+    if input_args.label == 'cluster':
+        # Test cluster size ie, number of infections arriging at one on a given date
+        sim.pars['interventions'].append(utils.SeedInfection({sim.day(input_args.start_simulation_date): args.cluster_size}))
+
+    if input_args.label == 'distributed':
+        dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
+        seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
+                                                                   start_intervention_date,
+                                                                   end_intervention_date,
+                                                                   **dist_kwd_arguments)
+
+        sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
+
+
+
     sim.initialize()
 
     return sim
@@ -257,7 +261,7 @@ if __name__ == '__main__':
     # Do the stuff & save results
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
-    msim_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}.obj"
+    msim_filename = f"{simfolder}/qld_{args.label}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}.obj"
     msim.save(msim_filename)
    
     # Plot all sims together 
