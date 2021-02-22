@@ -86,6 +86,8 @@ start_date,end_date,covasim_component,intervention_label,intervention_brief_desc
 2020-12-12,2022-12-31,imports,borders,,no hotspots in Australia,policy,relaxation,6,#f46d43,#1a9850
 2020-12-12,2022-12-31,imports,international borders,,New Zealand is a safe travel zone country,policy,relaxation,6,#f46d43,#1a9850
 2020-12-14,2022-12-31,tracing,tracing,,keep customer contact details for from 30 days up to 56 days,policy,counteract,6,#3288bd,#1a9850
+2021-01-09,2021-01-11,layer,all,lockdown,3-day lockdown,policy,restriction,6,#3288bd,#1a9850
+2021-01-11,2021-01-22,global beta,mask wearing,mask wearing,mask wearing everywhere except at home,policy,restriction,6,#3288bd,#1a9850
 2020-03-15,2020-05-01,none,Stage 0,,Lockdown,roadmap,restriction,,,
 2020-05-02,2020-06-11,none,Stage 1,,Easing,roadmap,relaxation,,,
 2020-06-12,2020-07-02,none,Stage 2,,Easing,roadmap,relaxation,,,
