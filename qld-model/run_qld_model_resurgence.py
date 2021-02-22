@@ -253,10 +253,10 @@ if __name__ == '__main__':
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
     
     # Plot all sims together 
-    if input_args.label == 'cluster':
+    if args.label == 'cluster':
         msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}.obj"
         msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}_msim_fig.png"
-    if input_args.label == 'distributed':
+    if args.label == 'distributed':
         msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{input_args.dist}_{args.par1:.{4}f}.obj"
         msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.iq_factor/10.0:.{4}f}_{input_args.dist}_{args.par1:.{4}f}_msim_fig.png"
 
