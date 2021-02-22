@@ -62,13 +62,8 @@ parser.add_argument('--cluster_size',
                               type=int, 
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
-parser.add_argument('--init_seed_infections', 
-                               default=0, 
-                               type=int, 
-                               help='''Number of ppl infected as of 2021-02-01.''')
-
 parser.add_argument('--global_beta', 
-                              default=0.0112925463308101898*1.7, 
+                              default=0.0112925463308101898, 
                               type=float, 
                               help='''Number of ppl infected at the beginning of the simulation.''')
 
@@ -90,7 +85,7 @@ parser.add_argument('--end_simulation_date', default='2021-03-01',
                               type=str, 
                               help='''The date at which simulation finishes.''')
 
-parser.add_argument('--epi_tests_file', 
+parser.add_argument('--epi_file', 
                               default='qld_epi_data_qld-health.csv', 
                               type=str, 
                               help='''The name of the csv file with empirical data under inputs/.''')
@@ -116,7 +111,7 @@ def define_beta_changes(betasfile, layers):
     return betas_interventions
 
 def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=None, input_args=None, betasfile=None):
-    start_day = input_args.start_calibration_date
+    start_day = input_args.start_simulation_date
     iq_factor = input_args.iq_factor
 
     layers = ['H', 'S', 'W', 'C', 
@@ -132,7 +127,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
               'social']   
 
     pars = {'pop_size': 200e3,    # Population size
-            'pop_infected': input_args.init_seed_infections, # input_args.init_seed_infections,   # Original population infedcted
+            'pop_infected': 0, # input_args.init_seed_infections,   # Original population infedcted
             'pop_scale': 25.5,    # Population scales to 5.1M ppl in QLD
             'rescale': True,      # Population dynamics rescaling
             'rand_seed': 42,      # Random seed to use
@@ -144,7 +139,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
             'iso_factor':  pd.Series([1.0, iq_factor/100.0, iq_factor/10.0, iq_factor/10.0, iq_factor/100.0, iq_factor/10.0, iq_factor/100.0, iq_factor/100.0, iq_factor/100.0, iq_factor/100.0, iq_factor/10.0, iq_factor/100.0, iq_factor/100.0, iq_factor/100.0], index=layers).to_dict(),
             'quar_factor': pd.Series([1.0, iq_factor/100.0, iq_factor/10.0, iq_factor/10.0, iq_factor/100.0, iq_factor/10.0, iq_factor/100.0, iq_factor/100.0, iq_factor/100.0, iq_factor/100.0, iq_factor/10.0, iq_factor/100.0, iq_factor/100.0, iq_factor/100.0], index=layers).to_dict(),
             'n_imports': 0.0, # Number of new cases per day -- can be varied over time as part of the interventions
-            'start_day': input_args.start_calibration_date,
+            'start_day': input_args.start_simulation_date,
             'end_day':   input_args.end_simulation_date,
             'verbose': 0}
 
@@ -153,16 +148,11 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
                  popfile=popfile,
                  load_pop=load_pop)
 
-    
+    # Layer-specific betas    
     beta_ints = define_beta_changes(betasfile, layers)             
     sim.pars['interventions'].extend(beta_ints)
 
-    # Testing interventions
-    data = pd.read_csv(datafile, parse_dates=['date'])
-    this_column = 'new_tests'
-    new_tests = data[this_column].to_list()
-    new_tests = new_tests[-sim.day(data['date'][0]):]
-
+    # 
     ntpts = sim.day(input_args.end_simulation_date)-sim.day(input_args.start_simulation_date)
     sim.pars['interventions'].append(cv.test_num(daily_tests=[input_args.num_tests]*ntpts, 
                                                  start_day=input_args.start_simulation_date, 
@@ -235,7 +225,7 @@ if __name__ == '__main__':
 
     # Inputs
     inputsfolder = 'inputs'
-    datafile = f'{inputsfolder}/{args.epi_calibration_file}'
+    datafile = f'{inputsfolder}/{args.epi_file}'
     agedatafile = f'{inputsfolder}/qld_demo_data_abs.csv'
     populationfile = f'{inputsfolder}/qldppl.pop'
     betasfile = f'{inputsfolder}/{args.layer_betas_file}'
@@ -261,14 +251,14 @@ if __name__ == '__main__':
     # Do the stuff & save results
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=0)
-    msim_filename = f"{simfolder}/qld_{args.label}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}.obj"
+    msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.global_beta:.{4}f}_{args.cluster_size:04d}.obj"
     msim.save(msim_filename)
    
     # Plot all sims together 
     msim.reduce(quantiles={'low':0.01, 'high':0.99})
     scatter_args = {'s': 8.0}
     msim_fig = msim.plot(do_show=False, scatter_args=scatter_args)
-    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}_msim_fig.png"
+    msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_{args.global_beta:.{4}f}_{args.cluster_size:04d}_msim_fig.png"
     msim_fig.savefig(msim_fig_filename, dpi=100)
     plt.close('all')
 
