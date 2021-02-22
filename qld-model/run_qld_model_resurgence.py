@@ -62,11 +62,6 @@ parser.add_argument('--cluster_size',
                               type=int, 
                               help='''The number of infected people entering QLD community on a given date (default, 2020-10-01)''')
 
-parser.add_argument('--new_tests_mode', 
-                              default='mav15', 
-                              type=str, 
-                              help='''A label added to the filename to identified the number of tests used.''')
-
 parser.add_argument('--init_seed_infections', 
                                default=0, 
                                type=int, 
@@ -281,38 +276,5 @@ if __name__ == '__main__':
     msim_fig.savefig(msim_fig_filename, dpi=100)
     plt.close('all')
 
-    # Calculate fits 
-    fit_pars_dict = {'absolute':True,
-                     'use_median':True,
-                     'font-size': 14}
-
-    # Calculate fits independently
-    fitting_dict = {'fit_ndg_cdg_nt_ct_u': [], 'fit_cdg_ct_u': [],
-                    'fit_ndg': [], 'fit_cdg': [], 
-                    'fit_nt': [], 'fit_ct': []}
-    
-    for this_sim in msim.sims: 
-        fitting_dict['fit_ndg_cdg_nt_ct_u'].append(this_sim.compute_fit(keys=['new_diagnoses', 'cum_diagnoses', 'new_tests', 'cum_tests'],
-                                         weights= [0.0, 1.0, 0.0, 0.0],
-                                         **fit_pars_dict))
-        fitting_dict['fit_cdg_ct_u'].append(this_sim.compute_fit(keys=['cum_diagnoses', 'cum_tests'],
-                                         weights= [1.0, 1.0],
-                                         **fit_pars_dict))
-
-        fitting_dict['fit_ndg'].append(this_sim.compute_fit(keys=['new_diagnoses'], **fit_pars_dict))
-        fitting_dict['fit_cdg'].append(this_sim.compute_fit(keys=['cum_diagnoses'], **fit_pars_dict))
-
-        fitting_dict['fit_nt'].append(this_sim.compute_fit(keys=['new_tests'], **fit_pars_dict))
-        fitting_dict['fit_ct'].append(this_sim.compute_fit(keys=['cum_tests'], **fit_pars_dict))
-
-
-        # Save list of fits
-    fits_filename = f"{simfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}_fit.obj"
-    sc.saveobj(filename=fits_filename, obj=fitting_dict)
-    fit_fig_filename = f"{figfolder}/qld_{args.label}_{args.new_tests_mode}_numtests_{args.start_calibration_date}_{args.end_calibration_date}_{args.global_beta:.{4}f}_{args.init_seed_infections:03d}_fit_fig.png"
-    
-    fit_fig = fitting_dict['fit_ndg_cdg_nt_ct_u'][0].plot(do_show=False)
-    fit_fig[0].savefig(fit_fig_filename, dpi=100)
-    plt.close('all')
     sc.toc(T)
         
