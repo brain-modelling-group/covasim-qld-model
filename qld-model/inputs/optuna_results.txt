@@ -101,6 +101,8 @@ Trial 87 finished with value: 9.29166666666667 and parameters: {'symp_odds_ratio
                                                                 'symp_odds_ratio_c': 36.905689838124246}. Best is trial 87 with value: 9.29166666666667.
 
 
-
+Start 2020-02-15:
 Output: {'seed_infections': 77, 'symp_odds_ratio_a': 42.79114082988575}, time: 1969.9 s
+Output {'seed_infections': 83, 'symp_odds_ratio_a': 93.30509616077325}
+
 
