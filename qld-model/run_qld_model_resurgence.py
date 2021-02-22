@@ -77,9 +77,14 @@ parser.add_argument('--iq_factor',
                               type=float, 
                               help='''Isolation and quarantine factors combined''')
 
+parser.add_argument('--num_tests', 
+                              default=6260, 
+                              type=int, 
+                              help='''Average number of tests per day. Default based on period 2021-01-14 to 2021-02-16''')
+
 parser.add_argument('--start_simulation_date', default='2021-02-01', 
                               type=str, 
-                              help='''The date at which calibration starts.''')
+                              help='''The date at which simulation starts.''')
 
 parser.add_argument('--end_simulation_date', default='2021-03-01', 
                               type=str, 
@@ -158,24 +163,11 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
     new_tests = data[this_column].to_list()
     new_tests = new_tests[-sim.day(data['date'][0]):]
 
-    #sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-05-15')], symp_test=96.374721859418))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-01'):sim.day('2020-03-29')], 
-                                                 start_day='2020-03-01', 
-                                                 end_day='2020-03-29', 
-                                                 symp_test=179.40290808880232, test_delay=3))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-03-29'):sim.day('2020-04-05')], 
-                                                 start_day='2020-03-29', 
-                                                 end_day='2020-04-05', 
-                                                 symp_test=66.70111685284185, test_delay=3))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-05'):sim.day('2020-04-16')], 
-                                                 start_day='2020-04-05', 
-                                                 end_day='2020-04-16', 
-                                                 symp_test=22.374796156748435, test_delay=3))
-    sim.pars['interventions'].append(cv.test_num(daily_tests=new_tests[sim.day('2020-04-16'):sim.day('2020-05-16')], 
-                                                 start_day='2020-04-16', 
-                                                 end_day='2020-05-16', 
-                                                 symp_test=36.905689838124246, test_delay=3))
-
+    ntpts = sim.day(input_args.end_simulation_date)-sim.day(input_args.start_simulation_date)
+    sim.pars['interventions'].append(cv.test_num(daily_tests=[input_args.num_tests]*ntpts, 
+                                                 start_day=input_args.start_simulation_date, 
+                                                 end_day=input_args.start_simulation_date, 
+                                                 symp_test=100.0, test_delay=1))
     # Tracing
     trace_probs = {'H': 1.00, 'S': 0.95, 
                    'W': 0.80, 'C': 0.05, 
