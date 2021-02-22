@@ -200,9 +200,9 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
     if input_args.label == 'distributed':
         dist_kwd_arguments = {'dist': input_args.dist, 'par1': input_args.par1, 'par2': input_args.par2}
-        seed_infection_dict  = utils.generate_seed_infection_dict(start_day, 
-                                                                  start_intervention_date,
-                                                                  end_intervention_date,
+        seed_infection_dict  = utils.generate_seed_infection_dict(input_args.start_simulation_date, 
+                                                                  input_args.start_simulation_date,
+                                                                  input_args.end_simulation_date,
                                                                   **dist_kwd_arguments)
 
         sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
