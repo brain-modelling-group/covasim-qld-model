@@ -26,10 +26,6 @@ import argparse
 parser = argparse.ArgumentParser()
 
 
-parser.add_argument('--ncpus', default=8, 
-                               type=int, 
-                               help='''Maximum number of cpus used by MultiSim runs.''')
-
 parser.add_argument('--results_path',
                               default = '/home/paula/Dropbox/COVID/simulated-data/pbs.14686578',
                               type=str, 
@@ -127,14 +123,14 @@ def plot_mismatch_maps(betas, seed_infections, mismatch_arr, vmax_log10= 2.0, vm
     axim.append(im33)
 
     axs[3,3].set_xticks([0.0, 0.5, 1.0])
-    axs[3,3].set_yticks([0.0, 0.5, 1.0])
+    axs[3,3].set_yticks([0.0, 1.0])
 
 
-    halfpoint_infections = (seed_infections[-1] - seed_infections[0]) / 2.0
-    halfpoint_betas = (betas[-1] - betas[0]) / 2.0
+    halfpoint_infections = ((seed_infections[-1] - seed_infections[0]) / 2.0)+seed_infections[0]
+    halfpoint_betas = ((betas[-1] - betas[0]) / 2.0)+ betas[0]
 
     axs[3,3].set_xticklabels([str(seed_infections[0]), str(halfpoint_infections), str(seed_infections[-1])])
-    axs[3,3].set_yticklabels(["0.01", "0.035", "0.06"])
+    axs[3,3].set_yticklabels(["0.0", "0.03"])
     plt.xlabel('num seed infections')
     plt.ylabel('beta')
 
