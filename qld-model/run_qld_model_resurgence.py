@@ -260,15 +260,15 @@ if __name__ == '__main__':
     else:
       outbreak_data = {'outbreak': False}
 
-    df_data  = sc.mergedicts(outbreak_data, {'outbreak_day': idx_date, 
-                                             'iq_factor': args.iq_factor/10.0, 
-                                             'cluster_size': args.cluster_size,
-                                             'poisson_lambda': args.par1,
-                                             'num_tests': args.num_tests, 
-                                             'label': args.label,
-                                             'beta': args.global_beta})
-    df = pd.DataFrame(df_data, columns=['outbreak','outbreak_day','iq_factor', 'cluster_size', 'poisson_lambda', 'num_tests', 'label'])
+    df_dict  = sc.mergedicts(outbreak_data, {'outbreak_day': [idx_date], 
+                                             'iq_factor': [args.iq_factor/10.0], 
+                                             'cluster_size': [args.cluster_size],
+                                             'poisson_lambda': [args.par1],
+                                             'num_tests': [args.num_tests],
+                                             'label': [args.label],
+                                             'beta': [args.global_beta]})
 
+    df = pd.DataFrame.from_dict(df_dict)
     
     # Plot all sims together 
     if args.label == 'cluster':
