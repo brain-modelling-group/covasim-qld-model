@@ -81,7 +81,7 @@ parser.add_argument('--start_simulation_date', default='2021-02-01',
                               type=str, 
                               help='''The date at which simulation starts.''')
 
-parser.add_argument('--end_simulation_date', default='2021-03-15', 
+parser.add_argument('--end_simulation_date', default='2021-03-31', 
                               type=str, 
                               help='''The date at which simulation finishes.''')
 
@@ -260,8 +260,13 @@ if __name__ == '__main__':
     else
       outbreak_data = {'outbreak': False}
 
-    df_data  = sc.mergedicts(outbreak_data, {'outbreak_day': idx_date, 'iq_factor': args.iq_factor/10.0})
-    df = pd.DataFrame (data, columns = ['outbreak','outbreak_day','iq_factor'])
+    df_data  = sc.mergedicts(outbreak_data, {'outbreak_day': idx_date, 
+                                             'iq_factor': args.iq_factor/10.0, 
+                                             'cluster_size': args.cluster_size,
+                                             'poisson_lambda': args.par1,
+                                             'num_tests': args.num_tests, 
+                                             'label': args.label}
+    df = pd.DataFrame (df_data, columns = ['outbreak','outbreak_day','iq_factor', 'cluster_size', 'poisson_lambda', 'num_tests', 'label'])
 
     
     # Plot all sims together 
