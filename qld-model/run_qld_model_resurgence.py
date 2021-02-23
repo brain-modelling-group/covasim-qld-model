@@ -265,7 +265,8 @@ if __name__ == '__main__':
                                              'cluster_size': args.cluster_size,
                                              'poisson_lambda': args.par1,
                                              'num_tests': args.num_tests, 
-                                             'label': args.label}
+                                             'label': args.label,
+                                             'beta': args.global_beta}
     df = pd.DataFrame (df_data, columns = ['outbreak','outbreak_day','iq_factor', 'cluster_size', 'poisson_lambda', 'num_tests', 'label'])
 
     
