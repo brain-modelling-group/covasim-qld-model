@@ -250,21 +250,34 @@ if __name__ == '__main__':
 
     # Do the stuff & save results
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
-    msim.run(n_runs=args.nruns, reseed=True, noise=0)
+    msim.run(n_runs=args.nruns, reseed=True, noise=2**-6)
+    data = utils.get_ensemble_trace('new_diagnoses', msim.sims)
+    idx_date = utils.detect_outbreak(data)
+
+
+    if idx_date is not None:
+      outbreak_data = {'outbreak': True}
+    else
+      outbreak_data = {'outbreak': False}
+
+    df_data  = sc.mergedicts(outbreak_data, {'outbreak_day': idx_date, 'iq_factor': args.iq_factor/10.0})
+    df = pd.DataFrame (data, columns = ['outbreak','outbreak_day','iq_factor'])
+
     
     # Plot all sims together 
     if args.label == 'cluster':
-        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}.obj"
-        msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}_msim_fig.png"
+        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}"
+        
     if args.label == 'distributed':
-        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}.obj"
-        msim_fig_filename = f"{figfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}_msim_fig.png"
+        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}"
 
-    msim.save(msim_filename)
+    msim.save(msim_filename+".obj")
+    # Save basic results to csv
+    df.to_csv(msim_filename+".csv")
+    
     msim.reduce(quantiles={'low':0.01, 'high':0.99})
-    scatter_args = {'s': 8.0}
-    msim_fig = msim.plot(do_show=False, scatter_args=scatter_args)
-    msim_fig.savefig(msim_fig_filename, dpi=100)
+    msim_fig = msim.plot(do_show=False, scatter_args={'s': 8.0})
+    msim_fig.savefig(msim_filename+'_msim_fig.png', dpi=100)
     plt.close('all')
 
     sc.toc(T)
