@@ -272,18 +272,18 @@ if __name__ == '__main__':
     
     # Plot all sims together 
     if args.label == 'cluster':
-        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}"
+        res_filename = f"qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}"
         
     if args.label == 'distributed':
-        msim_filename = f"{simfolder}/qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}"
-
-    msim.save(msim_filename+".obj")
+        res_filename = f"qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}"
+    
+    msim.save(f"{simfolder}/{res_filename}.obj")
     # Save basic results to csv
-    df.to_csv(msim_filename+".csv")
+    df.to_csv(f"{simfolder}/{res_filename}.csv")
     
     msim.reduce(quantiles={'low':0.01, 'high':0.99})
     msim_fig = msim.plot(do_show=False, scatter_args={'s': 8.0})
-    msim_fig.savefig(msim_filename+'_msim_fig.png', dpi=100)
+    msim_fig.savefig(f"{figfolder}/{res_filename}.png", dpi=100)
     plt.close('all')
 
     sc.toc(T)
