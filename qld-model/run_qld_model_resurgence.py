@@ -49,11 +49,11 @@ parser.add_argument('--dist', default='poisson',
                               type=str, 
                               help='''Name of distribution to use to seed infections.
                                       Can be uniform, normal, etc''')
-parser.add_argument('--par1', default=1.0, 
+parser.add_argument('--par1', default=0.0, 
                               type=float, 
                               help=''' The "main" distribution parameter (e.g. mean).''')
   
-parser.add_argument('--par2', default=1.0, 
+parser.add_argument('--par2', default=0.0, 
                               type=float, 
                               help='''The "secondary" distribution parameter (e.g. std).''')
 
