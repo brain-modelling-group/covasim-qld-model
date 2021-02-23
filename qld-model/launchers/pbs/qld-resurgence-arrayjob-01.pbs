@@ -45,4 +45,5 @@ cd "$WORKING_RESULTS" || exit
 
 # Move stuff 
 scp "$SCRATCH_RESULTS/sim-data/"*.obj sim-data/.
+scp "$SCRATCH_RESULTS/sim-data/"*.csv sim-data/.
 scp "$SCRATCH_RESULTS/figures/"*.png figures/.
