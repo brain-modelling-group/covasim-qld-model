@@ -257,7 +257,7 @@ if __name__ == '__main__':
 
     if idx_date is not None:
       outbreak_data = {'outbreak': True}
-    else
+    else:
       outbreak_data = {'outbreak': False}
 
     df_data  = sc.mergedicts(outbreak_data, {'outbreak_day': idx_date, 
@@ -266,8 +266,8 @@ if __name__ == '__main__':
                                              'poisson_lambda': args.par1,
                                              'num_tests': args.num_tests, 
                                              'label': args.label,
-                                             'beta': args.global_beta}
-    df = pd.DataFrame (df_data, columns = ['outbreak','outbreak_day','iq_factor', 'cluster_size', 'poisson_lambda', 'num_tests', 'label'])
+                                             'beta': args.global_beta})
+    df = pd.DataFrame(df_data, columns=['outbreak','outbreak_day','iq_factor', 'cluster_size', 'poisson_lambda', 'num_tests', 'label'])
 
     
     # Plot all sims together 
