@@ -19,12 +19,12 @@ import covasim.misc as cvm
 
 # 
 start_date = '2020-01-01'
-end_date = '2020-12-31'
+end_date = '2021-02-22'
 duration_length = cvm.day(end_date, start_day=start_date)
 
 # Load empirical data
 inputs_folder = 'inputs'
-input_data = 'qld_model_layer_betas.csv'
+input_data = 'qld_model_layer_betas_02.csv'
 
 # Load data
 beta_data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
@@ -71,7 +71,7 @@ m = cm.ScalarMappable(norm=norm, cmap=cmap)
 yticks = []
 yticklabels = []
 for layer_idx, this_layer in enumerate(layers):
-    for day_idx in range(366):
+    for day_idx in range(366+31+22):
         policy_start = beta_data["date"][day_idx]
         ax.broken_barh([(day_idx, 1)], (5*layer_idx, 3), facecolors=m.to_rgba(beta_data[this_layer][day_idx]))
     
@@ -79,14 +79,14 @@ for layer_idx, this_layer in enumerate(layers):
     yticklabels.append(layers[layer_idx]) 
 
 ax.set_ylim(0, 75)
-ax.set_xlim(0, 365)
-ax.set_xlabel('days (year 2020)')
+ax.set_xlim(0, 365+31+22)
+ax.set_xlabel('days (since Jan 1st 2020)')
 ax.set_yticks(yticks)
 ax.set_yticklabels(yticklabels)
 ax.grid(True)
 
 #ax1.set_xlim(ax.get_xlim())
-ax1.set_xlim([datetime.date(2020, 1, 1), datetime.date(2020, 12, 31)])
+ax1.set_xlim([datetime.date(2020, 1, 1), datetime.date(2021, 2, 22)])
 # Set ticks every week
 ax1.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=MO, interval=4))
 # Set major ticks format
