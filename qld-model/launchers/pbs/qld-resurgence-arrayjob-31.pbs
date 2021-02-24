@@ -1,0 +1,52 @@
+#PBS -l walltime=20:00:00
+#PBS -l ncpus=28,mem=32gb
+#PBS -N cqld-resurgence-poisson
+#PBS -m abe
+#PBS -M pmsl.academic@gmail.com
+#PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
+#PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
+#PBS -J 1-19
+
+# Paula Sanz-Leon, Feb 2021, QIMRB
+
+# Load packages we need
+module load python
+
+# Export path to custom packages we need
+export PYTHONPATH=$HOME/Code/covasim-qld-model:$PYTHONPATH
+
+# Path to directory where we are going to store results
+set -e  # tells a PBS job or bash script to exit on any processes non zero  exit status
+SCRATCH_RESULTS="$TMPDIR"
+CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model'
+# Define number of cpus to be passed to sc.parallelize()
+# Must match the number of cpus requested with PBS
+NCPUS=28
+
+# Change to where we have the code
+cd "$CODE_DIRECTORY"
+poisson_lambda=(0.05 0.10 0.1428 0.15 0.167 0.20 0.25 0.30 0.33 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00)
+P1="${poisson_lambda[$PBS_ARRAY_INDEX]}"
+for iqf in $(seq 1.00 1.0 10.0); do
+    IQF=$iqf
+    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 100 --label 'distributed' \
+                                       --par1 "$P1" --iq_factor "$IQF" \
+                                       --num_tests 4160 \
+                                       --results_path "$SCRATCH_RESULTS"
+done
+# Create directory to save results in /working
+WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
+# Save only the job number
+JOBNUM=${PBS_JOBID:0:8}
+WORKING_RESULTS=$WORKING_DIR/results-$JOBNUM
+
+# Create directory if it does not exist
+mkdir -p "$WORKING_RESULTS/sim-data"
+mkdir -p "$WORKING_RESULTS/figures"
+
+cd "$WORKING_RESULTS" || exit
+
+# Move stuff 
+scp "$SCRATCH_RESULTS/sim-data/"*.obj sim-data/.
+scp "$SCRATCH_RESULTS/sim-data/"*.csv sim-data/.
+scp "$SCRATCH_RESULTS/figures/"*.png figures/.
