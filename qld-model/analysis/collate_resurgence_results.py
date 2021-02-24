@@ -3,6 +3,12 @@
 """
 Load csv files and collate them into one file
 
+python collate_resurgence_results.py 
+--filelist_path '/home/paula/mnt_avalon/mnt/lustre/working/lab_jamesr/paulaSL/covid-results/pbs.14809560/sim-data' \
+--filelist_name 'filelist.txt' 
+--result_name 'outbreak_14809560.txt'
+
+
 # author Paula Sanz-Leon, QIMRB 2021
 
 """
