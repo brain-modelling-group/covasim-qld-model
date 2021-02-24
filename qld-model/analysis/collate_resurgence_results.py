@@ -41,7 +41,7 @@ def load_file(fname):
     return frame
 
 
-with open(args.filename, 'r') as f:
+with open(f"{args.filelist_path}/{args.filelist_name}", 'r') as f:
         content = f.readlines()
         filelist = [l.strip() for l in content] 
         frames = [load_file(f"{args.filelist_path}/{fname}") for fname in filelist]
