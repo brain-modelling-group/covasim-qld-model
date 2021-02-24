@@ -46,4 +46,4 @@ with open(f"{args.filelist_path}/{args.filelist_name}", 'r') as f:
         filelist = [l.strip() for l in content] 
         frames = [load_file(f"{args.filelist_path}/{fname}") for fname in filelist]
         result = pd.concat(frames)
-        result.to_csv(f"{args.filelist_path}/{args.resultname}")
+        result.to_csv(f"{args.filelist_path}/{args.result_name}")
