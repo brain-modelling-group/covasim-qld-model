@@ -818,15 +818,20 @@ def save_csv(sim, fname):
     result_df.to_csv(fname)
 
 
-def get_ensemble_trace(key, sims):
+def get_ensemble_trace(key, sims, convolve=False, num_days=3):
     """
     Get median trace
     """
     ys = []
     for this_sim in sims:
         ys.append(this_sim.results[key].values)
-    yarr = np.percentile(np.array(ys).T, 50, axis=1)
+    yarr = np.array(ys)
 
+    if convolve:
+        for idx in range(yarr.shape[0]):
+             yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
+
+    yarr = np.percentile(np.array(yarr).T, 50, axis=1)
     return yarr
 
 def detect_outbreak(data, num_cases=5.0):
