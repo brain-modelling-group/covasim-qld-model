@@ -834,7 +834,8 @@ def get_ensemble_trace(key, sims, convolve=False, num_days=3):
     yarr = np.percentile(np.array(yarr).T, 50, axis=1)
     return yarr
 
-def detect_outbreak(data, num_cases=5.0):
+
+def detect_outbreak(data, num_cases=5.0, use_nan=False):
     """
     Get the index of the last day of the first instance of three consecutive days above num_cases 
     """
@@ -842,5 +843,26 @@ def detect_outbreak(data, num_cases=5.0):
     
     # If there is no outbreak 
     if idx == 0:
-        idx = None
+        if use_nan:
+            idx = np.nan
+        else:
+            idx = None
     return idx 
+
+
+def calculate_outbreak_stats(data):
+    """
+    data has shape tpts x nruns
+
+    """
+    local_idx = []
+    for idx in range(data.shape[1]):
+        local_idx.append(detect_outbreak(data[:, idx], use_nan=True)) 
+    
+    local_outbreak_dist = np.array(local_idx)
+    # Get stats of outbreaks
+    ou_day_av = np.nanmean(local_outbreak_dist)
+    ou_day_md = np.nanmedian(local_outbreak_dist)
+    ou_day_sd = np.nanstd(local_outbreak_dist)
+
+    return ou_day_av, ou_day_md, ou_day_sd, ou_prob, ou_case
