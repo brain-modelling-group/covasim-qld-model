@@ -19,21 +19,98 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
 # Filepaths
-resultsfolder = 'results_iso-1-0_gt_0-015_eos_2021-01-31'
+resultsfolder = '~/Dropbox/COVID/simulated-data/resurgence/case-pluk'
 figsfolder = 'figs'
 
+list_of_files = ['qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.1000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.1500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.2000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.2500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.3000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.3500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.4000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.4500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.5000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.5500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.6000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.6500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.7000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.7500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.8000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.8500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.9000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.9500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.0500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.1000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.1500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.2000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.2500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.3000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.3500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.4000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.4500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.5000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.5500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.6000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.6500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.7000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.7500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.8000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.8500.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.9000.obj',
+'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_1.9500.obj']
 #
-list_of_files = ['qld_scenarios_poisson_0.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_1.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_2.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_3.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_4.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_5.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_6.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_7.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_8.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_9.0000_2021-01-31.obj',
-                 'qld_scenarios_poisson_10.0000_2021-01-31.obj']
+# list_of_files = ['qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0001.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0002.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0003.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0004.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0005.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0006.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0007.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0008.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0009.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0010.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0011.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0012.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0013.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0014.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0015.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0016.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0017.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0018.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0019.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0020.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0021.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0022.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0023.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0024.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0025.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0026.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0027.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0028.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0029.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0030.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0040.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0041.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0042.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0043.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0044.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0045.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0046.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0047.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0048.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0049.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0050.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0051.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0052.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0053.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0054.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0055.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0056.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0057.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0058.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0059.obj',
+# 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0060.obj']
 
                   
 def format_ax(ax, sim, start_day_idx=0, key=None):
@@ -57,7 +134,7 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
 
     # Moving average over 7 days
     for idx in range(yarr.shape[0]):
-        yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((7, ))/7, mode='same')
+         yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((3, ))/3, mode='same')
 
     if choose_run is not None:
         single_sim = sims[choose_run].results[key].values
@@ -72,27 +149,28 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
     if key in single_sim.data:
         data_t = np.array((single_sim.data.index-single_sim['start_day'])/np.timedelta64(1,'D'))
         inds = np.arange(0, len(data_t), subsample)
-        pl.plot(data_t[inds], single_sim.data[key][inds], 'd', c=main_colour, markersize=10, alpha=0.2, label='data')
+        pl.plot(data_t[inds], single_sim.data[key][inds], 'd', c=main_colour, markersize=10, alpha=0.1, label='data')
 
     
     start_day_idx = single_sim.day(start_day)
-    start_day_fill = single_sim.day('2020-11-01')
-    end_day_idx = -1
+    start_day_fill = single_sim.day('2021-02-01')
+    end_day_idx = -5
     
     
     #pl.fill_between(tvec[start_day_fill:end_day_idx], 
     #                low[start_day_fill:end_day_idx], 
     #                high[start_day_fill:end_day_idx], facecolor=main_colour, alpha=0.2)
 
-    #pl.plot(tvec[start_day_fill:end_day_idx], yarr[:, start_day_fill:end_day_idx].T, c=main_colour, alpha=0.1)
+    pl.plot(tvec[start_day_fill:end_day_idx], yarr[0:-1:5, start_day_fill:end_day_idx].T, c=main_colour, alpha=0.1)
     #pl.plot(tvec[start_day_idx:start_day_fill+1], yarr[:, start_day_idx:start_day_fill+1].T, c=[0.0, 0.0, 0.0], alpha=0.05)
 
-    pl.plot(tvec[start_day_idx:start_day_fill+1], halfsies[start_day_idx:start_day_fill+1], c=[0.0, 0.0, 0.0], alpha=0.7)
+    #pl.plot(tvec[start_day_idx:start_day_fill+1], halfsies[start_day_idx:start_day_fill+1], c=[0.0, 0.0, 0.0], alpha=0.7)
+    pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=[0.5, 0.5, 0.5], label=label, lw=4, alpha=0.5)
     pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=2, alpha=1.0)
 
     # Resurgence limits
-    pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [20, 20], c=[1.0, 0.3945, 0.0], lw=1)
-    pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [50, 50], c=[0.5, 0.0, 0.0], lw=1)
+    pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [5, 5], c=[1.0, 0.3945, 0.0], lw=1)
+    #pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [50, 50], c=[0.5, 0.0, 0.0], lw=1)
     sc.setylim()
     xmin, xmax = ax.get_xlim()
     pl.ylabel(ylabel)
@@ -115,7 +193,7 @@ def plot_intervs(sim, labels=True):
     return
 
 # Fonts and sizes
-font_size = 20
+font_size = 16
 pl.rcParams['font.size'] = font_size
 pl.rcParams['text.usetex'] = True
 
@@ -127,7 +205,7 @@ mainplotwidth = 0.85
 
 @ticker.FuncFormatter
 def date_formatter(x, pos):
-    return (dt.date(2020,3,1) + dt.timedelta(days=x)).strftime('%b-%d')
+    return (dt.date(2021,2,1) + dt.timedelta(days=x)).strftime('%b-%d')
 
 # Plot diagnoses
 this_fig = plt.figure(figsize=(22,8))
@@ -149,7 +227,7 @@ norm_cbar = mpl.colors.Normalize(vmin=0,vmax=num_cases)
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm_cbar)
 sm.set_array([])
 
-start_display_day = '2020-07-15' 
+start_display_day = '2021-02-01' 
 # Load the data
 for file_idx, this_file in enumerate(list_of_files):
     msim = sc.loadobj(f'{resultsfolder}/{this_file}')
@@ -158,14 +236,16 @@ for file_idx, this_file in enumerate(list_of_files):
     main_colour =  list(cmap(file_idx/len(list_of_files)))[0:-1]
     plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel=r'new diagnoses', start_day=start_display_day, main_colour=main_colour)
 #plt.yscale('log')
-plt.ylim([0.0, 200])
+plt.ylim([0.0, 15])
+plt.xlim([0, 40])
+
 
 plot_intervs(sims[0])
 cbar = plt.colorbar(sm, ticks=np.linspace(0.5, num_cases-0.5, num_cases), 
                         boundaries=np.arange(0, num_cases+1, 1))
 
-cbar_labels = [str(label) for label in range(num_cases)]
+cbar_labels = [f'{label:.2f}' for label in np.linspace(0.1, 1.95, num_cases)]
 cbar.ax.get_yaxis().labelpad = 55
-cbar.ax.set_ylabel('average rate of \ndaily imported infections', rotation=270)
+cbar.ax.set_ylabel('lambda on Feb 1st', rotation=270)
 cbar.ax.set_yticklabels(cbar_labels)  # vertically oriented colorbar
 plt.show()
