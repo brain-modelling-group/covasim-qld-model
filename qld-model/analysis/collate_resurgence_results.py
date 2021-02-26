@@ -8,6 +8,7 @@ python collate_resurgence_results.py
 --filelist_name 'filelist.txt' 
 --result_name 'outbreak_14809560.txt'
 
+for n in *.csv; do printf '%s\n' "$n"; done > filelist.txt
 
 # author Paula Sanz-Leon, QIMRB 2021
 

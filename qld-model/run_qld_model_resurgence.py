@@ -251,8 +251,11 @@ if __name__ == '__main__':
     # Do the stuff & save results
     msim = cv.MultiSim(base_sim=sim, par_args={'ncpus': args.ncpus})
     msim.run(n_runs=args.nruns, reseed=True, noise=2**-6)
-    data = utils.get_ensemble_trace('new_diagnoses', msim.sims)
-    idx_date = utils.detect_outbreak(data)
+    # Get ensemble and convolve
+    median_trace, data = utils.get_ensemble_trace('new_diagnoses', msim.sims, **{'convolve': True, 'num_days': 3})
+    # Get ensemble outbreak
+    idx_date = utils.detect_outbreak(median_trace)
+    ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data) 
 
 
     if idx_date is not None:
@@ -261,6 +264,12 @@ if __name__ == '__main__':
       outbreak_data = {'outbreak': False}
 
     df_dict  = sc.mergedicts(outbreak_data, {'outbreak_day': [idx_date], 
+                                             'outbreak_day_av': [ou_day_av],
+                                             'outbreak_day_md': [ou_day_md],
+                                             'outbreak_day_sd': [ou_day_sd],
+                                             'outbreak_prob': [ou_prob],
+                                             'control_prob': [uc_prob],
+                                             'contained_prob': [co_prob],
                                              'iq_factor': [args.iq_factor/10.0], 
                                              'cluster_size': [args.cluster_size],
                                              'poisson_lambda': [args.par1],

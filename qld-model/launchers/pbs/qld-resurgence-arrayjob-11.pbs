@@ -5,7 +5,7 @@
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
-#PBS -J 1-200
+#PBS -J 1-50
 
 # Paula Sanz-Leon, Feb 2021, QIMRB
 
@@ -27,7 +27,7 @@ NCPUS=28
 cd "$CODE_DIRECTORY"
 for iqf in $(seq 1.00 1.0 10.0); do
     IQF=$iqf
-    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 100 --label 'cluster' \
+    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 1000 --label 'cluster' \
                                        --cluster_size "$PBS_ARRAY_INDEX" --iq_factor "$IQF" \
                                        --num_tests 4160 \
                                        --results_path "$SCRATCH_RESULTS"
