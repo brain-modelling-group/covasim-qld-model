@@ -27,7 +27,7 @@ NCPUS=28
 cd "$CODE_DIRECTORY"
 for iqf in $(seq 1.00 1.0 10.0); do
     IQF=$iqf
-    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 100 --label 'cluster' \
+    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 1000 --label 'cluster' \
                                        --cluster_size "$PBS_ARRAY_INDEX" --iq_factor "$IQF" \
                                        --global_beta 0.0192\
                                        --results_path "$SCRATCH_RESULTS"

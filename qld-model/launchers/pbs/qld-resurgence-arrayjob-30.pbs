@@ -31,7 +31,7 @@ poisson_lambda+=(2.00 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.
 P1="${poisson_lambda[$PBS_ARRAY_INDEX]}"
 for iqf in $(seq 1.00 1.0 10.0); do
     IQF=$iqf
-    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 100 --label 'distributed' \
+    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 1000 --label 'distributed' \
                                        --par1 "$P1" --iq_factor "$IQF" \
                                        --results_path "$SCRATCH_RESULTS"
 done
