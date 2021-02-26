@@ -818,10 +818,8 @@ def save_csv(sim, fname):
     result_df.to_csv(fname)
 
 
-def get_ensemble_trace(key, sims, convolve=False, num_days=3):
-    """
-    Get median trace
-    """
+
+def get_individual_traces(key, sims, convolve=False, num_days=3):
     ys = []
     for this_sim in sims:
         ys.append(this_sim.results[key].values)
@@ -831,7 +829,19 @@ def get_ensemble_trace(key, sims, convolve=False, num_days=3):
         for idx in range(yarr.shape[0]):
              yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
-    yarr = np.percentile(np.array(yarr).T, 50, axis=1)
+    yarr = np.array(yarr).T
+
+    return yarr
+
+
+def get_ensemble_trace(key, sims, return_traces=True, **kwargs):
+    """
+    Get median trace
+    """
+    yarr_ = get_individual_traces(key, sims, **kwargs)
+    yarr = np.percentile(yarr_, 50, axis=1)
+    if return_traces:
+        return yarr, yarr_
     return yarr
 
 
@@ -839,6 +849,7 @@ def detect_outbreak(data, num_cases=5.0, use_nan=False):
     """
     Get the index of the last day of the first instance of three consecutive days above num_cases 
     """
+    # Case outbreak
     idx = np.argmax((np.where(data >= num_cases, 1.0, 0.0) + np.roll(np.where(data >= num_cases, 1.0, 0.0), 1) + np.roll(np.where(data >= num_cases, 1.0, 0.0), -1))+1)
     
     # If there is no outbreak 
@@ -849,20 +860,46 @@ def detect_outbreak(data, num_cases=5.0, use_nan=False):
             idx = None
     return idx 
 
+def detect_outbreak_case(data, day_idx):
+    """
+    Get the itype of outbreak: outbreak, under control, contained 
+    """
+    # Case outbreak
+    
+    # If there is no outbreak 
+    if np.isnan(day_idx):
+        # Rerun detection - will pick up cases >=1 and <=4
+        if data.sum() == 0:
+            outbreak_case = 'contained'
+        else:
+            outbreak_case = 'under_control' 
+    else:
+        outbreak_case = 'outbreak'
+    return outbreak_case
 
 def calculate_outbreak_stats(data):
     """
     data has shape tpts x nruns
 
     """
+    nruns = data.shape[1]
     local_idx = []
+    case_dict = {'outbreak': 0, 'under_control': 0, 'contained': 0}
     for idx in range(data.shape[1]):
-        local_idx.append(detect_outbreak(data[:, idx], use_nan=True)) 
-    
+        day_idx = detect_outbreak(data[:, idx], use_nan=True)
+        case_label = detect_outbreak_case(data[: idx], day_idx)
+        # Update tally for each case
+        case_dict[case_label] += 1.0/nruns
+        local_idx.append(day_idx)
+
     local_outbreak_dist = np.array(local_idx)
-    # Get stats of outbreaks
+
+    # Get stats of proper "outbreaks"
     ou_day_av = np.nanmean(local_outbreak_dist)
     ou_day_md = np.nanmedian(local_outbreak_dist)
     ou_day_sd = np.nanstd(local_outbreak_dist)
+    ou_prob = case_dict["outbreak"] * 100.0
+    uc_prob = case_dict["under_control"] * 100.0
+    co_prob = case_dict["contained"] *100.0
 
-    return ou_day_av, ou_day_md, ou_day_sd, ou_prob, ou_case
+    return ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob 
