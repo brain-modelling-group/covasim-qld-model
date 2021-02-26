@@ -33,7 +33,6 @@ for iqf in $(seq 1.00 1.0 10.0); do
     IQF=$iqf
     python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 100 --label 'distributed' \
                                        --par1 "$P1" --iq_factor "$IQF" \
-                                       --num_tests 4160 \
                                        --results_path "$SCRATCH_RESULTS"
 done
 # Create directory to save results in /working
