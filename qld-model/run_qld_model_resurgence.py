@@ -255,8 +255,7 @@ if __name__ == '__main__':
     median_trace, data = utils.get_ensemble_trace('new_diagnoses', msim.sims, **{'convolve': True, 'num_days': 3})
     # Get ensemble outbreak
     idx_date = utils.detect_outbreak(median_trace)
-    ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data) 
-
+    ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data)
 
     if idx_date is not None:
       outbreak_data = {'outbreak': True}
@@ -269,16 +268,31 @@ if __name__ == '__main__':
                                              'outbreak_day_sd': [ou_day_sd],
                                              'outbreak_prob': [ou_prob],
                                              'control_prob': [uc_prob],
-                                             'contained_prob': [co_prob],
-                                             'iq_factor': [args.iq_factor/10.0], 
-                                             'cluster_size': [args.cluster_size],
-                                             'poisson_lambda': [args.par1],
-                                             'num_tests': [args.num_tests],
-                                             'label': [args.label],
-                                             'beta': [args.global_beta]})
+                                             'contained_prob': [co_prob]}
+                                             )
 
+    median_trace_inf, data_inf = utils.get_ensemble_trace('new_infections', msim.sims, **{'convolve': True, 'num_days': 3})
+    fc_idx_date = utils.detect_first_case(median_trace)
+    fc_num_infections = median_trace_inf[fc_idx_date]
+    fc_day_av, fc_day_md, fc_day_sd, fc_inf_av, fc_inf_md, fc_inf_sd = utils.calculate_first_case_stats(data, data_inf)
+    df_dict  = sc.mergedicts(df_dict, {'first_case_day': [fc_idx_date], 
+                                       'first_case_day_av': [fc_day_av],
+                                       'first_case_day_md': [fc_day_md],
+                                       'first_case_day_sd': [fc_day_sd],
+                                       'first_case_inf': [fc_num_infections],
+                                       'first_case_inf_av': [fc_inf_av],
+                                       'first_case_inf_md': [fc_inf_md],
+                                       'first_case_inf_sd': [fc_inf_sd]})
+
+
+    df_dict  = sc.mergedicts(df_dict, {'iq_factor': [args.iq_factor/10.0], 
+                                       'cluster_size': [args.cluster_size],
+                                       'poisson_lambda': [args.par1],
+                                       'num_tests': [args.num_tests],
+                                       'label': [args.label],
+                                       'beta': [args.global_beta]})
     df = pd.DataFrame.from_dict(df_dict)
-    
+
     # Plot all sims together 
     if args.label == 'cluster':
         res_filename = f"qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}"
