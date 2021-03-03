@@ -860,6 +860,22 @@ def detect_outbreak(data, num_cases=5.0, use_nan=False):
             idx = None
     return idx 
 
+
+def detect_first_case(data, num_cases=1.0, use_nan=False):
+    """
+    Get the index of the last day of the first instance of three consecutive days above num_cases 
+    """
+    # Case outbreak
+    idx = np.argmax((np.where(data >= num_cases, 1.0, 0.0)))
+    
+    # If there is no outbreak 
+    if idx == 0:
+        if use_nan:
+            idx = np.nan
+        else:
+            idx = None
+    return idx 
+
 def detect_outbreak_case(data, day_idx):
     """
     Get the itype of outbreak: outbreak, under control, contained 
@@ -877,22 +893,55 @@ def detect_outbreak_case(data, day_idx):
         outbreak_case = 'outbreak'
     return outbreak_case
 
+
+def calculate_first_case_stats(data_nc, data_ni):
+    """
+    data_nc and data_ni have shape tpts x nruns
+    data_nc --> new_cases
+    data_nc --> 
+    """
+    nruns = data_nc.shape[1]
+    local_first_case_idx = []
+    local_first_case_inf = []
+    for idx in range(data_nc.shape[1]):
+        # First case day
+        fc_day_idx = detect_first_case(data_nc[:, idx], use_nan=True)
+        local_first_case_inf.append(data_ni[fc_day_idx, idx])
+        local_first_case_idx.append(fc_day_idx)
+
+    local_first_case_day_dist = np.array(local_first_case_idx)
+    local_first_case_inf_dist = np.array(local_first_case_idx)
+
+
+    # Get stats in terms od day to first case
+    fc_day_av = np.nanmean(local_first_case_day_dist)
+    fc_day_md = np.nanmedian(local_first_case_day_dist)
+    fc_day_sd = np.nanstd(local_first_case_day_dist)
+    # get stats, number of infections 
+    fc_inf_av = np.nanmean(local_first_case_inf_dist)
+    fc_inf_md = np.nanmedian(local_first_case_inf_dist)
+    fc_inf_sd = np.nanstd(local_first_case_inf_dist)
+
+    # Get stats of first day cases
+    return fc_day_av, fc_day_md, fc_day_sd, fc_inf_av, fc_inf_md, fc_inf_sd 
+
+
 def calculate_outbreak_stats(data):
     """
     data has shape tpts x nruns
 
     """
     nruns = data.shape[1]
-    local_idx = []
+    local_outbreak_idx = []
     case_dict = {'outbreak': 0, 'under_control': 0, 'contained': 0}
     for idx in range(data.shape[1]):
         day_idx = detect_outbreak(data[:, idx], use_nan=True)
         case_label = detect_outbreak_case(data[: idx], day_idx)
         # Update tally for each case
         case_dict[case_label] += 1.0/nruns
-        local_idx.append(day_idx)
+        local_outbreak_idx.append(day_idx)
 
-    local_outbreak_dist = np.array(local_idx)
+    local_outbreak_dist = np.array(local_outbreak_idx)
 
     # Get stats of proper "outbreaks"
     ou_day_av = np.nanmean(local_outbreak_dist)
@@ -901,5 +950,7 @@ def calculate_outbreak_stats(data):
     ou_prob = case_dict["outbreak"] * 100.0
     uc_prob = case_dict["under_control"] * 100.0
     co_prob = case_dict["contained"] *100.0
+
+    # Get stats of first day cases
 
     return ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob 
