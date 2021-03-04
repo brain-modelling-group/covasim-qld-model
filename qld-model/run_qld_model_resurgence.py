@@ -272,6 +272,8 @@ if __name__ == '__main__':
                                              )
 
     median_trace_inf, data_inf = utils.get_ensemble_trace('new_infections', msim.sims, **{'convolve': True, 'num_days': 3})
+
+    fc_idx_date = utils.detect_first_case(median_trace)
     if fc_idx_date is None:
         fc_num_infections = np.nan
     else:
