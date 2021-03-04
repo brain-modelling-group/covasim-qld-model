@@ -272,8 +272,10 @@ if __name__ == '__main__':
                                              )
 
     median_trace_inf, data_inf = utils.get_ensemble_trace('new_infections', msim.sims, **{'convolve': True, 'num_days': 3})
-    fc_idx_date = utils.detect_first_case(median_trace)
-    fc_num_infections = median_trace_inf[fc_idx_date]
+    if fc_idx_date is None:
+        fc_num_infections = np.nan
+    else:
+        fc_num_infections = median_trace_inf[fc_idx_date]
     fc_day_av, fc_day_md, fc_day_sd, fc_inf_av, fc_inf_md, fc_inf_sd = utils.calculate_first_case_stats(data, data_inf)
     df_dict  = sc.mergedicts(df_dict, {'first_case_day': [fc_idx_date], 
                                        'first_case_day_av': [fc_day_av],
