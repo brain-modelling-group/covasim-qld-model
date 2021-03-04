@@ -906,8 +906,11 @@ def calculate_first_case_stats(data_nc, data_ni):
     for idx in range(data_nc.shape[1]):
         # First case day
         fc_day_idx = detect_first_case(data_nc[:, idx], use_nan=True)
-        local_first_case_inf.append(data_ni[fc_day_idx, idx])
         local_first_case_idx.append(fc_day_idx)
+        if np.isnan(fc_day_idx):
+           local_first_case_inf.append(np.nan)
+        else:
+           local_first_case_inf.append(data_ni[fc_day_idx, idx])
 
     local_first_case_day_dist = np.array(local_first_case_idx)
     local_first_case_inf_dist = np.array(local_first_case_idx)
