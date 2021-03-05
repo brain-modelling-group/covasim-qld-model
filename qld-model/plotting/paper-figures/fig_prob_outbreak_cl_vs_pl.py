@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import covasim as cv
 
 sns.set_context("poster")
 font_size = 18
@@ -31,25 +32,29 @@ dfpluk = get_subframe(df_pluk, num_tests, iq_factor)
 dfcluk = get_subframe(df_cluk, num_tests, iq_factor)
 
 
-
 fig, ax1 = plt.subplots(figsize=(9,7))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
 ax1.set_ylabel('prob outbreak [%]')
-ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["outbreak_prob"], color="#2c7fb8", label='cluster size - baseline')
-ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["outbreak_prob"], color='#fd8d3c', label='cluster size - UK variant')
+ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["outbreak_prob"], color="#2c7fb8", label='cluster (QLD)')
+ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["outbreak_prob"], color='#fd8d3c', label='cluster (UK)')
+ax1.set_xlim([0, 50])
 
 ax2 = ax1.twiny()  # instantiate a second axes that shares the same y-axis
-ax2.set_xlabel('average daily imported infections')
+ax2.set_xlabel('daily imported infections')
 color = 'tab:red'
-ls3 = ax2.scatter(dfploz["poisson_lambda"],dfploz["outbreak_prob"], color='#253494', label='daily arrivals - baseline')
-ls4 = ax2.scatter(dfpluk["poisson_lambda"],dfpluk["outbreak_prob"], color='#bd0026', label='daily arrivals - UK variant')
+ls3 = ax2.scatter(dfploz["poisson_lambda"],dfploz["outbreak_prob"], color='#253494', label='daily arrivals (QLD)')
+ls4 = ax2.scatter(dfpluk["poisson_lambda"],dfpluk["outbreak_prob"], color='#bd0026', label='daily arrivals (UK)')
+ax2.set_xlim([0, 4])
 
 # Labels for legend
 lbs = [ls1, ls3, ls2, ls4]
 labs = [l.get_label() for l in lbs]
 ax1.legend(lbs, labs, loc=0, frameon=False)
 fig.tight_layout()
+cv.savefig("fig_pob_outbreak_cl_vs_pl_cases.png", dpi=300)
+
 plt.show()
+
 
 #ax2.tick_params(axis='y', labelcolor=color)
