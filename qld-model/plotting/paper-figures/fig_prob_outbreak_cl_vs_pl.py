@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import covasim as cv
 
 sns.set_context("poster")
-font_size = 18
-plt.rcParams['font.size'] = font_size
 
 # Import data - x4 main scenarios 
 df_ploz = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_oz.csv')
