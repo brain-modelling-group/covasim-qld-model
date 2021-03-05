@@ -51,8 +51,6 @@ def barplot_cl(df, category_names, column_names, label_name, ylab, fig_name):
         np.linspace(0.15, 0.85, data.shape[1]))
 
     fig, ax = plt.subplots(figsize=(18, 18))
-    #ax.invert_yaxis()
-    #ax.xaxis.set_visible(False)
     ax.set_xlim(0, np.sum(data, axis=1).max()+1)
     ax.set_ylim(0.5, df[label_name].values.max()+0.5)
     ax.set_ylabel(ylab)
@@ -60,7 +58,6 @@ def barplot_cl(df, category_names, column_names, label_name, ylab, fig_name):
     for i, (colname, color) in enumerate(zip(category_names, category_colors)):
         widths = data[:, i]+1
         starts = data_cum[:, i] - widths
-        #import pdb; pdb.set_trace()
         ax.barh(df[label_name], widths, left=starts, height=0.95, label=colname, color=color)
         xcenters = starts + (widths-0.5) / 2
         r, g, b, _ = color
@@ -92,16 +89,11 @@ def barplot_pl(df, category_names, column_names, label_name, ylab, fig_name):
         np.linspace(0.15, 0.85, data.shape[1]))
 
     fig, ax = plt.subplots(figsize=(18, 18))
-    #ax.invert_yaxis()
-    #ax.xaxis.set_visible(False)
     ax.set_xlim(0, np.sum(data, axis=1).max()+1)
-    #ax.set_ylim(0.2, 1.8)
     ax.set_ylabel(ylab)
-    #import pdb; pdb.set_trace()
     for i, (colname, color) in enumerate(zip(category_names, category_colors)):
         widths = data[:, i]
         starts = data_cum[:, i] -  data[:, i]
-        #import pdb; pdb.set_trace()
         ax.barh(labels, widths, left=starts, height=0.95, label=colname, color=color)
         xcenters = starts + (widths-0.5) / 2
         r, g, b, _ = color
@@ -113,7 +105,6 @@ def barplot_pl(df, category_names, column_names, label_name, ylab, fig_name):
               loc='lower left', frameon=False)
     ax.set_xlabel("probabilty [%]")
 
-    #fig.tight_layout()
     cv.savefig(fig_name, dpi=300)
     return fig, ax
 
