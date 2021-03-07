@@ -21,7 +21,7 @@ def get_subframe(df, num_tests, iq_factor):
     return df[(df["num_tests"] == num_tests) & (df["iq_factor"] == iq_factor)]
 
 # Select one lvel of testing and one level of iq
-num_tests = 6260
+num_tests = 8360
 iq_factor = 0.5
 
 dfploz = get_subframe(df_ploz, num_tests, iq_factor)
@@ -50,7 +50,7 @@ lbs = [ls1, ls3, ls2, ls4]
 labs = [l.get_label() for l in lbs]
 ax1.legend(lbs, labs, loc=0, frameon=False)
 fig.tight_layout()
-cv.savefig("fig_pob_outbreak_cl_vs_pl_cases.png", dpi=300)
+cv.savefig(f"fig_pob_outbreak_cl_vs_pl_cases_{num_tests}.png", dpi=300)
 
 plt.show()
 
