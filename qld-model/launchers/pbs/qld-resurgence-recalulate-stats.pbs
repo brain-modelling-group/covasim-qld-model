@@ -26,4 +26,8 @@ WORKING_RESULTS=$WORKING_DIR/pbs.149256$PBS_ARRAY_INDEX/sim-data
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
 
+# Recalculate stats
+python calculate_resurgence_stats.py --filelist_path "$WORKING_RESULTS" --filelist_obj_name 'filelist_obj.csv'
+
+# collate results again
 python collate_resurgence_results.py --filelist_path "$WORKING_RESULTS" --filelist_name 'filelist.txt' --result_name 'outbreak_149256$PBS_ARRAY_INDEX.txt'
