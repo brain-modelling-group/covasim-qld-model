@@ -83,7 +83,6 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
                                                      'contained_inf_prob': [co_prob]}
                                                      )
 
-
             fc_idx_date = utils.detect_first_case(median_trace)
             if fc_idx_date is None:
                 fc_num_infections = np.nan
@@ -98,11 +97,14 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
                         'first_case_inf_av': [fc_inf_av],
                         'first_case_inf_md': [fc_inf_md],
                         'first_case_inf_sd': [fc_inf_sd]}
-           
-            df_fc = pd.DataFrame.from_dict(df_dict)
+            
+            # Replace values
+            for key in df_dict.keys(): 
+                df_ou[key] = df_dict[key] 
+
             df_ou_inf = pd.DataFrame.from_dict(df_ou_inf_dict)
 
-            df = pd.concat([df_ou, df_ou_inf, df_fc], axis=1)
+            df = pd.concat([df_ou, df_ou_inf], axis=1)
 
             # save 
             df.to_csv(f"{args.filelist_path}/{fname_csv}")
