@@ -913,7 +913,7 @@ def calculate_first_case_stats(data_nc, data_ni):
            local_first_case_inf.append(data_ni[fc_day_idx, idx])
 
     local_first_case_day_dist = np.array(local_first_case_idx)
-    local_first_case_inf_dist = np.array(local_first_case_idx)
+    local_first_case_inf_dist = np.array(local_first_case_inf)
 
 
     # Get stats in terms od day to first case

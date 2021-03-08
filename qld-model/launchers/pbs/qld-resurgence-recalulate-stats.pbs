@@ -1,0 +1,33 @@
+#PBS -l walltime=2:30:00
+#PBS -l ncpus=16,mem=16gb
+#PBS -N cqld-stats
+#PBS -m abe
+#PBS -M pmsl.academic@gmail.com
+#PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
+#PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
+#PBS -J 46-49
+
+# Paula Sanz-Leon, Mar 2021, QIMRB
+
+# Load packages we need
+module load python
+
+# Export path to custom packages we need
+export PYTHONPATH=$HOME/Code/covasim-qld-model:$PYTHONPATH
+
+# Path to directory where we are going to store results
+set -e  # tells a PBS job or bash script to exit on any processes non zero exit status
+
+CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model/analysis'
+WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
+WORKING_RESULTS=$WORKING_DIR/pbs.149256$PBS_ARRAY_INDEX/sim-data
+OUTPUT_FILE=outbreak_149256$PBS_ARRAY_INDEX.txt
+
+# Change to where we have the code
+cd "$CODE_DIRECTORY"
+
+# Recalculate stats
+python calculate_resurgence_stats.py --filelist_path "$WORKING_RESULTS" --filelist_obj_name 'filelist_obj.csv'
+
+# collate results again
+python collate_resurgence_results.py --filelist_path "$WORKING_RESULTS" --filelist_name 'filelist.txt' --result_name "$OUTPUT_FILE"

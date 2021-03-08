@@ -62,6 +62,27 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
             median_trace, data = utils.get_ensemble_trace('new_diagnoses', msim.sims, **{'convolve': True, 'num_days': 3})
             median_trace_inf, data_inf = utils.get_ensemble_trace('new_infections', msim.sims, **{'convolve': True, 'num_days': 3})
 
+
+
+            # Get ensemble and convolve
+            # Get ensemble outbreak
+            idx_date = utils.detect_outbreak(median_trace_inf)
+            ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data_inf)
+
+            if idx_date is not None:
+              outbreak_data = {'outbreak_inf': True}
+            else:
+              outbreak_data = {'outbreak_inf': False}
+
+            df_ou_inf_dict  = sc.mergedicts(outbreak_data, {'outbreak_inf_day': [idx_date], 
+                                                     'outbreak_inf_day_av': [ou_day_av],
+                                                     'outbreak_inf_day_md': [ou_day_md],
+                                                     'outbreak_inf_day_sd': [ou_day_sd],
+                                                     'outbreak_inf_prob': [ou_prob],
+                                                     'control_inf_prob': [uc_prob],
+                                                     'contained_inf_prob': [co_prob]}
+                                                     )
+
             fc_idx_date = utils.detect_first_case(median_trace)
             if fc_idx_date is None:
                 fc_num_infections = np.nan
@@ -76,12 +97,14 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
                         'first_case_inf_av': [fc_inf_av],
                         'first_case_inf_md': [fc_inf_md],
                         'first_case_inf_sd': [fc_inf_sd]}
-           
-            df_fc = pd.DataFrame.from_dict(df_dict)
+            
+            # Replace values
+            for key in df_dict.keys(): 
+                df_ou[key] = df_dict[key] 
 
-            df = pd.concat([df_ou, df_fc], axis=1)
+            df_ou_inf = pd.DataFrame.from_dict(df_ou_inf_dict)
 
-            # merge dataframes
+            df = pd.concat([df_ou, df_ou_inf], axis=1)
 
             # save 
             df.to_csv(f"{args.filelist_path}/{fname_csv}")
