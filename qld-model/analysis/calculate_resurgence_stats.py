@@ -99,13 +99,15 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
             
             # Replace values
             for key in df_dict.keys(): 
-                df_ou[key] = df_dict[key] 
+                df_ou[key] = df_dict[key]
+            for key in df_ou_inf_dict:
+                df_ou[key] = df_ou_inf_dict[key] 
 
-            df_ou_inf = pd.DataFrame.from_dict(df_ou_inf_dict)
+            #df_ou_inf = pd.DataFrame.from_dict(df_ou_inf_dict)
 
-            df = pd.concat([df_ou, df_ou_inf], axis=1)
+            #df = pd.concat([df_ou, df_ou_inf], axis=1)
 
             # save 
-            df.to_csv(f"{args.filelist_path}/{fname_csv}")
+            df_ou.to_csv(f"{args.filelist_path}/{fname_csv}")
 
     
