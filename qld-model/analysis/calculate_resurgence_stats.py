@@ -60,13 +60,10 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
 
             # Get ensemble and convolve
             median_trace, data = utils.get_ensemble_trace('new_diagnoses', msim.sims, **{'convolve': True, 'num_days': 3})
-            median_trace_inf, data_inf = utils.get_ensemble_trace('new_infections', msim.sims, **{'convolve': True, 'num_days': 3})
+            median_trace_inf, data_inf = utils.get_ensemble_trace('new_infections', msim.sims, **{'convolve': False, 'num_days': 1})
 
-
-
-            # Get ensemble and convolve
             # Get ensemble outbreak
-            idx_date = utils.detect_outbreak(median_trace_inf)
+            idx_date = utils.detect_outbreak(median_trace_inf[1:])
             ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data_inf[1:, ...])
 
             if idx_date is not None:
@@ -75,13 +72,14 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
             else:
               outbreak_data = {'outbreak_inf': False}
 
-            df_ou_inf_dict  = sc.mergedicts(outbreak_data, {'outbreak_inf_day': [idx_date], 
-                                                     'outbreak_inf_day_av': [ou_day_av],
-                                                     'outbreak_inf_day_md': [ou_day_md],
-                                                     'outbreak_inf_day_sd': [ou_day_sd],
-                                                     'outbreak_inf_prob': [ou_prob],
-                                                     'control_inf_prob': [uc_prob],
-                                                     'contained_inf_prob': [co_prob]}
+            df_ou_inf_dict  = sc.mergedicts(outbreak_data, 
+                                            {'outbreak_inf_day': [idx_date], 
+                                             'outbreak_inf_day_av': [ou_day_av],
+                                             'outbreak_inf_day_md': [ou_day_md],
+                                             'outbreak_inf_day_sd': [ou_day_sd],
+                                             'outbreak_inf_prob': [ou_prob],
+                                             'control_inf_prob': [uc_prob],
+                                             'contained_inf_prob': [co_prob]}
                                                      )
 
             fc_idx_date = utils.detect_first_case(median_trace)
