@@ -23,7 +23,7 @@ cluster_col = "cluster_size"
 poisson_th = 1.5
 poisson_col = "poisson_lambda"
 
-outbreak_cases = ['outbreak', 'under control']
+outbreak_cases = ['outbreak detected', 'outbreak not detected']
 column_names = ["outbreak_prob", "control_prob"]
 
 
