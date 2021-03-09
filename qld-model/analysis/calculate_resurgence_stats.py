@@ -67,10 +67,11 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
             # Get ensemble and convolve
             # Get ensemble outbreak
             idx_date = utils.detect_outbreak(median_trace_inf)
-            ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data_inf)
+            ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data_inf[1:, ...])
 
             if idx_date is not None:
               outbreak_data = {'outbreak_inf': True}
+              idx_date +=1
             else:
               outbreak_data = {'outbreak_inf': False}
 
