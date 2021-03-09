@@ -19,9 +19,9 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
 # Filepaths
-resultsfolder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cloz'
+resultsfolder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-cluk'
 figsfolder = resultsfolder
-output_fig = 'new_cases_timeseries_cloz.png'
+output_fig = 'new_infections_timeseries_cluk.png'
 
 # list_of_files = ['qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.1000.obj',
 #                 'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.1500.obj',
@@ -113,8 +113,8 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
     yarr = np.array(ys)
 
     # Moving average over 7 days
-    for idx in range(yarr.shape[0]):
-         yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((3, ))/3, mode='same')
+    # for idx in range(yarr.shape[0]):
+    #      yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((3, ))/3, mode='same')
 
     if choose_run is not None:
         single_sim = sims[choose_run].results[key].values
@@ -192,7 +192,9 @@ for file_idx, this_file in enumerate(list_of_files):
     sims = msim.sims
     format_ax(ax1, sims[0], start_day_idx=sims[0].day(start_display_day))
     main_colour =  list(cmap(file_idx/len(list_of_files)))[0:-1]
-    plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel=r'new daily diagnoses', start_day=start_display_day, main_colour=main_colour)
+    #plotter('new_diagnoses', sims, ax1, label='model predictions', ylabel=r'new daily diagnoses', start_day=start_display_day, main_colour=main_colour)
+    plotter('new_infections', sims, ax1, label='model predictions', ylabel=r'new daily infections', start_day=start_display_day, main_colour=main_colour)
+
 #plt.yscale('log')
 plt.ylim([0.0, 15])
 plt.xlim([0, 42])
@@ -206,7 +208,8 @@ cbar = plt.colorbar(sm, ticks=np.linspace(0.5, num_cases-0.5, num_cases),
 cbar_labels = [f'{np.round(label):.0f}' for label in np.linspace(1.0, 30.0, num_cases)]
 
 cbar.ax.get_yaxis().labelpad = 55
-cbar.ax.set_ylabel('average daily imported infections \nsince Feb 1st', rotation=270)
+cbar.ax.set_ylabel('cluster size of infections on Feb 1st', rotation=270)
+#cbar.ax.set_ylabel('average daily imported infections \nsince Feb 1st', rotation=270)
 cbar.ax.set_yticklabels(cbar_labels)  # vertically oriented colorbar
 
 import covasim as cv
