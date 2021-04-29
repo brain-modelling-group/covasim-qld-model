@@ -25,7 +25,7 @@ input_data = 'qld_policies.csv'
 
 # Load data
 policy_data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['start_date'])
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(1,1,figsize=(7,7))
 ax1 = ax.twiny()
 
 yticks = []
@@ -42,7 +42,6 @@ ax.set_ylim(0, 110)
 ax.set_xlim(0, duration_length-1)
 ax.set_xlabel('days since Mar 15 2020')
 ax.set_yticks(yticks)
-import pdb; pdb.set_trace
 ax.set_yticklabels(yticklabels)
 ax.grid(True)
 
@@ -56,6 +55,5 @@ plt.setp(ax1.get_xticklabels(), rotation=30, ha="left", rotation_mode="anchor")
 
 #import pdb; pdb.set_trace()
 plt.tight_layout()
-plt.show()
-
-
+#plt.show()
+plt.savefig("plotting/paper-figures/fig_gantt_policies_up-to_2020-05-31.png",dpi=300)
