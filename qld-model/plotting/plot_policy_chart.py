@@ -15,7 +15,7 @@ import datetime # current date and time
 import covasim.misc as cvm
 
 # 
-start_date = '2020-03-10'
+start_date = '2020-03-15'
 end_date = '2020-05-31'
 duration_length = cvm.day(end_date, start_day=start_date)
 
@@ -40,19 +40,19 @@ for idx in range(35):
 
 ax.set_ylim(0, 110)
 ax.set_xlim(0, duration_length-1)
-ax.set_xlabel('days since Mar 10 2020')
+ax.set_xlabel('days since Mar 15 2020')
 ax.set_yticks(yticks)
 import pdb; pdb.set_trace
 ax.set_yticklabels(yticklabels)
 ax.grid(True)
 
 #ax1.set_xlim(ax.get_xlim())
-ax1.set_xlim([datetime.date(2020, 3, 10), datetime.date(2020, 5, 31)])
+ax1.set_xlim([datetime.date(2020, 3, 15), datetime.date(2020, 5, 31)])
 # Set ticks every week
 ax1.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=MO, interval=1))
 # Set major ticks format
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
-plt.setp(ax1.get_xticklabels(), rotation=30, ha="center", rotation_mode="anchor")
+plt.setp(ax1.get_xticklabels(), rotation=30, ha="left", rotation_mode="anchor")
 
 #import pdb; pdb.set_trace()
 plt.tight_layout()
