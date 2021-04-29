@@ -10,12 +10,36 @@ import pandas as pd
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 import matplotlib.cm as cm
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.dates import MO
 import datetime # current date and time
+import colorsys
+
 
 import covasim.misc as cvm
+
+
+
+def scale_lightness(rgb, scale_l):
+    # convert rgb to hls
+    #import pdb; pdb.set_trace()
+    h, l, s = colorsys.rgb_to_hls(*rgb[:-1])
+    # manipulate h, l, s values and return as rgb
+    return colorsys.hls_to_rgb(h, min(1, l * scale_l), s=s)
+
+class MidpointNormalize(mcolors.Normalize):
+    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
+        self.midpoint = midpoint
+        mcolors.Normalize.__init__(self, vmin, vmax, clip)
+
+    def __call__(self, value, clip=None):
+        v_ext = np.max( [ np.abs(self.vmin), np.abs(self.vmax) ] )
+        x, y = [-v_ext, self.midpoint, v_ext], [0.0, 0.5, 1.0]
+        return np.ma.masked_array(np.interp(value, x, y))
 
 # 
 start_date = '2020-01-01'
@@ -60,18 +84,30 @@ hr_layers = ['home',
              'social'] 
 
 fig, ax = plt.subplots(1,1, figsize=(10,5))
-ax1 = ax.twiny()
 
-norm = mpl.colors.Normalize(vmin=0, vmax=2)
-cmap = cm.coolwarm
+# dummy colour data
+dummy_y = np.linspace(0.0, 2.0, 256)
+dummy_x = np.linspace(-5, -1, 256)
+#norm = mpl.colors.Normalize(vmin=0, vmax=2)
+norm = MidpointNormalize(midpoint=1.0, vmin=0.0, vmax=2.0)
+cmap = cm.get_cmap('seismic', 256)
 m = cm.ScalarMappable(norm=norm, cmap=cmap)
 
+newcolors = [scale_lightness(m.to_rgba(val), 0.7) for val in dummy_y] 
+new_cmap = ListedColormap(newcolors)
+
+color_data = ax.scatter(dummy_x, dummy_y, c=dummy_y, cmap=new_cmap, s= 0.1, norm=norm)
+#divider = make_axes_locatable(ax)
+#cax = divider.append_axes('right', size='5%', pad=0.15)
+fig.colorbar(color_data, ax=ax, orientation='vertical', pad=0.01)
+
+ax1 = ax.twiny()
 yticks = []
 yticklabels = []
 for layer_idx, this_layer in enumerate(layers):
     for day_idx in range(366+31+22):
         policy_start = beta_data["date"][day_idx]
-        ax.broken_barh([(day_idx, 1)], (5*layer_idx, 3), facecolors=m.to_rgba(beta_data[this_layer][day_idx]))
+        ax.broken_barh([(day_idx, 1)], (5*layer_idx, 3), facecolors=scale_lightness(m.to_rgba(beta_data[this_layer][day_idx]),0.7))
     
     yticks.append(5*layer_idx+1.5)
     yticklabels.append(hr_layers[layer_idx]) 
@@ -91,7 +127,6 @@ ax1.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=MO, interval=4))
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
 plt.setp(ax1.get_xticklabels(), rotation=30, ha="left", rotation_mode="anchor")
 
-#import pdb; pdb.set_trace()
 plt.tight_layout()
-
 plt.show()
+
