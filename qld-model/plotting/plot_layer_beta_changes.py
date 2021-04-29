@@ -126,5 +126,5 @@ ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
 plt.setp(ax1.get_xticklabels(), rotation=30, ha="left", rotation_mode="anchor")
 
 plt.tight_layout()
-plt.show()
-
+plt.savefig("plotting/paper-figures/fig_gantt_layer_betas.png",dpi=300)
+#plt.show()
