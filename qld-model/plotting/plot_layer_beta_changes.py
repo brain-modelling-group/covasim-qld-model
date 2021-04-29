@@ -29,39 +29,37 @@ input_data = 'qld_model_layer_betas_02.csv'
 # Load data
 beta_data = pd.read_csv("/".join((inputs_folder, input_data)), parse_dates=['date'])
 
-layers = ['H', 'S', 'W', 'C', 
-             'church', 
-             'pSport', 
-             'cSport', 
+layers = ['H', 
+          'S', 
+          'W', 
+          'C', 
+          'church', 
+          'pSport', 
+          'cSport', 
+          'entertainment', 
+          'cafe_restaurant', 
+          'pub_bar', 
+          'transport', 
+          'public_parks', 
+          'large_events', 
+          'social'] 
+# Human readable labels
+hr_layers = ['home', 
+             'school', 
+             'work', 
+             'community', 
+             'places of worship', 
+             'professional sport', 
+             'community sport', 
              'entertainment', 
-             'cafe_restaurant', 
-             'pub_bar', 
+             'cafe restaurant', 
+             'pub/bar', 
              'transport', 
-             'public_parks', 
-             'large_events', 
+             'public parks', 
+             'large events', 
              'social'] 
 
-#import pdb; pdb.set_trace()
-
-results = {
-    'H': beta_data['H'].astype(float),
-    'S': beta_data['S'].astype(float),
-    'W': beta_data['W'].astype(float),
-    'C': beta_data['C'].astype(float),
-    'church': beta_data['church'].astype(float),
-    'pSport':  beta_data['pSport'].astype(float),
-    'cSport': beta_data['cSport'].astype(float),
-    'entertainment': beta_data['entertainment'].astype(float),
-    'cafe_restaurant': beta_data['cafe_restaurant'].astype(float),
-    'pub_bar': beta_data['pub_bar'].astype(float),
-    'transport': beta_data['transport'].astype(float),
-    'public_parks': beta_data['public_parks'].astype(float),
-    'large_events': beta_data['large_events'].astype(float),
-    'social': beta_data['social'].astype(float)
-    }
-
-
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(1,1, figsize=(10,5))
 ax1 = ax.twiny()
 
 norm = mpl.colors.Normalize(vmin=0, vmax=2)
@@ -76,7 +74,7 @@ for layer_idx, this_layer in enumerate(layers):
         ax.broken_barh([(day_idx, 1)], (5*layer_idx, 3), facecolors=m.to_rgba(beta_data[this_layer][day_idx]))
     
     yticks.append(5*layer_idx+1.5)
-    yticklabels.append(layers[layer_idx]) 
+    yticklabels.append(hr_layers[layer_idx]) 
 
 ax.set_ylim(0, 75)
 ax.set_xlim(0, 365+31+22)
@@ -91,7 +89,7 @@ ax1.set_xlim([datetime.date(2020, 1, 1), datetime.date(2021, 2, 22)])
 ax1.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=MO, interval=4))
 # Set major ticks format
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b-%d'))
-plt.setp(ax1.get_xticklabels(), rotation=30, ha="center", rotation_mode="anchor")
+plt.setp(ax1.get_xticklabels(), rotation=30, ha="left", rotation_mode="anchor")
 
 #import pdb; pdb.set_trace()
 plt.tight_layout()
