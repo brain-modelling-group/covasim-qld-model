@@ -17,7 +17,7 @@ df_pluk = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurg
 
 # Select one lvel of testing and one level of iq
 num_tests = 8360
-iq_factor = 0.5
+iq_factor = 1.0
 cluster_size_th = 10
 cluster_col = "cluster_size"
 poisson_th = 1.0
@@ -26,9 +26,9 @@ poisson_col = "poisson_lambda"
 def get_subframe(df, num_tests, par_column_name, col_th, day_column_name):
     df_sub = df[df["num_tests"] > 1000]
     if par_column_name == "poisson_lambda":
-        df_sub = df_sub[(df_sub[par_column_name] <=col_th) & (df_sub[par_column_name] >=0.5) & (df_sub["iq_factor"] == 0.5)]
+        df_sub = df_sub[(df_sub[par_column_name] <=col_th) & (df_sub[par_column_name] >=0.5) & (df_sub["iq_factor"] == iq_factor)]
     else:
-        df_sub = df_sub[(df_sub[par_column_name] <=col_th) & (df_sub["iq_factor"] == 0.5)]
+        df_sub = df_sub[(df_sub[par_column_name] <=col_th) & (df_sub["iq_factor"] == iq_factor)]
 
     df_sub = df_sub[["num_tests", day_column_name, par_column_name]]
     df_map = df_sub.pivot("num_tests", par_column_name, day_column_name)

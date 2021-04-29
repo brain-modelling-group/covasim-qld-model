@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import covasim as cv
 
-sns.set_context("poster")
+sns.set_context("poster", font_scale=0.8)
 
 # Import data - x4 main scenarios 
 df_cloz = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
@@ -26,19 +26,19 @@ poisson_col = "poisson_lambda"
 def get_subframe(df, num_tests, column_name, col_th):
     df_sub = df[df["num_tests"] == num_tests]
     if column_name == "poisson_lambda":
-        df_sub = df_sub[(df_sub[column_name] <=col_th) & (df_sub[column_name] >=0.5)]
+        df_sub = df_sub[(df_sub[column_name] <=col_th) & (df_sub[column_name] >=0.2)]
     else:
         df_sub = df_sub[df_sub[column_name] <=col_th]
 
-    df_sub = df_sub[["iq_factor", "first_case_day_md", column_name]]
-    df_map = df_sub.pivot("iq_factor", column_name, "first_case_day_md")
+    df_sub = df_sub[["iq_factor", "outbreak_inf_prob", column_name]]
+    df_map = df_sub.pivot("iq_factor", column_name, "outbreak_inf_prob")
     return df_map
 
 def plot_heatmaps(df_map_list, fig_name_list, xlab):
 
     for df_map, fig_name in zip(df_map_list, fig_name_list):
         f, ax = plt.subplots(figsize=(14, 9))
-        sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="inferno", vmin=0, vmax=24)
+        sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="viridis", vmin=0, vmax=100)
         ax.set_ylabel('quarantine/isolation factor')
         ax.set_xlabel(xlab)
         f.tight_layout()
@@ -48,11 +48,11 @@ def plot_heatmaps(df_map_list, fig_name_list, xlab):
 dfcloz_map = get_subframe(df_cloz, num_tests, cluster_col, cluster_size_th) 
 dfcluk_map = get_subframe(df_cluk, num_tests, cluster_col, cluster_size_th) 
 
-plot_heatmaps([dfcloz_map, dfcluk_map], ["fig_prob_outbreak_case_map_cluster_oz.png", "fig_prob_outbreak_case_map_cluster_uk.png"], 'cluster size')
+plot_heatmaps([dfcloz_map, dfcluk_map], ["fig_prob_outbreak_inf_prob_map_cluster_oz.png", "fig_prob_outbreak_inf_prob_map_cluster_uk.png"], 'cluster size')
 
 dfploz_map = get_subframe(df_ploz, num_tests, poisson_col, poisson_th) 
 dfpluk_map = get_subframe(df_pluk, num_tests, poisson_col, poisson_th) 
 
-plot_heatmaps([dfploz_map, dfpluk_map], ["fig_prob_outbreak_case_map_poisson_oz.png", "fig_prob_outbreak_case_map_poisson_uk.png"], 'daily arrivals infections')
+plot_heatmaps([dfploz_map, dfpluk_map], ["fig_prob_outbreak_inf_prob_map_poisson_oz.png", "fig_prob_outbreak_inf_prob_map_poisson_uk.png"], 'daily arrivals infections')
 
 plt.show()
