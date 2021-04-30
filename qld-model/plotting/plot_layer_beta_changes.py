@@ -83,7 +83,8 @@ hr_layers = ['home',
              'large events', 
              'social'] 
 
-fig, ax = plt.subplots(1,1, figsize=(10,5))
+cm = 1/2.54
+fig, ax = plt.subplots(1,1, figsize=(15*cm,5*cm))
 
 
 norm = MidpointNormalize(midpoint=1.0, vmin=0.0, vmax=1.2)
