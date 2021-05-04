@@ -22,7 +22,8 @@ import colorsys
 
 import covasim.misc as cvm
 
-
+#mpl.rc('xtick', labelsize=16) 
+#mpl.rc('ytick', labelsize=16) 
 
 def scale_lightness(rgb, scale_l):
     # convert rgb to hls
@@ -83,8 +84,8 @@ hr_layers = ['Home',
              'Large events', 
              'Social'] 
 
-cm = 1/2.54
-fig, ax = plt.subplots(1,1, figsize=(15*cm,5*cm))
+cms = 1/2.54
+fig, ax = plt.subplots(1,1, figsize=(20*cms,10*cms))
 
 
 norm = MidpointNormalize(midpoint=1.0, vmin=0.0, vmax=1.2)
