@@ -68,20 +68,20 @@ layers = ['H',
           'large_events', 
           'social'] 
 # Human readable labels
-hr_layers = ['home', 
-             'school', 
-             'work', 
-             'community', 
-             'places of worship', 
-             'professional sport', 
-             'community sport', 
-             'entertainment', 
-             'cafe restaurant', 
-             'pub/bar', 
-             'transport', 
-             'public parks', 
-             'large events', 
-             'social'] 
+hr_layers = ['Home', 
+             'School', 
+             'Work', 
+             'Community', 
+             'Places of worship', 
+             'Professional sport', 
+             'Community sport', 
+             'Entertainment', 
+             'Cafe/Restaurant', 
+             'Pub/Bar', 
+             'Transport', 
+             'Public parks', 
+             'Large events', 
+             'Social'] 
 
 cm = 1/2.54
 fig, ax = plt.subplots(1,1, figsize=(15*cm,5*cm))
