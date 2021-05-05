@@ -30,8 +30,8 @@ def get_subframe(df, num_tests, column_name, col_th):
     else:
         df_sub = df_sub[df_sub[column_name] <=col_th]
 
-    df_sub = df_sub[["iq_factor", "outbreak_prob", column_name]]
-    df_map = df_sub.pivot("iq_factor", column_name, "outbreak_prob")
+    df_sub = df_sub[["iq_compliance", "outbreak_prob", column_name]]
+    df_map = df_sub.pivot("iq_compliance", column_name, "outbreak_prob")
     return df_map
 
 def plot_heatmaps(df_map_list, fig_name_list):
@@ -39,10 +39,10 @@ def plot_heatmaps(df_map_list, fig_name_list):
     for df_map, fig_name in zip(df_map_list, fig_name_list):
         f, ax = plt.subplots(figsize=(14, 9))
         sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="inferno", vmin=0, vmax=100)
-        ax.set_ylabel('quarantine/isolation factor')
+        ax.set_ylabel('quarantine/isolation compliance')
         ax.set_xlabel('cluster size')
         f.tight_layout()
-        cv.savefig(fig_name, dpi=300)
+        #cv.savefig(fig_name, dpi=300)
     return
 
 dfcloz_map = get_subframe(df_cloz, num_tests, cluster_col, cluster_size_th) 
