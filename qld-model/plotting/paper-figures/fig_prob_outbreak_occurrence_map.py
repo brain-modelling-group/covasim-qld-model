@@ -10,8 +10,8 @@ import covasim as cv
 sns.set_context("poster", font_scale=0.8)
 
 # Import data - x4 main scenarios 
-#data_folder = '/home/paula/data_ext4'
-data_folder = '/home/paula'
+data_folder = '/home/paula/data_ext4'
+#data_folder = '/home/paula'
 #df_cloz = pd.read_csv(f'{data_folder}/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
 df_cluk = pd.read_csv(f'{data_folder}/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
 #df_ploz = pd.read_csv(f'{data_folder}/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_oz.csv')
@@ -47,13 +47,13 @@ def plot_heatmaps(df_map_list, fig_name_list, xlab):
 
     for df_map, fig_name in zip(df_map_list, fig_name_list):
         f, ax = plt.subplots(figsize=(14, 9))
-        sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="viridis", vmin=0, vmax=100)
+        sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="viridis", vmin=0, vmax=100, cbar_kws={'label': 'probabilty [%]'})
         ax.set_ylabel('quarantine/isolation factor')
-        sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="YlGnBu_r", vmin=0, vmax=30)
+        sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="YlGnBu_r", vmin=0, vmax=30, cbar_kws={'label': 'probabilty [%]'})
         ax.set_ylabel('daily tests')
         ax.set_xlabel(xlab)
         f.tight_layout()
-        cv.savefig(fig_name, dpi=300)
+        #cv.savefig(fig_name, dpi=300)
     return
 
 #dfcloz_map = get_subframe(df_cloz, iq_factor, cluster_col, cluster_size_th) 
