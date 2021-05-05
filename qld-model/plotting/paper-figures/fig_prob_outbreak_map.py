@@ -38,7 +38,7 @@ def plot_heatmaps(df_map_list, fig_name_list):
 
     for df_map, fig_name in zip(df_map_list, fig_name_list):
         f, ax = plt.subplots(figsize=(14, 9))
-        sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="inferno", vmin=0, vmax=100)
+        sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap="inferno", vmin=0, vmax=100, cbar_kws={'label': 'probabilty [%]'})
         ax.set_ylabel('quarantine/isolation compliance')
         ax.set_xlabel('cluster size')
         f.tight_layout()
