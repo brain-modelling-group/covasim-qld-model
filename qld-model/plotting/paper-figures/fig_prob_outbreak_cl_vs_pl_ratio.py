@@ -37,8 +37,8 @@ color = 'tab:blue'
 ax1.set_xlabel('cluster size')
 ax1.set_ylabel('P[outb. detec. UK]/P[outb. detec. QLD]')
 ratio_cl = np.array(dfcluk["outbreak_prob"])/np.array(dfcloz["outbreak_prob"])
-ls1 = ax1.plot(dfcluk["cluster_size"], ratio_cl, color="blue", lw=2)
-ls2 = ax1.plot(dfcluk["cluster_size"], np.ones(dfcluk["cluster_size"].shape), color="black", ls='--', label='Cluster seeding')
+ls1 = ax1.plot(dfcluk["cluster_size"], ratio_cl, color="blue", lw=3, label='Cluster seeding')
+ls2 = ax1.plot(dfcluk["cluster_size"], np.ones(dfcluk["cluster_size"].shape), color="black", ls='--')
 ax1.set_xlim([1, 35])
 #ax1.set_ylim([0, 35])
 
@@ -47,14 +47,15 @@ ax2 = ax1.twiny()  # instantiate a second axes that shares the same y-axis
 ax2.set_xlabel('daily imported infections')
 color = 'tab:red'
 ratio_pl = np.array(dfpluk["outbreak_prob"])/np.array(dfploz["outbreak_prob"])
-ls2 = ax2.scatter(dfploz["poisson_lambda"], ratio_pl, color='blue', ls='.-', label='Poisson seeding')
+ls3 = ax2.plot(dfploz["poisson_lambda"], ratio_pl, color='blue', lw=1, label='Poisson seeding')
+ax2.set_xlim([0.25, 3])
 
 # Labels for legend
-lbs = [ls1, ls2]
-labs = [l.get_label() for l in lbs]
-ax1.legend(lbs, labs, loc=0, frameon=False)
+handler1, label1 = ax1.get_legend_handles_labels()
+handler2, label2 = ax2.get_legend_handles_labels()
+ax1.legend(handler1+handler2, label1+label2, loc=0, frameon=False)#)title='ax.legend')
 fig.tight_layout()
-#cv.savefig(f"fig_prob_outbreak_ratio_QLD_UK_tests_{num_tests}.png", dpi=300)
+cv.savefig(f"fig_prob_outbreak_ratio_QLD_UK_tests_pl_cl_{num_tests}.png", dpi=300)
 
 plt.show()
 
