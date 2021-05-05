@@ -28,24 +28,24 @@ dfpluk = get_subframe(df_pluk, num_tests, iq_factor)
 dfcluk = get_subframe(df_cluk, num_tests, iq_factor)
 
 
-fig, ax1 = plt.subplots(figsize=(6,3.6))
+fig, ax1 = plt.subplots(figsize=(6, 3.6))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
 ax1.set_ylabel('P[outbreak|cs=x]/P[outbreak|cs=1]')
 diff_op_cl = dfcluk["outbreak_prob"]/np.array(dfcluk["outbreak_prob"])[0]
 
 #import pdb; pdb.set_trace()
-ls1 = ax1.plot(dfcluk["cluster_size"], diff_op_cl, color="blue", lw=3, label='outbreak detection')
+ls1 = ax1.plot(dfcluk["cluster_size"], diff_op_cl, color="#8dd3c7", lw=3, label='outbreak detection')
 
 diff_rp_cl = dfcluk["resurgence_prob"]/np.array(dfcluk["resurgence_prob"])[0]
-ls3 = ax1.plot(dfcluk["cluster_size"], diff_rp_cl, color="red", lw=3, label='outbreak occurrence')
+ls3 = ax1.plot(dfcluk["cluster_size"], diff_rp_cl, color="#fb8072", lw=3, label='outbreak occurrence')
 
 ax1.set_xlim([1, 15])
 
 
 # # Labels for legend
 handler1, label1 = ax1.get_legend_handles_labels()
-ax1.legend(handler1, label1, loc=0, frameon=False)#)title='ax.legend')
+ax1.legend(handler1, label1, loc='lower right', frameon=True)#)title='ax.legend')
 fig.tight_layout()
 
 cv.savefig(f"fig_prob_outbreak_differential_UK_cl_{num_tests}.png", dpi=300)

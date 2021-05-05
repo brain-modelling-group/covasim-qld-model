@@ -35,7 +35,7 @@ dfcluk = get_subframe(df_cluk, num_tests, iq_factor)
 fig, ax1 = plt.subplots(figsize=(6,4))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
-ax1.set_ylabel('prob outbreak detection [%]')
+ax1.set_ylabel('P[outbreak detection] (%)')
 ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["outbreak_prob"], color="#2c7fb8", label='QLD/Cluster seeding')
 ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["outbreak_prob"], color='#fd8d3c', label='UK/Cluster seeding')
 ax1.set_xlim([0, 35])
@@ -50,7 +50,7 @@ ax2.set_xlim([0, 3])
 # Labels for legend
 lbs = [ls1, ls3, ls2, ls4]
 labs = [l.get_label() for l in lbs]
-ax1.legend(lbs, labs, loc=0, frameon=False)
+ax1.legend(lbs, labs, loc=0, frameon=True)
 fig.tight_layout()
 cv.savefig(f"fig_prob_outbreak_cl_vs_pl_cases_{num_tests}.png", dpi=300)
 
