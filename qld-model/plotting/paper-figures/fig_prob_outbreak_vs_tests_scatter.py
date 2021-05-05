@@ -10,8 +10,8 @@ import covasim as cv
 sns.set_context("poster")
 
 # Import data 
-#df_cluk = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
-df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
+df_cluk = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
+#df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
 
 
 def get_subframe(df, num_tests, iq_factor):
@@ -38,7 +38,7 @@ for idx, nt in enumerate([4160, 6260, 8360, 10460, 12560]):
 labs = [l.get_label() for l in ls1]
 ax1.legend(ls1, labs, loc=0, frameon=False)
 fig.tight_layout()
-cv.savefig(f"fig_prob_outbreak_cluster_tests_iq_1.0.png", dpi=300)
+#cv.savefig(f"fig_prob_outbreak_cluster_tests_iq_1.0.png", dpi=300)
 
 plt.show()
 
