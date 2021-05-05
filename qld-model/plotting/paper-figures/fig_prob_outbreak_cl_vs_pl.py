@@ -36,15 +36,15 @@ fig, ax1 = plt.subplots(figsize=(6,4))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
 ax1.set_ylabel('prob outbreak detection [%]')
-ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["outbreak_prob"], color="#2c7fb8", label='cluster (QLD)')
-ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["outbreak_prob"], color='#fd8d3c', label='cluster (UK)')
+ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["outbreak_prob"], color="#2c7fb8", label='QLD/Cluster seeding')
+ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["outbreak_prob"], color='#fd8d3c', label='UK/Cluster seeding')
 ax1.set_xlim([0, 35])
 
 ax2 = ax1.twiny()  # instantiate a second axes that shares the same y-axis
 ax2.set_xlabel('daily imported infections')
 color = 'tab:red'
-ls3 = ax2.scatter(dfploz["poisson_lambda"],dfploz["outbreak_prob"], color='#253494', label='daily arrivals (QLD)')
-ls4 = ax2.scatter(dfpluk["poisson_lambda"],dfpluk["outbreak_prob"], color='#bd0026', label='daily arrivals (UK)')
+ls3 = ax2.scatter(dfploz["poisson_lambda"],dfploz["outbreak_prob"], color='#253494', label='QLD/Poisson seeding ')
+ls4 = ax2.scatter(dfpluk["poisson_lambda"],dfpluk["outbreak_prob"], color='#bd0026', label='UK/Poisson seeding')
 ax2.set_xlim([0, 3])
 
 # Labels for legend
