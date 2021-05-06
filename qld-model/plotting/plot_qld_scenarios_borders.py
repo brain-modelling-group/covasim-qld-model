@@ -18,10 +18,13 @@ import datetime as dt
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
+import seaborn as sns
+sns.set_context("poster", font_scale=0.8)
+
 # Filepaths
-resultsfolder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-cluk'
+resultsfolder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cloz'
 figsfolder = resultsfolder
-output_fig = 'new_infections_timeseries_cluk.png'
+output_fig = 'new_infections_timeseries_cloz.png'
 
 # list_of_files = ['qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.1000.obj',
 #                 'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.1500.obj',
@@ -133,7 +136,7 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
 
     
     start_day_idx = single_sim.day(start_day)
-    start_day_fill = single_sim.day('2021-02-01')
+    start_day_fill = single_sim.day('2021-02-02')
     end_day_idx = -1
     
     
@@ -149,7 +152,7 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
     pl.plot(tvec[start_day_fill:end_day_idx], halfsies[start_day_fill:end_day_idx], c=main_colour, label=label, lw=2, alpha=1.0)
 
     # Resurgence limits
-    pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [5, 5], c=[1.0, 0.3945, 0.0], lw=1)
+    pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [5, 5], c=[0.5, 0.5, 0.5], lw=1)
     #pl.plot([tvec[start_day_idx], tvec[end_day_idx]], [50, 50], c=[0.5, 0.0, 0.0], lw=1)
     #sc.setylim()
     xmin, xmax = ax.get_xlim()
@@ -185,7 +188,7 @@ norm_cbar = mpl.colors.Normalize(vmin=0,vmax=num_cases)
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm_cbar)
 sm.set_array([])
 
-start_display_day = '2021-02-01' 
+start_display_day = '2021-02-02' 
 # Load the data
 for file_idx, this_file in enumerate(list_of_files):
     msim = sc.loadobj(f'{resultsfolder}/{this_file}')
@@ -196,7 +199,7 @@ for file_idx, this_file in enumerate(list_of_files):
     plotter('new_infections', sims, ax1, label='model predictions', ylabel=r'new daily infections', start_day=start_display_day, main_colour=main_colour)
 
 #plt.yscale('log')
-plt.ylim([0.0, 15])
+plt.ylim([0.0, 25])
 plt.xlim([0, 42])
 
 

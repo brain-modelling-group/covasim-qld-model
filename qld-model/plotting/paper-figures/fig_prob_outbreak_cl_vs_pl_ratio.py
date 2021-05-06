@@ -7,16 +7,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import covasim as cv
 
-#sns.set_context("paper")
+sns.set_context("poster", font_scale=0.8)
 #mpl.rc('xtick', labelsize=16) 
 
 
 # Import data - x4 main scenarios 
-df_ploz = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_oz.csv')
-df_pluk = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_uk.csv')
-df_cloz = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
-df_cluk = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
-
+df_ploz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_oz.csv')
+df_pluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_uk.csv')
+df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
+df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
 
 
 def get_subframe(df, num_tests, iq_factor):
@@ -32,11 +31,11 @@ dfpluk = get_subframe(df_pluk, num_tests, iq_factor)
 dfcluk = get_subframe(df_cluk, num_tests, iq_factor)
 
 
-fig, ax1 = plt.subplots(figsize=(6,3.6))
+fig, ax1 = plt.subplots(figsize=(9,5.5))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
-ax1.set_ylabel('P[outb. detec. UK]/P[outb. detec. QLD]')
-ratio_cl = np.array(dfcluk["outbreak_prob"])/np.array(dfcloz["outbreak_prob"])
+ax1.set_ylabel('P[out. occ. UK]/P[out. occ. QLD]')
+ratio_cl = np.array(dfcluk["resurgence_prob"])/np.array(dfcloz["resurgence_prob"])
 ls1 = ax1.plot(dfcluk["cluster_size"], ratio_cl, color="black", lw=3, label='Cluster seeding')
 ls2 = ax1.plot(dfcluk["cluster_size"], np.ones(dfcluk["cluster_size"].shape), color="red", ls='--')
 ax1.set_xlim([1, 35])
@@ -56,7 +55,7 @@ ax1.set_xlim([1, 35])
 # ax1.legend(handler1+handler2, label1+label2, loc=0, frameon=False)#)title='ax.legend')
 fig.tight_layout()
 #cv.savefig(f"fig_prob_outbreak_ratio_QLD_UK_tests_pl_cl_{num_tests}.png", dpi=300)
-cv.savefig(f"fig_prob_outbreak_ratio_QLD_UK_tests_cl_{num_tests}.png", dpi=300)
+cv.savefig(f"fig_prob_outbreak_oc_ratio_QLD_UK_tests_cl_{num_tests}.png", dpi=300)
 
 plt.show()
 
