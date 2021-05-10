@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--filelist_name', 
                         type=str, 
-                        help='''The name of  ile with csv file names where results are stored''')
+                        help='''The name of file with csv file names where results are stored''')
 
 parser.add_argument('--filelist_path', 
                         type=str, 
@@ -33,7 +33,7 @@ parser.add_argument('--filelist_path',
 
 parser.add_argument('--result_name', 
                         type=str, 
-                        help='''The relative and/or absolute path to a results csv file''')
+                        help='''The relative and/or absolute path to a results csv/txt file''')
 args = parser.parse_args()
 
 
