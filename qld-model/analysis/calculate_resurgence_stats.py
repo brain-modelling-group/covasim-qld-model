@@ -67,10 +67,10 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
             ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data_inf[1:, ...])
 
             if idx_date is not None:
-              outbreak_data = {'outbreak_inf': True}
+              outbreak_data = {'resurgence': True}
               idx_date +=1
             else:
-              outbreak_data = {'outbreak_inf': False}
+              outbreak_data = {'resurgence': False}
 
             df_ou_inf_dict  = sc.mergedicts(outbreak_data, 
                                             {'resurgence_day': [idx_date], 
@@ -78,8 +78,8 @@ with open(f"{args.filelist_path}/{args.filelist_obj_name}", 'r') as f:
                                              'resurgence_day_md': [ou_day_md],
                                              'resurgence_day_sd': [ou_day_sd],
                                              'resurgence_prob': [ou_prob],
-                                             'resurgence_prob': [uc_prob],
-                                             'resurgence_prob': [co_prob]}
+                                             'resurgence_control_prob': [uc_prob],
+                                             'resurgence_contained_prob': [co_prob]}
                                                      )
 
             fc_idx_date = utils.detect_first_case(median_trace)
