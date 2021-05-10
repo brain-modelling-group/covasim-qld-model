@@ -3,9 +3,9 @@
 """
 Load obj files and caluclate additinoal stats 
 
-python collate_resurgence_results.py 
+python calculate_resurgence_stats.py 
 --filelist_path '/home/paula/mnt_avalon/mnt/lustre/working/lab_jamesr/paulaSL/covid-results/pbs.14809560/sim-data' \
---filelist_name 'filelist_obj.csv' 
+--filelist_obj_name 'filelist_obj.csv' 
 
 for n in *.csv; do printf '%s\n' "$n"; done > filelist.txt
 
