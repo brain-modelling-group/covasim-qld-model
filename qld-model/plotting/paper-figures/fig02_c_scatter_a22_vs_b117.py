@@ -35,6 +35,7 @@ ax1.plot(dfcloz["cluster_size"], dfcloz["resurgence_prob"], lw=0.5, color="#2c7f
 ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["resurgence_prob"], s=140,color='#fd8d3c', label='B.1.1.7')
 ax1.plot(dfcluk["cluster_size"], dfcluk["resurgence_prob"], lw=0.5, color='#fd8d3c')
 ax1.set_xlim([0.5, 15])
+ax1.set_ylim([0, 103])
 
 # Labels for legend
 lbs = [ls1, ls2]
