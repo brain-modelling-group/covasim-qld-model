@@ -7,16 +7,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import covasim as cv
 
-sns.set_context("poster", font_scale=0.8)
+sns.set_context("paper", font_scale=1.9)
 #mpl.rc('xtick', labelsize=16) 
 
 
 # Import data - x4 main scenarios 
-df_ploz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_oz.csv')
-df_pluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_uk.csv')
 df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
 df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
-
 
 def get_subframe(df, num_tests, iq_factor):
     return df[(df["num_tests"] == num_tests) & (df["iq_factor"] == iq_factor)]
@@ -25,39 +22,22 @@ def get_subframe(df, num_tests, iq_factor):
 num_tests = 8360
 iq_factor = 0.5
 
-dfploz = get_subframe(df_ploz, num_tests, iq_factor)
 dfcloz = get_subframe(df_cloz, num_tests, iq_factor)
-dfpluk = get_subframe(df_pluk, num_tests, iq_factor)
 dfcluk = get_subframe(df_cluk, num_tests, iq_factor)
 
 
 fig, ax1 = plt.subplots(figsize=(9,5.5))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
-ax1.set_ylabel('P[out. occ. UK]/P[out. occ. QLD]')
+ax1.set_ylabel('P[SCT]$_{B.1.1.7}$/P[SCT]$_{A.2.2}$')
 ratio_cl = np.array(dfcluk["resurgence_prob"])/np.array(dfcloz["resurgence_prob"])
-ls1 = ax1.plot(dfcluk["cluster_size"], ratio_cl, color="black", lw=3, label='Cluster seeding')
-ls2 = ax1.plot(dfcluk["cluster_size"], np.ones(dfcluk["cluster_size"].shape), color="red", ls='--')
-ax1.set_xlim([1, 35])
-#ax1.set_ylim([0, 35])
+ls1 = ax1.plot(dfcluk["cluster_size"], ratio_cl, color="black", lw=0.5)
+ls1 = ax1.scatter(dfcluk["cluster_size"], ratio_cl, s=140, color="black", label='A.2.2.')
 
-
-# ax2 = ax1.twiny()  # instantiate a second axes that shares the same y-axis
-# ax2.set_xlabel('daily imported infections')
-# color = 'tab:red'
-# ratio_pl = np.array(dfpluk["outbreak_prob"])/np.array(dfploz["outbreak_prob"])
-# ls3 = ax2.plot(dfploz["poisson_lambda"], ratio_pl, color='blue', lw=1, label='Poisson seeding')
-# ax2.set_xlim([0.25, 3])
-
-# # Labels for legend
-# handler1, label1 = ax1.get_legend_handles_labels()
-# handler2, label2 = ax2.get_legend_handles_labels()
-# ax1.legend(handler1+handler2, label1+label2, loc=0, frameon=False)#)title='ax.legend')
+ls2 = ax1.plot(dfcluk["cluster_size"]-1, np.ones(dfcluk["cluster_size"].shape), color="#1b9e77", lw=6, alpha=0.4)
+ax1.set_xlim([0, 18])
+ax1.annotate('D', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 fig.tight_layout()
-#cv.savefig(f"fig_prob_outbreak_ratio_QLD_UK_tests_pl_cl_{num_tests}.png", dpi=300)
-cv.savefig(f"fig_prob_outbreak_oc_ratio_QLD_UK_tests_cl_{num_tests}.png", dpi=300)
-
+figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
+cv.savefig(f"{figure_folder}/fig02_d_prob_sct_ratio_cluster_A22_vs_B117_numtests_{num_tests}.png", dpi=300)
 plt.show()
-
-
-#ax2.tick_params(axis='y', labelcolor=color)
