@@ -36,10 +36,10 @@ for idx, nt in enumerate([6260]):
     data = get_subframe(df_cloz, nt, iq_factor)
     ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=[0.2, 0.2, 0.2,], lw=2, label="P[o | tests = "+str(nt)+"] - wild strain"))
 
-category_colors = plt.get_cmap('coolwarm')(np.linspace(0.0, 1.0, 13))
-for idx, nt in enumerate([6260, 8360, 10460, 12560, 18860, 31460, 56660]):
+category_colors = plt.get_cmap('coolwarm')(np.linspace(0.0, 1.0, 17))
+for idx, nt in enumerate([6260, 8360, 10460, 12560, 18860, 31460, 56660, 73460, 107060]):
     data = get_subframe(df_cluk, nt, iq_factor)
-    ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[idx+6, ...]*0.8, lw=2, label="P[o | tests = "+str(nt)+"] - UK variant"))
+    ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[idx+8, ...]*0.8, lw=2, label="P[o | tests = "+str(nt)+"] - UK variant"))
 
 
 # Labels for legend
