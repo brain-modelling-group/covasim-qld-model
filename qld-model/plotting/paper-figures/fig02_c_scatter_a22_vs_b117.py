@@ -29,7 +29,7 @@ fig, ax1 = plt.subplots(figsize=(9,5.5))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
 ax1.set_ylabel('P[SCT] (%)')
-ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["resurgence_prob"], s=140, color="#2c7fb8", label='A.2.2.')
+ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["resurgence_prob"], s=140, color="#2c7fb8", label='A.2.2')
 ax1.plot(dfcloz["cluster_size"], dfcloz["resurgence_prob"], lw=0.5, color="#2c7fb8")
 
 ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["resurgence_prob"], s=140,color='#fd8d3c', label='B.1.1.7')
