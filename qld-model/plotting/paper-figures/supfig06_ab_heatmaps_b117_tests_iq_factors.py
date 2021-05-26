@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import covasim as cv
 
-sns.set_context("paper", font_scale=1.9)
+sns.set_context("paper", font_scale=2.1)
 
 # Import data - x4 main scenarios 
 df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
@@ -48,7 +48,7 @@ high_iq_factor = 1.0
 dfcluk_fc_map_high_iq = get_subframe(df_cluk, num_tests, cluster_col, cluster_size_th, "resurgence_prob", iq_factor=high_iq_factor) 
 
 figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
-plot_heatmaps([dfcluk_fc_map_low_iq,], [f"{figure_folder}/supfig06_a_prob_sct_vs_tests_cluster_b117_low_iq.png"], 'cluster size', cmap_name="viridis")
-plot_heatmaps([dfcluk_fc_map_high_iq,], [f"{figure_folder}/supfig06_a_prob_sct_vs_tests_cluster_b117_high_iq.png"], 'cluster size', cmap_name="viridis", fig_label='B')
+plot_heatmaps([dfcluk_fc_map_low_iq,], [f"{figure_folder}/supfig06_a_prob_sct_vs_tests_cluster_b117_low_iq_0.1.png"], 'cluster size', cmap_name="viridis")
+plot_heatmaps([dfcluk_fc_map_high_iq,], [f"{figure_folder}/supfig06_b_prob_sct_vs_tests_cluster_b117_high_iq_1.0.png"], 'cluster size', cmap_name="viridis", fig_label='B')
 
 plt.show()
