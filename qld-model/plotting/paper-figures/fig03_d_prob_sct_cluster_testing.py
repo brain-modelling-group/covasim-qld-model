@@ -41,23 +41,28 @@ ax1.set_ylim([0, 30])
 ls1 = []    
 ls1.append(ax1.fill_between(num_tests, np.array(SCT_50_av_days_to_first_detection)+np.array(SCT_50_sd_days_to_first_detection), 
                                        y2=np.array(SCT_50_av_days_to_first_detection)-np.array(SCT_50_sd_days_to_first_detection), facecolor="#fed976", alpha=0.6))
-ls1.append(ax1.plot(num_tests, np.array(SCT_50_av_days_to_first_detection), lw=0.5, color="black"))
-ls1.append(ax1.scatter(num_tests, SCT_50_av_days_to_first_detection, c="#fed976", s=np.array(SCT_50_cluster_size_hi)*100, edgecolor='black', alpha=1.0))    
-ls1.append(ax1.plot(num_tests, np.array(SCT_50_av_days_to_first_detection), lw=0, color="#fed976", marker='o', ms=11, label="P[SCT]=50%"))
 
-
-ls1.append(ax1.plot(num_tests, np.array(SCT_70_av_days_to_first_detection), lw=0.5, color="black"))
 ls1.append(ax1.fill_between(num_tests, np.array(SCT_70_av_days_to_first_detection)+np.array(SCT_70_sd_days_to_first_detection), 
                                        y2=np.array(SCT_70_av_days_to_first_detection)-np.array(SCT_70_sd_days_to_first_detection), facecolor="#fc4e2a", alpha=0.2))
-ls1.append(ax1.scatter(num_tests, SCT_70_av_days_to_first_detection, c="#fc4e2a", s=np.array(SCT_70_cluster_size_hi)*100, edgecolor='black', alpha=1.0, label="P[SCT]=70%"))    
 
 
-ls1.append(ax1.fill_between(num_tests, np.array(SCT_90_av_days_to_first_detection)+2*np.array(SCT_90_sd_days_to_first_detection), 
-                                       y2=np.array(SCT_90_av_days_to_first_detection)-2*np.array(SCT_90_sd_days_to_first_detection), facecolor="#b10026", alpha=0.3))
-ls1.append(ax1.plot(num_tests, np.array(SCT_90_av_days_to_first_detection), lw=0.5, color="black"))
+ls1.append(ax1.fill_between(num_tests, np.array(SCT_90_av_days_to_first_detection)+np.array(SCT_90_sd_days_to_first_detection), 
+                                       y2=np.array(SCT_90_av_days_to_first_detection)-np.array(SCT_90_sd_days_to_first_detection), facecolor="#b10026", alpha=0.3))
 
-ls1.append(ax1.scatter(num_tests, SCT_90_av_days_to_first_detection, c="#b10026", s=np.array(SCT_90_cluster_size_hi)*100, edgecolor='black', alpha=1.0, label="P[SCT]=90%"))    
-ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=16)
+ls1.append(ax1.plot(num_tests, np.array(SCT_50_av_days_to_first_detection), lw=4, color="black", zorder=1))
+ls1.append(ax1.plot(num_tests, np.array(SCT_50_av_days_to_first_detection), lw=3, color="#fed976", zorder=1))
+ls1.append(ax1.scatter(num_tests, SCT_50_av_days_to_first_detection, facecolor="#fed976", s=np.array(SCT_50_cluster_size_hi)*100, edgecolor='black', alpha=1.0, zorder=2))    
+
+ls1.append(ax1.plot(num_tests, np.array(SCT_70_av_days_to_first_detection), lw=4, color="black", zorder=1, alpha=0.5))
+ls1.append(ax1.plot(num_tests, np.array(SCT_70_av_days_to_first_detection), lw=3, color="#fc4e2a", zorder=1))
+ls1.append(ax1.scatter(num_tests, SCT_70_av_days_to_first_detection, facecolor="#fc4e2a", s=np.array(SCT_70_cluster_size_hi)*100, edgecolor='black', alpha=1.0, zorder=2))
+
+ls1.append(ax1.plot(num_tests, np.array(SCT_90_av_days_to_first_detection), lw=4, color="black", zorder=1, alpha=0.5))
+ls1.append(ax1.plot(num_tests, np.array(SCT_90_av_days_to_first_detection), lw=3, color="#b10026", zorder=1))    
+ls1.append(ax1.scatter(num_tests, SCT_90_av_days_to_first_detection, s=np.array(SCT_90_cluster_size_hi)*100, facecolor="#b10026",edgecolor='black', alpha=1.0, zorder=2))    
+
+
+ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
 
 
 ax1.annotate(
@@ -69,23 +74,33 @@ ax1.annotate(
 
 ax1.annotate(
     'P[SCT]=70%', color='white', weight='bold',
-    xy=(23000., 25), xycoords='data',
+    xy=(23000., 24), xycoords='data',
     xytext=(0, 0), textcoords='offset points',
     bbox=dict(boxstyle="round", fc="#fc4e2a", ec="#fc4e2a", alpha=1.0),
     fontsize=12)
 
 ax1.annotate(
     'P[SCT]=50%', weight='bold',
-    xy=(23000., 23), xycoords='data',
+    xy=(23000., 21), xycoords='data',
     xytext=(0, 0), textcoords='offset points',
     bbox=dict(boxstyle="round", fc="#fed976", ec="#fed976", alpha=1.0),
     fontsize=12)
+
+ax1.annotate(
+    'estimated cluster size',
+    xy=(8000, 27), xycoords='data',
+    xytext=(-40, 0), textcoords='offset points', fontsize=14)
+
+ax1.scatter([12500, 13750, 15500], [27.5, 27.5, 27.5], color=[0.5, 0.5, 0.5], s=np.array([3, 5, 7])*100)    
+ax1.text(12350, 27, '3', color='white', weight='bold', fontsize=12)
+ax1.text(13550, 27, '5', color='white', weight='bold', fontsize=12)
+ax1.text(15350, 27, '7', color='white', weight='bold', fontsize=12)
 
 # Labels for legend
 #handler1, label1 = ax1.get_legend_handles_labels()
 #ax1.legend(handler1, label1, loc="upper right", frameon=True)
 fig.tight_layout()
-figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
+figure_folder = '/home/paula/data_ext4/Dropbox/COVID/articles/coronavirus-qld-calibration/figures'
 #cv.savefig(f"{figure_folder}/fig03_d_prob_sct_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
 
 plt.show()
