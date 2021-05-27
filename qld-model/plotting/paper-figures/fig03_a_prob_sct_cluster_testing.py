@@ -33,27 +33,27 @@ fake_labels = ['6,000', '8,000', '12,000', '31,000', '100,000']
 for idx, nt in enumerate([6260]):
     data = get_subframe(df_cloz, nt, iq_factor)
     ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color='black', lw=0.5,  marker='o', ms=10, label="~6,000 - A.2.2"))
-ax1.plot(data["cluster_size"], [50]*data["cluster_size"].shape[0], color='#fed976', lw=6, alpha=0.4)
-ax1.plot(data["cluster_size"], [70]*data["cluster_size"].shape[0], color='#fc4e2a', lw=6, alpha=0.4)
-ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='#b10026', lw=6, alpha=0.4)
+ax1.plot(data["cluster_size"], [50]*data["cluster_size"].shape[0], color='#fed976', lw=6, alpha=1.0)
+ax1.plot(data["cluster_size"], [70]*data["cluster_size"].shape[0], color='#fc4e2a', lw=6, alpha=1.0)
+ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='#b10026', lw=6, alpha=1.0)
 
 ax1.annotate(
     '90%',
     xy=(1., 90), xycoords='data',
     xytext=(-40, 0), textcoords='offset points',
-    bbox=dict(boxstyle="round", fc="#b10026", alpha=0.4))
+    bbox=dict(boxstyle="round", fc="#b10026", alpha=1.0))
 
 ax1.annotate(
     '70%',
-    xy=(1., 70), xycoords='data',
+    xy=(1., 70), xycoords='data', color='white',
     xytext=(-40, 0), textcoords='offset points',
-    bbox=dict(boxstyle="round", fc="#fc4e2a", alpha=0.4))
+    bbox=dict(boxstyle="round", fc="#fc4e2a", alpha=1.0))
 
 ax1.annotate(
     '50%',
-    xy=(1., 50), xycoords='data',
+    xy=(1., 50), xycoords='data', color='white',
     xytext=(-40, 0), textcoords='offset points',
-    bbox=dict(boxstyle="round", fc="#fed976", alpha=0.4))
+    bbox=dict(boxstyle="round", fc="#fed976", alpha=1.0))
 
 category_colors = plt.get_cmap('Greys')(np.linspace(0.0, 1.0, 9))
 for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
