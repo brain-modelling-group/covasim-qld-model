@@ -27,7 +27,6 @@ ax1.set_ylabel('prob resurgence [%]')
 ax1.set_xlim([0, 17])
 
 category_colors = plt.get_cmap('viridis')(np.linspace(0.25, 0.75, 5))
-
 ls1 = []
 for idx, nt in enumerate([4160, 6260, 8360, 10460, 12560]):
     data = get_subframe(df_cluk, nt, iq_factor)
