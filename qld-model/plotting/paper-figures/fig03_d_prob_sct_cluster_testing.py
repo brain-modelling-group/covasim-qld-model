@@ -101,6 +101,6 @@ ax1.text(15350, 27, '7', color='white', weight='bold', fontsize=12)
 #ax1.legend(handler1, label1, loc="upper right", frameon=True)
 fig.tight_layout()
 figure_folder = '/home/paula/data_ext4/Dropbox/COVID/articles/coronavirus-qld-calibration/figures'
-#cv.savefig(f"{figure_folder}/fig03_d_prob_sct_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
+cv.savefig(f"{figure_folder}/fig03_d_prob_sct_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
 
 plt.show()
