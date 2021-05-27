@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import covasim as cv
 
-sns.set_context("poster", font_scale=0.9)
+sns.set_context("poster", font_scale=1.1)
 
 # Import data - x4 main scenarios 
 df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
@@ -18,9 +18,9 @@ df_pluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbr
 # Select one lvel of testing and one level of iq
 num_tests = 6260
 iq_factor = 0.5
-cluster_size_th = 15
+cluster_size_th = 11
 cluster_col = "cluster_size"
-poisson_th = 1.3
+poisson_th = 1.1
 poisson_col = "poisson_lambda"
 which_outbreak_prob="resurgence_prob"
 which_colourmap = "viridis"

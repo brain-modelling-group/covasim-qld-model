@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import covasim as cv
 
-sns.set_context("poster", font_scale=0.9)
+sns.set_context("poster", font_scale=1.1)
 
 # Import data - x4 main scenarios 
 df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
@@ -18,9 +18,9 @@ df_pluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbr
 # Select one lvel of testing and one level of iq
 num_tests = 6260
 iq_factor = 0.5
-cluster_size_th = 15
+cluster_size_th = 11
 cluster_col = "cluster_size"
-poisson_th = 1.3
+poisson_th = 1.1
 poisson_col = "poisson_lambda"
 which_outbreak_prob="outbreak_prob"
 which_colourmap = "inferno"
@@ -60,6 +60,6 @@ plot_heatmaps([dfcloz_map, dfcluk_map], [f"{figure_folder}/fig_prob_outbreak_de_
 dfploz_map = get_subframe(df_ploz, num_tests, poisson_col, poisson_th) 
 dfpluk_map = get_subframe(df_pluk, num_tests, poisson_col, poisson_th) 
 
-plot_heatmaps([dfploz_map, dfpluk_map], [f"{figure_folder}/fig_prob_outbreak_de_map_poisson_oz.png", f"{figure_folder}/fig_prob_outbreak_de_map_poisson_uk.png"], fig_labels=["C", "D"], xlabel='daily rate\nimported infections')
+plot_heatmaps([dfploz_map, dfpluk_map], [f"{figure_folder}/fig_prob_outbreak_de_map_poisson_oz.png", f"{figure_folder}/fig_prob_outbreak_de_map_poisson_uk.png"], fig_labels=["C", "D"], xlabel='daily rate of imported infections')
 
 plt.show()
