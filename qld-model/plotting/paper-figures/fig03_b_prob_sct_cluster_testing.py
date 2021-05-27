@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import covasim as cv
 
-sns.set_context("paper", font_scale=1.5)
+sns.set_context("paper", font_scale=2.3)
 
 
 num_tests = [6260, 8360, 12560, 31460]
@@ -33,7 +33,7 @@ SCT_90_sd_days_to_first_detection = [5, 3, 3, 1]
 
 fig, ax1 = plt.subplots(figsize=(9,5.5))
 ax1.set_xlabel('number of daily tests')
-ax1.set_ylabel('P[crossing detection threshold] (%)')
+ax1.set_ylabel('P[detection] (%)')
 ax1.set_xscale('log')
 ax1.set_xlim([6000, 33000])
 ax1.set_ylim([0, 100])
@@ -49,16 +49,40 @@ ls1.append(ax1.plot(num_tests, SCT_90_detection_prob, color="#b10026", marker='o
 ax1.scatter(num_tests, SCT_90_detection_prob, color="#b10026", s=np.array(SCT_90_cluster_size_hi)*100)    
 
 # annotations
-ax1.scatter([20000, 21800, 24000], [90, 90, 90], color=[0.5, 0.5, 0.5], s=np.array([3, 5, 7])*100)    
+ax1.scatter([20000, 21800, 24000], [89, 89, 89], color=[0.5, 0.5, 0.5], s=np.array([3, 5, 7])*100)    
+
+
+ax1.annotate(
+    'P[SCT]=90%', color='white', weight='bold',
+    xy=(18300., 10), xycoords='data',
+    xytext=(0, 0), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="#b10026", ec="#b10026", alpha=1.0), 
+    fontsize=18)
+
+ax1.annotate(
+    'P[SCT]=70%', color='white', weight='bold',
+    xy=(11500., 10), xycoords='data',
+    xytext=(0, 0), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="#fc4e2a", ec="#fc4e2a", alpha=1.0),
+    fontsize=18)
+
+ax1.annotate(
+    'P[SCT]=50%', weight='bold',
+    xy=(7200., 10), xycoords='data',
+    xytext=(0, 0), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="#fed976", ec="#fed976", alpha=1.0),
+    fontsize=18)
+
 ax1.annotate(
     'estimated cluster size',
-    xy=(13000, 89), xycoords='data',
-    xytext=(-40, 0), textcoords='offset points')
+    xy=(11200, 87), xycoords='data',
+    xytext=(-40, 0), textcoords='offset points', fontsize=18)
 
-ax1.text(19750, 88.5, '3', color='white')
-ax1.text(21420, 88.5, '5', color='white')
-ax1.text(23650, 88.5, '7', color='white')
-ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
+
+ax1.text(19680-40, 87.5, '3', color='white', weight='bold', fontsize=14)
+ax1.text(21470-80, 87.5, '5', color='white', weight='bold', fontsize=14)
+ax1.text(23650-80, 87.5, '7', color='white', weight='bold', fontsize=14)
+ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=34)
 
 
 # import numpy as np
@@ -76,10 +100,10 @@ ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
 # plt.show()
 
 # Labels for legend
-handler1, label1 = ax1.get_legend_handles_labels()
-ax1.legend(handler1, label1, loc="lower right", frameon=True)
+#handler1, label1 = ax1.get_legend_handles_labels()
+#ax1.legend(handler1, label1, loc="lower right", frameon=True)
 fig.tight_layout()
 figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
-cv.savefig(f"{figure_folder}/fig03_b_prob_sct_cluster_tests_iq_0.1_uk-oz.png.png", dpi=300)
+cv.savefig(f"{figure_folder}/fig03_b_prob_sct_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
 
 plt.show()
