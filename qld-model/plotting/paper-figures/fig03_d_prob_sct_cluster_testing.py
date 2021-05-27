@@ -42,12 +42,32 @@ ls1 = []
 ls1.append(ax1.fill_between(num_tests, np.array(SCT_50_av_days_to_first_detection)+np.array(SCT_50_sd_days_to_first_detection), 
                                        y2=np.array(SCT_50_av_days_to_first_detection)-np.array(SCT_50_sd_days_to_first_detection), facecolor="#fed976", alpha=0.6))
 
+ls1.append(ax1.fill_between([6000, 6260], [np.array(SCT_50_av_days_to_first_detection[0])+np.array(SCT_50_sd_days_to_first_detection[0]), np.array(SCT_50_av_days_to_first_detection[0])+np.array(SCT_50_sd_days_to_first_detection[0])], 
+                                       y2=[np.array(SCT_50_av_days_to_first_detection[0])-np.array(SCT_50_sd_days_to_first_detection[0]), np.array(SCT_50_av_days_to_first_detection[0])-np.array(SCT_50_sd_days_to_first_detection[0])], facecolor="#fed976", alpha=0.6))
+
+ls1.append(ax1.fill_between([31460, 33000], [np.array(SCT_50_av_days_to_first_detection[-1])+np.array(SCT_50_sd_days_to_first_detection[-1]), np.array(SCT_50_av_days_to_first_detection[-1])+np.array(SCT_50_sd_days_to_first_detection[-1])], 
+                                       y2=[np.array(SCT_50_av_days_to_first_detection[-1])-np.array(SCT_50_sd_days_to_first_detection[-1]), np.array(SCT_50_av_days_to_first_detection[-1])-np.array(SCT_50_sd_days_to_first_detection[-1])], facecolor="#fed976", alpha=0.6))
+
 ls1.append(ax1.fill_between(num_tests, np.array(SCT_70_av_days_to_first_detection)+np.array(SCT_70_sd_days_to_first_detection), 
                                        y2=np.array(SCT_70_av_days_to_first_detection)-np.array(SCT_70_sd_days_to_first_detection), facecolor="#fc4e2a", alpha=0.2))
+
+ls1.append(ax1.fill_between([6000, 6260], [np.array(SCT_70_av_days_to_first_detection[0])+np.array(SCT_70_sd_days_to_first_detection[0]), np.array(SCT_70_av_days_to_first_detection[0])+np.array(SCT_70_sd_days_to_first_detection[0])], 
+                                       y2=[np.array(SCT_70_av_days_to_first_detection[0])-np.array(SCT_70_sd_days_to_first_detection[0]), np.array(SCT_70_av_days_to_first_detection[0])-np.array(SCT_70_sd_days_to_first_detection[0])], facecolor="#fc4e2a", alpha=0.2))
+
+ls1.append(ax1.fill_between([31460, 33000], [np.array(SCT_70_av_days_to_first_detection[-1])+np.array(SCT_70_sd_days_to_first_detection[-1]), np.array(SCT_70_av_days_to_first_detection[-1])+np.array(SCT_70_sd_days_to_first_detection[-1])], 
+                                       y2=[np.array(SCT_70_av_days_to_first_detection[-1])-np.array(SCT_70_sd_days_to_first_detection[-1]), np.array(SCT_70_av_days_to_first_detection[-1])-np.array(SCT_70_sd_days_to_first_detection[-1])], facecolor="#fc4e2a", alpha=0.2))
 
 
 ls1.append(ax1.fill_between(num_tests, np.array(SCT_90_av_days_to_first_detection)+np.array(SCT_90_sd_days_to_first_detection), 
                                        y2=np.array(SCT_90_av_days_to_first_detection)-np.array(SCT_90_sd_days_to_first_detection), facecolor="#b10026", alpha=0.3))
+
+ls1.append(ax1.fill_between([6000, 6260], [np.array(SCT_90_av_days_to_first_detection[0])+np.array(SCT_90_sd_days_to_first_detection[0]), np.array(SCT_90_av_days_to_first_detection[0])+np.array(SCT_90_sd_days_to_first_detection[0])], 
+                                       y2=[np.array(SCT_90_av_days_to_first_detection[0])-np.array(SCT_90_sd_days_to_first_detection[0]), np.array(SCT_90_av_days_to_first_detection[0])-np.array(SCT_90_sd_days_to_first_detection[0])], facecolor="#b10026", alpha=0.3))
+
+ls1.append(ax1.fill_between([31460, 33000], [np.array(SCT_90_av_days_to_first_detection[-1])+np.array(SCT_90_sd_days_to_first_detection[-1]), np.array(SCT_90_av_days_to_first_detection[-1])+np.array(SCT_90_sd_days_to_first_detection[-1])], 
+                                       y2=[np.array(SCT_90_av_days_to_first_detection[-1])-np.array(SCT_90_sd_days_to_first_detection[-1]), np.array(SCT_90_av_days_to_first_detection[-1])-np.array(SCT_90_sd_days_to_first_detection[-1])], facecolor="#b10026", alpha=0.3))
+
+
 
 ls1.append(ax1.plot(num_tests, np.array(SCT_50_av_days_to_first_detection), lw=4, color="black", zorder=1))
 ls1.append(ax1.plot(num_tests, np.array(SCT_50_av_days_to_first_detection), lw=3, color="#fed976", zorder=1))
