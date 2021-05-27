@@ -41,6 +41,7 @@ def plot_heatmaps(df_map_list, fig_name_list, fig_labels=["A", "B"], xlabel='clu
     for df_map, fig_name in zip(df_map_list, fig_name_list):
         f, ax = plt.subplots(figsize=(14, 9))
         sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap=which_colourmap, vmin=0, vmax=100, cbar_kws={'label': 'probabilty [%]'})
+        plt.yticks(rotation=0) 
         ax.set_ylabel('Q/I leakage')
         ax.set_xlabel(xlabel)
         ax.annotate(fig_labels[idx], xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=50)

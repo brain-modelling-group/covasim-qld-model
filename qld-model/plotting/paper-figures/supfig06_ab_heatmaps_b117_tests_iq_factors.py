@@ -35,6 +35,7 @@ def plot_heatmaps(df_map_list, fig_name_list, xlab, cmap_name='inferno', fig_lab
     for df_map, fig_name in zip(df_map_list, fig_name_list):
         f, ax = plt.subplots(figsize=(14, 6))
         sns.heatmap(df_map, annot=True, fmt=".0f", linewidths=.5, ax=ax, cmap=cmap_name, vmin=0, vmax=100, cbar_kws={'label': 'probabilty [%]'})
+        plt.yticks(rotation=0) 
         ax.set_ylabel('daily number of tests')
         ax.set_xlabel(xlab)
         ax.annotate(fig_label, xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
