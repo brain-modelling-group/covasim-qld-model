@@ -10,65 +10,56 @@ import covasim as cv
 sns.set_context("paper", font_scale=1.5)
 
 
-# Import data 
-#df_cluk = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
-df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
-df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
-
-def get_subframe(df, num_tests, iq_factor):
-    return df[(df["num_tests"] == num_tests) & (df["iq_factor"] == iq_factor)]
-
-# Select one lvel of testing and one level of iq
-iq_factor = 0.1
-
 num_tests = [6260, 8360, 12560, 31460]
 
-STC_50_detection_prob = [25.2, 25.3, 26.7, 30.3]
-STC_50_cluster_size_lo = [1, 1, 1, 2]
-STC_50_cluster_size_hi = [2, 2, 2, 3]
-STC_50_av_days_to_first_detection = [20, 17, 14, 9]
-STC_50_sd_days_to_first_detection = [8, 8, 7, 5]
+SCT_50_detection_prob = [25.2, 25.3, 26.7, 30.3]
+SCT_50_cluster_size_lo = [1, 1, 1, 2]
+SCT_50_cluster_size_hi = [2, 2, 2, 3]
+SCT_50_av_days_to_first_detection = [20, 17, 14, 9]
+SCT_50_sd_days_to_first_detection = [8, 8, 7, 5]
 
-STC_70_detection_prob = [40, 40, 44, 54]
-STC_70_cluster_size_lo = [1, 2, 2, 4]
-STC_70_cluster_size_hi = [2, 3, 3, 5]
-STC_70_av_days_to_first_detection = [17, 14, 13, 6]
-STC_70_sd_days_to_first_detection = [7, 7, 5, 3]
+SCT_70_detection_prob = [40, 40, 44, 54]
+SCT_70_cluster_size_lo = [1, 2, 2, 4]
+SCT_70_cluster_size_hi = [2, 3, 3, 5]
+SCT_70_av_days_to_first_detection = [17, 14, 13, 6]
+SCT_70_sd_days_to_first_detection = [7, 7, 5, 3]
 
-STC_90_detection_prob = [68, 67, 67, 64]
-STC_90_cluster_size_lo = [4, 4, 5, 6]
-STC_90_cluster_size_hi = [5, 5, 6, 7]
-STC_90_av_days_to_first_detection = [11, 7, 6, 4]
-STC_90_sd_days_to_first_detection = [5, 3, 3, 1]
+SCT_90_detection_prob = [68, 67, 67, 64]
+SCT_90_cluster_size_lo = [4, 4, 5, 6]
+SCT_90_cluster_size_hi = [5, 5, 6, 7]
+SCT_90_av_days_to_first_detection = [11, 7, 6, 4]
+SCT_90_sd_days_to_first_detection = [5, 3, 3, 1]
 
 
 fig, ax1 = plt.subplots(figsize=(9,5.5))
-color = 'tab:blue'
-ax1.set_xlabel('cluster size')
-ax1.set_ylabel('P[SCT] (%)')
-ax1.set_xlim([1, 30])
+ax1.set_xlabel('number of daily tests')
+ax1.set_ylabel('P[crossing detection threshold] (%)')
+ax1.set_xscale('log')
+ax1.set_xlim([6000, 33000])
 ax1.set_ylim([0, 100])
-	
-ls1 = []
-fake_labels = ['6,000', '8,000', '12,000', '31,000', '100,000']
-for idx, nt in enumerate([6260]):
-    data = get_subframe(df_cloz, nt, iq_factor)
-    ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=[0.5, 0.5, 0.5,], ls='--', lw=2, label="~6,000 - A.2.2"))
-    ls1.append(ax1.plot(data["cluster_size"], data["outbreak_prob"], color=[0.5, 0.5, 0.5,], ls='-.', lw=2))
 
+ls1 = []    
+ls1.append(ax1.plot(num_tests, SCT_50_detection_prob, color="#fed976", marker='o', lw=2, label="P[SCT]=50%"))
+ax1.scatter(num_tests, SCT_50_detection_prob, color="#fed976", s=np.array(SCT_50_cluster_size_hi)*100)    
 
-category_colors = plt.get_cmap('coolwarm')(np.linspace(0.0, 1.0, 11))
-for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
-    data = get_subframe(df_cluk, nt, iq_factor)
-    ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[10-idx, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - B.1.1.7"))
-    
-    ls1.append(ax1.plot(data["cluster_size"], data["first_case_day_av"], color=category_colors[10-idx, ...]*0.8, lw=2, ls=':', marker='o'))
-    ls1.append(ax1.plot(data["cluster_size"], data["first_case_day_sd"], color=category_colors[10-idx, ...]*0.8, lw=2, ls=':'))
-    ls1.append(ax1.plot(data["cluster_size"], data["outbreak_prob"], color=category_colors[10-idx, ...]*0.8, lw=2, ls='-.'))
+ls1.append(ax1.plot(num_tests, SCT_70_detection_prob, color="#fc4e2a", marker='o', lw=2, label="P[SCT]=70%"))
+ax1.scatter(num_tests, SCT_70_detection_prob, color="#fc4e2a", s=np.array(SCT_70_cluster_size_hi)*100)    
 
-ax1.plot(data["cluster_size"], [50]*data["cluster_size"].shape[0], color='black', lw=4, alpha=0.1)
-ax1.plot(data["cluster_size"], [70]*data["cluster_size"].shape[0], color='black', lw=4, alpha=0.1)
-ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='red', lw=4, alpha=0.1)
+ls1.append(ax1.plot(num_tests, SCT_90_detection_prob, color="#b10026", marker='o', lw=2, label="P[SCT]=90%"))    
+ax1.scatter(num_tests, SCT_90_detection_prob, color="#b10026", s=np.array(SCT_90_cluster_size_hi)*100)    
+
+# annotations
+ax1.scatter([20000, 21800, 24000], [90, 90, 90], color=[0.5, 0.5, 0.5], s=np.array([3, 5, 7])*100)    
+ax1.annotate(
+    'estimated cluster size',
+    xy=(13000, 89), xycoords='data',
+    xytext=(-40, 0), textcoords='offset points')
+
+ax1.text(19750, 88.5, '3', color='white')
+ax1.text(21420, 88.5, '5', color='white')
+ax1.text(23650, 88.5, '7', color='white')
+ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
+
 
 # import numpy as np
 # import matplotlib.pyplot as plt
@@ -86,9 +77,9 @@ ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='red', 
 
 # Labels for legend
 handler1, label1 = ax1.get_legend_handles_labels()
-ax1.legend(handler1, label1, loc="lower right", frameon=True, title='number of daily tests')
+ax1.legend(handler1, label1, loc="lower right", frameon=True)
 fig.tight_layout()
 figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
-cv.savefig(f"{figure_folder}/fig03_b_prob_sct_and_detection_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
+cv.savefig(f"{figure_folder}/fig03_b_prob_sct_cluster_tests_iq_0.1_uk-oz.png.png", dpi=300)
 
 plt.show()

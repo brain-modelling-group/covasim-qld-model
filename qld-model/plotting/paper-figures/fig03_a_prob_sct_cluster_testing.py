@@ -24,7 +24,7 @@ iq_factor = 0.1
 fig, ax1 = plt.subplots(figsize=(9,5.5))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
-ax1.set_ylabel('P[SCT] (%)')
+ax1.set_ylabel('P[SCT] (%)', labelpad=15)
 ax1.set_xlim([1, 10])
 ax1.set_ylim([0, 100])
 	
@@ -38,13 +38,22 @@ ax1.plot(data["cluster_size"], [70]*data["cluster_size"].shape[0], color='#fc4e2
 ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='#b10026', lw=6, alpha=0.4)
 
 ax1.annotate(
-    'angle,\nshrink',
+    '90%',
     xy=(1., 90), xycoords='data',
-    xytext=(-60, 30), textcoords='offset points',
-    bbox=dict(boxstyle="round", fc="0.8"),
-    arrowprops=dict(arrowstyle="->",
-                    shrinkA=0, shrinkB=10,
-                    connectionstyle="angle,angleA=0,angleB=90,rad=10"))
+    xytext=(-40, 0), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="#b10026", alpha=0.4))
+
+ax1.annotate(
+    '70%',
+    xy=(1., 70), xycoords='data',
+    xytext=(-40, 0), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="#fc4e2a", alpha=0.4))
+
+ax1.annotate(
+    '50%',
+    xy=(1., 50), xycoords='data',
+    xytext=(-40, 0), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="#fed976", alpha=0.4))
 
 category_colors = plt.get_cmap('Greys')(np.linspace(0.0, 1.0, 9))
 for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
@@ -52,12 +61,13 @@ for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
     ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - B.1.1.7"))
 
 
+ax1.annotate("A", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
 
 # Labels for legend
 handler1, label1 = ax1.get_legend_handles_labels()
 ax1.legend(handler1, label1, loc="lower right", frameon=True, title='number of daily tests')
 fig.tight_layout()
 figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
-#cv.savefig(f"{figure_folder}/fig03_prob_sct_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
+cv.savefig(f"{figure_folder}/fig03_a_prob_sct_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
 
 plt.show()
