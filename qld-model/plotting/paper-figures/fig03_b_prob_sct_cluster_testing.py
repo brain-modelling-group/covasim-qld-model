@@ -21,6 +21,27 @@ def get_subframe(df, num_tests, iq_factor):
 # Select one lvel of testing and one level of iq
 iq_factor = 0.1
 
+num_tests = [6260, 8360, 12560, 31460]
+
+STC_50_detection_prob = [25.2, 25.3, 26.7, 30.3]
+STC_50_cluster_size_lo = [1, 1, 1, 2]
+STC_50_cluster_size_hi = [2, 2, 2, 3]
+STC_50_av_days_to_first_detection = [20, 17, 14, 9]
+STC_50_sd_days_to_first_detection = [8, 8, 7, 5]
+
+STC_70_detection_prob = [40, 40, 44, 54]
+STC_70_cluster_size_lo = [1, 2, 2, 4]
+STC_70_cluster_size_hi = [2, 3, 3, 5]
+STC_70_av_days_to_first_detection = [17, 14, 13, 6]
+STC_70_sd_days_to_first_detection = [7, 7, 5, 3]
+
+STC_90_detection_prob = [68, 67, 67, 64]
+STC_90_cluster_size_lo = [4, 4, 5, 6]
+STC_90_cluster_size_hi = [5, 5, 6, 7]
+STC_90_av_days_to_first_detection = [11, 7, 6, 4]
+STC_90_sd_days_to_first_detection = [5, 3, 3, 1]
+
+
 fig, ax1 = plt.subplots(figsize=(9,5.5))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')

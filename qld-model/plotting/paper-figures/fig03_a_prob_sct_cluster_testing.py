@@ -33,15 +33,25 @@ fake_labels = ['6,000', '8,000', '12,000', '31,000', '100,000']
 for idx, nt in enumerate([6260]):
     data = get_subframe(df_cloz, nt, iq_factor)
     ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color='black', lw=0.5,  marker='o', ms=10, label="~6,000 - A.2.2"))
-    #ls1.append(ax1.scatter(data["cluster_size"], data["resurgence_prob"], s=140, color='black'))
+ax1.plot(data["cluster_size"], [50]*data["cluster_size"].shape[0], color='#fed976', lw=6, alpha=0.4)
+ax1.plot(data["cluster_size"], [70]*data["cluster_size"].shape[0], color='#fc4e2a', lw=6, alpha=0.4)
+ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='#b10026', lw=6, alpha=0.4)
+
+ax1.annotate(
+    'angle,\nshrink',
+    xy=(1., 90), xycoords='data',
+    xytext=(-60, 30), textcoords='offset points',
+    bbox=dict(boxstyle="round", fc="0.8"),
+    arrowprops=dict(arrowstyle="->",
+                    shrinkA=0, shrinkB=10,
+                    connectionstyle="angle,angleA=0,angleB=90,rad=10"))
+
 category_colors = plt.get_cmap('Greys')(np.linspace(0.0, 1.0, 9))
 for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
     data = get_subframe(df_cluk, nt, iq_factor)
     ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - B.1.1.7"))
 
-ax1.plot(data["cluster_size"], [50]*data["cluster_size"].shape[0], color='#fed976', lw=4, alpha=0.4)
-ax1.plot(data["cluster_size"], [70]*data["cluster_size"].shape[0], color='#fc4e2a', lw=4, alpha=0.4)
-ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='#b10026', lw=4, alpha=0.4)
+
 
 # Labels for legend
 handler1, label1 = ax1.get_legend_handles_labels()
