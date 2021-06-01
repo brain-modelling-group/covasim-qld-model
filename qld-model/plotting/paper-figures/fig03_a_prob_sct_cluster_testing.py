@@ -61,7 +61,7 @@ for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
     ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - B.1.1.7"))
 
 
-ax1.annotate("A", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=16)
+ax1.annotate("A", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
 
 # Labels for legend
 handler1, label1 = ax1.get_legend_handles_labels()
