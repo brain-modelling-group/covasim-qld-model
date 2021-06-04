@@ -60,7 +60,7 @@ ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color='black'
 #     xytext=(-40, 0), textcoords='offset points',
 #     bbox=dict(boxstyle="round", fc="#fed976", alpha=1.0))
 
-category_colors = plt.get_cmap('Greys')(np.linspace(0.0, 1.0, 9))
+category_colors = plt.get_cmap('Reds_r')(np.linspace(0.0, 1.0, 9))
 for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
     data = get_subframe(df_cluk, nt, iq_factor)
     ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - B.1.1.7"))
