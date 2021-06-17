@@ -105,6 +105,12 @@ parser.add_argument('--layer_betas_file',
                               type=str, 
                               help='''The name of the csv file with layer-specific betas.''')
 
+
+parser.add_argument('--vaccinate', 
+                              default='apply', 
+                              type=str, 
+                              help='''A string to determine whether we apply vaccine or no. Available: "apply" "donot-apply" ''')
+
 def define_beta_changes(betasfile, layers):
 
     beta_data  = pd.read_csv(betasfile, parse_dates=['date'])
@@ -237,7 +243,14 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
 
         sim.pars['interventions'].append(utils.SeedInfection(seed_infection_dict))
 
-
+        # Define if we apply the vaccines or not
+    if input_args.vaccinate == 'apply':
+      sim.initialize()
+      # Apply only if efficacy is nonzero
+      if input_args.vax_efficacy != 0.0: 
+          vaccine_subtarget = get_vaccine_subtargets(sim, input_args.vax_proportion)
+          vaccine = cv.simple_vaccine(days=0, rel_sus=1.0-input_args.vax_efficacy, subtarget=vaccine_subtarget)
+          sim.pars['interventions'].append(vaccine)
 
     sim.initialize()
 
