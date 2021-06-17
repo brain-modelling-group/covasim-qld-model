@@ -249,7 +249,7 @@ def make_sim(load_pop=True, popfile='qldppl.pop', datafile=None, agedatafile=Non
       # Apply only if efficacy is nonzero
       if input_args.vax_efficacy != 0.0: 
           vaccine_subtarget = get_vaccine_subtargets(sim, input_args.vax_proportion)
-          vaccine = cv.simple_vaccine(days=0, rel_sus=1.0-input_args.vax_efficacy, subtarget=vaccine_subtarget)
+          vaccine = cv.vaccine(days=0, rel_sus=1.0-input_args.vax_efficacy, subtarget=vaccine_subtarget)
           sim.pars['interventions'].append(vaccine)
 
     sim.initialize()
