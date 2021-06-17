@@ -29,7 +29,7 @@ for vxp in $(seq 0.0 0.1 1.0); do
     VXP=$vxp
     for vxe in $(seq 0.0 0.1 1.0); do
         VXE=$vxe
-        python run_qld_model_resurgence_vax.py --ncpus "$NCPUS" --nruns 1000 --label 'cluster' \
+        python run_qld_model_resurgence_vax.py --ncpus "$NCPUS" --nruns 100 --label 'cluster' \
                                                --cluster_size "$PBS_ARRAY_INDEX" \
                                                --vax_proportion "$VXP" --vax_efficacy "$VXE"\
                                                --global_beta 0.0192\
