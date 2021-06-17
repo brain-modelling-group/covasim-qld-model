@@ -287,17 +287,17 @@ if __name__ == '__main__':
     ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data)
 
     if idx_date is not None:
-      outbreak_data = {'outbreak': True}
+      outbreak_data = {'dsct': True}
     else:
-      outbreak_data = {'outbreak': False}
+      outbreak_data = {'dsct': False}
 
-    df_dict  = sc.mergedicts(outbreak_data, {'outbreak_day': [idx_date], 
-                                             'outbreak_day_av': [ou_day_av],
-                                             'outbreak_day_md': [ou_day_md],
-                                             'outbreak_day_sd': [ou_day_sd],
-                                             'outbreak_prob': [ou_prob],
-                                             'control_prob': [uc_prob],
-                                             'contained_prob': [co_prob]}
+    df_dict  = sc.mergedicts(outbreak_data, {'dsct_day': [idx_date], 
+                                             'dsct_day_av': [ou_day_av],
+                                             'dsct_day_md': [ou_day_md],
+                                             'dsct_day_sd': [ou_day_sd],
+                                             'dsct_prob': [ou_prob],
+                                             'dsct_prob': [uc_prob],
+                                             'dsct_prob': [co_prob]}
                                              )
 
     median_trace_inf, data_inf = utils.get_ensemble_trace('new_infections', msim.sims, **{'convolve': True, 'num_days': 3})
@@ -317,6 +317,25 @@ if __name__ == '__main__':
                                        'first_case_inf_md': [fc_inf_md],
                                        'first_case_inf_sd': [fc_inf_sd]})
 
+
+    median_trace_inf, data_inf = utils.get_ensemble_trace('new_infections', msim.sims, **{'convolve': False, 'num_days': 1})
+    # Get ensemble outbreak
+    idx_date = utils.detect_outbreak(median_trace_inf[1:])
+    ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data_inf[1:, ...])
+    if idx_date is not None:
+       df_dict = {'sct': True}
+       idx_date +=1
+    else:
+       df_dict = {'sct': False}
+
+    df_ou_inf_dict  = sc.mergedicts(df_dict, 
+                                            {'sct_day': [idx_date], 
+                                             'sct_day_av': [ou_day_av],
+                                             'sct_day_md': [ou_day_md],
+                                             'sct_day_sd': [ou_day_sd],
+                                             'sct_prob': [ou_prob],
+                                             'sct_control_prob': [uc_prob],
+                                             'sct_contained_prob': [co_prob]})
 
     df_dict  = sc.mergedicts(df_dict, {'iq_factor': [args.iq_factor/10.0], 
                                        'cluster_size': [args.cluster_size],
