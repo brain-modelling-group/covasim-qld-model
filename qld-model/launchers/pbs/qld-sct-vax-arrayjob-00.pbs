@@ -1,4 +1,4 @@
-#PBS -l walltime=20:00:00
+#PBS -l walltime=40:00:00
 #PBS -l ncpus=28,mem=32gb
 #PBS -N cqld-sct-cluster-vax
 #PBS -m abe
