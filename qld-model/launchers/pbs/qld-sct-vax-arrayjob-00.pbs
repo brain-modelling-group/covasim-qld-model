@@ -7,7 +7,7 @@
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -J 1-30
 
-# Paula Sanz-Leon, Feb 2021, QIMRB
+# Paula Sanz-Leon, June 2021, QIMRB
 
 # Load packages we need
 module load covasim/1.7.6
