@@ -262,9 +262,9 @@ if __name__ == '__main__':
     # Results paths
     resultsfolder = args.results_path
     # simulation data path
-    simfolder = f'{resultsfolder}/sim-data'
+    simfolder = f'{resultsfolder}/sim-data-vax'
     # figures data path
-    figfolder = f'{resultsfolder}/figures'
+    figfolder = f'{resultsfolder}/figures-vax'
 
     pathlib.Path(simfolder).mkdir(parents=True, exist_ok=True)
     pathlib.Path(figfolder).mkdir(parents=True, exist_ok=True)
