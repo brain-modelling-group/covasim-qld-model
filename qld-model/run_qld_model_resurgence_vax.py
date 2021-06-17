@@ -125,7 +125,8 @@ def get_vaccine_subtargets(sim, vax_coverage):
     sim_pop_size = len(sim.people)
 
     #adult_pop = cv.true((sim.people.age >18)*(sim.people.age < 65))
-    adult_pop = cv.true((sim.people.age >= 16)*(sim.people.age < 70))
+    adult_pop = cv.true(sim.people.age >= 18)
+    #adult_pop = cv.true((sim.people.age >= 18)*(sim.people.age < 70))
     adult_pop_size = adult_pop.shape[0]
     num_adults_to_vaccinate = int(adult_pop_size * vax_coverage)
     
@@ -323,12 +324,12 @@ if __name__ == '__main__':
     idx_date = utils.detect_outbreak(median_trace_inf[1:])
     ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob  = utils.calculate_outbreak_stats(data_inf[1:, ...])
     if idx_date is not None:
-       df_dict = {'sct': True}
+       df_inf_dict = {'sct': True}
        idx_date +=1
     else:
-       df_dict = {'sct': False}
+       df_inf_dict = {'sct': False}
 
-    df_ou_inf_dict  = sc.mergedicts(df_dict, 
+    df_dict  = sc.mergedicts(df_dict, df_inf_dict,  
                                             {'sct_day': [idx_date], 
                                              'sct_day_av': [ou_day_av],
                                              'sct_day_md': [ou_day_md],
@@ -347,7 +348,7 @@ if __name__ == '__main__':
 
     # Plot all sims together 
     if args.label == 'cluster':
-        res_filename = f"qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.cluster_size:04d}"
+        res_filename = f"qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_vxprop_{args.vax_proportion:.{2}f}_vxeff_{args.vax_efficacy:.{2}f}_{args.cluster_size:04d}"
         
     if args.label == 'distributed':
         res_filename = f"qld_{args.label}_{args.start_simulation_date}_{args.end_simulation_date}_iqf_{args.iq_factor/10.0:.{4}f}_{args.dist}_{args.par1:.{4}f}"
