@@ -356,7 +356,11 @@ if __name__ == '__main__':
                                        'poisson_lambda': [args.par1],
                                        'num_tests': [args.num_tests],
                                        'label': [args.label],
-                                       'beta': [args.global_beta]})
+                                       'beta': [args.global_beta],
+                                       'vax_proportion': [args.vax_proportion],
+                                       'vax_efficacy': [args.vax_efficacy],
+                                       'vevp': [args.vax_efficacy+args.vax_proportion]})
+
     df = pd.DataFrame.from_dict(df_dict)
 
     # Plot all sims together 
