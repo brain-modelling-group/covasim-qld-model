@@ -40,34 +40,43 @@ data = get_subframe(df_ukvax, vax_prop, iq_factor)
 # Get baseline case
 data_baseline =  get_subsubframe(get_subframe(df_ukvax, 0.0, 0.1), 0.0)   
 
+# Reference cases - no vax - A22 and B117
 ls1.append(ax1.plot(data_oz["cluster_size"], data_oz["resurgence_prob"], color='black', lw=0.5,  marker='o', ms=10, label="vp, ve = (0%, 0%) - A.2.2"))
 ls1.append(ax1.plot(data_baseline["cluster_size"], data_baseline["sct_prob"], color='red', lw=0.5,  marker='o', ms=10, label="vp, ve = (0%, 0%) - B.1.1.7"))
 
-fake_labels = ['vp, ve = (50%, 30%)', 'vp, ve = (50%, 50%)', 'vp, ve = (50%, 70%)', 'vp, ve = (50%, 90%)']
-category_colors = plt.get_cmap('Reds_r')(np.linspace(0.0, 1.0, 7))
+category_colors = plt.get_cmap('coolwarm_r')(np.linspace(0.0, 1.0, 121))
+color_idx = [14, 16, 18, 20, 58, 60, 62, 64, 84, 86, 119, 120]
+
+fake_labels = ['vp, ve = (10%, 30%)', 'vp, ve = (10%, 50%)', 'vp, ve = (10%, 70%)', 'vp, ve = (10%, 90%)',
+               'vp, ve = (50%, 30%)', 'vp, ve = (50%, 50%)', 'vp, ve = (50%, 70%)', 'vp, ve = (50%, 90%)', 
+               'vp, ve = (70%, 70%)', 'vp, ve = (70%, 90%)',
+               'vp, ve = (100%, 90%)', 'vp, ve = (100%, 100%)']
+c_idx = 0  
+
+for idx, ve in enumerate([0.3, 0.5, 0.7, 0.9]):
+    data = get_subsubframe(get_subframe(df_ukvax, 0.1, iq_factor), ve) 
+    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[color_idx[c_idx], ...]*0.8, lw=2, label=fake_labels[c_idx]))
+    c_idx +=1
+
 for idx, ve in enumerate([0.3, 0.5, 0.7, 0.9]):
     data = get_subsubframe(get_subframe(df_ukvax, 0.5, iq_factor), ve) 
-    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label=fake_labels[idx]))
+    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[color_idx[c_idx], ...]*0.8, lw=2, label=fake_labels[c_idx]))
+    c_idx +=1
 
-
-fake_labels = ['vp, ve = (70%, 70%)', 'vp, ve = (70%, 90%)']
-category_colors = plt.get_cmap('Blues_r')(np.linspace(0.0, 1.0, 7))
 for idx, ve in enumerate([0.7, 0.9]):
     data = get_subsubframe(get_subframe(df_ukvax, 0.7, iq_factor), ve) 
-    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[idx+4, ...]*0.8, lw=2, label=fake_labels[idx]))
+    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[color_idx[c_idx], ...]*0.8, lw=2, label=fake_labels[c_idx]))
+    c_idx +=1
 
-fake_labels = ['vp, ve = (100%, 90%)']
-category_colors = plt.get_cmap('Greens_r')(np.linspace(0.0, 1.0, 7))
 for idx, ve in enumerate([0.9]):
     data = get_subsubframe(get_subframe(df_ukvax, 1.0, iq_factor), ve) 
-    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[idx+5, ...]*0.8, lw=2, label=fake_labels[idx]))
+    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[color_idx[c_idx], ...]*0.8, lw=2, label=fake_labels[c_idx]))
+    c_idx +=1
 
-fake_labels = ['vp, ve = (100%, 100%)']
-category_colors = plt.get_cmap('Greens_r')(np.linspace(0.0, 1.0, 7))
 for idx, ve in enumerate([1.0]):
     data = get_subsubframe(get_subframe(df_ukvax, 1.0, iq_factor), ve) 
-    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label=fake_labels[idx]))
-
+    ls1.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[color_idx[c_idx], ...]*0.8, lw=2, label=fake_labels[c_idx]))
+    c_idx +=1
 
 ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
 
