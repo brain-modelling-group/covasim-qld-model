@@ -43,12 +43,12 @@ data_baseline =  get_subsubframe(get_subframe(df_ukvax, 0.0, iq_factor), 0.0)
 category_colors = plt.get_cmap('coolwarm_r')(np.linspace(0.0, 1.0, 7))
 
 # Reference cases - no vax - A22 and B117
-ls1.append(ax1.plot(data_oz["cluster_size"], data_oz["resurgence_prob"], color=category_colors[-1, ...], lw=3,  label="A.2.2"))
-ls1.append(ax1.plot(data_baseline["cluster_size"], data_baseline["sct_prob"], color=category_colors[0, ...], lw=3,label="B.1.1.7"))
+ls1.append(ax1.plot(data_oz["cluster_size"], data_oz["resurgence_prob"], color=category_colors[-1, ...]*0.8, lw=2.5,  label="A.2.2"))
+ls1.append(ax1.plot(data_baseline["cluster_size"], data_baseline["sct_prob"], color=category_colors[0, ...]*0.8, lw=2.5,label="B.1.1.7"))
 
 category_colors = plt.get_cmap('coolwarm_r')(np.linspace(0.0, 1.0, 7))
 
-fake_labels = ['vc = 20%', 'vc = 50%', 'vc = 70%']
+fake_labels = ['vacc. coverage 20%', 'vacc. coverage 50%', 'vacc. coverage 70%']
 color_idx = [1, 4, 5] 
 c_idx = 0
 for idx, vp in enumerate([0.2, 0.5, 0.7]):
@@ -67,7 +67,6 @@ fig.tight_layout()
 #figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
 figure_folder = '/home/paula/Dropbox/COVID/articles/coronavirus-qld-calibration/figures'
 
-import pdb; pdb.set_trace()
 cv.savefig(f"{figure_folder}/fig03_b_prob_sct_cluster_vax_iq_0.1_uk.png", dpi=300)
 
 plt.show()
