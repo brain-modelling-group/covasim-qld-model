@@ -53,6 +53,7 @@ color_idx = [1, 4, 5]
 c_idx = 0
 for idx, vp in enumerate([0.2, 0.5, 0.7]):
     data = get_subsubframe(get_subframe(df_ukvax,vp, iq_factor), vax_eff) 
+    import pdb; pdb.set_trace()
     ls2.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[color_idx[c_idx], ...], lw=2, label=fake_labels[c_idx]))
     c_idx +=1
 
@@ -67,6 +68,6 @@ fig.tight_layout()
 #figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
 figure_folder = '/home/paula/Dropbox/COVID/articles/coronavirus-qld-calibration/figures'
 
-cv.savefig(f"{figure_folder}/fig03_b_prob_sct_cluster_vax_iq_0.1_uk.png", dpi=300)
+#cv.savefig(f"{figure_folder}/fig03_b_prob_sct_cluster_vax_iq_0.1_uk.png", dpi=300)
 
 plt.show()

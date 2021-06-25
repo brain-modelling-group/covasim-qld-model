@@ -5,7 +5,7 @@
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
-#PBS -J 1-1000
+#PBS -J 1-20
 
 # Paula Sanz-Leon, June 2021, QIMRB
 
