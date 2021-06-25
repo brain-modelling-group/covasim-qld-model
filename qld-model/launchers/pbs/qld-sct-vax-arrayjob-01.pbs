@@ -46,7 +46,9 @@ for vxp in $(seq 0.0 0.05 1.0); do
                                                # Move stuff 
 
         done
-        scp "$SCRATCH_RESULTS/sim-data-vax/"*.obj "$WORKING_RESULTS/sim-data-vax/".
-        scp "$SCRATCH_RESULTS/sim-data-vax/"*.csv "$WORKING_RESULTS/sim-data-vax/".
-        scp "$SCRATCH_RESULTS/figures-vax/"*.png "$WORKING_RESULTS/figures-vax/".
+
 done
+
+scp "$SCRATCH_RESULTS/sim-data-vax/"*.obj "$WORKING_RESULTS/sim-data-vax/".
+scp "$SCRATCH_RESULTS/sim-data-vax/"*.csv "$WORKING_RESULTS/sim-data-vax/".
+scp "$SCRATCH_RESULTS/figures-vax/"*.png "$WORKING_RESULTS/figures-vax/".
