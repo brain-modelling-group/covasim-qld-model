@@ -1,11 +1,11 @@
-#PBS -l walltime=40:00:00
+#PBS -l walltime=60:00:00
 #PBS -l ncpus=28,mem=32gb
 #PBS -N cqld-sct-cluster-vax
 #PBS -m abe
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
-#PBS -J 1-30
+#PBS -J 1-1000
 
 # Paula Sanz-Leon, June 2021, QIMRB
 
@@ -25,10 +25,12 @@ NCPUS=28
 
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
-for vxp in $(seq 0.0 0.1 1.0); do
-    VXP=$vxp
-    for vxe in $(seq 0.0 0.1 1.0); do
-        VXE=$vxe
+vxp=(0.2 0.5 0.7)
+vxe=(0.7 0.9)  
+for n1 in {0..2}; do
+    VXP="${vxp[$n1]}"
+    for n2 in {0..1}; do
+        VXE="${vxe[$n2]}"
         python run_qld_model_resurgence_vax.py --ncpus "$NCPUS" --nruns 1000 --label 'cluster' \
                                                --cluster_size "$PBS_ARRAY_INDEX" \
                                                --vax_proportion "$VXP" --vax_efficacy "$VXE"\
@@ -36,6 +38,8 @@ for vxp in $(seq 0.0 0.1 1.0); do
                                                --results_path "$SCRATCH_RESULTS"
         done
 done
+
+
 # Create directory to save results in /working
 WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
 # Save only the job number
