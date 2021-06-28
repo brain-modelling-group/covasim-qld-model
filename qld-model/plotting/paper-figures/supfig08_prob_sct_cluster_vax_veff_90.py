@@ -9,8 +9,9 @@ import covasim as cv
 sns.set_context("paper", font_scale=1.5)
 
 # Import data 
-df_ukvax = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/sct_cluster_vax_b117.csv')
+df_ukvax = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/sct_cluster_vax_b117-n1000.csv')
 df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
+df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
 
 def get_oz_subframe(df, num_tests, iq_factor):
     return df[(df["num_tests"] == num_tests) & (df["iq_factor"] == iq_factor)]
@@ -38,12 +39,12 @@ ls2 = []
 # Get anscestral case
 data_oz = get_oz_subframe(df_cloz, 6260, iq_factor)
 # Get baseline uk case
-data_baseline =  get_subsubframe(get_subframe(df_ukvax, 0.0, iq_factor), 0.0)   
+data_uk = get_oz_subframe(df_cluk, 6260, iq_factor)
 category_colors = plt.get_cmap('coolwarm_r')(np.linspace(0.0, 1.0, 7))
 
 # Reference cases - no vax - A22 and B117
 ls1.append(ax1.plot(data_oz["cluster_size"], data_oz["resurgence_prob"], color=category_colors[-1, ...]*0.8, lw=2.5, label="A.2.2"))
-ls1.append(ax1.plot(data_baseline["cluster_size"], data_baseline["sct_prob"], color=category_colors[0, ...]*0.8, lw=2.5, label="B.1.1.7"))
+ls1.append(ax1.plot(data_uk["cluster_size"], data_uk["resurgence_prob"], color=category_colors[0, ...]*0.8, lw=2.5, label="B.1.1.7"))
 
 fake_labels = ['vacc. coverage 20%', 'vacc. coverage 50%', 'vacc. coverage 70%']
 color_idx = [1, 4, 5] 
