@@ -12,8 +12,8 @@ sns.set_context("paper", font_scale=1.5)
 
 # Import data 
 #df_cluk = pd.read_csv('/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
-df_cluk = pd.read_csv('/home/paula//data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
-df_cloz = pd.read_csv('/home/paula//data_ext4/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
+df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
+df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
 
 def get_subframe(df, num_tests, iq_factor):
     return df[(df["num_tests"] == num_tests) & (df["iq_factor"] == iq_factor)]
@@ -32,7 +32,7 @@ ls1 = []
 fake_labels = ['6,000', '8,000', '12,000', '31,000', '100,000']
 for idx, nt in enumerate([6260]):
     data = get_subframe(df_cloz, nt, iq_factor)
-    ls1.append(ax1.plot(data["cluster_size"], data["outbreak_prob"], color='black', lw=0.5,  marker='o', ms=10, label="~6,000 - A.2.2"))
+    ls1.append(ax1.plot(data["cluster_size"], data["outbreak_prob"], color=[0.5,0.5,0.5], lw=2, ms=10, label="~6,000 - A.2.2"))
 #ax1.plot(data["cluster_size"], [50]*data["cluster_size"].shape[0], color='#fed976', lw=6, alpha=0.4)
 #ax1.plot(data["cluster_size"], [70]*data["cluster_size"].shape[0], color='#fc4e2a', lw=6, alpha=0.4)
 #ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='#b10026', lw=6, alpha=0.4)
@@ -68,8 +68,8 @@ handler1, label1 = ax1.get_legend_handles_labels()
 ax1.legend(handler1, label1, loc="lower right", frameon=True, title='number of daily tests')
 fig.tight_layout()
 figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
-figure_folder = '/home/paula/data_ext4/Dropbox/COVID/articles/coronavirus-qld-calibration/figures'
+figure_folder = '/home/paula/Dropbox/COVID/articles/coronavirus-qld-calibration/figures'
 
-cv.savefig(f"{figure_folder}/supfig06_prob_dsct_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
+cv.savefig(f"{figure_folder}/supfig07_prob_dsct_cluster_tests_iq_0.1_uk-oz.png", dpi=300)
 
 plt.show()

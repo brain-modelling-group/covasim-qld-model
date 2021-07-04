@@ -1,0 +1,54 @@
+#PBS -l walltime=168:00:00
+#PBS -l ncpus=28,mem=32gb
+#PBS -N cqld-sct-cluster-vax
+#PBS -m abe
+#PBS -M pmsl.academic@gmail.com
+#PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
+#PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
+#PBS -J 1-20
+
+# Paula Sanz-Leon, June 2021, QIMRB
+
+# Load packages we need
+module load covasim/1.7.6
+
+# Export path to custom packages we need
+export PYTHONPATH=$HOME/Code/covasim-qld-model:$PYTHONPATH
+
+# Path to directory where we are going to store results
+set -e  # tells a PBS job or bash script to exit on any processes non zero  exit status
+SCRATCH_RESULTS="$TMPDIR"
+
+# Create directory to save results in /working
+WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
+# Save only the job number
+JOBNUM=${PBS_JOBID:0:8}
+WORKING_RESULTS=$WORKING_DIR/results-$JOBNUM
+# Create directory if it does not exist
+mkdir -p "$WORKING_RESULTS/sim-data-vax"
+mkdir -p "$WORKING_RESULTS/figures-vax"
+CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model'
+# Define number of cpus to be passed to sc.parallelize()
+# Must match the number of cpus requested with PBS
+NCPUS=28
+# Change to where we have the code
+cd "$CODE_DIRECTORY"
+for vxp in $(seq 0.0 0.05 1.0); do
+    VXP=$vxp
+    for vxe in $(seq 0.0 0.05 1.0); do
+        VXE=$vxe
+        python run_qld_model_resurgence_vax.py --ncpus "$NCPUS" --nruns 1000 --label 'cluster' \
+                                               --cluster_size "$PBS_ARRAY_INDEX" \
+                                               --vax_proportion "$VXP" --vax_efficacy "$VXE"\
+                                               --global_beta 0.0192\
+                                               --results_path "$SCRATCH_RESULTS"
+
+                                               # Move stuff 
+
+        done
+
+done
+
+scp "$SCRATCH_RESULTS/sim-data-vax/"*.obj "$WORKING_RESULTS/sim-data-vax/".
+scp "$SCRATCH_RESULTS/sim-data-vax/"*.csv "$WORKING_RESULTS/sim-data-vax/".
+scp "$SCRATCH_RESULTS/figures-vax/"*.png "$WORKING_RESULTS/figures-vax/".
