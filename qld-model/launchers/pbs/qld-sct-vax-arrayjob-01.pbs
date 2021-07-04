@@ -5,7 +5,7 @@
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
-#PBS -J 1-20
+#PBS -J 1-121
 
 # Paula Sanz-Leon, June 2021, QIMRB
 
@@ -24,31 +24,53 @@ WORKING_DIR='/working/lab_jamesr/paulaSL/covid-results'
 # Save only the job number
 JOBNUM=${PBS_JOBID:0:8}
 WORKING_RESULTS=$WORKING_DIR/results-$JOBNUM
-# Create directory if it does not exist
-mkdir -p "$WORKING_RESULTS/sim-data-vax"
-mkdir -p "$WORKING_RESULTS/figures-vax"
+
 CODE_DIRECTORY='/mnt/backedup/home/paulaSL/Code/covasim-qld-model/qld-model'
 # Define number of cpus to be passed to sc.parallelize()
 # Must match the number of cpus requested with PBS
 NCPUS=28
 # Change to where we have the code
 cd "$CODE_DIRECTORY"
-for vxp in $(seq 0.0 0.05 1.0); do
-    VXP=$vxp
-    for vxe in $(seq 0.0 0.05 1.0); do
-        VXE=$vxe
-        python run_qld_model_resurgence_vax.py --ncpus "$NCPUS" --nruns 1000 --label 'cluster' \
-                                               --cluster_size "$PBS_ARRAY_INDEX" \
-                                               --vax_proportion "$VXP" --vax_efficacy "$VXE"\
-                                               --global_beta 0.0192\
-                                               --results_path "$SCRATCH_RESULTS"
 
-                                               # Move stuff 
+# Create vectos with parameter values
+vxc=($(seq 0.0 0.1 1.0))
+vxe=($(seq 0.0 0.1 1.0))
 
-        done
+array_vxc=($(for n1 in {0..10}; do
+    for n2 in {0..10}; do
+        echo "${vxc[$n1]}"
+    done
+done))
 
+array_vxe=($(for n1 in {0..10}; do
+    for n2 in {0..10}; do
+        echo "${vxe[$n2]}"
+    done
+done))
+
+
+# Launch python processes
+OFFSET=1
+ARRAY_INDEX="$(($PBS_ARRAY_INDEX-$OFFSET))"
+for cs in {1..20}; do
+    CLUSTER_SIZE=$cs
+    echo "${array_vxc[$ARRAY_INDEX]}, ${array_vxe[$ARRAY_INDEX]}"
+    VXC=${array_vxc[$ARRAY_INDEX]}
+    VXE=${array_vxe[$ARRAY_INDEX]}
+    python run_qld_model_resurgence_vax.py --ncpus "$NCPUS" --nruns 2 --label 'cluster' \
+                                           --cluster_size "$CLUSTER_SIZE" \
+                                           --vax_proportion "$VXC" --vax_efficacy "$VXE"\
+                                           --global_beta 0.0192\
+                                           --results_path "$SCRATCH_RESULTS"
+
+                                           # Move stuff 
 done
 
-scp "$SCRATCH_RESULTS/sim-data-vax/"*.obj "$WORKING_RESULTS/sim-data-vax/".
-scp "$SCRATCH_RESULTS/sim-data-vax/"*.csv "$WORKING_RESULTS/sim-data-vax/".
-scp "$SCRATCH_RESULTS/figures-vax/"*.png "$WORKING_RESULTS/figures-vax/".
+# Create directory if it does not exist
+mkdir -p "$WORKING_RESULTS/sim-data-vax"
+mkdir -p "$WORKING_RESULTS/figures-vax"
+cd "$WORKING_RESULTS" || exit
+
+scp "$SCRATCH_RESULTS/sim-data-vax/"*.obj sim-data-vax/.
+scp "$SCRATCH_RESULTS/sim-data-vax/"*.csv sim-data-vax/.
+scp "$SCRATCH_RESULTS/figures-vax/"*.png  figures-vax/.
