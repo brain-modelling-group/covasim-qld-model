@@ -1,10 +1,11 @@
 #PBS -l walltime=24:00:00
 #PBS -l ncpus=28,mem=32gb
-#PBS -N cqld-sct-cluster-vax
+#PBS -N qmodel-cl-01-10-vax
 #PBS -m abe
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
+#PBS -J 1-121
 
 
 # Paula Sanz-Leon, June 2021, QIMRB
@@ -50,10 +51,9 @@ done))
 
 
 # Launch python processes
-PBS_ARRAY_INDEX=21
 OFFSET=1
 ARRAY_INDEX="$(($PBS_ARRAY_INDEX-$OFFSET))"
-for cs in {1..1}; do
+for cs in {1..10}; do
     CLUSTER_SIZE=$cs
     echo "${array_vxc[$ARRAY_INDEX]}, ${array_vxe[$ARRAY_INDEX]}"
     VXC=${array_vxc[$ARRAY_INDEX]}
