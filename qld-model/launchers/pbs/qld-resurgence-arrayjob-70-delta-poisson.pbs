@@ -5,7 +5,7 @@
 #PBS -M pmsl.academic@gmail.com
 #PBS -o /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
 #PBS -e /mnt/backedup/home/paulaSL/Code/hpc-sandbox/oe-files
-#PBS -J 1-27
+#PBS -J 1-26
 
 # Paula Sanz-Leon, Sep 2021, QIMRB
 
@@ -30,7 +30,7 @@ poisson_lambda+=(1.00 1.05 1.10 1.15)
 P1="${poisson_lambda[$PBS_ARRAY_INDEX]}"
 for iqf in $(seq 1.00 1.0 10.0); do
     IQF=$iqf
-    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 100 --label 'distributed' \
+    python run_qld_model_resurgence.py --ncpus "$NCPUS" --nruns 1000 --label 'distributed' \
                                        --par1 "$P1" --iq_factor "$IQF" \
                                        --global_beta 0.028231366\
                                        --results_path "$SCRATCH_RESULTS"
