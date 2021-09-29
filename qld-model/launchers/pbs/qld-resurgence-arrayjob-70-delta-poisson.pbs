@@ -10,7 +10,7 @@
 # Paula Sanz-Leon, Sep 2021, QIMRB
 
 # Load packages we need
-module load python
+module load covasim/1.7.6
 
 # Export path to custom packages we need
 export PYTHONPATH=$HOME/Code/covasim-qld-model:$PYTHONPATH
