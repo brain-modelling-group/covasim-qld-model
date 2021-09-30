@@ -31,7 +31,7 @@ for n1 in {0..3}; do
     VXP="${vxp[$n1]}"
     for n2 in {0..1}; do
         VXE="${vxe[$n2]}"
-        python run_qld_model_resurgence_vax.py --ncpus "$NCPUS" --nruns 100 --label 'cluster' \
+        python run_qld_model_resurgence_vax.py --ncpus "$NCPUS" --nruns 1000 --label 'cluster' \
                                                --cluster_size "$PBS_ARRAY_INDEX" \
                                                --vax_proportion "$VXP" --vax_efficacy "$VXE"\
                                                --global_beta 0.028231366\
