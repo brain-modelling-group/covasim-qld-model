@@ -10,8 +10,8 @@ import covasim as cv
 sns.set_context("paper", font_scale=1.9)
 
 # Import data - x4 main scenarios 
-df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
-df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
+df_cloz = pd.read_csv('../../results/csv-data/outbreak_cluster_size_a22.csv')
+df_cluk = pd.read_csv('../../results/csv-data/outbreak_cluster_size_b117.csv')
 
 
 def get_subframe(df, num_tests, iq_factor):
@@ -44,7 +44,7 @@ ax1.legend(lbs, labs, loc=0, frameon=True)
 ax1.annotate('C', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 
 fig.tight_layout()
-figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
+figure_folder = 'fig-files/'
 cv.savefig(f"{figure_folder}/fig02_c_prob_sct_cluster_A22_vs_B117_numtests_{num_tests}.png", dpi=300)
 
 plt.show()
