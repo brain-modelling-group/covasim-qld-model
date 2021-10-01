@@ -10,10 +10,12 @@ import covasim as cv
 sns.set_context("poster", font_scale=1.1)
 
 # Import data - x4 main scenarios 
-df_cloz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_oz.csv')
-df_cluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_cluster_size_uk.csv')
-df_ploz = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_oz.csv')
-df_pluk = pd.read_csv('/home/paula/Dropbox/COVID/simulated-data/resurgence/outbreak_poisson_lambda_uk.csv')
+df_cloz = pd.read_csv('../../csv-data/outbreak_cluster_size_a22.csv')
+df_cluk = pd.read_csv('../../csv-data/outbreak_cluster_size_b117.csv')
+df_clin = pd.read_csv('../../csv-data/outbreak_cluster_size_b16172.csv')
+df_ploz = pd.read_csv('../../csv-data/outbreak_poisson_lambda_a22.csv')
+df_pluk = pd.read_csv('../../csv-data/outbreak_poisson_lambda_b117.csv')
+df_plin = pd.read_csv('../../csv-data/outbreak_poisson_lambda_b16172.csv')
 
 # Select one lvel of testing and one level of iq
 num_tests = 6260
@@ -55,12 +57,23 @@ figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
 
 dfcloz_map = get_subframe(df_cloz, num_tests, cluster_col, cluster_size_th) 
 dfcluk_map = get_subframe(df_cluk, num_tests, cluster_col, cluster_size_th) 
+dfclin_map = get_subframe(df_clin, num_tests, cluster_col, cluster_size_th) 
 
-plot_heatmaps([dfcloz_map, dfcluk_map], [f"{figure_folder}/fig_prob_outbreak_oc_map_cluster_oz.png", f"{figure_folder}/fig_prob_outbreak_oc_map_cluster_uk.png"])
+plot_heatmaps([dfcloz_map, dfcluk_map, clin], 
+              [f"{figure_folder}/fig_prob_outbreak_oc_map_cluster_oz.png", 
+               f"{figure_folder}/fig_prob_outbreak_oc_map_cluster_uk.png",
+               f"{figure_folder}/fig_prob_outbreak_oc_map_cluster_in.png"],
+               fig_labels=["A", "B", "C"])
 
 dfploz_map = get_subframe(df_ploz, num_tests, poisson_col, poisson_th) 
 dfpluk_map = get_subframe(df_pluk, num_tests, poisson_col, poisson_th) 
+dfplin_map = get_subframe(df_plin, num_tests, poisson_col, poisson_th) 
 
-#plot_heatmaps([dfploz_map, dfpluk_map], [f"{figure_folder}/fig_prob_outbreak_oc_map_poisson_oz.png", f"{figure_folder}/fig_prob_outbreak_oc_map_poisson_uk.png"], fig_labels=["C", "D"], xlabel='daily rate\nimported infections')
+plot_heatmaps([dfploz_map, dfpluk_map, dfplin_map], 
+              [f"{figure_folder}/fig_prob_outbreak_oc_map_poisson_oz.png", 
+               f"{figure_folder}/fig_prob_outbreak_oc_map_poisson_uk.png", 
+               f"{figure_folder}/fig_prob_outbreak_oc_map_poisson_in.png"], 
+               fig_labels=["D", "E", "F"], xlabel='daily rate\nimported infections')
+
 
 plt.show()
