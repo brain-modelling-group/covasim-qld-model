@@ -19,7 +19,7 @@ def get_subframe(df, num_tests, iq_factor):
     return df[(df["num_tests"] == num_tests) & (df["iq_factor"] == iq_factor)]
 
 # Select one lvel of testing and one level of iq
-num_tests = 6260
+num_tests = 8360
 iq_factor = 0.5
 
 dfcloz = get_subframe(df_cloz, num_tests, iq_factor)
