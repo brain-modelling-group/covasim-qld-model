@@ -52,8 +52,8 @@ ax1.legend(lbs, labs, loc=0, frameon=True)
 ax1.set_xlim([0, 18])
 ax1.set_ylim([0.8, 5])
 
-ax1.annotate('D', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
+ax1.annotate('B', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 fig.tight_layout()
 figure_folder = 'fig-files/'
-cv.savefig(f"{figure_folder}/fig02_d_prob_sct_ratio_cluster_A22_vs_B117_vs_B16172_numtests_{num_tests}.png", dpi=300)
+cv.savefig(f"{figure_folder}/fig03_b_prob_sct_ratio_cluster_A22_vs_B117_vs_B16172_numtests_{num_tests}.png", dpi=300)
 plt.show()

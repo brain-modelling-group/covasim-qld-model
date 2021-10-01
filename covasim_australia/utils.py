@@ -863,7 +863,7 @@ def detect_outbreak(data, num_cases=5.0, use_nan=False):
 
 def detect_first_case(data, num_cases=1.0, use_nan=False):
     """
-    Get the index of the last day of the first instance of three consecutive days above num_cases 
+    Get the index of the day of the first instance of data >= num_cases 
     """
     # Case outbreak
     idx = np.argmax((np.where(data >= num_cases, 1.0, 0.0)))
@@ -957,3 +957,48 @@ def calculate_outbreak_stats(data):
     # Get stats of first day cases
 
     return ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob 
+
+
+# def calculate_sct_supression(data):
+#     """
+#     calculates percentage of simulations that
+#     cross the SCT threshold, but subsequently die off
+#     (die off means that num_infections < 5) within the span of the simulation.
+#     data has shape tpts x nruns
+#     """
+#     nruns = data.shape[1]
+#     tpts = data.shape[0]
+#     local_outbreak_idx = []
+#     case_dict = {'outbreak': 0, 'under_control': 0, 'contained': 0}
+#     for idx in range(data.shape[1]):
+#         # Apply SCT threshold
+#         day_idx    = detect_outbreak(data[:, idx], use_nan=True)
+#         # Detect if it qualifies as crossing SCT 
+#         case_label = detect_outbreak_case(data[: idx], day_idx)
+#         # It it does cross SCT
+#         if case_label == "outbreak":
+#             #Update tally for each case
+#             case_dict[case_label] += 1.0
+#                    
+#            
+#
+#         # Update tally for each case
+#         case_dict[case_label] += 1.0
+#         local_outbreak_idx.append(day_idx)
+
+#     # Days
+#     local_outbreak_dist = np.array(local_outbreak_idx)
+
+#     # Get stats of proper "outbreaks"
+#     ou_day_av = np.nanmean(local_outbreak_dist)
+#     ou_day_md = np.nanmedian(local_outbreak_dist)
+#     ou_day_sd = np.nanstd(local_outbreak_dist)
+#     ou_prob = case_dict["outbreak"] * 100.0
+#     uc_prob = case_dict["under_control"] * 100.0
+#     co_prob = case_dict["contained"] *100.0
+
+#     # Get stats of first day cases
+
+#     return ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob 
+
+

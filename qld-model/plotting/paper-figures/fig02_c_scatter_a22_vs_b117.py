@@ -20,7 +20,7 @@ def get_subframe(df, num_tests, iq_factor):
 
 # Select one lvel of testing and one level of iq
 num_tests = 8360
-iq_factor = 0.5
+iq_factor = 0.2
 
 dfcloz = get_subframe(df_cloz, num_tests, iq_factor)
 dfcluk = get_subframe(df_cluk, num_tests, iq_factor)
@@ -44,10 +44,10 @@ ax1.set_ylim([0, 103])
 lbs = [ls1, ls2, ls3]
 labs = [l.get_label() for l in lbs]
 ax1.legend(lbs, labs, loc=0, frameon=True)
-ax1.annotate('C', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
+ax1.annotate('A', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 
 fig.tight_layout()
 figure_folder = 'fig-files/'
-#cv.savefig(f"{figure_folder}/fig02_c_prob_sct_cluster_A22_vs_B117_vs_B16172_numtests_{num_tests}.png", dpi=300)
+cv.savefig(f"{figure_folder}/fig03_a_prob_sct_cluster_A22_vs_B117_vs_B16172_numtests_{num_tests}.png", dpi=300)
 
 plt.show()

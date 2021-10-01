@@ -24,10 +24,12 @@ sns.set_context("paper", font_scale=1.9)
 # Filepaths
 results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cloz'
 #results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cluk'
+#results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-clin'
 
-figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
+figure_folder = 'fig-files'
 figure_filename = 'new_infections_timeseries_cloz.png'
 #figure_filename = 'new_infections_timeseries_cluk.png'
+#figure_filename = 'new_infections_timeseries_clin.png'
 
 
 # List of files to plot
@@ -130,7 +132,7 @@ for file_idx, this_file in enumerate(list_of_files):
 
 #plt.yscale('log')
 plt.ylim([0.0, 25])
-plt.xlim([0, 58])
+plt.xlim([0.0, 58])
 
 
 #plot_intervs(sims[0])
@@ -142,12 +144,18 @@ cbar_labels = [f'{np.round(label):.0f}' for label in np.linspace(1.0, 15.0, num_
 cbar.ax.get_yaxis().labelpad = 20
 cbar.ax.set_ylabel('cluster size', rotation=270)
 cbar.ax.set_yticklabels(cbar_labels)  # vertically oriented colorbar
-ax = plt.gca();
+ax = plt.gca()
+# Ancestral strain
 ax.annotate('A', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
-ax.annotate('A.2.2', xy=(1., 23), xycoords='data', fontsize=18)
+ax.annotate('A.2.2', xy=(48., 23), xycoords='data', fontsize=18)
 
-#ax.annotate('B', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
-#ax.annotate('B.1.1.7', xy=(1., 23), xycoords='data', fontsize=18)
+# UK variant
+# ax.annotate('B', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
+# ax.annotate('B.1.1.7', xy=(48., 23), xycoords='data', fontsize=18)
+
+# Delta variant
+# ax.annotate('C', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
+# ax.annotate('B.1.617.2', xy=(46., 23), xycoords='data', fontsize=18)
 
 ax.annotate('SCT threshold',
             xy=(2., 5.5), xycoords='data',
