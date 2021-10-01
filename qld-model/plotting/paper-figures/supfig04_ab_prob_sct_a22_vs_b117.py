@@ -10,12 +10,12 @@ import covasim as cv
 sns.set_context("poster", font_scale=1.1)
 
 # Import data - x4 main scenarios 
-df_cloz = pd.read_csv('../../csv-data/outbreak_cluster_size_a22.csv')
-df_cluk = pd.read_csv('../../csv-data/outbreak_cluster_size_b117.csv')
-df_clin = pd.read_csv('../../csv-data/outbreak_cluster_size_b16172.csv')
-df_ploz = pd.read_csv('../../csv-data/outbreak_poisson_lambda_a22.csv')
-df_pluk = pd.read_csv('../../csv-data/outbreak_poisson_lambda_b117.csv')
-df_plin = pd.read_csv('../../csv-data/outbreak_poisson_lambda_b16172.csv')
+df_cloz = pd.read_csv('../../results/csv-data/outbreak_cluster_size_a22.csv')
+df_cluk = pd.read_csv('../../results/csv-data/outbreak_cluster_size_b117.csv')
+df_clin = pd.read_csv('../../results/csv-data/outbreak_cluster_size_b16172.csv')
+df_ploz = pd.read_csv('../../results/csv-data/outbreak_poisson_lambda_a22.csv')
+df_pluk = pd.read_csv('../../results/csv-data/outbreak_poisson_lambda_b117.csv')
+df_plin = pd.read_csv('../../results/csv-data/outbreak_poisson_lambda_b16172.csv')
 
 # Select one lvel of testing and one level of iq
 num_tests = 6260
@@ -53,7 +53,7 @@ def plot_heatmaps(df_map_list, fig_name_list, fig_labels=["A", "B"], xlabel='clu
     return
 
 
-figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
+figure_folder = 'fig-files'
 
 dfcloz_map = get_subframe(df_cloz, num_tests, cluster_col, cluster_size_th) 
 dfcluk_map = get_subframe(df_cluk, num_tests, cluster_col, cluster_size_th) 
