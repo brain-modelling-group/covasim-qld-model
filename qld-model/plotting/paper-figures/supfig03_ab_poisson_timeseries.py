@@ -22,12 +22,14 @@ import seaborn as sns
 sns.set_context("paper", font_scale=1.9)
 
 # Filepaths
-results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-ploz'
+#results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-ploz'
 #results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-pluk'
+results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-plin'
 
-figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
-figure_filename = 'supfig03_a_new_infections_timeseries_ploz.png'
+figure_folder = 'fig-files'
+#figure_filename = 'supfig03_a_new_infections_timeseries_ploz.png'
 #figure_filename = 'supfig03_b_new_infections_timeseries_pluk.png'
+figure_filename = 'supfig03_c_new_infections_timeseries_plin.png'
 
 
 # List of files to plot
@@ -139,14 +141,18 @@ cbar.ax.get_yaxis().labelpad = 40
 cbar.ax.set_ylabel('daily rate of \n imported infections', rotation=270)
 cbar.ax.set_yticklabels(cbar_labels)  # vertically oriented colorbar
 ax = plt.gca();
-ax.annotate('A', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
-ax.annotate('A.2.2', xy=(1., 23), xycoords='data', fontsize=18)
+# ax.annotate('A', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
+# ax.annotate('A.2.2', xy=(1., 23), xycoords='data', fontsize=18)
 
 #ax.annotate('B', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 #ax.annotate('B.1.1.7', xy=(1., 23), xycoords='data', fontsize=18)
 
+ax.annotate('C', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
+ax.annotate('B.1.617.2', xy=(45., 23), xycoords='data', fontsize=18)
+
 ax.annotate('SCT threshold',
-            xy=(2., 5.5), xycoords='data',
+            #xy=(2., 5.5), xycoords='data',
+            xy=(37., 5.5), xycoords='data',
             xytext=(10, 30), textcoords='offset points',
             arrowprops=dict(arrowstyle="->", connectionstyle="angle,angleA=-180,angleB=90,rad=10"),fontsize=18)
 plt.tight_layout()
