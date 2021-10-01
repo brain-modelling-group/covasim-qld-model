@@ -59,7 +59,7 @@ dfcloz_map = get_subframe(df_cloz, num_tests, cluster_col, cluster_size_th)
 dfcluk_map = get_subframe(df_cluk, num_tests, cluster_col, cluster_size_th) 
 dfclin_map = get_subframe(df_clin, num_tests, cluster_col, cluster_size_th) 
 
-plot_heatmaps([dfcloz_map, dfcluk_map, clin], 
+plot_heatmaps([dfcloz_map, dfcluk_map, dfclin_map], 
               [f"{figure_folder}/fig_prob_outbreak_oc_map_cluster_oz.png", 
                f"{figure_folder}/fig_prob_outbreak_oc_map_cluster_uk.png",
                f"{figure_folder}/fig_prob_outbreak_oc_map_cluster_in.png"],
