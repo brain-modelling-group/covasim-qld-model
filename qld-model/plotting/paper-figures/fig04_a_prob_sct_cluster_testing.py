@@ -22,7 +22,6 @@ def get_subframe(df, num_tests, iq_factor):
 iq_factor = 0.1
 
 fig, ax1 = plt.subplots(figsize=(9,5.5))
-color = 'tab:blue'
 ax1.set_xlabel('cluster size')
 ax1.set_ylabel('P[SCT] (%)', labelpad=15)
 ax1.set_xlim([1, 10])
