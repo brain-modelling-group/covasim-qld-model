@@ -82,6 +82,6 @@ ax1.legend(handler1, label1, loc="lower right", frameon=True, title='number of d
 fig.tight_layout()
 #figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
 figure_folder = 'fig-files'
-cv.savefig(f"{figure_folder}/fig03_a_prob_sct_cluster_tests_iq_0.1_a22_b117_b16172.png", dpi=300)
+cv.savefig(f"{figure_folder}/fig04_a_prob_sct_cluster_tests_iq_0.1_a22_b117_b16172.png", dpi=300)
 
 plt.show()
