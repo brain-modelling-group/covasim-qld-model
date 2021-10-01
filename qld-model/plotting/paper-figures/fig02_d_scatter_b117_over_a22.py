@@ -22,7 +22,7 @@ def get_subframe(df, num_tests, iq_factor):
 
 # Select one lvel of testing and one level of iq
 num_tests = 8360
-iq_factor = 0.2
+iq_factor = 0.5
 
 dfcloz = get_subframe(df_cloz, num_tests, iq_factor)
 dfcluk = get_subframe(df_cluk, num_tests, iq_factor)
