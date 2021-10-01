@@ -48,6 +48,6 @@ ax1.annotate('C', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 
 fig.tight_layout()
 figure_folder = 'fig-files/'
-cv.savefig(f"{figure_folder}/fig02_c_prob_sct_cluster_A22_vs_B117_numtests_{num_tests}.png", dpi=300)
+#cv.savefig(f"{figure_folder}/fig02_c_prob_sct_cluster_A22_vs_B117_vs_B16172_numtests_{num_tests}.png", dpi=300)
 
 plt.show()

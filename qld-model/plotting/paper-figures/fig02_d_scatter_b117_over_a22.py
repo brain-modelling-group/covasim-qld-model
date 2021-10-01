@@ -22,7 +22,7 @@ def get_subframe(df, num_tests, iq_factor):
 
 # Select one lvel of testing and one level of iq
 num_tests = 8360
-iq_factor = 0.5
+iq_factor = 0.2
 
 dfcloz = get_subframe(df_cloz, num_tests, iq_factor)
 dfcluk = get_subframe(df_cluk, num_tests, iq_factor)
@@ -38,15 +38,19 @@ ratio_cl_b16172_a22 = np.array(dfclin["resurgence_prob"])/np.array(dfcloz["resur
 
 ls2 = ax1.plot(dfcluk["cluster_size"]-1, np.ones(dfcluk["cluster_size"].shape), color="black", lw=6, alpha=0.2)
 
-ls1 = ax1.plot(dfcluk["cluster_size"], ratio_cl_b117_a22, color="black", lw=0.5)
-lsx = ax1.plot(dfclin["cluster_size"], ratio_cl_b16172_a22, color="red", lw=0.5)
+ls1 = ax1.plot(dfcluk["cluster_size"], ratio_cl_b117_a22, color="#fd8d3c", lw=0.5)
+lsx = ax1.plot(dfclin["cluster_size"], ratio_cl_b16172_a22, color="#984ea3", lw=0.5)
 
-ls1 = ax1.scatter(dfcluk["cluster_size"], ratio_cl_b117_a22, s=140, color="black", label='A.2.2.')
-ls1 = ax1.scatter(dfclin["cluster_size"], ratio_cl_b16172_a22, s=140, color="red", label='A.2.2.')
+ls3 = ax1.scatter(dfcluk["cluster_size"], ratio_cl_b117_a22, s=140, color="#fd8d3c", label='ratio B.1.1.7/A.2.2')
+ls4 = ax1.scatter(dfclin["cluster_size"], ratio_cl_b16172_a22, s=140, color="#984ea3", label='ratio B.1.617.2/A.2.2')
 
+# Labels for legend
+lbs = [ls3, ls4]
+labs = [l.get_label() for l in lbs]
+ax1.legend(lbs, labs, loc=0, frameon=True)
 
 ax1.set_xlim([0, 18])
-ax1.set_ylim([0.8, 4])
+ax1.set_ylim([0.8, 5])
 
 ax1.annotate('D', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 fig.tight_layout()
