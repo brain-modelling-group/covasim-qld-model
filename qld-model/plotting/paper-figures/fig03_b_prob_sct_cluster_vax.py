@@ -76,10 +76,11 @@ ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
 # # Labels for legend
 handler1, label1 = ax1.get_legend_handles_labels()
 leg2 = ax1.legend(handler1[3:], label1[3:], loc="lower right", frameon=False, title='vaccination efficacy 70%', fontsize=14)
-leg1 = ax1.legend(handler1[0:3], label1[0:3], loc=(0.68, 0.38), frameon=False, title='no vaccination ', fontsize=14)
+leg1 = ax1.legend(handler1[0:3], label1[0:3], loc=(0.7, 0.38), frameon=False, title='no vaccination ', fontsize=14)
 ax1.add_artist(leg2)
 fig.tight_layout()
 figure_folder = 'fig-files'
 cv.savefig(f"{figure_folder}/fig04_b_prob_sct_cluster_vax_iq_0.1.png", dpi=300)
+#cv.savefig(f"{figure_folder}/supfig07_prob_sct_cluster_vax_iq_0.1_uk_veff-90.png", dpi=300)
 
 plt.show()
