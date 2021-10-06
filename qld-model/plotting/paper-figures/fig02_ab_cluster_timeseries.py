@@ -22,9 +22,9 @@ import seaborn as sns
 sns.set_context("paper", font_scale=1.9)
 
 # Filepaths
-results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cloz'
+#results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cloz'
 #results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cluk'
-#results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-clin'
+results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-clin'
 
 figure_folder = 'fig-files'
 figure_filename = 'new_infections_timeseries_cloz.png'
@@ -33,21 +33,21 @@ figure_filename = 'new_infections_timeseries_cloz.png'
 
 
 # List of files to plot
-list_of_files = ['qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0001.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0002.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0003.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0004.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0005.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0006.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0007.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0008.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0009.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0010.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0011.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0012.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0013.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0014.obj',
-                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0015.obj']
+list_of_files = ['qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0008.obj',
+                 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0008.obj']#,
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0003.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0004.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0005.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0006.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0007.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0008.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0009.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0010.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0011.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0012.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0013.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0014.obj',
+                 # 'qld_cluster_2021-02-01_2021-03-31_iqf_0.3000_0015.obj']
 
                   
 def format_ax(ax, sim, start_day_idx=0, key=None):
@@ -67,6 +67,9 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
     for this_sim in sims:
         ys.append(this_sim.results[key].values)
     yarr = np.array(ys)
+    num_days = 3
+    for idx in range(yarr.shape[0]):
+            yarr[idx, :] = np.convolve(yarr[idx, :], np.ones((num_days, ))/num_days, mode='same')
 
     if choose_run is not None:
         single_sim = sims[choose_run].results[key].values
@@ -82,8 +85,8 @@ def plotter(key, sims, ax, label='', ylabel='', low_q=0.025, high_q=0.975, main_
     start_day_fill = single_sim.day('2021-02-02')
     end_day_idx = -1
     
-
-    pl.plot(tvec[start_day_fill:end_day_idx], yarr[0:-1:50, start_day_fill:end_day_idx].T, c=[0.5, 0.5, 0.5], alpha=0.05)
+    # plot more lines for seeing the effects of only one infections triggering an outbreak
+    pl.plot(tvec[start_day_fill:end_day_idx], yarr[0:-1:20, start_day_fill:end_day_idx].T, c=[0.5, 0.5, 0.5], alpha=0.5)
     #pl.plot(tvec[start_day_idx:start_day_fill+1], yarr[:, start_day_idx:start_day_fill+1].T, c=[0.0, 0.0, 0.0], alpha=0.05)
 
     #pl.plot(tvec[start_day_idx:start_day_fill+1], halfsies[start_day_idx:start_day_fill+1], c=[0.0, 0.0, 0.0], alpha=0.7)

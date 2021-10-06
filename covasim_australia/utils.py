@@ -882,7 +882,10 @@ def detect_first_case_less_than(data, num_cases=4.0, use_nan=False):
     Get the index of the first day that is less than or equal to num_cases 
     """
     # Case outbreak
-    idx = np.argmax((np.where(data <= num_cases, 1.0, 0.0)))
+    #idx = np.argmax((np.where(data <= num_cases, 1.0, 0.0)))
+
+    idx = np.argmax((np.where(data <= num_cases, 1.0, 0.0) + np.roll(np.where(data <= num_cases, 1.0, 0.0), 1) + np.roll(np.where(data <= num_cases, 1.0, 0.0), -1))-1)
+
     
     # If there is no outbreak 
     if idx == 0:
@@ -997,7 +1000,7 @@ def calculate_sct_supression(data):
             #Update tally for each case
             case_dict[case_label] += 1.0
             # Start checking from day after the SCT threshold is crossed
-            day_off_idx  = detect_first_case_less_than(data[day_idx+1:, ], num_cases=4.0, use_nan=True)
+            day_off_idx  = detect_first_case_less_than(data[day_idx:, idx], num_cases=4.0, use_nan=True)
             # If it dies off save it
             if not np.isnan(day_off_idx):
                 day_off_index.append(day_off_idx+day_idx)
@@ -1007,11 +1010,17 @@ def calculate_sct_supression(data):
                 day_off_index.append(day_off_idx)
 
     # Calculate how many times SCT dies off
-    dies_off_prob = (count_times_dies_off / case_dict["outbreak"]) * 100.0
-
-    # On average when does it happen?  
-    day_off_av = np.nanmean(np.array(day_off_index))
-    day_off_md = np.nanmedian(np.array(day_off_index))
-    day_off_sd = np.nanstd(np.array(day_off_index))
-
-    return day_off_av, day_off_md, day_off_sd, day_off_index
+    if case_dict["outbreak"] > 0:
+        dies_off_prob = (count_times_dies_off / case_dict["outbreak"]) * 100.0
+        # On average when does it happen?  
+        day_off_av = np.nanmean(np.array(day_off_index))
+        day_off_md = np.nanmedian(np.array(day_off_index))
+        day_off_sd = np.nanstd(np.array(day_off_index))
+    else:
+        print("no outbreak?")
+        dies_off_prob = np.nan
+        day_off_av = np.nan
+        day_off_md = np.nan
+        day_off_sd = np.nan
+    dies_off_prob_1000 = count_times_dies_off / 1000.0
+    return dies_off_prob, dies_off_prob_1000, day_off_index, day_off_av, day_off_md, day_off_sd 
