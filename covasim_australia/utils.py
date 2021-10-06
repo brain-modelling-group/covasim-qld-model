@@ -876,6 +876,22 @@ def detect_first_case(data, num_cases=1.0, use_nan=False):
             idx = None
     return idx 
 
+
+def detect_first_case_less_than(data, num_cases=4.0, use_nan=False):
+    """
+    Get the index of the first day that is less than or equal to num_cases 
+    """
+    # Case outbreak
+    idx = np.argmax((np.where(data <= num_cases, 1.0, 0.0)))
+    
+    # If there is no outbreak 
+    if idx == 0:
+        if use_nan:
+            idx = np.nan
+        else:
+            idx = None
+    return idx 
+
 def detect_outbreak_case(data, day_idx):
     """
     Get the itype of outbreak: outbreak, under control, contained 
@@ -959,46 +975,45 @@ def calculate_outbreak_stats(data):
     return ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob 
 
 
-# def calculate_sct_supression(data):
-#     """
-#     calculates percentage of simulations that
-#     cross the SCT threshold, but subsequently die off
-#     (die off means that num_infections < 5) within the span of the simulation.
-#     data has shape tpts x nruns
-#     """
-#     nruns = data.shape[1]
-#     tpts = data.shape[0]
-#     local_outbreak_idx = []
-#     case_dict = {'outbreak': 0, 'under_control': 0, 'contained': 0}
-#     for idx in range(data.shape[1]):
-#         # Apply SCT threshold
-#         day_idx    = detect_outbreak(data[:, idx], use_nan=True)
-#         # Detect if it qualifies as crossing SCT 
-#         case_label = detect_outbreak_case(data[: idx], day_idx)
-#         # It it does cross SCT
-#         if case_label == "outbreak":
-#             #Update tally for each case
-#             case_dict[case_label] += 1.0
-#                    
-#            
-#
-#         # Update tally for each case
-#         case_dict[case_label] += 1.0
-#         local_outbreak_idx.append(day_idx)
+def calculate_sct_supression(data):
+    """
+    calculates percentage of simulations that
+    cross the SCT threshold, but subsequently die off
+    (die off means that num_infections < 5) within the span of the simulation.
+    data has shape tpts x nruns
+    """
+    nruns = data.shape[1]
+    tpts = data.shape[0]
+    day_off_index = []
+    case_dict = {'outbreak': 0, 'under_control': 0, 'contained': 0}
+    count_times_dies_off = 0
+    for idx in range(data.shape[1]):
+        # Apply SCT threshold
+        day_idx    = detect_outbreak(data[:, idx], use_nan=True)
+        # Detect if it qualifies as crossing SCT 
+        case_label = detect_outbreak_case(data[: idx], day_idx)
+        # It it does cross SCT
+        if case_label == "outbreak":
+            #Update tally for each case
+            case_dict[case_label] += 1.0
+            # Start checking from day after the SCT threshold is crossed
+            day_off_idx  = detect_first_case_less_than(data, num_cases=4.0, use_nan=True)
+            # If it dies off save it
+            if not np.isnan(day_off_idx):
+                day_off_index.append(day_off_idx+day_idx)
+                # Count that SCT has died off
+                count_times_dies_off +=1
+            else:
+                day_off_index.append(day_off_idx)
 
-#     # Days
-#     local_outbreak_dist = np.array(local_outbreak_idx)
+    # Calculate how many times SCT dies off
+    dies_off_prob = (count_times_dies_off / case_dict["outbreak"]) * 100.0
 
-#     # Get stats of proper "outbreaks"
-#     ou_day_av = np.nanmean(local_outbreak_dist)
-#     ou_day_md = np.nanmedian(local_outbreak_dist)
-#     ou_day_sd = np.nanstd(local_outbreak_dist)
-#     ou_prob = case_dict["outbreak"] * 100.0
-#     uc_prob = case_dict["under_control"] * 100.0
-#     co_prob = case_dict["contained"] *100.0
+    # Days
+    local_outbreak_dist = np.array(local_outbreak_idx)
+    # On average when does it happen?  
+    day_off_av = np.nanmean(np.array(day_off_index))
+    day_off_md = np.nanmedian(np.array(day_off_index))
+    day_off_sd = np.nanstd(np.array(day_off_index))
 
-#     # Get stats of first day cases
-
-#     return ou_day_av, ou_day_md, ou_day_sd, ou_prob, uc_prob, co_prob 
-
-
+    return day_off_av, day_off_md, day_off_sd
