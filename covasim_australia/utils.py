@@ -997,7 +997,7 @@ def calculate_sct_supression(data):
             #Update tally for each case
             case_dict[case_label] += 1.0
             # Start checking from day after the SCT threshold is crossed
-            day_off_idx  = detect_first_case_less_than(data, num_cases=4.0, use_nan=True)
+            day_off_idx  = detect_first_case_less_than(data[day_idx+1:, ], num_cases=4.0, use_nan=True)
             # If it dies off save it
             if not np.isnan(day_off_idx):
                 day_off_index.append(day_off_idx+day_idx)
@@ -1009,11 +1009,9 @@ def calculate_sct_supression(data):
     # Calculate how many times SCT dies off
     dies_off_prob = (count_times_dies_off / case_dict["outbreak"]) * 100.0
 
-    # Days
-    local_outbreak_dist = np.array(local_outbreak_idx)
     # On average when does it happen?  
     day_off_av = np.nanmean(np.array(day_off_index))
     day_off_md = np.nanmedian(np.array(day_off_index))
     day_off_sd = np.nanstd(np.array(day_off_index))
 
-    return day_off_av, day_off_md, day_off_sd
+    return day_off_av, day_off_md, day_off_sd, day_off_index
