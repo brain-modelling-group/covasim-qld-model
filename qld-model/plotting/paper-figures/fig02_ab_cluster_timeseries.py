@@ -147,15 +147,20 @@ cbar.ax.set_yticklabels(cbar_labels)  # vertically oriented colorbar
 ax = plt.gca()
 # Ancestral strain
 ax.annotate('A', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
-ax.annotate('A.2.2', xy=(48., 23), xycoords='data', fontsize=18)
+#ax.annotate('A.2.2', xy=(48., 23), xycoords='data', fontsize=18)
+ax.annotate('ancestral', xy=(48., 23), xycoords='data', fontsize=18)
+
 
 # UK variant
 # ax.annotate('B', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 # ax.annotate('B.1.1.7', xy=(48., 23), xycoords='data', fontsize=18)
+# ax.annotate('alpha', xy=(48., 23), xycoords='data', fontsize=18)
+
 
 # Delta variant
 # ax.annotate('C', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 # ax.annotate('B.1.617.2', xy=(46., 23), xycoords='data', fontsize=18)
+# ax.annotate('delta', xy=(46., 23), xycoords='data', fontsize=18)
 
 ax.annotate('SCT threshold',
             xy=(2., 5.5), xycoords='data',
