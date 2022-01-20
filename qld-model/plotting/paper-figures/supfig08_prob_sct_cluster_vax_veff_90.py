@@ -63,8 +63,8 @@ leg1 = ax1.legend(handler1[0:2], label1[0:2], loc=(0.42, 0.05), frameon=False, t
 ax1.add_artist(leg2)
 fig.tight_layout()
 #figure_folder = '/home/paula/Work/Articles/coronavirus-qld-calibration/figures'
-figure_folder = '/home/paula/Dropbox/COVID/articles/coronavirus-qld-calibration/figures'
-
-cv.savefig(f"{figure_folder}/supfig08_prob_sct_cluster_vax_iq_0.1_uk_veff-90.png", dpi=300)
+#figure_folder = '/home/paula/Dropbox/COVID/articles/coronavirus-qld-calibration/figures'
+figure_folder = 'fig-files'
+cv.savefig(f"{figure_folder}/supfig07_prob_sct_cluster_vax_iq_0.1_uk_veff-90.png", dpi=300)
 
 plt.show()
