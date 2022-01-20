@@ -22,9 +22,9 @@ import seaborn as sns
 sns.set_context("paper", font_scale=1.9)
 
 # Filepaths
-results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cloz'
-#results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-cluk'
-#results_folder = '/home/paula/Dropbox/COVID/simulated-data/resurgence/case-clin'
+results_folder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-cloz'
+#results_folder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-cluk'
+#results_folder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-clin'
 
 figure_folder = 'fig-files'
 figure_filename = 'new_infections_timeseries_cloz.png'
@@ -148,7 +148,7 @@ ax = plt.gca()
 # Ancestral strain
 ax.annotate('A', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
 #ax.annotate('A.2.2', xy=(48., 23), xycoords='data', fontsize=18)
-ax.annotate('ancestral', xy=(48., 23), xycoords='data', fontsize=18)
+ax.annotate('ancestral', xy=(46., 23), xycoords='data', fontsize=18)
 
 
 # UK variant
