@@ -33,20 +33,20 @@ for idx, nt in enumerate([6260]):
     data = get_subframe(df_cloz, nt, iq_factor)
     data_in = get_subframe(df_clin, nt, iq_factor)
 
-    ls1.append(ax1.plot(data["cluster_size"], data["outbreak_prob"], color=[0.5,0.5,0.5], lw=2, ms=10, label="~6,000 - A.2.2"))
-    ls1.append(ax1.plot(data_in["cluster_size"], data_in["outbreak_prob"], color="black", lw=2, ms=10, label="~6,000 - B.1.167.2"))
+    ls1.append(ax1.plot(data["cluster_size"], data["outbreak_prob"], color=[0.5,0.5,0.5], lw=2, ms=10, label="~6,000 - ancestral"))
+    ls1.append(ax1.plot(data_in["cluster_size"], data_in["outbreak_prob"], color="black", lw=2, ms=10, label="~6,000 - delta"))
 
 
 category_colors = plt.get_cmap('Reds_r')(np.linspace(0.0, 1.0, 9))
 for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
     data = get_subframe(df_cluk, nt, iq_factor)
-    ls1.append(ax1.plot(data["cluster_size"], data["outbreak_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - B.1.1.7"))
+    ls1.append(ax1.plot(data["cluster_size"], data["outbreak_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - alpha"))
 
 fake_labels = ['100,000']
 category_colors = plt.get_cmap('Purples_r')(np.linspace(0.0, 1.0, 9))
 for idx, nt in enumerate([107060]):
     data_in = get_subframe(df_clin, nt, iq_factor)
-    ls1.append(ax1.plot(data_in["cluster_size"], data_in["outbreak_prob"], color="black", lw=2, ls=":", label="~"+fake_labels[idx]+" - B.1.617.2"))
+    ls1.append(ax1.plot(data_in["cluster_size"], data_in["outbreak_prob"], color="black", lw=2, ls=":", label="~"+fake_labels[idx]+" - delta"))
 
 
 # Labels for legend
