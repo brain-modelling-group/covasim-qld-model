@@ -23,7 +23,7 @@ sns.set_context("paper", font_scale=1.9)
 
 # Filepaths
 results_folder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-cloz'
-#results_folder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-cluk'
+results_folder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-cluk'
 #results_folder = '/home/paula/data_ext4/Dropbox/COVID/simulated-data/resurgence/case-clin'
 
 figure_folder = 'fig-files'
@@ -153,18 +153,18 @@ ax.annotate('ancestral', xy=(46., 23), xycoords='data', fontsize=18)
 
 # UK variant
 # ax.annotate('B', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
-# ax.annotate('B.1.1.7', xy=(48., 23), xycoords='data', fontsize=18)
-# ax.annotate('alpha', xy=(48., 23), xycoords='data', fontsize=18)
+# # ax.annotate('B.1.1.7', xy=(48., 23), xycoords='data', fontsize=18)
+# ax.annotate('alpha', xy=(50., 23), xycoords='data', fontsize=18)
 
 
 # Delta variant
 # ax.annotate('C', xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=32)
-# ax.annotate('B.1.617.2', xy=(46., 23), xycoords='data', fontsize=18)
-# ax.annotate('delta', xy=(46., 23), xycoords='data', fontsize=18)
+# # ax.annotate('B.1.617.2', xy=(46., 23), xycoords='data', fontsize=18)
+# ax.annotate('delta', xy=(50., 23), xycoords='data', fontsize=18)
 
 ax.annotate('SCT threshold',
-            xy=(2., 5.5), xycoords='data',
-            #xy=(37., 5.5), xycoords='data',
+            #xy=(2., 5.5), xycoords='data',
+            xy=(37., 5.5), xycoords='data',
             xytext=(10, 30), textcoords='offset points',
             arrowprops=dict(arrowstyle="->", connectionstyle="angle,angleA=-180,angleB=90,rad=10"),fontsize=18)
 plt.tight_layout()
