@@ -81,7 +81,7 @@ for idx, vp in enumerate([0.5, 0.7]):
 
 # # Labels for legend
 handler1, label1 = ax1.get_legend_handles_labels()
-leg2 = ax1.legend(handler1[3:], label1[3:], loc="lower right", frameon=False, title='vaccination efficacy 70%', fontsize=14)
+leg2 = ax1.legend(handler1[3:], label1[3:], loc="lower right", frameon=False, title='vaccination efficacy 90%', fontsize=14)
 leg1 = ax1.legend(handler1[0:3], label1[0:3], loc=(0.7, 0.38), frameon=False, title='no vaccination ', fontsize=14)
 ax1.add_artist(leg2)
 fig.tight_layout()
