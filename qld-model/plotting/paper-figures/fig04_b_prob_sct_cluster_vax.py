@@ -48,14 +48,21 @@ data_in =   get_oz_subframe(df_clin, 6260, iq_factor)
 category_colors = plt.get_cmap('coolwarm_r')(np.linspace(0.0, 1.0, 7))
 
 # Reference cases - no vax - A22 and B117
-ls1.append(ax1.plot(data_oz["cluster_size"], data_oz["resurgence_prob"], color=category_colors[-1, ...]*0.8, lw=2.5,  label="A.2.2"))
-ls1.append(ax1.plot(data_uk["cluster_size"], data_uk["resurgence_prob"], color=category_colors[0, ...]*0.8, lw=2.5,label="B.1.1.7"))
-ls1.append(ax1.plot(data_in["cluster_size"], data_in["resurgence_prob"], color="black", lw=2.5,label="B.1.617.2"))
+ls1.append(ax1.plot(data_oz["cluster_size"], data_oz["resurgence_prob"], color=category_colors[-1, ...]*0.8, lw=2.5,  label="ancestral"))
+ls1.append(ax1.plot(data_uk["cluster_size"], data_uk["resurgence_prob"], color=category_colors[0, ...]*0.8, lw=2.5,label="alpha"))
+ls1.append(ax1.plot(data_in["cluster_size"], data_in["resurgence_prob"], color="black", lw=2.5,label="delta"))
 
-category_colors = plt.get_cmap('coolwarm_r')(np.linspace(0.0, 1.0, 7))
+#category_colors = plt.get_cmap('coolwarm_r')(np.linspace(0.0, 1.0, 7))
 
+category_colors = np.array([[0.70567316, 0.01555616, 0.15023281, 1.        ],
+                            [0.45518569, 0.45518569, 0.45518569, 1.        ],
+                            [0.7208441 , 0.7208441 , 0.7208441, 1.        ],
+                            [0.86339183, 0.8650838 , 0.86763388, 1.        ],
+                            [0.90578348, 0.45518569, 0.35533588, 1.        ],
+                            [0.9682034 , 0.7208441 , 0.61229299, 1.        ],
+                            [0.2298057 , 0.29871797, 0.75368315, 1.        ]])
 
-fake_labels = ['coverage 50%-B.1.617.2', 'coverage 70%-B.1.617.2']
+fake_labels = ['coverage 50%-delta', 'coverage 70%-delta']
 color_idx = [1, 2] 
 c_idx = 0
 for idx, vp in enumerate([0.5, 0.7]):
@@ -63,7 +70,7 @@ for idx, vp in enumerate([0.5, 0.7]):
     ls2.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[color_idx[c_idx], ...], lw=2, label=fake_labels[c_idx]))
     c_idx +=1
 
-fake_labels = ['coverage 50%-B.1.1.7', 'coverage 70%-B.1.1.7']
+fake_labels = ['coverage 50%-alpha', 'coverage 70%-alpha']
 color_idx = [4, 5] 
 c_idx = 0
 for idx, vp in enumerate([0.5, 0.7]):
