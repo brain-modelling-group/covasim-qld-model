@@ -34,7 +34,9 @@ list_of_files = ['qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.100
                  'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.6000.obj']
 
 
- 
+case_labels = ['A22', 'B117', 'B167']                     
+
+
 for idx, results_folder in enumerate(folder_list_cluster):
     num_cases = len(list_of_files)
     for file_idx, this_file in enumerate(list_of_files):
