@@ -877,7 +877,7 @@ def detect_first_case(data, num_cases=1.0, use_nan=False):
     return idx 
 
 
-def detect_first_case_less_than(data, num_cases=4.0, use_nan=False):
+def detect_first_case_less_equal_than(data, num_cases=4.0, use_nan=False):
     """
     Get the index of the first day that is less than or equal to num_cases 
     """
@@ -1000,7 +1000,7 @@ def calculate_sct_supression(data):
             #Update tally for each case
             case_dict[case_label] += 1.0
             # Start checking from day after the SCT threshold is crossed
-            day_off_idx  = detect_first_case_less_than(data[day_idx:, idx], num_cases=4.0, use_nan=True)
+            day_off_idx  = detect_first_case_less_equal_than(data[day_idx:, idx], num_cases=1.0, use_nan=True)
             # If it dies off save it
             if not np.isnan(day_off_idx):
                 day_off_index.append(day_off_idx+day_idx)
@@ -1022,5 +1022,5 @@ def calculate_sct_supression(data):
         day_off_av = np.nan
         day_off_md = np.nan
         day_off_sd = np.nan
-    dies_off_prob_1000 = count_times_dies_off / 1000.0
+    dies_off_prob_1000 = (count_times_dies_off / 1000.0) * 100.0
     return dies_off_prob, dies_off_prob_1000, day_off_index, day_off_av, day_off_md, day_off_sd 
