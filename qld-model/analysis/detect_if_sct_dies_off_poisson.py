@@ -33,18 +33,17 @@ list_of_files = ['qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.100
                  'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.5500.obj',
                  'qld_distributed_2021-02-01_2021-03-31_iqf_0.3000_poisson_0.6000.obj']
 
+
  
-case_labels = ['A22', 'B117', 'B167']                     
 for idx, results_folder in enumerate(folder_list_cluster):
     num_cases = len(list_of_files)
     for file_idx, this_file in enumerate(list_of_files):
         msim = sc.loadobj(f'{results_folder}/{this_file}')
         sims = msim.sims
         data = utils.get_individual_traces('new_infections', sims, convolve=False, num_days=1)
-        dies_off_prob, dies_off_prob_1000, day_off_list, day_off_av, day_off_md, day_off_sd  = utils.calculate_sct_supression(data)    
+        count_times_above_sct, count_times_dies_off  = utils.calculate_sct_dies_off(data)    
         print(case_labels[idx])
         print(list_of_files[file_idx])
-        print(dies_off_prob)
-        print(dies_off_prob_1000)
-        print(day_off_list)        
- 
+        print(count_times_above_sct)
+        print(count_times_dies_off)
+        print((count_times_dies_off / count_times_above_sct)*100.0)
