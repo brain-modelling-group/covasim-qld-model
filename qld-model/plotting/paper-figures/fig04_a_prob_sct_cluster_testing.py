@@ -41,8 +41,8 @@ for idx, nt in enumerate([6260]):
 #ax1.plot(data["cluster_size"], [50]*data["cluster_size"].shape[0], color='#fed976', lw=6, alpha=1.0)
 #ax1.plot(data["cluster_size"], [70]*data["cluster_size"].shape[0], color='#fc4e2a', lw=6, alpha=1.0)
 #ax1.plot(data["cluster_size"], [90]*data["cluster_size"].shape[0], color='#b10026', lw=6, alpha=1.0)
-ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=[0.5,0.5,0.5], ls='-', lw=2, label="~6,000 - A.2.2"))
-ls1.append(ax1.plot(data_in["cluster_size"], data_in["resurgence_prob"], color="black", ls='-', lw=2,label="~6,000 - B.1.617.2"))
+ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=[0.5,0.5,0.5], ls='-', lw=2, label="~6,000 - ancestral")) # a.2.2
+ls1.append(ax1.plot(data_in["cluster_size"], data_in["resurgence_prob"], color="black", ls='-', lw=2,label="~6,000 - delta")) # b.1.617.2
 
 # ax1.annotate(
 #     '90%',
@@ -65,13 +65,13 @@ ls1.append(ax1.plot(data_in["cluster_size"], data_in["resurgence_prob"], color="
 category_colors = plt.get_cmap('Reds_r')(np.linspace(0.0, 1.0, 9))
 for idx, nt in enumerate([6260, 8360, 12560, 31460, 107060]):
     data = get_subframe(df_cluk, nt, iq_factor)
-    ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - B.1.1.7"))
+    ls1.append(ax1.plot(data["cluster_size"], data["resurgence_prob"], color=category_colors[idx+2, ...]*0.8, lw=2, label="~"+fake_labels[idx]+" - alpha"))
 
 fake_labels = ['100,000']
 category_colors = plt.get_cmap('Purples_r')(np.linspace(0.0, 1.0, 9))
 for idx, nt in enumerate([107060]):
     data_in = get_subframe(df_clin, nt, iq_factor)
-    ls1.append(ax1.plot(data_in["cluster_size"], data_in["resurgence_prob"], color="black", lw=2, ls=":", label="~"+fake_labels[idx]+" - B.1.617.2"))
+    ls1.append(ax1.plot(data_in["cluster_size"], data_in["resurgence_prob"], color="black", lw=2, ls=":", label="~"+fake_labels[idx]+" - delta"))
 
 
 ax1.annotate("A", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)

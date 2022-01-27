@@ -32,7 +32,7 @@ dfclin = get_subframe(df_clin, num_tests, iq_factor)
 fig, ax1 = plt.subplots(figsize=(9,5.5))
 color = 'tab:blue'
 ax1.set_xlabel('cluster size')
-ax1.set_ylabel('P[SCT]$_{variant}$/P[SCT]$_{A.2.2}$')
+ax1.set_ylabel('P[SCT]$_{variant}$/P[SCT]$_{ancestral}$')
 ratio_cl_b117_a22 = np.array(dfcluk["resurgence_prob"])/np.array(dfcloz["resurgence_prob"])
 ratio_cl_b16172_a22 = np.array(dfclin["resurgence_prob"])/np.array(dfcloz["resurgence_prob"])[0:20]
 
@@ -41,8 +41,8 @@ ls2 = ax1.plot(dfcluk["cluster_size"]-1, np.ones(dfcluk["cluster_size"].shape), 
 ls1 = ax1.plot(dfcluk["cluster_size"], ratio_cl_b117_a22, color="#fd8d3c", lw=0.5)
 lsx = ax1.plot(dfclin["cluster_size"], ratio_cl_b16172_a22, color="#984ea3", lw=0.5)
 
-ls3 = ax1.scatter(dfcluk["cluster_size"], ratio_cl_b117_a22, s=140, color="#fd8d3c", label='ratio B.1.1.7/A.2.2')
-ls4 = ax1.scatter(dfclin["cluster_size"], ratio_cl_b16172_a22, s=140, color="#984ea3", label='ratio B.1.617.2/A.2.2')
+ls3 = ax1.scatter(dfcluk["cluster_size"], ratio_cl_b117_a22, s=140, color="#fd8d3c", label='ratio alpha/ancestral')
+ls4 = ax1.scatter(dfclin["cluster_size"], ratio_cl_b16172_a22, s=140, color="#984ea3", label='ratio delta/ancestral')
 
 # Labels for legend
 lbs = [ls3, ls4]

@@ -26,7 +26,7 @@ def get_subsubframe(df, vax_eff):
 
 # Select one lvel of testing and one level of iq
 iq_factor = 0.1
-vax_eff  = 0.7
+vax_eff  = 0.9
 
 fig, ax1 = plt.subplots(figsize=(9,5.5))
 ax1.set_xlabel('cluster size')
@@ -78,16 +78,14 @@ for idx, vp in enumerate([0.5, 0.7]):
     ls2.append(ax1.plot(data["cluster_size"], data["sct_prob"], color=category_colors[color_idx[c_idx], ...], lw=2, label=fake_labels[c_idx]))
     c_idx +=1
 
-ax1.annotate("B", xy=(0.02, 0.9125), xycoords='figure fraction', fontsize=22)
 
 # # Labels for legend
 handler1, label1 = ax1.get_legend_handles_labels()
-leg2 = ax1.legend(handler1[3:], label1[3:], loc="lower right", frameon=False, title='vaccination efficacy 70%', fontsize=14)
+leg2 = ax1.legend(handler1[3:], label1[3:], loc="lower right", frameon=False, title='vaccination efficacy 90%', fontsize=14)
 leg1 = ax1.legend(handler1[0:3], label1[0:3], loc=(0.7, 0.38), frameon=False, title='no vaccination ', fontsize=14)
 ax1.add_artist(leg2)
 fig.tight_layout()
 figure_folder = 'fig-files'
-cv.savefig(f"{figure_folder}/fig04_b_prob_sct_cluster_vax_iq_0.1.png", dpi=300)
-#cv.savefig(f"{figure_folder}/supfig07_prob_sct_cluster_vax_iq_0.1_uk_veff-90.png", dpi=300)
+cv.savefig(f"{figure_folder}/supfig07_prob_sct_cluster_vax_iq_0.1_uk_veff-90.png", dpi=300)
 
 plt.show()

@@ -29,13 +29,18 @@ dfclin = get_subframe(df_clin, num_tests, iq_factor)
 fig, ax1 = plt.subplots(figsize=(9,5.5))
 ax1.set_xlabel('cluster size')
 ax1.set_ylabel('P[SCT] (%)')
-ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["resurgence_prob"], s=140, color="#2c7fb8", label='A.2.2')
+#ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["resurgence_prob"], s=140, color="#2c7fb8", label='A.2.2')
+ls1 = ax1.scatter(dfcloz["cluster_size"], dfcloz["resurgence_prob"], s=140, color="#2c7fb8", label='ancestral')
+
 ax1.plot(dfcloz["cluster_size"], dfcloz["resurgence_prob"], lw=0.5, color="#2c7fb8")
 
-ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["resurgence_prob"], s=140,color='#fd8d3c', label='B.1.1.7')
+#ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["resurgence_prob"], s=140,color='#fd8d3c', label='B.1.1.7')
+ls2 = ax1.scatter(dfcluk["cluster_size"], dfcluk["resurgence_prob"], s=140,color='#fd8d3c', label='alpha')
 ax1.plot(dfcluk["cluster_size"], dfcluk["resurgence_prob"], lw=0.5, color='#fd8d3c')
 
-ls3 = ax1.scatter(dfclin["cluster_size"], dfclin["resurgence_prob"], s=140,color='#984ea3', label='B.1.617.2')
+#ls3 = ax1.scatter(dfclin["cluster_size"], dfclin["resurgence_prob"], s=140,color='#984ea3', label='B.1.617.2')
+ls3 = ax1.scatter(dfclin["cluster_size"], dfclin["resurgence_prob"], s=140,color='#984ea3', label='delta')
+
 ax1.plot(dfclin["cluster_size"], dfclin["resurgence_prob"], lw=0.5, color='#984ea3')
 ax1.set_xlim([0.5, 15])
 ax1.set_ylim([0, 103])
