@@ -1000,7 +1000,7 @@ def calculate_sct_supression(data):
             #Update tally for each case
             case_dict[case_label] += 1.0
             # Start checking from day after the SCT threshold is crossed
-            day_off_idx  = detect_first_case_less_equal_than(data[day_idx:, idx], num_cases=1.0, use_nan=True)
+            day_off_idx  = detect_first_case_less_equal_than(data[day_idx:, idx], num_cases=0.0, use_nan=True)
             # If it dies off save it
             if not np.isnan(day_off_idx):
                 day_off_index.append(day_off_idx+day_idx)
