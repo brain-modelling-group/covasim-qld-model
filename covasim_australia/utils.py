@@ -896,7 +896,7 @@ def detect_first_case_less_equal_than(data, num_cases=4.0, use_nan=False):
     return idx 
 
 
-def detect_zeros(data, num_days=7):
+def detect_zeros(data, num_days=14):
     """
     Determine if this case went back to zero cases in the last 'num_days'
     of the simulation. 
@@ -1066,14 +1066,13 @@ def calculate_sct_dies_off(data):
             #Update tally for each case
             case_dict[case_label] += 1.0
             # Start checking from day after the SCT threshold is crossed
-            day_off_idx  = detect_zeros(data[day_idx:, idx], num_cases=0.0, use_nan=True)
+            dies_off  = detect_zeros(data[day_idx:, idx])
             # If it dies off save it
-            if not np.isnan(day_off_idx):
-                day_off_index.append(day_off_idx+day_idx)
+            if dies_off > 0: 
                 # Count that SCT has died off
                 count_times_dies_off +=1
             else:
-                day_off_index.append(day_off_idx)
+                pass
 
     # Calculate how many times SCT dies off
     if case_dict["outbreak"] > 0:
@@ -1088,5 +1087,6 @@ def calculate_sct_dies_off(data):
         day_off_av = np.nan
         day_off_md = np.nan
         day_off_sd = np.nan
+
     dies_off_prob_1000 = (count_times_dies_off / 1000.0) * 100.0
-    return dies_off_prob, dies_off_prob_1000, day_off_index, day_off_av, day_off_md, day_off_sd 
+    return case_dict["outbreak"], count_times_dies_off
